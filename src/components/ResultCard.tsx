@@ -29,9 +29,9 @@ export function ResultCard({ calculation }: ResultCardProps) {
       {/* Max hint - fixed height container to prevent layout shift */}
       <div className="h-10 flex items-center">
         {calculation.isMaxReached && (
-          <div className="w-full px-3 py-2 rounded-lg bg-accent/10 border border-accent/20 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-accent flex-shrink-0" />
-            <p className="text-sm font-medium text-accent-foreground">
+          <div className="w-full px-3 py-2 rounded-lg bg-muted border border-border flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <p className="text-sm font-medium text-muted-foreground">
               Maximum Elterngeld reached!
             </p>
           </div>
@@ -52,20 +52,24 @@ export function ResultCard({ calculation }: ResultCardProps) {
               </div>
             </div>
             <div className="text-right">
-              <span className="text-2xl font-bold text-primary">
+              <span className="text-2xl font-bold text-foreground">
                 €{calculation.totalBasis.toLocaleString('de-DE')}
               </span>
               <p className="text-xs text-muted-foreground">per month</p>
             </div>
           </div>
+          {/* Hint text */}
+          <p className="mt-3 text-xs text-muted-foreground border-t border-border pt-3">
+            Full monthly amount for shorter duration (12-14 months total).
+          </p>
           {(calculation.siblingBonus > 0 || calculation.multipleBonus > 0) && (
-            <div className="mt-3 pt-3 border-t border-border flex gap-4 text-xs">
+            <div className="mt-2 flex gap-4 text-xs">
               <span className="text-muted-foreground">Base €{calculation.basisAmount}</span>
               {calculation.siblingBonus > 0 && (
-                <span className="text-success">+€{calculation.siblingBonus} sibling</span>
+                <span className="text-foreground">+€{calculation.siblingBonus} sibling</span>
               )}
               {calculation.multipleBonus > 0 && (
-                <span className="text-success">+€{calculation.multipleBonus} multiple</span>
+                <span className="text-foreground">+€{calculation.multipleBonus} multiple</span>
               )}
             </div>
           )}
@@ -75,8 +79,8 @@ export function ResultCard({ calculation }: ResultCardProps) {
         <div className="p-5 rounded-xl bg-card border border-border shadow-card">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg gradient-accent">
-                <Clock className="h-4 w-4 text-accent-foreground" />
+              <div className="p-1.5 rounded-lg bg-muted">
+                <Clock className="h-4 w-4 text-muted-foreground" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground text-sm">ElterngeldPlus</h3>
@@ -84,20 +88,24 @@ export function ResultCard({ calculation }: ResultCardProps) {
               </div>
             </div>
             <div className="text-right">
-              <span className="text-2xl font-bold text-accent">
+              <span className="text-2xl font-bold text-foreground">
                 €{calculation.totalPlus.toLocaleString('de-DE')}
               </span>
               <p className="text-xs text-muted-foreground">per month</p>
             </div>
           </div>
+          {/* Hint text */}
+          <p className="mt-3 text-xs text-muted-foreground border-t border-border pt-3">
+            Half amount for longer duration (24-28 months total).
+          </p>
           {(calculation.siblingBonus > 0 || calculation.multipleBonus > 0) && (
-            <div className="mt-3 pt-3 border-t border-border flex gap-4 text-xs">
+            <div className="mt-2 flex gap-4 text-xs">
               <span className="text-muted-foreground">Base €{calculation.plusAmount}</span>
               {calculation.siblingBonus > 0 && (
-                <span className="text-success">+€{Math.round(calculation.siblingBonus / 2)} sibling</span>
+                <span className="text-foreground">+€{Math.round(calculation.siblingBonus / 2)} sibling</span>
               )}
               {calculation.multipleBonus > 0 && (
-                <span className="text-success">+€{Math.round(calculation.multipleBonus / 2)} multiple</span>
+                <span className="text-foreground">+€{Math.round(calculation.multipleBonus / 2)} multiple</span>
               )}
             </div>
           )}
