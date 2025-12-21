@@ -1,9 +1,8 @@
 import { useState, useMemo } from 'react';
-import { Calculator, CalendarDays, ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StepIndicator } from '@/components/StepIndicator';
 import { IncomeSlider } from '@/components/IncomeSlider';
-import { BonusOptions } from '@/components/BonusOptions';
 import { ResultCard } from '@/components/ResultCard';
 import { MonthPlanner } from '@/components/MonthPlanner';
 import { CalculatorState } from '@/types/elterngeld';
@@ -42,24 +41,20 @@ const Index = () => {
               <div className="space-y-6 animate-fade-in">
                 {/* Income + Results side by side */}
                 <div className="grid gap-6 lg:grid-cols-2">
-                  <div className="space-y-6">
-                    <IncomeSlider
-                      value={calculatorState.monthlyIncome}
-                      onChange={(value) =>
-                        setCalculatorState((prev) => ({ ...prev, monthlyIncome: value }))
-                      }
-                    />
-                    <BonusOptions
-                      hasSiblingBonus={calculatorState.hasSiblingBonus}
-                      onSiblingBonusChange={(value) =>
-                        setCalculatorState((prev) => ({ ...prev, hasSiblingBonus: value }))
-                      }
-                      multipleChildren={calculatorState.multipleChildren}
-                      onMultipleChildrenChange={(value) =>
-                        setCalculatorState((prev) => ({ ...prev, multipleChildren: value }))
-                      }
-                    />
-                  </div>
+                  <IncomeSlider
+                    value={calculatorState.monthlyIncome}
+                    onChange={(value) =>
+                      setCalculatorState((prev) => ({ ...prev, monthlyIncome: value }))
+                    }
+                    hasSiblingBonus={calculatorState.hasSiblingBonus}
+                    onSiblingBonusChange={(value) =>
+                      setCalculatorState((prev) => ({ ...prev, hasSiblingBonus: value }))
+                    }
+                    multipleChildren={calculatorState.multipleChildren}
+                    onMultipleChildrenChange={(value) =>
+                      setCalculatorState((prev) => ({ ...prev, multipleChildren: value }))
+                    }
+                  />
                   <ResultCard calculation={calculation} />
                 </div>
               </div>

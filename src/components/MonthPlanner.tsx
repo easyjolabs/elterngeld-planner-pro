@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
-import { CalendarIcon, Plus, AlertCircle, User } from 'lucide-react';
+import { CalendarIcon, Plus, AlertCircle, User, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -24,7 +24,7 @@ const createEmptyMonth = (): MonthSelection => ({
 
 export function MonthPlanner({ calculation }: MonthPlannerProps) {
   const [state, setState] = useState<PlannerState>({
-    birthDate: null,
+    birthDate: new Date(), // Default to today so boxes are visible
     isSingleParent: false,
     months: Array(14).fill(null).map(() => createEmptyMonth()),
     visibleMonths: 14,
@@ -89,6 +89,16 @@ export function MonthPlanner({ calculation }: MonthPlannerProps) {
 
   return (
     <div className="space-y-4">
+      {/* Headline */}
+      <div>
+        <h2 className="text-lg font-semibold text-foreground mb-1">
+          Plan your Elterngeld months
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Select which months you and your partner will receive Elterngeld.
+        </p>
+      </div>
+
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-3">
         <Popover>
@@ -120,7 +130,7 @@ export function MonthPlanner({ calculation }: MonthPlannerProps) {
         </Popover>
 
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/50 border border-border">
-          <User className="h-4 w-4 text-primary" />
+          <User className="h-4 w-4 text-muted-foreground" />
           <Checkbox
             id="singleParent"
             checked={state.isSingleParent}
@@ -133,9 +143,9 @@ export function MonthPlanner({ calculation }: MonthPlannerProps) {
 
         {/* Summary inline */}
         {state.birthDate && (
-          <div className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/5 border border-primary/20">
+          <div className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg bg-muted border border-border">
             <span className="text-sm font-medium text-foreground">Total:</span>
-            <span className="text-lg font-bold text-primary">
+            <span className="text-lg font-bold text-foreground">
               €{totalAmount.toLocaleString('de-DE')}
             </span>
           </div>
@@ -159,7 +169,7 @@ export function MonthPlanner({ calculation }: MonthPlannerProps) {
         )}
       </div>
 
-      {/* Month Boxes */}
+      {/* Month Boxes - always visible with default date */}
       {state.birthDate ? (
         <div className="relative">
           <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
@@ -180,7 +190,7 @@ export function MonthPlanner({ calculation }: MonthPlannerProps) {
               <Button
                 variant="outline"
                 onClick={handleAddMonths}
-                className="flex-shrink-0 w-36 h-auto min-h-[160px] border-dashed hover:border-primary hover:bg-primary/5"
+                className="flex-shrink-0 w-36 h-auto min-h-[160px] border-dashed hover:border-foreground hover:bg-muted"
               >
                 <div className="flex flex-col items-center gap-2">
                   <Plus className="h-5 w-5" />
@@ -200,6 +210,17 @@ export function MonthPlanner({ calculation }: MonthPlannerProps) {
           </div>
         </div>
       )}
+
+      {/* Start Application Button */}
+      <div className="flex justify-end pt-4">
+        <Button 
+          className="gap-2 gradient-primary hover:opacity-90 transition-opacity"
+          size="lg"
+        >
+          Start your application
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }
