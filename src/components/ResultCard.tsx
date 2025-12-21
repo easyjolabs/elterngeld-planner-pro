@@ -43,7 +43,7 @@ export function ResultCard({ calculation }: ResultCardProps) {
         </div>
 
         {/* ElterngeldPlus */}
-        <div className="flex items-center justify-between py-3 border-b border-border">
+        <div className="flex items-center justify-between pt-3">
           <div>
             <h3 className="font-semibold text-foreground text-sm">ElterngeldPlus</h3>
             <p className="text-xs text-muted-foreground">Half amount for longer duration (24-28 months total).</p>
@@ -55,12 +55,12 @@ export function ResultCard({ calculation }: ResultCardProps) {
             <p className="text-xs text-muted-foreground">per month</p>
           </div>
         </div>
-
-        {/* Disclaimer - at bottom of box */}
-        <p className="mt-auto pt-3 text-[10px] text-muted-foreground leading-relaxed">
-          This calculator provides estimates based on current Elterngeld regulations. For official calculations, please consult your local Elterngeldstelle.
-        </p>
       </div>
+
+      {/* Disclaimer - outside main box */}
+      <p className="text-[10px] text-muted-foreground leading-relaxed">
+        This calculator provides estimates based on current Elterngeld regulations. For official calculations, please consult your local Elterngeldstelle.
+      </p>
 
       {/* Max hint - outside below the box */}
       <div className="h-8 flex items-center">
