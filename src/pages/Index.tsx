@@ -8,7 +8,7 @@ import { MonthPlanner } from '@/components/MonthPlanner';
 import { CalculatorState } from '@/types/elterngeld';
 import { calculateElterngeld } from '@/lib/elterngeld';
 
-const STEP_MIN_HEIGHT = 'min-h-[440px]';
+const STEP_MIN_HEIGHT = 'min-h-[380px]';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -38,9 +38,9 @@ const Index = () => {
           {/* Step Content */}
           <div className={`p-6 ${STEP_MIN_HEIGHT}`}>
             {currentStep === 1 ? (
-              <div className="space-y-6 animate-fade-in">
+              <div className="space-y-4 animate-fade-in">
                 {/* Income + Results side by side */}
-                <div className="grid gap-6 lg:grid-cols-2">
+                <div className="grid gap-4 lg:grid-cols-2">
                   <IncomeSlider
                     value={calculatorState.monthlyIncome}
                     onChange={(value) =>
@@ -59,7 +59,7 @@ const Index = () => {
                 </div>
               </div>
             ) : (
-              <div className="animate-fade-in">
+              <div className="animate-fade-in h-full">
                 <MonthPlanner calculation={calculation} />
               </div>
             )}
@@ -80,12 +80,21 @@ const Index = () => {
               <div />
             )}
 
-            {currentStep < 2 && calculation.isEligible && (
+            {currentStep === 1 && calculation.isEligible && (
               <Button
                 onClick={() => setCurrentStep((prev) => prev + 1)}
                 className="gap-2 gradient-primary hover:opacity-90 transition-opacity"
               >
                 Continue to Planning
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            )}
+
+            {currentStep === 2 && (
+              <Button 
+                className="gap-2 gradient-primary hover:opacity-90 transition-opacity"
+              >
+                Start your application
                 <ArrowRight className="h-4 w-4" />
               </Button>
             )}
