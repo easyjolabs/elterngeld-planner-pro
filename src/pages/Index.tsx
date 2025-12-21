@@ -100,6 +100,11 @@ const Index = () => {
             )}
           </div>
         </div>
+
+        {/* Disclaimer - outside calculator */}
+        <p className="mt-4 text-center text-[11px] text-muted-foreground">
+          This calculator provides estimates based on current Elterngeld regulations. For official calculations, please consult your local Elterngeldstelle.
+        </p>
       </main>
     </div>
   );

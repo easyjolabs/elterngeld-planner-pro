@@ -2,8 +2,7 @@ import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Euro, Info, Users, Baby } from 'lucide-react';
+import { Euro } from 'lucide-react';
 
 interface IncomeSliderProps {
   value: number;
@@ -27,9 +26,9 @@ export function IncomeSlider({
   };
 
   return (
-    <div className="p-4 rounded-xl bg-card border border-border shadow-card">
-      <div className="grid grid-cols-[65%_35%] gap-4">
-        {/* Left column - Slider */}
+    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4">
+      {/* Left - Slider */}
+      <div className="p-4 rounded-xl bg-card border border-border shadow-card">
         <div className="space-y-3">
           <div>
             <h2 className="text-sm font-semibold text-foreground mb-1">
@@ -59,61 +58,52 @@ export function IncomeSlider({
             <span>€7,000</span>
           </div>
         </div>
+      </div>
 
-        {/* Right column - Bonuses stacked */}
-        <div className="flex flex-col gap-3">
-          {/* Sibling Bonus */}
-          <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-secondary/50 border border-border">
+      {/* Right - Bonus boxes */}
+      <div className="flex flex-col gap-3 md:w-64">
+        {/* Sibling Bonus Box */}
+        <div className="p-3 rounded-xl bg-card border border-border shadow-card flex-1">
+          <h3 className="text-sm font-semibold text-foreground mb-1">
+            Do you already have children?
+          </h3>
+          <p className="text-[11px] text-muted-foreground mb-2 leading-tight">
+            10% extra Elterngeld (min. €75/month) if a sibling is under 3, or two siblings are under 6.
+          </p>
+          <div className="flex items-center gap-2">
             <Checkbox
               id="siblingBonus"
               checked={hasSiblingBonus}
               onCheckedChange={onSiblingBonusChange}
             />
-            <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <Label htmlFor="siblingBonus" className="font-medium cursor-pointer text-xs flex-1">
-              Sibling Bonus
+            <Label htmlFor="siblingBonus" className="text-xs cursor-pointer">
+              Yes, add sibling bonus
             </Label>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-4 w-4 text-muted-foreground cursor-help flex-shrink-0" />
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
-                <p>10% bonus or +€75 (whichever is higher). Applies if you have:</p>
-                <ul className="list-disc list-inside mt-1 text-xs">
-                  <li>1 child under 3 years</li>
-                  <li>2 children under 6 years</li>
-                  <li>1 disabled child under 14 years</li>
-                </ul>
-              </TooltipContent>
-            </Tooltip>
           </div>
-          
-          {/* Multiple Birth Bonus */}
-          <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-secondary/50 border border-border">
-            <Baby className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <Select
-              value={multipleChildren.toString()}
-              onValueChange={(v) => onMultipleChildrenChange(parseInt(v))}
-            >
-              <SelectTrigger className="h-7 bg-card border-0 shadow-none text-xs flex-1 min-w-0">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0">Multiple Birth</SelectItem>
-                <SelectItem value="1">Twins +€300</SelectItem>
-                <SelectItem value="2">Triplets +€600</SelectItem>
-                <SelectItem value="3">Quads +€900</SelectItem>
-              </SelectContent>
-            </Select>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-4 w-4 text-muted-foreground cursor-help flex-shrink-0" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>€300 bonus per additional child</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+        </div>
+
+        {/* Multiple Birth Box */}
+        <div className="p-3 rounded-xl bg-card border border-border shadow-card flex-1">
+          <h3 className="text-sm font-semibold text-foreground mb-1">
+            More than one child at birth?
+          </h3>
+          <p className="text-[11px] text-muted-foreground mb-2 leading-tight">
+            €300 per additional child per month.
+          </p>
+          <Select
+            value={multipleChildren.toString()}
+            onValueChange={(v) => onMultipleChildrenChange(parseInt(v))}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">Single child</SelectItem>
+              <SelectItem value="1">Twins</SelectItem>
+              <SelectItem value="2">Triplets</SelectItem>
+              <SelectItem value="3">3+</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

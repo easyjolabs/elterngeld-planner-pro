@@ -57,11 +57,6 @@ export function ResultCard({ calculation }: ResultCardProps) {
         </div>
       </div>
 
-      {/* Disclaimer - outside main box */}
-      <p className="text-[10px] text-muted-foreground leading-relaxed">
-        This calculator provides estimates based on current Elterngeld regulations. For official calculations, please consult your local Elterngeldstelle.
-      </p>
-
       {/* Max hint - outside below the box */}
       <div className="h-8 flex items-center">
         {calculation.isMaxReached && (
