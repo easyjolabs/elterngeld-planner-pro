@@ -25,8 +25,8 @@ export function ResultCard({ calculation }: ResultCardProps) {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Single combined result box */}
+    <div className="flex flex-col h-full gap-3">
+      {/* Result box */}
       <div className="p-4 rounded-xl bg-card border border-border shadow-card flex-1 flex flex-col">
         {/* Basiselterngeld */}
         <div className="flex items-center justify-between pb-3 border-b border-border">
@@ -56,22 +56,22 @@ export function ResultCard({ calculation }: ResultCardProps) {
           </div>
         </div>
 
-        {/* Max hint - below results */}
-        <div className="h-8 flex items-center mt-3">
-          {calculation.isMaxReached && (
-            <div className="w-full px-3 py-1.5 rounded-lg bg-muted border border-border flex items-center gap-2">
-              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-              <p className="text-xs font-medium text-muted-foreground">
-                Maximum Elterngeld reached!
-              </p>
-            </div>
-          )}
-        </div>
-
         {/* Disclaimer - at bottom of box */}
-        <p className="mt-auto pt-3 border-t border-border text-[10px] text-muted-foreground leading-relaxed">
+        <p className="mt-auto pt-3 text-[10px] text-muted-foreground leading-relaxed">
           This calculator provides estimates based on current Elterngeld regulations. For official calculations, please consult your local Elterngeldstelle.
         </p>
+      </div>
+
+      {/* Max hint - outside below the box */}
+      <div className="h-8 flex items-center">
+        {calculation.isMaxReached && (
+          <div className="w-full px-3 py-1.5 rounded-lg bg-muted border border-border flex items-center gap-2">
+            <TrendingUp className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+            <p className="text-xs font-medium text-muted-foreground">
+              Maximum Elterngeld reached!
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

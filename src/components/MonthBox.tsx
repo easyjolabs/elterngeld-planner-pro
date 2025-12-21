@@ -49,43 +49,43 @@ export function MonthBox({
   return (
     <div
       className={cn(
-        "flex-shrink-0 w-48 p-4 rounded-xl bg-card border transition-all duration-200 animate-scale-in min-h-[180px]",
+        "flex-shrink-0 w-36 p-3 rounded-xl bg-card border transition-all duration-200 animate-scale-in",
         hasError ? "border-destructive shadow-[0_0_0_2px_hsl(var(--destructive)/0.2)]" : "border-border",
         hasAnySelection && !hasError && "border-primary shadow-[0_0_0_2px_hsl(var(--primary)/0.1)]"
       )}
     >
       {/* Month Header */}
-      <div className="mb-3">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-semibold text-primary uppercase tracking-wide">
+      <div className="mb-2">
+        <div className="flex items-center justify-between mb-0.5">
+          <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">
             Month {monthIndex + 1}
           </span>
           {hasAnySelection && (
             <span className={cn(
-              "text-xs font-bold",
+              "text-[10px] font-bold",
               hasError ? "text-destructive" : "text-success"
             )}>
               €{monthAmount.toLocaleString('de-DE')}
             </span>
           )}
         </div>
-        <p className="text-xs text-muted-foreground">{dateRange}</p>
+        <p className="text-[10px] text-muted-foreground">{dateRange}</p>
       </div>
       
       {/* You Section */}
-      <div className="space-y-2 mb-3">
-        <span className="text-xs font-medium text-foreground">You</span>
-        <div className="flex gap-3">
+      <div className="mb-2">
+        <span className="text-[10px] font-medium text-foreground block mb-1">You</span>
+        <div className="space-y-1">
           <div className="flex items-center gap-1.5">
             <Checkbox
               id={`you-basis-${monthIndex}`}
               checked={selection.youBasis}
               onCheckedChange={(v) => handleChange('youBasis', v === true)}
-              className="h-4 w-4"
+              className="h-3.5 w-3.5"
             />
             <Label 
               htmlFor={`you-basis-${monthIndex}`} 
-              className="text-xs cursor-pointer text-muted-foreground"
+              className="text-[10px] cursor-pointer text-muted-foreground"
             >
               Basis
             </Label>
@@ -95,11 +95,11 @@ export function MonthBox({
               id={`you-plus-${monthIndex}`}
               checked={selection.youPlus}
               onCheckedChange={(v) => handleChange('youPlus', v === true)}
-              className="h-4 w-4"
+              className="h-3.5 w-3.5"
             />
             <Label 
               htmlFor={`you-plus-${monthIndex}`} 
-              className="text-xs cursor-pointer text-muted-foreground"
+              className="text-[10px] cursor-pointer text-muted-foreground"
             >
               Plus
             </Label>
@@ -109,19 +109,19 @@ export function MonthBox({
       
       {/* Partner Section */}
       {!isSingleParent && (
-        <div className="space-y-2">
-          <span className="text-xs font-medium text-foreground">Partner</span>
-          <div className="flex gap-3">
+        <div>
+          <span className="text-[10px] font-medium text-foreground block mb-1">Partner</span>
+          <div className="space-y-1">
             <div className="flex items-center gap-1.5">
               <Checkbox
                 id={`partner-basis-${monthIndex}`}
                 checked={selection.partnerBasis}
                 onCheckedChange={(v) => handleChange('partnerBasis', v === true)}
-                className="h-4 w-4"
+                className="h-3.5 w-3.5"
               />
               <Label 
                 htmlFor={`partner-basis-${monthIndex}`} 
-                className="text-xs cursor-pointer text-muted-foreground"
+                className="text-[10px] cursor-pointer text-muted-foreground"
               >
                 Basis
               </Label>
@@ -131,15 +131,30 @@ export function MonthBox({
                 id={`partner-plus-${monthIndex}`}
                 checked={selection.partnerPlus}
                 onCheckedChange={(v) => handleChange('partnerPlus', v === true)}
-                className="h-4 w-4"
+                className="h-3.5 w-3.5"
               />
               <Label 
                 htmlFor={`partner-plus-${monthIndex}`} 
-                className="text-xs cursor-pointer text-muted-foreground"
+                className="text-[10px] cursor-pointer text-muted-foreground"
               >
                 Plus
               </Label>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sum */}
+      {hasAnySelection && (
+        <div className="mt-2 pt-2 border-t border-border">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-medium text-muted-foreground">Sum</span>
+            <span className={cn(
+              "text-xs font-bold",
+              hasError ? "text-destructive" : "text-foreground"
+            )}>
+              €{monthAmount.toLocaleString('de-DE')}
+            </span>
           </div>
         </div>
       )}
