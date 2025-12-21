@@ -49,7 +49,7 @@ export function MonthBox({
   return (
     <div
       className={cn(
-        "flex-shrink-0 w-48 p-4 rounded-xl bg-card border transition-all duration-200 animate-scale-in",
+        "flex-shrink-0 w-48 p-4 rounded-xl bg-card border transition-all duration-200 animate-scale-in min-h-[180px]",
         hasError ? "border-destructive shadow-[0_0_0_2px_hsl(var(--destructive)/0.2)]" : "border-border",
         hasAnySelection && !hasError && "border-primary shadow-[0_0_0_2px_hsl(var(--primary)/0.1)]"
       )}
