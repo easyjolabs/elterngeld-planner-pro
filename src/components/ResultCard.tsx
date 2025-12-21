@@ -1,5 +1,5 @@
 import { ElterngeldCalculation } from '@/types/elterngeld';
-import { AlertCircle, TrendingUp, Clock } from 'lucide-react';
+import { AlertCircle, TrendingUp } from 'lucide-react';
 
 interface ResultCardProps {
   calculation: ElterngeldCalculation;
@@ -9,7 +9,7 @@ export function ResultCard({ calculation }: ResultCardProps) {
   if (!calculation.isEligible) {
     return (
       <div className="h-full flex items-center">
-        <div className="w-full p-6 rounded-xl bg-destructive/10 border border-destructive/20">
+        <div className="w-full p-4 rounded-xl bg-destructive/10 border border-destructive/20">
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
             <div>
@@ -25,91 +25,53 @@ export function ResultCard({ calculation }: ResultCardProps) {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Max hint - fixed height container to prevent layout shift */}
-      <div className="h-10 flex items-center">
-        {calculation.isMaxReached && (
-          <div className="w-full px-3 py-2 rounded-lg bg-muted border border-border flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <p className="text-sm font-medium text-muted-foreground">
-              Maximum Elterngeld reached!
-            </p>
+    <div className="flex flex-col h-full">
+      {/* Single combined result box */}
+      <div className="p-4 rounded-xl bg-card border border-border shadow-card flex-1 flex flex-col">
+        {/* Basiselterngeld */}
+        <div className="flex items-center justify-between pb-3 border-b border-border">
+          <div>
+            <h3 className="font-semibold text-foreground text-sm">Basiselterngeld</h3>
+            <p className="text-xs text-muted-foreground">Full monthly amount for shorter duration (12-14 months total).</p>
           </div>
-        )}
-      </div>
+          <div className="text-right">
+            <span className="text-xl font-bold text-foreground">
+              €{calculation.totalBasis.toLocaleString('de-DE')}
+            </span>
+            <p className="text-xs text-muted-foreground">per month</p>
+          </div>
+        </div>
 
-      <div className="grid gap-4">
-        {/* Basiselterngeld Card */}
-        <div className="p-5 rounded-xl bg-card border border-border shadow-card">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg gradient-primary">
-                <Clock className="h-4 w-4 text-primary-foreground" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground text-sm">Basiselterngeld</h3>
-                <p className="text-xs text-muted-foreground">12-14 months</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <span className="text-2xl font-bold text-foreground">
-                €{calculation.totalBasis.toLocaleString('de-DE')}
-              </span>
-              <p className="text-xs text-muted-foreground">per month</p>
-            </div>
+        {/* ElterngeldPlus */}
+        <div className="flex items-center justify-between py-3 border-b border-border">
+          <div>
+            <h3 className="font-semibold text-foreground text-sm">ElterngeldPlus</h3>
+            <p className="text-xs text-muted-foreground">Half amount for longer duration (24-28 months total).</p>
           </div>
-          {/* Hint text */}
-          <p className="mt-3 text-xs text-muted-foreground border-t border-border pt-3">
-            Full monthly amount for shorter duration (12-14 months total).
-          </p>
-          {(calculation.siblingBonus > 0 || calculation.multipleBonus > 0) && (
-            <div className="mt-2 flex gap-4 text-xs">
-              <span className="text-muted-foreground">Base €{calculation.basisAmount}</span>
-              {calculation.siblingBonus > 0 && (
-                <span className="text-foreground">+€{calculation.siblingBonus} sibling</span>
-              )}
-              {calculation.multipleBonus > 0 && (
-                <span className="text-foreground">+€{calculation.multipleBonus} multiple</span>
-              )}
+          <div className="text-right">
+            <span className="text-xl font-bold text-foreground">
+              €{calculation.totalPlus.toLocaleString('de-DE')}
+            </span>
+            <p className="text-xs text-muted-foreground">per month</p>
+          </div>
+        </div>
+
+        {/* Max hint - below results */}
+        <div className="h-8 flex items-center mt-3">
+          {calculation.isMaxReached && (
+            <div className="w-full px-3 py-1.5 rounded-lg bg-muted border border-border flex items-center gap-2">
+              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <p className="text-xs font-medium text-muted-foreground">
+                Maximum Elterngeld reached!
+              </p>
             </div>
           )}
         </div>
-        
-        {/* ElterngeldPlus Card */}
-        <div className="p-5 rounded-xl bg-card border border-border shadow-card">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-muted">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground text-sm">ElterngeldPlus</h3>
-                <p className="text-xs text-muted-foreground">24-28 months</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <span className="text-2xl font-bold text-foreground">
-                €{calculation.totalPlus.toLocaleString('de-DE')}
-              </span>
-              <p className="text-xs text-muted-foreground">per month</p>
-            </div>
-          </div>
-          {/* Hint text */}
-          <p className="mt-3 text-xs text-muted-foreground border-t border-border pt-3">
-            Half amount for longer duration (24-28 months total).
-          </p>
-          {(calculation.siblingBonus > 0 || calculation.multipleBonus > 0) && (
-            <div className="mt-2 flex gap-4 text-xs">
-              <span className="text-muted-foreground">Base €{calculation.plusAmount}</span>
-              {calculation.siblingBonus > 0 && (
-                <span className="text-foreground">+€{Math.round(calculation.siblingBonus / 2)} sibling</span>
-              )}
-              {calculation.multipleBonus > 0 && (
-                <span className="text-foreground">+€{Math.round(calculation.multipleBonus / 2)} multiple</span>
-              )}
-            </div>
-          )}
-        </div>
+
+        {/* Disclaimer - at bottom of box */}
+        <p className="mt-auto pt-3 border-t border-border text-[10px] text-muted-foreground leading-relaxed">
+          This calculator provides estimates based on current Elterngeld regulations. For official calculations, please consult your local Elterngeldstelle.
+        </p>
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ import { MonthPlanner } from '@/components/MonthPlanner';
 import { CalculatorState } from '@/types/elterngeld';
 import { calculateElterngeld } from '@/lib/elterngeld';
 
-const STEP_MIN_HEIGHT = 'min-h-[520px]';
+const STEP_MIN_HEIGHT = 'min-h-[440px]';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -91,12 +91,6 @@ const Index = () => {
             )}
           </div>
         </div>
-
-        {/* Footer Info */}
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          This calculator provides estimates based on current Elterngeld regulations. 
-          For official calculations, please consult your local Elterngeldstelle.
-        </p>
       </main>
     </div>
   );
