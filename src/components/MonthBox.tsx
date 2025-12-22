@@ -56,9 +56,9 @@ export function MonthBox({
     >
       {/* Month Header */}
       <div className="mb-space-md">
-        <span className="text-xs font-semibold text-primary uppercase tracking-wide">
+        <h3 className="text-sm font-semibold text-foreground">
           Month {monthIndex + 1}
-        </span>
+        </h3>
         <p className="text-[10px] text-muted-foreground whitespace-pre-line leading-tight mt-1">{dateRange}</p>
       </div>
       
