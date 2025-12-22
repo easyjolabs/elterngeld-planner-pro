@@ -55,7 +55,7 @@ export function IncomeSlider({
           </div>
         </div>
         
-        <div className="mt-space-md">
+        <div className="mt-space-xl">
           <Slider
             value={[value]}
             onValueChange={handleChange}
