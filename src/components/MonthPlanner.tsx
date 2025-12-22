@@ -156,20 +156,6 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
 
         </div>
 
-        {/* Validation Errors */}
-        {errors.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {errors.map((error, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2 px-2 py-1 rounded-lg bg-destructive/10 border border-destructive/20"
-              >
-                <AlertCircle className="h-3.5 w-3.5 text-destructive flex-shrink-0" />
-                <p className="text-xs text-destructive">{error.message}</p>
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* Month Boxes */}
         {state.birthDate ? (
@@ -216,13 +202,20 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
               </button>
             </div>
 
-            {/* Hint box */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border">
-              <AlertCircle className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-              <p className="text-xs text-muted-foreground">
-                Select Basis or Plus for each month. You can have up to 12 Basis months (14 for single parents) and 4 Plus months per person.
-              </p>
-            </div>
+            {/* Validation Errors */}
+            {errors.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {errors.map((error, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 px-2 py-1 rounded-lg bg-destructive/10 border border-destructive/20"
+                  >
+                    <AlertCircle className="h-3.5 w-3.5 text-destructive flex-shrink-0" />
+                    <p className="text-xs text-destructive">{error.message}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center py-8">
