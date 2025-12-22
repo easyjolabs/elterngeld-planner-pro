@@ -20,7 +20,16 @@ export default {
   			'2xl': '1400px'
   		}
   	},
-  	extend: {
+	extend: {
+		spacing: {
+			'space-2xs': 'var(--space-2xs)',
+			'space-xs': 'var(--space-xs)',
+			'space-sm': 'var(--space-sm)',
+			'space-md': 'var(--space-md)',
+			'space-lg': 'var(--space-lg)',
+			'space-xl': 'var(--space-xl)',
+			'space-2xl': 'var(--space-2xl)',
+		},
   		fontFamily: {
   			sans: [
   				'Inter',
