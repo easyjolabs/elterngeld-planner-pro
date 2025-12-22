@@ -176,68 +176,71 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
         {/* Month Boxes */}
         {state.birthDate ? (
           <div className="space-y-space-sm">
-            <div className="relative">
-              {/* Left scroll arrow */}
-              {canScrollLeft && (
-                <button
-                  onClick={handleScrollLeft}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
-                  aria-label="Scroll left"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-              )}
-
-              <div 
-                ref={scrollRef}
-                onScroll={handleScroll}
-                className="flex gap-space-sm overflow-x-auto pb-space-sm scrollbar-hide"
-              >
-                {state.months.slice(0, state.visibleMonths).map((month, index) => (
-                  <MonthBox
-                    key={index}
-                    monthIndex={index}
-                    birthDate={state.birthDate!}
-                    selection={month}
-                    calculation={calculation}
-                    isSingleParent={state.isSingleParent}
-                    onChange={(selection) => handleMonthChange(index, selection)}
-                    hasError={errors.length > 0 && lastEditedMonth === index}
-                  />
-                ))}
-                
-                {state.visibleMonths < 36 && (
-                  <Button
-                    variant="outline"
-                    onClick={handleAddMonth}
-                    className="flex-shrink-0 w-24 h-auto border-dashed hover:border-foreground hover:bg-muted"
+            <div className="flex gap-space-sm items-stretch">
+              {/* Scrollable months container */}
+              <div className="relative flex-1 overflow-hidden">
+                {/* Left scroll arrow */}
+                {canScrollLeft && (
+                  <button
+                    onClick={handleScrollLeft}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+                    aria-label="Scroll left"
                   >
-                    <div className="flex flex-col items-center gap-1">
-                      <Plus className="h-4 w-4" />
-                      <span className="text-[10px]">Add month</span>
-                    </div>
-                  </Button>
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
                 )}
 
-                {/* Total Sum Box */}
-                <div className="flex-shrink-0 w-24 p-space-sm rounded-xl bg-primary/10 border border-primary flex flex-col justify-center items-center self-stretch">
-                  <span className="text-[10px] text-muted-foreground mb-space-xs">Total</span>
-                  <span className="text-lg font-bold text-primary">
-                    €{totalAmount.toLocaleString('de-DE')}
-                  </span>
+                {/* Right scroll arrow */}
+                {canScrollRight && (
+                  <button
+                    onClick={handleScrollRight}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+                    aria-label="Scroll right"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                )}
+
+                <div 
+                  ref={scrollRef}
+                  onScroll={handleScroll}
+                  className="flex gap-space-sm overflow-x-auto pb-space-sm scrollbar-hide"
+                >
+                  {state.months.slice(0, state.visibleMonths).map((month, index) => (
+                    <MonthBox
+                      key={index}
+                      monthIndex={index}
+                      birthDate={state.birthDate!}
+                      selection={month}
+                      calculation={calculation}
+                      isSingleParent={state.isSingleParent}
+                      onChange={(selection) => handleMonthChange(index, selection)}
+                      hasError={errors.length > 0 && lastEditedMonth === index}
+                    />
+                  ))}
+                  
+                  {state.visibleMonths < 36 && (
+                    <Button
+                      variant="outline"
+                      onClick={handleAddMonth}
+                      className="flex-shrink-0 w-24 h-auto border-dashed hover:border-foreground hover:bg-muted"
+                    >
+                      <div className="flex flex-col items-center gap-1">
+                        <Plus className="h-4 w-4" />
+                        <span className="text-[10px]">Add month</span>
+                      </div>
+                    </Button>
+                  )}
                 </div>
               </div>
 
-              {/* Right scroll arrow */}
-              {canScrollRight && (
-                <button
-                  onClick={handleScrollRight}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
-                  aria-label="Scroll right"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              )}
+              {/* Total Sum Box - always visible */}
+              <div className="flex-shrink-0 w-24 p-space-sm rounded-xl bg-primary/10 border border-primary flex flex-col justify-center items-center">
+                <span className="text-[10px] text-muted-foreground mb-space-xs">Total</span>
+                <span className="text-lg font-bold text-primary">
+                  €{totalAmount.toLocaleString('de-DE')}
+                </span>
+              </div>
             </div>
 
             {/* Validation Errors - fixed height container to prevent layout shift */}
