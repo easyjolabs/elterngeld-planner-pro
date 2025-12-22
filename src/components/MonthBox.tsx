@@ -69,7 +69,7 @@ export function MonthBox({
             </span>
           )}
         </div>
-        <p className="text-[10px] text-muted-foreground">{dateRange}</p>
+        <p className="text-[10px] text-muted-foreground whitespace-pre-line leading-tight">{dateRange}</p>
       </div>
       
       {/* You Section */}
