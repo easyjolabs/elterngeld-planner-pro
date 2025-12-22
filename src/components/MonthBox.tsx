@@ -49,43 +49,33 @@ export function MonthBox({
   return (
     <div
       className={cn(
-        "flex-shrink-0 w-28 p-3 rounded-xl bg-card border transition-all duration-200 animate-scale-in",
+        "flex-shrink-0 w-24 p-2 rounded-xl bg-card border transition-all duration-200 animate-scale-in",
         hasError ? "border-destructive shadow-[0_0_0_2px_hsl(var(--destructive)/0.2)]" : "border-border",
         hasAnySelection && !hasError && "border-primary shadow-[0_0_0_2px_hsl(var(--primary)/0.1)]"
       )}
     >
       {/* Month Header */}
-      <div className="mb-5">
-        <div className="flex items-center justify-between mb-0.5">
-          <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">
-            Month {monthIndex + 1}
-          </span>
-          {hasAnySelection && (
-            <span className={cn(
-              "text-[10px] font-bold",
-              hasError ? "text-destructive" : "text-success"
-            )}>
-              €{monthAmount.toLocaleString('de-DE')}
-            </span>
-          )}
-        </div>
-        <p className="text-[10px] text-muted-foreground whitespace-pre-line leading-tight">{dateRange}</p>
+      <div className="mb-2">
+        <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">
+          Month {monthIndex + 1}
+        </span>
+        <p className="text-[9px] text-muted-foreground whitespace-pre-line leading-tight mt-0.5">{dateRange}</p>
       </div>
       
       {/* You Section */}
-      <div className="mb-5">
-        <span className="text-[10px] font-medium text-foreground block mb-1">You</span>
+      <div className="mb-2">
+        <span className="text-[9px] font-medium text-foreground block mb-1">You</span>
         <div className="space-y-1">
           <div className="flex items-center gap-1.5">
             <Checkbox
               id={`you-basis-${monthIndex}`}
               checked={selection.youBasis}
               onCheckedChange={(v) => handleChange('youBasis', v === true)}
-              className="h-3.5 w-3.5"
+              className="h-3 w-3"
             />
             <Label 
               htmlFor={`you-basis-${monthIndex}`} 
-              className="text-[10px] cursor-pointer text-muted-foreground"
+              className="text-[9px] cursor-pointer text-muted-foreground"
             >
               Basis
             </Label>
@@ -95,11 +85,11 @@ export function MonthBox({
               id={`you-plus-${monthIndex}`}
               checked={selection.youPlus}
               onCheckedChange={(v) => handleChange('youPlus', v === true)}
-              className="h-3.5 w-3.5"
+              className="h-3 w-3"
             />
             <Label 
               htmlFor={`you-plus-${monthIndex}`} 
-              className="text-[10px] cursor-pointer text-muted-foreground"
+              className="text-[9px] cursor-pointer text-muted-foreground"
             >
               Plus
             </Label>
@@ -110,18 +100,18 @@ export function MonthBox({
       {/* Partner Section */}
       {!isSingleParent && (
         <div>
-          <span className="text-[10px] font-medium text-foreground block mb-1">Partner</span>
+          <span className="text-[9px] font-medium text-foreground block mb-1">Partner</span>
           <div className="space-y-1">
             <div className="flex items-center gap-1.5">
               <Checkbox
                 id={`partner-basis-${monthIndex}`}
                 checked={selection.partnerBasis}
                 onCheckedChange={(v) => handleChange('partnerBasis', v === true)}
-                className="h-3.5 w-3.5"
+                className="h-3 w-3"
               />
               <Label 
                 htmlFor={`partner-basis-${monthIndex}`} 
-                className="text-[10px] cursor-pointer text-muted-foreground"
+                className="text-[9px] cursor-pointer text-muted-foreground"
               >
                 Basis
               </Label>
@@ -131,11 +121,11 @@ export function MonthBox({
                 id={`partner-plus-${monthIndex}`}
                 checked={selection.partnerPlus}
                 onCheckedChange={(v) => handleChange('partnerPlus', v === true)}
-                className="h-3.5 w-3.5"
+                className="h-3 w-3"
               />
               <Label 
                 htmlFor={`partner-plus-${monthIndex}`} 
-                className="text-[10px] cursor-pointer text-muted-foreground"
+                className="text-[9px] cursor-pointer text-muted-foreground"
               >
                 Plus
               </Label>
@@ -144,20 +134,6 @@ export function MonthBox({
         </div>
       )}
 
-      {/* Sum */}
-      {hasAnySelection && (
-        <div className="mt-2 pt-2 border-t border-border">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium text-muted-foreground">Sum</span>
-            <span className={cn(
-              "text-xs font-bold",
-              hasError ? "text-destructive" : "text-foreground"
-            )}>
-              €{monthAmount.toLocaleString('de-DE')}
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

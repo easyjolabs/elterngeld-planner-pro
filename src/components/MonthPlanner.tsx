@@ -31,6 +31,7 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
     months: Array(14).fill(null).map(() => createEmptyMonth()),
     visibleMonths: 14,
   });
+  const [lastEditedMonth, setLastEditedMonth] = useState<number | null>(null);
 
   const errors = useMemo(() => {
     return validateMonthPlan(state.months, state.isSingleParent);
@@ -58,6 +59,7 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
   };
 
   const handleMonthChange = (index: number, selection: MonthSelection) => {
+    setLastEditedMonth(index);
     setState(prev => {
       const newMonths = [...prev.months];
       newMonths[index] = selection;
@@ -152,15 +154,6 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
             </Label>
           </div>
 
-          {/* Summary inline */}
-          {state.birthDate && (
-            <div className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted border border-border">
-              <span className="text-xs font-medium text-foreground">Total:</span>
-              <span className="text-sm font-bold text-foreground">
-                €{totalAmount.toLocaleString('de-DE')}
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Validation Errors */}
@@ -180,46 +173,56 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
 
         {/* Month Boxes */}
         {state.birthDate ? (
-          <div className="relative">
-            <div 
-              ref={scrollRef}
-              className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide"
-            >
-              {state.months.slice(0, state.visibleMonths).map((month, index) => (
-                <MonthBox
-                  key={index}
-                  monthIndex={index}
-                  birthDate={state.birthDate!}
-                  selection={month}
-                  calculation={calculation}
-                  isSingleParent={state.isSingleParent}
-                  onChange={(selection) => handleMonthChange(index, selection)}
-                  hasError={errors.length > 0}
-                />
-              ))}
-              
-              {state.visibleMonths < 36 && (
-                <Button
-                  variant="outline"
-                  onClick={handleAddMonth}
-                  className="flex-shrink-0 w-36 h-auto border-dashed hover:border-foreground hover:bg-muted"
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <Plus className="h-4 w-4" />
-                    <span className="text-[10px]">Add month</span>
-                  </div>
-                </Button>
-              )}
+          <div className="space-y-3">
+            <div className="relative">
+              <div 
+                ref={scrollRef}
+                className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide"
+              >
+                {state.months.slice(0, state.visibleMonths).map((month, index) => (
+                  <MonthBox
+                    key={index}
+                    monthIndex={index}
+                    birthDate={state.birthDate!}
+                    selection={month}
+                    calculation={calculation}
+                    isSingleParent={state.isSingleParent}
+                    onChange={(selection) => handleMonthChange(index, selection)}
+                    hasError={errors.length > 0 && lastEditedMonth === index}
+                  />
+                ))}
+                
+                {state.visibleMonths < 36 && (
+                  <Button
+                    variant="outline"
+                    onClick={handleAddMonth}
+                    className="flex-shrink-0 w-24 h-auto border-dashed hover:border-foreground hover:bg-muted"
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <Plus className="h-4 w-4" />
+                      <span className="text-[10px]">Add month</span>
+                    </div>
+                  </Button>
+                )}
+              </div>
+
+              {/* Scroll arrow */}
+              <button
+                onClick={handleScrollRight}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
             </div>
 
-            {/* Scroll arrow */}
-            <button
-              onClick={handleScrollRight}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
+            {/* Hint box */}
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border">
+              <AlertCircle className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <p className="text-xs text-muted-foreground">
+                Select Basis or Plus for each month. You can have up to 12 Basis months (14 for single parents) and 4 Plus months per person.
+              </p>
+            </div>
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center py-8">
