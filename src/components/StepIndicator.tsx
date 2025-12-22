@@ -11,7 +11,7 @@ const stepIcons = [Calculator, CalendarDays];
 
 export function StepIndicator({ currentStep, totalSteps, labels }: StepIndicatorProps) {
   return (
-    <div className="flex items-center justify-center gap-3">
+    <div className="flex items-center justify-center gap-2 sm:gap-3">
       {Array.from({ length: totalSteps }, (_, index) => {
         const stepNumber = index + 1;
         const isCompleted = stepNumber < currentStep;
@@ -20,20 +20,20 @@ export function StepIndicator({ currentStep, totalSteps, labels }: StepIndicator
         
         return (
           <div key={index} className="flex items-center">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <div
                 className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
+                  "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300",
                   isCompleted && "gradient-primary text-primary-foreground",
                   isActive && "gradient-primary text-primary-foreground shadow-glow",
                   !isCompleted && !isActive && "bg-muted text-muted-foreground"
                 )}
               >
-                {isCompleted ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                {isCompleted ? <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
               </div>
               <span
                 className={cn(
-                  "text-sm font-medium transition-colors",
+                  "text-xs sm:text-sm font-medium transition-colors hidden xs:inline",
                   isActive ? "text-foreground" : "text-muted-foreground"
                 )}
               >
@@ -44,7 +44,7 @@ export function StepIndicator({ currentStep, totalSteps, labels }: StepIndicator
             {index < totalSteps - 1 && (
               <div
                 className={cn(
-                  "w-12 h-0.5 mx-3 transition-colors",
+                  "w-6 sm:w-12 h-0.5 mx-1.5 sm:mx-3 transition-colors",
                   isCompleted ? "bg-primary" : "bg-muted"
                 )}
               />
