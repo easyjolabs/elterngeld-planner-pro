@@ -49,7 +49,7 @@ export function ResultCard({
       </div>
 
       {/* ElterngeldPlus */}
-      <div className="flex items-start justify-between pt-space-md gap-[5px] py-px">
+      <div className="flex items-start justify-between pt-space-md gap-[5px] py-0">
         <div className="max-w-[70%]">
           <h3 className="font-semibold text-foreground text-sm">ElterngeldPlus</h3>
           <p className="text-xs text-muted-foreground mt-space-2xs">Half amount for longer duration (24-28 months total).</p>
