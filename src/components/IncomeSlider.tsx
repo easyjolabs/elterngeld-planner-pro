@@ -2,7 +2,7 @@ import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Euro } from 'lucide-react';
+
 
 interface IncomeSliderProps {
   value: number;
@@ -25,23 +25,35 @@ export function IncomeSlider({
     onChange(values[0]);
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const numericValue = parseInt(e.target.value.replace(/\D/g, '')) || 0;
+    const clampedValue = Math.min(7000, Math.max(0, numericValue));
+    onChange(clampedValue);
+  };
+
   return (
     <div className="flex flex-col gap-space-md h-full">
       {/* Left - Slider */}
       <div className="p-space-md rounded-xl bg-card border border-border">
         <div className="space-y-space-sm">
-          <div>
-            <h2 className="text-sm font-semibold text-foreground mb-1">
-              Monthly net income
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              Average of the 12 months before birth.
-            </p>
-          </div>
-
-          <div className="flex items-center justify-center gap-1 text-2xl font-bold text-foreground py-1">
-            <Euro className="h-5 w-5" />
-            <span>{value.toLocaleString('de-DE')}</span>
+          <div className="flex items-start justify-between">
+            <div className="max-w-[70%]">
+              <h2 className="text-sm font-semibold text-foreground">
+                Monthly net income
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Average of the 12 months before birth.
+              </p>
+            </div>
+            <div className="flex items-center gap-0.5">
+              <span className="text-xl font-bold text-foreground">€</span>
+              <input
+                type="text"
+                value={value.toLocaleString('de-DE')}
+                onChange={handleInputChange}
+                className="text-xl font-bold text-foreground bg-transparent text-right w-16 outline-none focus:ring-1 focus:ring-primary rounded px-1"
+              />
+            </div>
           </div>
           
           <Slider
