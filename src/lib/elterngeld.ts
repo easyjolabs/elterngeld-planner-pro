@@ -150,12 +150,15 @@ export function getMonthDateRange(birthDate: Date, monthIndex: number): { start:
 }
 
 export function formatDateRange(start: Date, end: Date): string {
-  const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short' };
-  const startStr = start.toLocaleDateString('de-DE', options);
-  const endStr = end.toLocaleDateString('de-DE', options);
-  const year = end.getFullYear();
+  const startDay = start.getDate().toString().padStart(2, '0');
+  const startMonth = (start.getMonth() + 1).toString().padStart(2, '0');
+  const startYear = start.getFullYear().toString().slice(-2);
   
-  return `${startStr} - ${endStr} ${year}`;
+  const endDay = end.getDate().toString().padStart(2, '0');
+  const endMonth = (end.getMonth() + 1).toString().padStart(2, '0');
+  const endYear = end.getFullYear().toString().slice(-2);
+  
+  return `${startDay}. ${startMonth}. ${startYear} –\n${endDay}. ${endMonth}. ${endYear}`;
 }
 
 export function calculateMonthAmount(
