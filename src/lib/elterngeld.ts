@@ -149,13 +149,18 @@ export function getMonthDateRange(birthDate: Date, monthIndex: number): { start:
   return { start, end };
 }
 
-export function formatDateRange(start: Date, end: Date): string {
-  const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short' };
-  const startStr = start.toLocaleDateString('de-DE', options);
-  const endStr = end.toLocaleDateString('de-DE', options);
-  const year = end.getFullYear();
+export function formatDateRange(start: Date, end: Date): { line1: string; line2: string } {
+  const formatCompact = (d: Date) => {
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear().toString().slice(-2);
+    return `${day}.${month}.${year}`;
+  };
   
-  return `${startStr} - ${endStr} ${year}`;
+  return {
+    line1: `${formatCompact(start)} –`,
+    line2: formatCompact(end),
+  };
 }
 
 export function calculateMonthAmount(
