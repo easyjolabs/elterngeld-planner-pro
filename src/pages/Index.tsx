@@ -32,7 +32,7 @@ const Index = () => {
             <StepIndicator
               currentStep={currentStep}
               totalSteps={2}
-              labels={['Calculate', 'Plan Months']}
+              labels={['Calculate Elterngeld', 'Plan Elterngeld']}
             />
           </div>
 

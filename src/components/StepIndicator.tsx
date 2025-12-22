@@ -11,7 +11,7 @@ const stepIcons = [Calculator, CalendarDays];
 
 export function StepIndicator({ currentStep, totalSteps, labels }: StepIndicatorProps) {
   return (
-    <div className="flex items-center justify-center gap-space-sm sm:gap-space-sm">
+    <div className="flex items-center justify-start gap-space-sm sm:gap-space-sm">
       {Array.from({ length: totalSteps }, (_, index) => {
         const stepNumber = index + 1;
         const isCompleted = stepNumber < currentStep;
