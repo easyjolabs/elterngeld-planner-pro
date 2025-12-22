@@ -117,16 +117,6 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1">
-        {/* Headline */}
-        <div className="mb-space-md">
-          <h2 className="text-sm font-semibold text-foreground mb-0.5">
-            Plan your Elterngeld months
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Select which months you and your partner will receive Elterngeld.
-          </p>
-        </div>
-
         {/* Controls */}
         <div className="flex flex-wrap items-center gap-space-sm mb-space-md">
           <Popover>
