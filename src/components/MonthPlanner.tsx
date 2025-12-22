@@ -231,6 +231,17 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
               </div>
             </div>
 
+            {/* Sum Display */}
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-semibold text-foreground">
+                {totalAmount > 0 ? (
+                  <span>Total: €{totalAmount.toLocaleString('de-DE')}</span>
+                ) : (
+                  <span className="text-muted-foreground">Sum</span>
+                )}
+              </div>
+            </div>
+
             {/* Validation Errors - fixed height container to prevent layout shift */}
             <div className="min-h-[28px]">
               {errors.length > 0 && (
