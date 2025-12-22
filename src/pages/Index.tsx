@@ -66,24 +66,24 @@ const Index = () => {
           </div>
 
           {/* Navigation */}
-          <div className="px-6 py-4 border-t border-border bg-secondary/30 flex justify-between">
+          <div className="px-6 py-4 border-t border-border bg-secondary/30 flex flex-col sm:flex-row gap-3 sm:gap-0 justify-between">
             {currentStep > 1 ? (
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep((prev) => prev - 1)}
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back
               </Button>
             ) : (
-              <div />
+              <div className="hidden sm:block" />
             )}
 
             {currentStep === 1 && calculation.isEligible && (
               <Button
                 onClick={() => setCurrentStep((prev) => prev + 1)}
-                className="gap-2 gradient-primary hover:opacity-90 transition-opacity"
+                className="gap-2 gradient-primary hover:opacity-90 transition-opacity w-full sm:w-auto"
               >
                 Continue to Planning
                 <ArrowRight className="h-4 w-4" />
@@ -92,7 +92,7 @@ const Index = () => {
 
             {currentStep === 2 && (
               <Button 
-                className="gap-2 gradient-primary hover:opacity-90 transition-opacity"
+                className="gap-2 gradient-primary hover:opacity-90 transition-opacity w-full sm:w-auto"
               >
                 Start your application
                 <ArrowRight className="h-4 w-4" />

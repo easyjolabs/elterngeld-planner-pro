@@ -55,41 +55,41 @@ export function MonthBox({
       )}
     >
       {/* Month Header */}
-      <div className="mb-3">
-        <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">
+      <div className="mb-4">
+        <span className="text-xs font-semibold text-primary uppercase tracking-wide">
           Month {monthIndex + 1}
         </span>
-        <p className="text-[9px] text-muted-foreground whitespace-pre-line leading-tight mt-1">{dateRange}</p>
+        <p className="text-[10px] text-muted-foreground whitespace-pre-line leading-tight mt-1">{dateRange}</p>
       </div>
       
       {/* You Section */}
-      <div className="mb-3">
-        <span className="text-[9px] font-medium text-foreground block mb-1.5">You</span>
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5">
+      <div className="mb-4">
+        <span className="text-[11px] font-medium text-foreground block mb-2">You</span>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
             <Checkbox
               id={`you-basis-${monthIndex}`}
               checked={selection.youBasis}
               onCheckedChange={(v) => handleChange('youBasis', v === true)}
-              className="h-3 w-3"
+              className="h-3.5 w-3.5"
             />
             <Label 
               htmlFor={`you-basis-${monthIndex}`} 
-              className="text-[9px] cursor-pointer text-muted-foreground"
+              className="text-[11px] cursor-pointer text-muted-foreground"
             >
               Basis
             </Label>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <Checkbox
               id={`you-plus-${monthIndex}`}
               checked={selection.youPlus}
               onCheckedChange={(v) => handleChange('youPlus', v === true)}
-              className="h-3 w-3"
+              className="h-3.5 w-3.5"
             />
             <Label 
               htmlFor={`you-plus-${monthIndex}`} 
-              className="text-[9px] cursor-pointer text-muted-foreground"
+              className="text-[11px] cursor-pointer text-muted-foreground"
             >
               Plus
             </Label>
@@ -100,32 +100,32 @@ export function MonthBox({
       {/* Partner Section */}
       {!isSingleParent && (
         <div>
-          <span className="text-[9px] font-medium text-foreground block mb-1.5">Partner</span>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-1.5">
+          <span className="text-[11px] font-medium text-foreground block mb-2">Partner</span>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
               <Checkbox
                 id={`partner-basis-${monthIndex}`}
                 checked={selection.partnerBasis}
                 onCheckedChange={(v) => handleChange('partnerBasis', v === true)}
-                className="h-3 w-3"
+                className="h-3.5 w-3.5"
               />
               <Label 
                 htmlFor={`partner-basis-${monthIndex}`} 
-                className="text-[9px] cursor-pointer text-muted-foreground"
+                className="text-[11px] cursor-pointer text-muted-foreground"
               >
                 Basis
               </Label>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <Checkbox
                 id={`partner-plus-${monthIndex}`}
                 checked={selection.partnerPlus}
                 onCheckedChange={(v) => handleChange('partnerPlus', v === true)}
-                className="h-3 w-3"
+                className="h-3.5 w-3.5"
               />
               <Label 
                 htmlFor={`partner-plus-${monthIndex}`} 
-                className="text-[9px] cursor-pointer text-muted-foreground"
+                className="text-[11px] cursor-pointer text-muted-foreground"
               >
                 Plus
               </Label>
