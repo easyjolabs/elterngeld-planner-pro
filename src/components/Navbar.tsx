@@ -1,16 +1,12 @@
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import logo from '@/assets/logo.svg';
 
 export function Navbar() {
   return (
     <nav className="h-16 bg-[#F5F5F5] flex items-center justify-between px-6">
       {/* Logo */}
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-          <span className="text-primary-foreground font-bold text-sm">E</span>
-        </div>
-        <span className="font-semibold text-foreground">Elterngeld Helper</span>
-      </div>
+      <img src={logo} alt="Elterngeld Helper" className="h-8" />
 
       {/* Nav Links */}
       <div className="hidden md:flex items-center gap-8">
