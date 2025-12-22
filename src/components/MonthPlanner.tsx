@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { format } from 'date-fns';
-import { CalendarIcon, Plus, AlertCircle, User, ChevronRight } from 'lucide-react';
+import { CalendarIcon, Plus, AlertCircle, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -142,7 +142,6 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
           </Popover>
 
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 border border-border">
-            <User className="h-3.5 w-3.5 text-muted-foreground" />
             <Checkbox
               id="singleParent"
               checked={state.isSingleParent}
@@ -202,20 +201,22 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
               </button>
             </div>
 
-            {/* Validation Errors */}
-            {errors.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {errors.map((error, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 px-2 py-1 rounded-lg bg-destructive/10 border border-destructive/20"
-                  >
-                    <AlertCircle className="h-3.5 w-3.5 text-destructive flex-shrink-0" />
-                    <p className="text-xs text-destructive">{error.message}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Validation Errors - fixed height container to prevent layout shift */}
+            <div className="min-h-[28px]">
+              {errors.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {errors.map((error, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 px-2 py-1 rounded-lg bg-destructive/10 border border-destructive/20"
+                    >
+                      <AlertCircle className="h-3.5 w-3.5 text-destructive flex-shrink-0" />
+                      <p className="text-xs text-destructive">{error.message}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center py-8">
