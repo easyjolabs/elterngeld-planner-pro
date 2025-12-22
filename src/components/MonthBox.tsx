@@ -135,13 +135,15 @@ export function MonthBox({
       )}
 
       {/* Monthly Amount */}
-      {hasAnySelection && (
-        <div className="pt-space-sm border-t border-border">
+      <div className="pt-space-sm border-t border-border">
+        {hasAnySelection ? (
           <span className="text-sm font-bold text-primary">
             €{monthAmount.toLocaleString('de-DE')}
           </span>
-        </div>
-      )}
+        ) : (
+          <span className="text-sm text-muted-foreground">Sum</span>
+        )}
+      </div>
 
     </div>
   );
