@@ -135,7 +135,7 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
                 variant="outline"
                 size="sm"
                 className={cn(
-                  "justify-start text-left font-normal h-8 text-xs",
+                  "justify-start text-left h-8 text-xs",
                   !state.birthDate && "text-muted-foreground"
                 )}
               >
@@ -143,7 +143,7 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
                 {state.birthDate ? (
                   format(state.birthDate, "PPP")
                 ) : (
-                  <span className="text-xs">Date of Birth</span>
+                  <span>Date of Birth</span>
                 )}
               </Button>
             </PopoverTrigger>
