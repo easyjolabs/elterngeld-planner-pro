@@ -28,12 +28,24 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const pendingDeltaRef = useRef('');
+  const streamDoneRef = useRef(false);
+  const flushIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    return () => {
+      if (flushIntervalRef.current !== null) {
+        window.clearInterval(flushIntervalRef.current);
+        flushIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   const sendMessage = async (messageText: string) => {
     if (!messageText.trim() || isLoading) return;
@@ -44,6 +56,55 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
     setIsLoading(true);
 
     let assistantContent = '';
+
+    pendingDeltaRef.current = '';
+    streamDoneRef.current = false;
+    if (flushIntervalRef.current !== null) {
+      window.clearInterval(flushIntervalRef.current);
+      flushIntervalRef.current = null;
+    }
+
+    let resolveDrain: (() => void) | null = null;
+    const drainPromise = new Promise<void>((resolve) => {
+      resolveDrain = resolve;
+    });
+
+    const dequeueNextUnit = (text: string): [string, string] => {
+      const ws = text.match(/^\s+/);
+      if (ws) return [ws[0], text.slice(ws[0].length)];
+      const word = text.match(/^[^\s]+/);
+      if (word) return [word[0], text.slice(word[0].length)];
+      return [text[0], text.slice(1)];
+    };
+
+    const ensureFlusher = () => {
+      if (flushIntervalRef.current !== null) return;
+
+      flushIntervalRef.current = window.setInterval(() => {
+        const pending = pendingDeltaRef.current;
+
+        if (!pending) {
+          if (streamDoneRef.current) {
+            window.clearInterval(flushIntervalRef.current!);
+            flushIntervalRef.current = null;
+            resolveDrain?.();
+          }
+          return;
+        }
+
+        const [next, rest] = dequeueNextUnit(pending);
+        pendingDeltaRef.current = rest;
+        assistantContent += next;
+
+        flushSync(() => {
+          setMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { role: 'assistant', content: assistantContent };
+            return updated;
+          });
+        });
+      }, 25);
+    };
 
     try {
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elterngeld-chat`, {
@@ -108,14 +169,8 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) {
-              assistantContent += content;
-              flushSync(() => {
-                setMessages(prev => {
-                  const updated = [...prev];
-                  updated[updated.length - 1] = { role: 'assistant', content: assistantContent };
-                  return updated;
-                });
-              });
+              pendingDeltaRef.current += content;
+              ensureFlusher();
             }
           } catch {
             // Incomplete JSON, put back and wait
@@ -124,7 +179,17 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
           }
         }
       }
+      streamDoneRef.current = true;
+      ensureFlusher();
+      await drainPromise;
     } catch (error) {
+      pendingDeltaRef.current = '';
+      streamDoneRef.current = true;
+      if (flushIntervalRef.current !== null) {
+        window.clearInterval(flushIntervalRef.current);
+        flushIntervalRef.current = null;
+      }
+
       console.error('Chat error:', error);
       setMessages(prev => [
         ...prev.filter(m => m.content !== ''),
