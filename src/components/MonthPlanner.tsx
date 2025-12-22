@@ -116,9 +116,9 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
 
   return (
     <div className="flex flex-col h-full">
-      <div className="space-y-space-sm flex-1">
+      <div className="flex-1">
         {/* Headline */}
-        <div>
+        <div className="mb-space-md">
           <h2 className="text-sm font-semibold text-foreground mb-0.5">
             Plan your Elterngeld months
           </h2>
@@ -128,7 +128,7 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
         </div>
 
         {/* Controls */}
-        <div className="flex flex-wrap items-center gap-space-sm">
+        <div className="flex flex-wrap items-center gap-space-sm mb-space-md">
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -169,7 +169,6 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
               Single parent
             </Label>
           </div>
-
         </div>
 
 
