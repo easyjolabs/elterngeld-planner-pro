@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { format } from 'date-fns';
-import { CalendarIcon, Plus, AlertCircle, ChevronRight } from 'lucide-react';
+import { CalendarIcon, Plus, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -32,6 +32,8 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
     visibleMonths: 14,
   });
   const [lastEditedMonth, setLastEditedMonth] = useState<number | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   const errors = useMemo(() => {
     return validateMonthPlan(state.months, state.isSingleParent);
@@ -76,6 +78,21 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
       }
       return { ...prev, visibleMonths: newVisibleMonths, months: newMonths };
     });
+  };
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  const handleScrollLeft = () => {
+    if (scrollRef.current) {
+      const boxWidth = 144 + 12; // w-36 (144px) + gap-3 (12px)
+      scrollRef.current.scrollBy({ left: -boxWidth, behavior: 'smooth' });
+    }
   };
 
   const handleScrollRight = () => {
@@ -160,8 +177,20 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
         {state.birthDate ? (
           <div className="space-y-3">
             <div className="relative">
+              {/* Left scroll arrow */}
+              {canScrollLeft && (
+                <button
+                  onClick={handleScrollLeft}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+              )}
+
               <div 
                 ref={scrollRef}
+                onScroll={handleScroll}
                 className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide"
               >
                 {state.months.slice(0, state.visibleMonths).map((month, index) => (
@@ -191,14 +220,16 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
                 )}
               </div>
 
-              {/* Scroll arrow */}
-              <button
-                onClick={handleScrollRight}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
-                aria-label="Scroll right"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
+              {/* Right scroll arrow */}
+              {canScrollRight && (
+                <button
+                  onClick={handleScrollRight}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              )}
             </div>
 
             {/* Validation Errors - fixed height container to prevent layout shift */}
