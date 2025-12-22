@@ -8,7 +8,7 @@ import { MonthPlanner } from '@/components/MonthPlanner';
 import { CalculatorState } from '@/types/elterngeld';
 import { calculateElterngeld } from '@/lib/elterngeld';
 
-const STEP_MIN_HEIGHT = 'min-h-[380px]';
+const STEP_HEIGHT = 'h-[380px]';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -36,7 +36,7 @@ const Index = () => {
           </div>
 
           {/* Step Content */}
-          <div className={`p-6 ${STEP_MIN_HEIGHT}`}>
+          <div className={`p-6 ${STEP_HEIGHT}`}>
             {currentStep === 1 ? (
               <div className="animate-fade-in">
                 {/* Income + Results side by side */}
