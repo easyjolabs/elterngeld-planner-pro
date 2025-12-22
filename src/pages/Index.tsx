@@ -7,6 +7,7 @@ import { ResultCard } from '@/components/ResultCard';
 import { MonthPlanner } from '@/components/MonthPlanner';
 import { CalculatorState } from '@/types/elterngeld';
 import { calculateElterngeld } from '@/lib/elterngeld';
+import { cn } from '@/lib/utils';
 
 
 
@@ -37,9 +38,12 @@ const Index = () => {
 
           {/* Step Content */}
           <div className="p-6">
-            {currentStep === 1 ? (
-              <div className="animate-fade-in">
-                {/* Income + Results side by side */}
+            <div className="grid grid-rows-1">
+              {/* Step 1 - always rendered */}
+              <div className={cn(
+                "col-start-1 row-start-1",
+                currentStep === 1 ? "animate-fade-in" : "invisible"
+              )}>
                 <div className="grid gap-4 lg:grid-cols-[1fr_35%] items-stretch">
                   <IncomeSlider
                     value={calculatorState.monthlyIncome}
@@ -58,11 +62,15 @@ const Index = () => {
                   <ResultCard calculation={calculation} />
                 </div>
               </div>
-            ) : (
-              <div className="animate-fade-in h-full">
+
+              {/* Step 2 - always rendered */}
+              <div className={cn(
+                "col-start-1 row-start-1 h-full",
+                currentStep === 2 ? "animate-fade-in" : "invisible"
+              )}>
                 <MonthPlanner calculation={calculation} />
               </div>
-            )}
+            </div>
           </div>
 
           {/* Navigation */}
