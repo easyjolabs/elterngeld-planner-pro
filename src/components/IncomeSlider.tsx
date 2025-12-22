@@ -73,7 +73,7 @@ export function IncomeSlider({
       </div>
 
       {/* Right - Bonus boxes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-sm flex-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
         {/* Sibling Bonus Box */}
         <div className="p-space-md rounded-xl bg-card border border-border flex flex-col">
           <h3 className="text-sm font-semibold text-foreground mb-space-sm">
