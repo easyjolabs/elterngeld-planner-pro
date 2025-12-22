@@ -143,7 +143,7 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
                 {state.birthDate ? (
                   format(state.birthDate, "PPP")
                 ) : (
-                  <span>Date of Birth</span>
+                  <span className="text-xs">Date of Birth</span>
                 )}
               </Button>
             </PopoverTrigger>
