@@ -33,7 +33,7 @@ export function ResultCard({ calculation }: ResultCardProps) {
 
       {/* Basiselterngeld */}
       <div className="flex items-start justify-between pb-space-md border-b border-border">
-        <div>
+        <div className="max-w-[70%]">
           <h3 className="font-semibold text-foreground text-sm">Basiselterngeld</h3>
           <p className="text-xs text-muted-foreground mt-space-2xs">Full monthly amount for shorter duration (12-14 months total).</p>
         </div>
@@ -47,7 +47,7 @@ export function ResultCard({ calculation }: ResultCardProps) {
 
       {/* ElterngeldPlus */}
       <div className="flex items-start justify-between pt-space-md">
-        <div>
+        <div className="max-w-[70%]">
           <h3 className="font-semibold text-foreground text-sm">ElterngeldPlus</h3>
           <p className="text-xs text-muted-foreground mt-space-2xs">Half amount for longer duration (24-28 months total).</p>
         </div>
