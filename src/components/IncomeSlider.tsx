@@ -51,7 +51,7 @@ export function IncomeSlider({
                 type="text"
                 value={value.toLocaleString('de-DE')}
                 onChange={handleInputChange}
-                className="text-xl font-bold text-foreground bg-transparent text-right w-16 outline-none focus:ring-1 focus:ring-primary rounded px-1"
+                className="text-xl font-bold text-foreground bg-transparent text-right w-20 outline-none focus:ring-1 focus:ring-primary rounded px-1"
               />
             </div>
           </div>
