@@ -49,59 +49,62 @@ export function MonthBox({
   return (
     <div
       className={cn(
-        "flex-shrink-0 w-36 p-3 rounded-xl bg-card border transition-all duration-200 animate-scale-in",
-        hasError ? "border-destructive shadow-[0_0_0_2px_hsl(var(--destructive)/0.2)]" : "border-border",
-        hasAnySelection && !hasError && "border-primary shadow-[0_0_0_2px_hsl(var(--primary)/0.1)]"
+        "flex-shrink-0 w-24 p-2 rounded-xl bg-card border transition-all duration-200",
+        hasError ? "ring-2 ring-destructive border-destructive" : "border-border",
+        hasAnySelection && !hasError && "border-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.1)]"
       )}
     >
       {/* Month Header */}
-      <div className="mb-2">
-        <div className="flex items-center justify-between mb-0.5">
-          <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">
-            Month {monthIndex + 1}
+      <div className="mb-1.5">
+        <div className="flex items-center justify-between">
+          <span className="text-[9px] font-semibold text-primary uppercase tracking-wide">
+            M{monthIndex + 1}
           </span>
           {hasAnySelection && (
             <span className={cn(
-              "text-[10px] font-bold",
-              hasError ? "text-destructive" : "text-success"
+              "text-[9px] font-bold",
+              hasError ? "text-destructive" : "text-foreground"
             )}>
               €{monthAmount.toLocaleString('de-DE')}
             </span>
           )}
         </div>
-        <p className="text-[10px] text-muted-foreground">{dateRange}</p>
+        <div className="text-[9px] text-muted-foreground leading-tight">
+          <div>{dateRange.line1}</div>
+          <div>{dateRange.line2}</div>
+        </div>
       </div>
       
       {/* You Section */}
-      <div className="mb-2">
-        <span className="text-[10px] font-medium text-foreground block mb-1">You</span>
-        <div className="space-y-1">
-          <div className="flex items-center gap-1.5">
+      <div className="mb-1">
+        <span className="text-[9px] font-medium text-foreground block mb-0.5">You</span>
+        <div className="flex gap-2">
+          <div className="flex items-center gap-1">
             <Checkbox
               id={`you-basis-${monthIndex}`}
               checked={selection.youBasis}
               onCheckedChange={(v) => handleChange('youBasis', v === true)}
-              className="h-3.5 w-3.5"
+              className="h-3 w-3"
             />
             <Label 
               htmlFor={`you-basis-${monthIndex}`} 
-              className="text-[10px] cursor-pointer text-muted-foreground"
+              className="text-[9px] cursor-pointer text-muted-foreground"
             >
-              Basis
+              B
             </Label>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <Checkbox
               id={`you-plus-${monthIndex}`}
               checked={selection.youPlus}
               onCheckedChange={(v) => handleChange('youPlus', v === true)}
-              className="h-3.5 w-3.5"
+              className="h-3 w-3"
             />
             <Label 
               htmlFor={`you-plus-${monthIndex}`} 
-              className="text-[10px] cursor-pointer text-muted-foreground"
+              className="text-[9px] cursor-pointer text-muted-foreground"
             >
-              Plus
+              P
             </Label>
           </div>
         </div>
@@ -109,35 +112,35 @@ export function MonthBox({
       
       {/* Partner Section */}
       {!isSingleParent && (
-        <div>
-          <span className="text-[10px] font-medium text-foreground block mb-1">Partner</span>
-          <div className="space-y-1">
-            <div className="flex items-center gap-1.5">
+        <div className="mb-1">
+          <span className="text-[9px] font-medium text-foreground block mb-0.5">Partner</span>
+          <div className="flex gap-2">
+            <div className="flex items-center gap-1">
               <Checkbox
                 id={`partner-basis-${monthIndex}`}
                 checked={selection.partnerBasis}
                 onCheckedChange={(v) => handleChange('partnerBasis', v === true)}
-                className="h-3.5 w-3.5"
+                className="h-3 w-3"
               />
               <Label 
                 htmlFor={`partner-basis-${monthIndex}`} 
-                className="text-[10px] cursor-pointer text-muted-foreground"
+                className="text-[9px] cursor-pointer text-muted-foreground"
               >
-                Basis
+                B
               </Label>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <Checkbox
                 id={`partner-plus-${monthIndex}`}
                 checked={selection.partnerPlus}
                 onCheckedChange={(v) => handleChange('partnerPlus', v === true)}
-                className="h-3.5 w-3.5"
+                className="h-3 w-3"
               />
               <Label 
                 htmlFor={`partner-plus-${monthIndex}`} 
-                className="text-[10px] cursor-pointer text-muted-foreground"
+                className="text-[9px] cursor-pointer text-muted-foreground"
               >
-                Plus
+                P
               </Label>
             </div>
           </div>
@@ -146,11 +149,11 @@ export function MonthBox({
 
       {/* Sum */}
       {hasAnySelection && (
-        <div className="mt-2 pt-2 border-t border-border">
+        <div className="pt-1 border-t border-border">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium text-muted-foreground">Sum</span>
+            <span className="text-[9px] font-medium text-muted-foreground">Sum</span>
             <span className={cn(
-              "text-xs font-bold",
+              "text-[10px] font-bold",
               hasError ? "text-destructive" : "text-foreground"
             )}>
               €{monthAmount.toLocaleString('de-DE')}
