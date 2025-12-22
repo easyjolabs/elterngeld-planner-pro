@@ -105,7 +105,7 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
   if (!calculation.isEligible) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="p-8 rounded-xl bg-muted/50 border border-border text-center">
+        <div className="p-space-xl rounded-xl bg-muted/50 border border-border text-center">
           <p className="text-muted-foreground">
             Please adjust your income in Step 1 to be eligible for Elterngeld planning.
           </p>
@@ -116,7 +116,7 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
 
   return (
     <div className="flex flex-col h-full">
-      <div className="space-y-3 flex-1">
+      <div className="space-y-space-sm flex-1">
         {/* Headline */}
         <div>
           <h2 className="text-sm font-semibold text-foreground mb-0.5">
@@ -128,7 +128,7 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
         </div>
 
         {/* Controls */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-space-sm">
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -153,12 +153,12 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
                 selected={state.birthDate || undefined}
                 onSelect={handleDateSelect}
                 initialFocus
-                className="p-3 pointer-events-auto"
+                className="p-space-sm pointer-events-auto"
               />
             </PopoverContent>
           </Popover>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 border border-border">
+          <div className="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg bg-secondary/50 border border-border">
             <Checkbox
               id="singleParent"
               checked={state.isSingleParent}
@@ -175,7 +175,7 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
 
         {/* Month Boxes */}
         {state.birthDate ? (
-          <div className="space-y-3">
+          <div className="space-y-space-sm">
             <div className="relative">
               {/* Left scroll arrow */}
               {canScrollLeft && (
@@ -191,7 +191,7 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
               <div 
                 ref={scrollRef}
                 onScroll={handleScroll}
-                className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide"
+                className="flex gap-space-sm overflow-x-auto pb-space-sm scrollbar-hide"
               >
                 {state.months.slice(0, state.visibleMonths).map((month, index) => (
                   <MonthBox
@@ -235,11 +235,11 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
             {/* Validation Errors - fixed height container to prevent layout shift */}
             <div className="min-h-[28px]">
               {errors.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-space-sm">
                   {errors.map((error, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-2 px-2 py-1 rounded-lg bg-destructive/10 border border-destructive/20"
+                      className="flex items-center gap-space-sm px-space-sm py-space-2xs rounded-lg bg-destructive/10 border border-destructive/20"
                     >
                       <AlertCircle className="h-3.5 w-3.5 text-destructive flex-shrink-0" />
                       <p className="text-xs text-destructive">{error.message}</p>
@@ -250,9 +250,9 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
             </div>
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center py-8">
+          <div className="flex-1 flex items-center justify-center py-space-xl">
             <div className="text-center">
-              <CalendarIcon className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+              <CalendarIcon className="h-6 w-6 text-muted-foreground mx-auto mb-space-sm" />
               <p className="text-xs text-muted-foreground">
                 Select your child's birthday to start planning.
               </p>

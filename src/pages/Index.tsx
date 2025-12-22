@@ -24,11 +24,11 @@ const Index = () => {
   }, [calculatorState]);
 
   return (
-    <div className="min-h-screen gradient-surface py-8 px-4">
+    <div className="min-h-screen gradient-surface py-space-xl px-space-md">
       <main className="container max-w-4xl mx-auto">
         <div className="bg-card rounded-2xl shadow-card border border-border overflow-hidden">
           {/* Step Indicator inside card */}
-          <div className="px-6 py-4 border-b border-border bg-secondary/30">
+          <div className="px-space-lg py-space-md border-b border-border bg-secondary/30">
             <StepIndicator
               currentStep={currentStep}
               totalSteps={2}
@@ -37,14 +37,14 @@ const Index = () => {
           </div>
 
           {/* Step Content */}
-          <div className="p-6">
+          <div className="p-space-lg">
             <div className="grid grid-rows-1 overflow-hidden">
               {/* Step 1 - always rendered */}
               <div className={cn(
                 "col-start-1 row-start-1 w-full min-w-0",
                 currentStep === 1 ? "animate-fade-in" : "invisible"
               )}>
-                <div className="grid gap-4 lg:grid-cols-[1fr_35%] items-stretch">
+                <div className="grid gap-space-md lg:grid-cols-[1fr_35%] items-stretch">
                   <IncomeSlider
                     value={calculatorState.monthlyIncome}
                     onChange={(value) =>
@@ -74,7 +74,7 @@ const Index = () => {
           </div>
 
           {/* Navigation */}
-          <div className="px-6 py-4 border-t border-border bg-secondary/30 flex flex-col sm:flex-row gap-3 sm:gap-0 justify-between">
+          <div className="px-space-lg py-space-md border-t border-border bg-secondary/30 flex flex-col sm:flex-row gap-space-sm sm:gap-0 justify-between">
             {currentStep > 1 ? (
               <Button
                 variant="outline"
@@ -110,7 +110,7 @@ const Index = () => {
         </div>
 
         {/* Disclaimer - outside calculator */}
-        <p className="mt-4 text-center text-[11px] text-muted-foreground">
+        <p className="mt-space-md text-center text-[11px] text-muted-foreground">
           This calculator provides estimates based on current Elterngeld regulations. For official calculations, please consult your local Elterngeldstelle.
         </p>
       </main>

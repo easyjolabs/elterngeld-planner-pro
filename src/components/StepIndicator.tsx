@@ -11,7 +11,7 @@ const stepIcons = [Calculator, CalendarDays];
 
 export function StepIndicator({ currentStep, totalSteps, labels }: StepIndicatorProps) {
   return (
-    <div className="flex items-center justify-center gap-2 sm:gap-3">
+    <div className="flex items-center justify-center gap-space-sm sm:gap-space-sm">
       {Array.from({ length: totalSteps }, (_, index) => {
         const stepNumber = index + 1;
         const isCompleted = stepNumber < currentStep;
@@ -20,7 +20,7 @@ export function StepIndicator({ currentStep, totalSteps, labels }: StepIndicator
         
         return (
           <div key={index} className="flex items-center">
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-space-xs sm:gap-space-sm">
               <div
                 className={cn(
                   "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300",

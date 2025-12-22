@@ -49,13 +49,13 @@ export function MonthBox({
   return (
     <div
       className={cn(
-        "flex-shrink-0 w-24 p-2 rounded-xl bg-card border transition-all duration-200 animate-scale-in",
+        "flex-shrink-0 w-24 p-space-sm rounded-xl bg-card border transition-all duration-200 animate-scale-in",
         hasError ? "border-destructive shadow-[0_0_0_2px_hsl(var(--destructive)/0.2)]" : "border-border",
         hasAnySelection && !hasError && "border-primary shadow-[0_0_0_2px_hsl(var(--primary)/0.1)]"
       )}
     >
       {/* Month Header */}
-      <div className="mb-4">
+      <div className="mb-space-md">
         <span className="text-xs font-semibold text-primary uppercase tracking-wide">
           Month {monthIndex + 1}
         </span>
@@ -63,10 +63,10 @@ export function MonthBox({
       </div>
       
       {/* You Section */}
-      <div className="mb-4">
-        <span className="text-[11px] font-medium text-foreground block mb-2">You</span>
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
+      <div className="mb-space-md">
+        <span className="text-[11px] font-medium text-foreground block mb-space-sm">You</span>
+        <div className="space-y-space-sm">
+          <div className="flex items-center gap-space-sm">
             <Checkbox
               id={`you-basis-${monthIndex}`}
               checked={selection.youBasis}
@@ -80,7 +80,7 @@ export function MonthBox({
               Basis
             </Label>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-space-sm">
             <Checkbox
               id={`you-plus-${monthIndex}`}
               checked={selection.youPlus}
@@ -100,9 +100,9 @@ export function MonthBox({
       {/* Partner Section */}
       {!isSingleParent && (
         <div>
-          <span className="text-[11px] font-medium text-foreground block mb-2">Partner</span>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
+          <span className="text-[11px] font-medium text-foreground block mb-space-sm">Partner</span>
+          <div className="space-y-space-sm">
+            <div className="flex items-center gap-space-sm">
               <Checkbox
                 id={`partner-basis-${monthIndex}`}
                 checked={selection.partnerBasis}
@@ -116,7 +116,7 @@ export function MonthBox({
                 Basis
               </Label>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-space-sm">
               <Checkbox
                 id={`partner-plus-${monthIndex}`}
                 checked={selection.partnerPlus}

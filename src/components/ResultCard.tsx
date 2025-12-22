@@ -9,8 +9,8 @@ export function ResultCard({ calculation }: ResultCardProps) {
   if (!calculation.isEligible) {
     return (
       <div className="h-full flex items-center">
-        <div className="w-full p-4 rounded-xl bg-destructive/10 border border-destructive/20">
-          <div className="flex items-start gap-3">
+        <div className="w-full p-space-md rounded-xl bg-destructive/10 border border-destructive/20">
+          <div className="flex items-start gap-space-sm">
             <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
             <div>
               <h3 className="font-semibold text-destructive">Not Eligible</h3>
@@ -25,14 +25,14 @@ export function ResultCard({ calculation }: ResultCardProps) {
   }
 
   return (
-    <div className="p-4 rounded-xl bg-card border border-border shadow-card h-full flex flex-col">
+    <div className="p-space-md rounded-xl bg-card border border-border shadow-card h-full flex flex-col">
       {/* Headline */}
-      <h2 className="text-sm font-semibold text-foreground mb-4">
+      <h2 className="text-sm font-semibold text-foreground mb-space-md">
         Your estimated Elterngeld
       </h2>
 
       {/* Basiselterngeld */}
-      <div className="flex items-center justify-between pb-4 border-b border-border">
+      <div className="flex items-center justify-between pb-space-md border-b border-border">
         <div>
           <h3 className="font-semibold text-foreground text-sm">Basiselterngeld</h3>
           <p className="text-xs text-muted-foreground">Full monthly amount for shorter duration (12-14 months total).</p>
@@ -46,7 +46,7 @@ export function ResultCard({ calculation }: ResultCardProps) {
       </div>
 
       {/* ElterngeldPlus */}
-      <div className="flex items-center justify-between pt-4">
+      <div className="flex items-center justify-between pt-space-md">
         <div>
           <h3 className="font-semibold text-foreground text-sm">ElterngeldPlus</h3>
           <p className="text-xs text-muted-foreground">Half amount for longer duration (24-28 months total).</p>
@@ -60,9 +60,9 @@ export function ResultCard({ calculation }: ResultCardProps) {
       </div>
 
       {/* Max hint - inside box at bottom */}
-      <div className="mt-auto pt-4">
+      <div className="mt-auto pt-space-md">
         {calculation.isMaxReached && (
-          <div className="w-full px-3 py-1.5 rounded-lg bg-muted border border-border flex items-center gap-2">
+          <div className="w-full px-space-sm py-space-xs rounded-lg bg-muted border border-border flex items-center gap-space-sm">
             <TrendingUp className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
             <p className="text-xs font-medium text-muted-foreground">
               Maximum Elterngeld reached!
