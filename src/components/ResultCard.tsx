@@ -25,40 +25,42 @@ export function ResultCard({ calculation }: ResultCardProps) {
   }
 
   return (
-    <div className="flex flex-col h-full gap-3">
-      {/* Result box */}
-      <div className="p-4 rounded-xl bg-card border border-border shadow-card flex-1 flex flex-col">
-        {/* Basiselterngeld */}
-        <div className="flex items-center justify-between pb-3 border-b border-border">
-          <div>
-            <h3 className="font-semibold text-foreground text-sm">Basiselterngeld</h3>
-            <p className="text-xs text-muted-foreground">Full monthly amount for shorter duration (12-14 months total).</p>
-          </div>
-          <div className="text-right">
-            <span className="text-xl font-bold text-foreground">
-              €{calculation.totalBasis.toLocaleString('de-DE')}
-            </span>
-            <p className="text-xs text-muted-foreground">per month</p>
-          </div>
-        </div>
+    <div className="p-4 rounded-xl bg-card border border-border shadow-card h-full flex flex-col">
+      {/* Headline */}
+      <h2 className="text-sm font-semibold text-foreground mb-4">
+        Your estimated Elterngeld
+      </h2>
 
-        {/* ElterngeldPlus */}
-        <div className="flex items-center justify-between pt-3">
-          <div>
-            <h3 className="font-semibold text-foreground text-sm">ElterngeldPlus</h3>
-            <p className="text-xs text-muted-foreground">Half amount for longer duration (24-28 months total).</p>
-          </div>
-          <div className="text-right">
-            <span className="text-xl font-bold text-foreground">
-              €{calculation.totalPlus.toLocaleString('de-DE')}
-            </span>
-            <p className="text-xs text-muted-foreground">per month</p>
-          </div>
+      {/* Basiselterngeld */}
+      <div className="flex items-center justify-between pb-4 border-b border-border">
+        <div>
+          <h3 className="font-semibold text-foreground text-sm">Basiselterngeld</h3>
+          <p className="text-xs text-muted-foreground">Full monthly amount for shorter duration (12-14 months total).</p>
+        </div>
+        <div className="text-right">
+          <span className="text-xl font-bold text-foreground">
+            €{calculation.totalBasis.toLocaleString('de-DE')}
+          </span>
+          <p className="text-xs text-muted-foreground whitespace-nowrap">per month</p>
         </div>
       </div>
 
-      {/* Max hint - outside below the box */}
-      <div className="h-8 flex items-center">
+      {/* ElterngeldPlus */}
+      <div className="flex items-center justify-between pt-4">
+        <div>
+          <h3 className="font-semibold text-foreground text-sm">ElterngeldPlus</h3>
+          <p className="text-xs text-muted-foreground">Half amount for longer duration (24-28 months total).</p>
+        </div>
+        <div className="text-right">
+          <span className="text-xl font-bold text-foreground">
+            €{calculation.totalPlus.toLocaleString('de-DE')}
+          </span>
+          <p className="text-xs text-muted-foreground whitespace-nowrap">per month</p>
+        </div>
+      </div>
+
+      {/* Max hint - inside box at bottom */}
+      <div className="mt-auto pt-4">
         {calculation.isMaxReached && (
           <div className="w-full px-3 py-1.5 rounded-lg bg-muted border border-border flex items-center gap-2">
             <TrendingUp className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
