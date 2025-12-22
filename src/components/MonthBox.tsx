@@ -55,17 +55,17 @@ export function MonthBox({
       )}
     >
       {/* Month Header */}
-      <div className="mb-2">
+      <div className="mb-3">
         <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">
           Month {monthIndex + 1}
         </span>
-        <p className="text-[9px] text-muted-foreground whitespace-pre-line leading-tight mt-0.5">{dateRange}</p>
+        <p className="text-[9px] text-muted-foreground whitespace-pre-line leading-tight mt-1">{dateRange}</p>
       </div>
       
       {/* You Section */}
-      <div className="mb-2">
-        <span className="text-[9px] font-medium text-foreground block mb-1">You</span>
-        <div className="space-y-1">
+      <div className="mb-3">
+        <span className="text-[9px] font-medium text-foreground block mb-1.5">You</span>
+        <div className="space-y-1.5">
           <div className="flex items-center gap-1.5">
             <Checkbox
               id={`you-basis-${monthIndex}`}
@@ -100,8 +100,8 @@ export function MonthBox({
       {/* Partner Section */}
       {!isSingleParent && (
         <div>
-          <span className="text-[9px] font-medium text-foreground block mb-1">Partner</span>
-          <div className="space-y-1">
+          <span className="text-[9px] font-medium text-foreground block mb-1.5">Partner</span>
+          <div className="space-y-1.5">
             <div className="flex items-center gap-1.5">
               <Checkbox
                 id={`partner-basis-${monthIndex}`}
