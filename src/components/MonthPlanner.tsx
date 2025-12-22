@@ -26,7 +26,7 @@ const createEmptyMonth = (): MonthSelection => ({
 export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<PlannerState>({
-    birthDate: new Date(),
+    birthDate: null,
     isSingleParent: false,
     months: Array(14).fill(null).map(() => createEmptyMonth()),
     visibleMonths: 14,
@@ -173,92 +173,81 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
 
 
         {/* Month Boxes */}
-        {state.birthDate ? (
-          <div className="space-y-space-sm">
-            <div className="relative">
-              {/* Left scroll arrow */}
-              {canScrollLeft && (
-                <button
-                  onClick={handleScrollLeft}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
-                  aria-label="Scroll left"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-              )}
-
-              {/* Right scroll arrow */}
-              {canScrollRight && (
-                <button
-                  onClick={handleScrollRight}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
-                  aria-label="Scroll right"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              )}
-
-              <div 
-                ref={scrollRef}
-                onScroll={handleScroll}
-                className="flex gap-space-sm overflow-x-auto pb-space-sm scrollbar-hide"
+        <div className="space-y-space-sm">
+          <div className="relative">
+            {/* Left scroll arrow */}
+            {canScrollLeft && (
+              <button
+                onClick={handleScrollLeft}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+                aria-label="Scroll left"
               >
-                {state.months.slice(0, state.visibleMonths).map((month, index) => (
-                  <MonthBox
-                    key={index}
-                    monthIndex={index}
-                    birthDate={state.birthDate!}
-                    selection={month}
-                    calculation={calculation}
-                    isSingleParent={state.isSingleParent}
-                    onChange={(selection) => handleMonthChange(index, selection)}
-                    hasError={errors.length > 0 && lastEditedMonth === index}
-                  />
-                ))}
-                
-                {state.visibleMonths < 36 && (
-                  <Button
-                    variant="outline"
-                    onClick={handleAddMonth}
-                    className="flex-shrink-0 w-24 h-auto border-dashed hover:border-foreground hover:bg-muted"
-                  >
-                    <div className="flex flex-col items-center gap-1">
-                      <Plus className="h-4 w-4" />
-                      <span className="text-[10px]">Add month</span>
-                    </div>
-                  </Button>
-                )}
-              </div>
-            </div>
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            )}
 
+            {/* Right scroll arrow */}
+            {canScrollRight && (
+              <button
+                onClick={handleScrollRight}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            )}
 
-            {/* Validation Errors - fixed height container to prevent layout shift */}
-            <div className="min-h-[28px]">
-              {errors.length > 0 && (
-                <div className="flex flex-wrap gap-space-sm">
-                  {errors.map((error, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-space-sm px-space-sm py-space-2xs rounded-lg bg-destructive/10 border border-destructive/20"
-                    >
-                      <AlertCircle className="h-3.5 w-3.5 text-destructive flex-shrink-0" />
-                      <p className="text-xs text-destructive">{error.message}</p>
-                    </div>
-                  ))}
-                </div>
+            <div 
+              ref={scrollRef}
+              onScroll={handleScroll}
+              className="flex gap-space-sm overflow-x-auto pb-space-sm scrollbar-hide"
+            >
+              {state.months.slice(0, state.visibleMonths).map((month, index) => (
+                <MonthBox
+                  key={index}
+                  monthIndex={index}
+                  birthDate={state.birthDate || new Date()}
+                  selection={month}
+                  calculation={calculation}
+                  isSingleParent={state.isSingleParent}
+                  onChange={(selection) => handleMonthChange(index, selection)}
+                  hasError={errors.length > 0 && lastEditedMonth === index}
+                />
+              ))}
+              
+              {state.visibleMonths < 36 && (
+                <Button
+                  variant="outline"
+                  onClick={handleAddMonth}
+                  className="flex-shrink-0 w-24 h-auto border-dashed hover:border-foreground hover:bg-muted"
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <Plus className="h-4 w-4" />
+                    <span className="text-[10px]">Add month</span>
+                  </div>
+                </Button>
               )}
             </div>
           </div>
-        ) : (
-          <div className="flex-1 flex items-center justify-center py-space-xl">
-            <div className="text-center">
-              <CalendarIcon className="h-6 w-6 text-muted-foreground mx-auto mb-space-sm" />
-              <p className="text-xs text-muted-foreground">
-                Select your child's birthday to start planning.
-              </p>
-            </div>
+
+
+          {/* Validation Errors - fixed height container to prevent layout shift */}
+          <div className="min-h-[28px]">
+            {errors.length > 0 && (
+              <div className="flex flex-wrap gap-space-sm">
+                {errors.map((error, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-space-sm px-space-sm py-space-2xs rounded-lg bg-destructive/10 border border-destructive/20"
+                  >
+                    <AlertCircle className="h-3.5 w-3.5 text-destructive flex-shrink-0" />
+                    <p className="text-xs text-destructive">{error.message}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
