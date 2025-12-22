@@ -24,7 +24,7 @@ const Index = () => {
   }, [calculatorState]);
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-[#F5F5F5]">
       <Navbar />
       
       <div className="flex-1 flex overflow-hidden">
