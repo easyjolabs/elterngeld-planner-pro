@@ -25,7 +25,7 @@ export function ResultCard({ calculation }: ResultCardProps) {
   }
 
   return (
-    <div className="p-space-md rounded-xl bg-card border border-border shadow-card h-full flex flex-col">
+    <div className="p-space-md rounded-xl bg-card border border-border h-full flex flex-col">
       {/* Headline */}
       <h2 className="text-sm font-semibold text-foreground mb-space-md">
         Your estimated Elterngeld

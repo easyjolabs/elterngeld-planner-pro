@@ -26,7 +26,7 @@ const Index = () => {
   return (
     <div className="min-h-screen gradient-surface py-space-xl px-space-md">
       <main className="container max-w-4xl mx-auto">
-        <div className="bg-card rounded-2xl shadow-card border border-border overflow-hidden">
+        <div className="bg-card rounded-2xl border border-border overflow-hidden">
           {/* Step Indicator inside card */}
           <div className="px-space-lg py-space-md border-b border-border bg-secondary/30">
             <StepIndicator
