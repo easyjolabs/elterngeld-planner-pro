@@ -220,7 +220,7 @@ export function MonthPlanner({ calculation, onStartApplication }: MonthPlannerPr
                 )}
 
                 {/* Total Sum Box */}
-                <div className="flex-shrink-0 w-24 p-space-sm rounded-xl bg-primary/10 border border-primary flex flex-col justify-center items-center">
+                <div className="flex-shrink-0 w-24 p-space-sm rounded-xl bg-primary/10 border border-primary flex flex-col justify-center items-center self-stretch">
                   <span className="text-[10px] text-muted-foreground mb-space-xs">Total</span>
                   <span className="text-lg font-bold text-primary">
                     €{totalAmount.toLocaleString('de-DE')}
