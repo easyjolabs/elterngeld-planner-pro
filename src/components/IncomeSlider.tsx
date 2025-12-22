@@ -35,27 +35,27 @@ export function IncomeSlider({
     <div className="flex flex-col gap-space-md h-full">
       {/* Left - Slider */}
       <div className="p-space-md rounded-xl bg-card border border-border">
-        <div className="space-y-space-sm">
-          <div className="flex items-start justify-between">
-            <div className="max-w-[70%]">
-              <h2 className="text-sm font-semibold text-foreground">
-                Monthly net income
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Average of the 12 months before birth.
-              </p>
-            </div>
-            <div className="flex items-center gap-0.5">
-              <span className="text-xl font-bold text-foreground">€</span>
-              <input
-                type="text"
-                value={value.toLocaleString('de-DE')}
-                onChange={handleInputChange}
-                className="text-xl font-bold text-foreground bg-transparent text-right w-20 outline-none focus:ring-1 focus:ring-primary rounded px-1"
-              />
-            </div>
+        <div className="flex items-start justify-between">
+          <div className="max-w-[70%]">
+            <h2 className="text-sm font-semibold text-foreground">
+              Monthly net income
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Average of the 12 months before birth.
+            </p>
           </div>
-          
+          <div className="flex items-center gap-0.5">
+            <span className="text-xl font-bold text-foreground">€</span>
+            <input
+              type="text"
+              value={value.toLocaleString('de-DE')}
+              onChange={handleInputChange}
+              className="text-xl font-bold text-foreground bg-transparent text-right w-20 outline-none focus:ring-1 focus:ring-primary rounded px-1"
+            />
+          </div>
+        </div>
+        
+        <div className="mt-space-md">
           <Slider
             value={[value]}
             onValueChange={handleChange}
@@ -65,7 +65,7 @@ export function IncomeSlider({
             className="w-full"
           />
           
-          <div className="flex justify-between text-xs text-muted-foreground">
+          <div className="flex justify-between text-xs text-muted-foreground mt-space-2xs">
             <span>€0</span>
             <span>€7,000</span>
           </div>

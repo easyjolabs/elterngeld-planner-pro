@@ -27,9 +27,14 @@ export function ResultCard({ calculation }: ResultCardProps) {
   return (
     <div className="p-space-md rounded-xl bg-card border border-border h-full flex flex-col">
       {/* Headline */}
-      <h2 className="text-sm font-semibold text-foreground mb-space-md">
-        Your estimated Elterngeld
-      </h2>
+      <div className="mb-space-md">
+        <h2 className="text-sm font-semibold text-foreground">
+          Your estimated Elterngeld
+        </h2>
+        <p className="text-xs text-muted-foreground mt-space-2xs">
+          Learn more about the Elterngeld models in the next step.
+        </p>
+      </div>
 
       {/* Basiselterngeld */}
       <div className="flex items-start justify-between pb-space-md border-b border-border">
@@ -61,14 +66,20 @@ export function ResultCard({ calculation }: ResultCardProps) {
 
       {/* Max hint - inside box at bottom */}
       <div className="mt-auto pt-space-md">
-        {calculation.isMaxReached && (
-          <div className="w-full px-space-sm py-space-xs rounded-lg bg-muted border border-border flex items-center gap-space-sm">
-            <TrendingUp className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-            <p className="text-xs font-medium text-muted-foreground">
-              Maximum Elterngeld reached!
-            </p>
-          </div>
-        )}
+        <div className={`w-full px-space-sm py-space-xs rounded-lg flex items-center gap-space-sm min-h-[28px] ${
+          calculation.isMaxReached 
+            ? 'bg-muted border border-border' 
+            : 'bg-transparent border border-transparent'
+        }`}>
+          {calculation.isMaxReached && (
+            <>
+              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <p className="text-xs font-medium text-muted-foreground">
+                Maximum Elterngeld reached!
+              </p>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
