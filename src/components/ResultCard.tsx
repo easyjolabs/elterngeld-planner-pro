@@ -1,14 +1,13 @@
 import { ElterngeldCalculation } from '@/types/elterngeld';
 import { AlertCircle, TrendingUp } from 'lucide-react';
-
 interface ResultCardProps {
   calculation: ElterngeldCalculation;
 }
-
-export function ResultCard({ calculation }: ResultCardProps) {
+export function ResultCard({
+  calculation
+}: ResultCardProps) {
   if (!calculation.isEligible) {
-    return (
-      <div className="h-full flex items-center">
+    return <div className="h-full flex items-center">
         <div className="w-full p-space-md rounded-xl bg-destructive/10 border border-destructive/20">
           <div className="flex items-start gap-space-sm">
             <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
@@ -20,12 +19,11 @@ export function ResultCard({ calculation }: ResultCardProps) {
             </div>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="p-space-md rounded-xl border border-border h-full flex flex-col" style={{ backgroundColor: '#EFEBDE' }}>
+  return <div className="p-space-md rounded-xl border border-border h-full flex flex-col" style={{
+    backgroundColor: '#EFEBDE'
+  }}>
       {/* Headline */}
       <div className="pb-space-md mb-space-md border-b border-border">
         <h2 className="text-sm font-semibold text-foreground">
@@ -51,7 +49,7 @@ export function ResultCard({ calculation }: ResultCardProps) {
       </div>
 
       {/* ElterngeldPlus */}
-      <div className="flex items-start justify-between pt-space-md">
+      <div className="flex items-start justify-between pt-space-md gap-[5px] py-px">
         <div className="max-w-[70%]">
           <h3 className="font-semibold text-foreground text-sm">ElterngeldPlus</h3>
           <p className="text-xs text-muted-foreground mt-space-2xs">Half amount for longer duration (24-28 months total).</p>
@@ -66,17 +64,12 @@ export function ResultCard({ calculation }: ResultCardProps) {
 
       {/* Max hint - inside box at bottom */}
       <div className="mt-auto pt-space-md">
-        <div className={`w-full px-space-sm py-space-xs rounded-lg flex items-center gap-space-sm h-[28px] ${
-          calculation.isMaxReached 
-            ? 'bg-muted border border-border' 
-            : 'bg-transparent border border-transparent'
-        }`}>
+        <div className={`w-full px-space-sm py-space-xs rounded-lg flex items-center gap-space-sm h-[28px] ${calculation.isMaxReached ? 'bg-muted border border-border' : 'bg-transparent border border-transparent'}`}>
           <TrendingUp className={`h-3.5 w-3.5 text-muted-foreground flex-shrink-0 transition-opacity ${calculation.isMaxReached ? 'opacity-100' : 'opacity-0'}`} />
           <p className={`text-xs font-medium text-muted-foreground transition-opacity ${calculation.isMaxReached ? 'opacity-100' : 'opacity-0'}`}>
             Maximum Elterngeld reached!
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }
