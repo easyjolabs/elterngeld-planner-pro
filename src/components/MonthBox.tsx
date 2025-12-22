@@ -55,7 +55,7 @@ export function MonthBox({
       )}
     >
       {/* Month Header */}
-      <div className="mb-3">
+      <div className="mb-5">
         <div className="flex items-center justify-between mb-0.5">
           <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">
             Month {monthIndex + 1}
@@ -73,7 +73,7 @@ export function MonthBox({
       </div>
       
       {/* You Section */}
-      <div className="mb-3">
+      <div className="mb-5">
         <span className="text-[10px] font-medium text-foreground block mb-1">You</span>
         <div className="space-y-1">
           <div className="flex items-center gap-1.5">
