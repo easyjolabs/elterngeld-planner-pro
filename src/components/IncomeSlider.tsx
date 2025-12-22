@@ -28,7 +28,7 @@ export function IncomeSlider({
   return (
     <div className="flex flex-col gap-space-md h-full">
       {/* Left - Slider */}
-      <div className="p-space-md rounded-xl bg-card border border-border shadow-card">
+      <div className="p-space-md rounded-xl bg-card border border-border">
         <div className="space-y-space-sm">
           <div>
             <h2 className="text-sm font-semibold text-foreground mb-1">
@@ -63,7 +63,7 @@ export function IncomeSlider({
       {/* Right - Bonus boxes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-sm flex-1">
         {/* Sibling Bonus Box */}
-        <div className="p-space-md rounded-xl bg-card border border-border shadow-card flex flex-col">
+        <div className="p-space-md rounded-xl bg-card border border-border flex flex-col">
           <h3 className="text-sm font-semibold text-foreground mb-space-sm">
             Do you already have children?
           </h3>
@@ -83,7 +83,7 @@ export function IncomeSlider({
         </div>
 
         {/* Multiple Birth Box */}
-        <div className="p-space-md rounded-xl bg-card border border-border shadow-card flex flex-col">
+        <div className="p-space-md rounded-xl bg-card border border-border flex flex-col">
           <h3 className="text-sm font-semibold text-foreground mb-space-sm">
             More than one child at birth?
           </h3>
