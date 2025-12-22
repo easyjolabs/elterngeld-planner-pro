@@ -99,7 +99,7 @@ export function MonthBox({
       
       {/* Partner Section */}
       {!isSingleParent && (
-        <div>
+        <div className="mb-space-md">
           <span className="text-[11px] font-medium text-foreground block mb-space-sm">Partner</span>
           <div className="space-y-space-sm">
             <div className="flex items-center gap-space-sm">
@@ -131,6 +131,15 @@ export function MonthBox({
               </Label>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Monthly Amount */}
+      {hasAnySelection && (
+        <div className="pt-space-sm border-t border-border">
+          <span className="text-sm font-bold text-primary">
+            €{monthAmount.toLocaleString('de-DE')}
+          </span>
         </div>
       )}
 
