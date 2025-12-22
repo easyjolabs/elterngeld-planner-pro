@@ -209,75 +209,76 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   };
 
   return (
-<div className="flex flex-col h-full bg-[#F5F5F5]">
-
-      {/* Messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-        {messages.length === 0 ? (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Hi! I'm here to help you understand Elterngeld. Ask me anything about parental allowance in Germany.
-            </p>
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground font-medium">Suggested questions:</p>
-              {SUGGESTED_QUESTIONS.map((question, index) => (
-                <button
-                  key={index}
-                  onClick={() => sendMessage(question)}
-                  className="block w-full text-left px-3 py-2 text-sm bg-background border border-border rounded-lg hover:bg-secondary/50 transition-colors"
-                >
-                  {question}
-                </button>
-              ))}
+    <div className="flex flex-col h-full bg-[#F5F5F5] p-6">
+      <div className="flex flex-col flex-1 bg-card rounded-2xl border border-border overflow-hidden">
+        {/* Messages */}
+        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+          {messages.length === 0 ? (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Hi! I'm here to help you understand Elterngeld. Ask me anything about parental allowance in Germany.
+              </p>
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground font-medium">Suggested questions:</p>
+                {SUGGESTED_QUESTIONS.map((question, index) => (
+                  <button
+                    key={index}
+                    onClick={() => sendMessage(question)}
+                    className="block w-full text-left px-3 py-2 text-sm bg-secondary/30 border border-border rounded-lg hover:bg-secondary/50 transition-colors"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "flex",
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
-                )}
-              >
+          ) : (
+            <div className="space-y-4">
+              {messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "flex",
+                    message.role === 'user' ? 'justify-end' : 'justify-start'
+                  )}
+                >
                   <div
                     className={cn(
                       "max-w-[85%] text-sm",
                       message.role === 'user'
-                        ? 'bg-white text-foreground rounded-full px-4 py-2'
+                        ? 'bg-secondary/50 text-foreground rounded-full px-4 py-2'
                         : 'bg-transparent text-foreground'
                     )}
                   >
-                  {message.content || (
-                    <span className="inline-flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse" />
-                      <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse delay-100" />
-                      <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse delay-200" />
-                    </span>
-                  )}
+                    {message.content || (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse" />
+                        <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse delay-100" />
+                        <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse delay-200" />
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </ScrollArea>
+              ))}
+            </div>
+          )}
+        </ScrollArea>
 
-      {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4 bg-[#F5F5F5]">
-        <div className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about Elterngeld..."
-            disabled={isLoading}
-            className="flex-1"
-          />
-          <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-      </form>
+        {/* Input */}
+        <form onSubmit={handleSubmit} className="p-4 border-t border-border">
+          <div className="flex gap-2">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask about Elterngeld..."
+              disabled={isLoading}
+              className="flex-1"
+            />
+            <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
