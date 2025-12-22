@@ -38,10 +38,10 @@ const Index = () => {
 
           {/* Step Content */}
           <div className="p-6">
-            <div className="grid grid-rows-1">
+            <div className="grid grid-rows-1 overflow-hidden">
               {/* Step 1 - always rendered */}
               <div className={cn(
-                "col-start-1 row-start-1",
+                "col-start-1 row-start-1 w-full min-w-0",
                 currentStep === 1 ? "animate-fade-in" : "invisible"
               )}>
                 <div className="grid gap-4 lg:grid-cols-[1fr_35%] items-stretch">
@@ -65,7 +65,7 @@ const Index = () => {
 
               {/* Step 2 - always rendered */}
               <div className={cn(
-                "col-start-1 row-start-1 h-full",
+                "col-start-1 row-start-1 h-full w-full min-w-0",
                 currentStep === 2 ? "animate-fade-in" : "invisible"
               )}>
                 <MonthPlanner calculation={calculation} />
