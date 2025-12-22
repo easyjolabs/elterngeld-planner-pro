@@ -40,7 +40,7 @@ const Index = () => {
             {currentStep === 1 ? (
               <div className="space-y-4 animate-fade-in">
                 {/* Income + Results side by side */}
-                <div className="grid gap-4 lg:grid-cols-2">
+                <div className="grid gap-4 lg:grid-cols-[1fr_35%]">
                   <IncomeSlider
                     value={calculatorState.monthlyIncome}
                     onChange={(value) =>

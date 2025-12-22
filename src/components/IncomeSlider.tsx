@@ -26,7 +26,7 @@ export function IncomeSlider({
   };
 
   return (
-    <div className="grid grid-cols-1 gap-4">
+    <div className="flex flex-col gap-4 h-full">
       {/* Left - Slider */}
       <div className="p-4 rounded-xl bg-card border border-border shadow-card">
         <div className="space-y-3">
@@ -61,13 +61,13 @@ export function IncomeSlider({
       </div>
 
       {/* Right - Bonus boxes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
         {/* Sibling Bonus Box */}
-        <div className="p-4 rounded-xl bg-card border border-border shadow-card flex-1">
+        <div className="p-4 rounded-xl bg-card border border-border shadow-card flex flex-col">
           <h3 className="text-sm font-semibold text-foreground mb-2">
             Do you already have children?
           </h3>
-          <p className="text-[11px] text-muted-foreground mb-3 leading-tight">
+          <p className="text-[11px] text-muted-foreground mb-3 leading-tight flex-1">
             10% extra Elterngeld (min. €75/month) if a sibling is under 3, or two siblings are under 6.
           </p>
           <div className="flex items-center gap-2">
@@ -83,11 +83,11 @@ export function IncomeSlider({
         </div>
 
         {/* Multiple Birth Box */}
-        <div className="p-4 rounded-xl bg-card border border-border shadow-card flex-1">
+        <div className="p-4 rounded-xl bg-card border border-border shadow-card flex flex-col">
           <h3 className="text-sm font-semibold text-foreground mb-2">
             More than one child at birth?
           </h3>
-          <p className="text-[11px] text-muted-foreground mb-3 leading-tight">
+          <p className="text-[11px] text-muted-foreground mb-3 leading-tight flex-1">
             €300 per additional child per month.
           </p>
           <Select
