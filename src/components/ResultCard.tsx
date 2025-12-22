@@ -14,7 +14,7 @@ export function ResultCard({ calculation }: ResultCardProps) {
             <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
             <div>
               <h3 className="font-semibold text-destructive">Not Eligible</h3>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground mt-space-2xs">
                 Annual income exceeds €175,000. Unfortunately, you are not eligible for Elterngeld.
               </p>
             </div>
@@ -35,13 +35,13 @@ export function ResultCard({ calculation }: ResultCardProps) {
       <div className="flex items-center justify-between pb-space-md border-b border-border">
         <div>
           <h3 className="font-semibold text-foreground text-sm">Basiselterngeld</h3>
-          <p className="text-xs text-muted-foreground">Full monthly amount for shorter duration (12-14 months total).</p>
+          <p className="text-xs text-muted-foreground mt-space-2xs">Full monthly amount for shorter duration (12-14 months total).</p>
         </div>
         <div className="text-right">
           <span className="text-xl font-bold text-foreground">
             €{calculation.totalBasis.toLocaleString('de-DE')}
           </span>
-          <p className="text-xs text-muted-foreground whitespace-nowrap">per month</p>
+          <p className="text-xs text-muted-foreground whitespace-nowrap mt-space-2xs">per month</p>
         </div>
       </div>
 
@@ -49,13 +49,13 @@ export function ResultCard({ calculation }: ResultCardProps) {
       <div className="flex items-center justify-between pt-space-md">
         <div>
           <h3 className="font-semibold text-foreground text-sm">ElterngeldPlus</h3>
-          <p className="text-xs text-muted-foreground">Half amount for longer duration (24-28 months total).</p>
+          <p className="text-xs text-muted-foreground mt-space-2xs">Half amount for longer duration (24-28 months total).</p>
         </div>
         <div className="text-right">
           <span className="text-xl font-bold text-foreground">
             €{calculation.totalPlus.toLocaleString('de-DE')}
           </span>
-          <p className="text-xs text-muted-foreground whitespace-nowrap">per month</p>
+          <p className="text-xs text-muted-foreground whitespace-nowrap mt-space-2xs">per month</p>
         </div>
       </div>
 
