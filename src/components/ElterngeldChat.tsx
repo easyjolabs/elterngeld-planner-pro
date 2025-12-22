@@ -209,19 +209,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   };
 
   return (
-    <div className="flex flex-col h-full bg-secondary/30 border-l border-border">
-      {/* Header */}
-      <div className="p-4 border-b border-border bg-background">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Sparkles className="h-4 w-4 text-primary-foreground" />
-          </div>
-          <div>
-            <h2 className="font-semibold text-foreground text-sm">Elterngeld Helper</h2>
-            <p className="text-xs text-muted-foreground">AI Assistant</p>
-          </div>
-        </div>
-      </div>
+<div className="flex flex-col h-full bg-[#F5F5F5]">
 
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
@@ -253,14 +241,14 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
                   message.role === 'user' ? 'justify-end' : 'justify-start'
                 )}
               >
-                <div
-                  className={cn(
-                    "max-w-[85%] px-3 py-2 rounded-lg text-sm",
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-background border border-border text-foreground'
-                  )}
-                >
+                  <div
+                    className={cn(
+                      "max-w-[85%] text-sm",
+                      message.role === 'user'
+                        ? 'bg-white text-foreground rounded-full px-4 py-2'
+                        : 'bg-transparent text-foreground'
+                    )}
+                  >
                   {message.content || (
                     <span className="inline-flex items-center gap-1">
                       <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse" />
@@ -276,7 +264,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
       </ScrollArea>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-border bg-background">
+      <form onSubmit={handleSubmit} className="p-4 bg-[#F5F5F5]">
         <div className="flex gap-2">
           <Input
             value={input}
