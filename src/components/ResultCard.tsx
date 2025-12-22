@@ -25,7 +25,7 @@ export function ResultCard({ calculation }: ResultCardProps) {
   }
 
   return (
-    <div className="p-space-md rounded-xl bg-card border border-border h-full flex flex-col">
+    <div className="p-space-md rounded-xl border border-border h-full flex flex-col" style={{ backgroundColor: '#EFEBDE' }}>
       {/* Headline */}
       <div className="pb-space-md mb-space-md border-b border-border">
         <h2 className="text-sm font-semibold text-foreground">
@@ -66,19 +66,15 @@ export function ResultCard({ calculation }: ResultCardProps) {
 
       {/* Max hint - inside box at bottom */}
       <div className="mt-auto pt-space-md">
-        <div className={`w-full px-space-sm py-space-xs rounded-lg flex items-center gap-space-sm min-h-[28px] ${
+        <div className={`w-full px-space-sm py-space-xs rounded-lg flex items-center gap-space-sm h-[28px] ${
           calculation.isMaxReached 
             ? 'bg-muted border border-border' 
             : 'bg-transparent border border-transparent'
         }`}>
-          {calculation.isMaxReached && (
-            <>
-              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-              <p className="text-xs font-medium text-muted-foreground">
-                Maximum Elterngeld reached!
-              </p>
-            </>
-          )}
+          <TrendingUp className={`h-3.5 w-3.5 text-muted-foreground flex-shrink-0 transition-opacity ${calculation.isMaxReached ? 'opacity-100' : 'opacity-0'}`} />
+          <p className={`text-xs font-medium text-muted-foreground transition-opacity ${calculation.isMaxReached ? 'opacity-100' : 'opacity-0'}`}>
+            Maximum Elterngeld reached!
+          </p>
         </div>
       </div>
     </div>
