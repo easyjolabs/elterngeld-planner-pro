@@ -26,10 +26,10 @@ export function IncomeSlider({
   };
 
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div className="flex flex-col gap-space-md h-full">
       {/* Left - Slider */}
-      <div className="p-4 rounded-xl bg-card border border-border shadow-card">
-        <div className="space-y-3">
+      <div className="p-space-md rounded-xl bg-card border border-border shadow-card">
+        <div className="space-y-space-sm">
           <div>
             <h2 className="text-sm font-semibold text-foreground mb-1">
               Monthly net income
@@ -61,16 +61,16 @@ export function IncomeSlider({
       </div>
 
       {/* Right - Bonus boxes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-sm flex-1">
         {/* Sibling Bonus Box */}
-        <div className="p-4 rounded-xl bg-card border border-border shadow-card flex flex-col">
-          <h3 className="text-sm font-semibold text-foreground mb-2">
+        <div className="p-space-md rounded-xl bg-card border border-border shadow-card flex flex-col">
+          <h3 className="text-sm font-semibold text-foreground mb-space-sm">
             Do you already have children?
           </h3>
-          <p className="text-[11px] text-muted-foreground mb-3 leading-tight flex-1">
+          <p className="text-[11px] text-muted-foreground mb-space-sm leading-tight flex-1">
             10% extra Elterngeld (min. €75/month) if a sibling is under 3, or two siblings are under 6.
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-space-sm">
             <Checkbox
               id="siblingBonus"
               checked={hasSiblingBonus}
@@ -83,11 +83,11 @@ export function IncomeSlider({
         </div>
 
         {/* Multiple Birth Box */}
-        <div className="p-4 rounded-xl bg-card border border-border shadow-card flex flex-col">
-          <h3 className="text-sm font-semibold text-foreground mb-2">
+        <div className="p-space-md rounded-xl bg-card border border-border shadow-card flex flex-col">
+          <h3 className="text-sm font-semibold text-foreground mb-space-sm">
             More than one child at birth?
           </h3>
-          <p className="text-[11px] text-muted-foreground mb-3 leading-tight flex-1">
+          <p className="text-[11px] text-muted-foreground mb-space-sm leading-tight flex-1">
             €300 per additional child per month.
           </p>
           <Select
