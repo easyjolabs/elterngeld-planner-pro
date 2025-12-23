@@ -37,7 +37,7 @@ const Index = () => {
               <div className="grid grid-rows-1 overflow-hidden">
                 {/* Step 1 - always rendered */}
                 <div className={cn("col-start-1 row-start-1 w-full min-w-0", currentStep === 1 ? "animate-fade-in" : "invisible")}>
-                  <div className="grid gap-space-md md:grid-cols-[1fr_320px] items-stretch">
+                  <div className="grid gap-space-md sm:grid-cols-[1fr_35%] items-stretch">
                     <IncomeSlider value={calculatorState.monthlyIncome} onChange={value => setCalculatorState(prev => ({
                     ...prev,
                     monthlyIncome: value

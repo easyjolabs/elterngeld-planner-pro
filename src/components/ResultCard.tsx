@@ -33,12 +33,12 @@ export function ResultCard({
       </div>
 
       {/* Basiselterngeld */}
-      <div className="flex items-start justify-between gap-space-sm pb-space-md border-b border-border">
-        <div className="flex-1 min-w-0">
+      <div className="flex items-start justify-between pb-space-md border-b border-border">
+        <div className="max-w-[70%]">
           <h3 className="font-semibold text-foreground text-sm">Basiselterngeld</h3>
           <p className="text-xs text-muted-foreground mt-space-2xs">Full monthly amount for shorter duration (12-14 months total).</p>
         </div>
-        <div className="text-right flex-shrink-0">
+        <div className="text-right">
           <span className="text-xl font-bold text-foreground font-sans">
             €{calculation.totalBasis.toLocaleString('de-DE')}
           </span>
@@ -47,12 +47,12 @@ export function ResultCard({
       </div>
 
       {/* ElterngeldPlus */}
-      <div className="flex items-start justify-between gap-space-sm pt-space-md">
-        <div className="flex-1 min-w-0">
+      <div className="flex items-start justify-between pt-space-md gap-[5px] py-0">
+        <div className="max-w-[70%]">
           <h3 className="font-semibold text-foreground text-sm">ElterngeldPlus</h3>
           <p className="text-xs text-muted-foreground mt-space-2xs">Half amount for longer duration (24-28 months total).</p>
         </div>
-        <div className="text-right flex-shrink-0">
+        <div className="text-right">
           <span className="text-xl font-bold text-foreground">
             €{calculation.totalPlus.toLocaleString('de-DE')}
           </span>
