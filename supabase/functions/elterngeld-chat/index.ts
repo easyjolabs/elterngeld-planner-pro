@@ -43,10 +43,31 @@ const ENGLISH_TO_GERMAN_TERMS: Record<string, string[]> = {
   'part-time': ['Teilzeit', 'Teilzeitarbeit'],
 };
 
-// Detect language based on common German words
+// Detect language using word scoring (treats "Elterngeld" as neutral)
 function detectLanguage(message: string): 'en' | 'de' {
-  const germanIndicators = /\b(ich|und|oder|wie|viel|kann|mein|bekomme|habe|elterngeld|meine|einen|eine|kann|wird|werden|sind|ist|das|die|der|für|mit|vom|zum|zur|auf|bei|nach|über|unter|wann|warum|welche|welches|welcher)\b/i;
-  return germanIndicators.test(message) ? 'de' : 'en';
+  const lowerMsg = message.toLowerCase();
+  
+  // German function words (excluding elterngeld-related terms)
+  const germanWords = ['ich', 'und', 'oder', 'wie', 'viel', 'kann', 'mein', 'bekomme', 'habe', 'meine', 'einen', 'eine', 'wird', 'werden', 'sind', 'ist', 'das', 'die', 'der', 'für', 'mit', 'vom', 'zum', 'zur', 'auf', 'bei', 'nach', 'über', 'unter', 'wann', 'warum', 'welche', 'welches', 'welcher', 'wenn', 'möchte', 'brauche', 'wäre'];
+  
+  // English function words
+  const englishWords = ['i', 'can', 'how', 'much', 'will', 'get', 'receive', 'the', 'my', 'is', 'are', 'do', 'does', 'what', 'which', 'when', 'where', 'why', 'would', 'should', 'could', 'have', 'has', 'am', 'if', 'and', 'or', 'but', 'for', 'with', 'about', 'eligible', 'allowance', 'parental'];
+  
+  let germanScore = 0;
+  let englishScore = 0;
+  
+  for (const word of germanWords) {
+    if (new RegExp(`\\b${word}\\b`, 'i').test(lowerMsg)) germanScore++;
+  }
+  
+  for (const word of englishWords) {
+    if (new RegExp(`\\b${word}\\b`, 'i').test(lowerMsg)) englishScore++;
+  }
+  
+  console.log(`Language detection scores - German: ${germanScore}, English: ${englishScore}`);
+  
+  // Default to English if scores are equal or both zero
+  return germanScore > englishScore ? 'de' : 'en';
 }
 
 // Extract section reference (§X or RL X.X.X) from content
@@ -123,22 +144,27 @@ async function hasReadyDocument(supabase: any): Promise<boolean> {
   return data && data.length > 0;
 }
 
-// Extract key terms from user message for search, with English-to-German enhancement
+// Extract key terms from user message for search - builds German-only terms for English queries
 function extractSearchTerms(message: string, language: 'en' | 'de'): string {
-  let searchTerms = message.toLowerCase();
-  
-  // If English, expand with German equivalents
   if (language === 'en') {
-    for (const [english, germanTerms] of Object.entries(ENGLISH_TO_GERMAN_TERMS)) {
-      if (searchTerms.includes(english)) {
-        searchTerms += ' ' + germanTerms.join(' ');
+    // For English queries, build German-only search terms using OR logic
+    const germanTerms: Set<string> = new Set(['Elterngeld']);
+    const lowerMsg = message.toLowerCase();
+    
+    for (const [english, terms] of Object.entries(ENGLISH_TO_GERMAN_TERMS)) {
+      if (lowerMsg.includes(english)) {
+        terms.forEach(term => germanTerms.add(term));
       }
     }
-    // Always add core Elterngeld terms for English queries
-    searchTerms += ' Elterngeld';
+    
+    // Return German terms joined with OR for websearch_to_tsquery
+    const termsArray = Array.from(germanTerms);
+    console.log(`Building German search from English query: ${termsArray.join(' OR ')}`);
+    return termsArray.join(' OR ');
   }
   
-  const cleaned = searchTerms
+  // For German queries, use cleaned message text
+  const cleaned = message
     .replace(/[?!.,;:'"()]/g, ' ')
     .split(/\s+/)
     .filter(word => word.length > 2)
@@ -244,7 +270,13 @@ serve(async (req) => {
       const searchTerms = extractSearchTerms(latestUserMessage, userLanguage);
       console.log(`Search terms: ${searchTerms}`);
       
-      const relevantChunks = await searchDocumentChunks(supabase, searchTerms, 8);
+      let relevantChunks = await searchDocumentChunks(supabase, searchTerms, 8);
+      
+      // Fallback: if no results, try with just "Elterngeld"
+      if (relevantChunks.length === 0) {
+        console.log('No chunks found, trying fallback search with "Elterngeld"...');
+        relevantChunks = await searchDocumentChunks(supabase, 'Elterngeld', 5);
+      }
       
       if (relevantChunks.length > 0) {
         documentContext = relevantChunks.map(c => c.content).join('\n\n---\n\n');
@@ -263,35 +295,39 @@ serve(async (req) => {
           sources = await translateSources(sources, LOVABLE_API_KEY);
         }
       } else {
-        console.log('No chunks matched the search query');
+        console.log('No chunks matched even fallback search');
       }
     }
 
     // Build system prompt based on whether we have document context
-    const languageInstruction = userLanguage === 'en' 
-      ? 'Always respond in English, as the user is writing in English.'
-      : 'Antworte auf Deutsch, da der Benutzer auf Deutsch schreibt.';
-
+    // IMPORTANT: Language instruction at the START for strong enforcement
     if (documentContext) {
       systemPrompt = userLanguage === 'en'
-        ? `You are an expert on German Elterngeld (parental allowance). Answer questions ONLY based on the document context below.
+        ? `IMPORTANT: You MUST respond in English only. The user is writing in English.
+
+You are an expert on German Elterngeld (parental allowance). Answer questions ONLY based on the document context below.
 
 If the answer cannot be found in the context, say "I couldn't find this information in the uploaded document."
 
-Do not use external knowledge. ${languageInstruction}
+Do not use external knowledge.
 
 DOCUMENT CONTEXT:
 ${documentContext}`
-        : `Du bist ein Experte für deutsches Elterngeld. Beantworte Fragen NUR auf Grundlage des unten stehenden Dokumentkontexts.
+        : `WICHTIG: Du MUSST auf Deutsch antworten. Der Benutzer schreibt auf Deutsch.
+
+Du bist ein Experte für deutsches Elterngeld. Beantworte Fragen NUR auf Grundlage des unten stehenden Dokumentkontexts.
 
 Wenn die Antwort nicht im Kontext gefunden werden kann, sage "Diese Information konnte ich im hochgeladenen Dokument nicht finden."
 
-Verwende kein externes Wissen. ${languageInstruction}
+Verwende kein externes Wissen.
 
 DOKUMENTKONTEXT:
 ${documentContext}`;
     } else {
-      systemPrompt = `You are an expert assistant specializing in German Elterngeld (parental allowance). You help parents understand their benefits, eligibility, and planning options.
+      systemPrompt = userLanguage === 'en'
+        ? `IMPORTANT: You MUST respond in English only. The user is writing in English.
+
+You are an expert assistant specializing in German Elterngeld (parental allowance). You help parents understand their benefits, eligibility, and planning options.
 
 Key knowledge:
 - Elterngeld is a German government benefit for parents after childbirth
@@ -304,8 +340,23 @@ Key knowledge:
 
 When given user context (income, calculation results), provide personalized advice based on their specific situation.
 
-Be concise, helpful, and accurate. If unsure about specific regulations, recommend consulting the local Elterngeldstelle.
-${languageInstruction}`;
+Be concise, helpful, and accurate. If unsure about specific regulations, recommend consulting the local Elterngeldstelle.`
+        : `WICHTIG: Du MUSST auf Deutsch antworten. Der Benutzer schreibt auf Deutsch.
+
+Du bist ein Expertenassistent für deutsches Elterngeld. Du hilfst Eltern, ihre Leistungen, Ansprüche und Planungsoptionen zu verstehen.
+
+Wichtige Informationen:
+- Elterngeld ist eine staatliche Leistung für Eltern nach der Geburt
+- Basiselterngeld: 65% des Nettoeinkommens (min. €300, max. €1.800/Monat), bis zu 12 Monate (14 mit Partnermonaten)
+- ElterngeldPlus: Halber Betrag, aber doppelt so lange beziehbar
+- Geschwisterbonus: 10% zusätzlich (min. €75) bei weiterem Kind unter 3 oder zwei Kindern unter 6
+- Mehrlingszuschlag: €300 pro weiterem Kind
+- Einkommensgrenze: Bei Jahreseinkommen über €175.000 kein Anspruch
+- Partnermonate: 2 zusätzliche Monate wenn beide Eltern mindestens 2 Monate nehmen
+
+Bei Benutzerkontext (Einkommen, Berechnungsergebnisse) gib personalisierte Beratung basierend auf ihrer spezifischen Situation.
+
+Sei prägnant, hilfreich und genau. Bei Unsicherheit empfehle die lokale Elterngeldstelle.`;
     }
 
     // Build context message if available
