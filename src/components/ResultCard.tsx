@@ -23,7 +23,7 @@ export function ResultCard({
   }
   return <div style={{
     backgroundColor: '#EFEBDE'
-  }} className="p-space-md rounded-xl border border-border h-full flex flex-col bg-[#ae917a]/0">
+  }} className="p-space-md rounded-xl border border-border h-full bg-white flex flex-col gap-0">
       {/* Headline */}
       <div className="pb-space-md mb-space-md border-b border-border">
         <h2 className="text-sm font-semibold text-foreground">
@@ -33,9 +33,9 @@ export function ResultCard({
       </div>
 
       {/* Basiselterngeld */}
-      <div className="flex items-start justify-between pb-space-md border-b border-border">
+      <div className="flex items-start justify-between pb-space-md border-b border-border mx-[4px] pr-0">
         <div className="max-w-[70%]">
-          <h3 className="font-semibold text-foreground text-sm">Basiselterngeld</h3>
+          <h3 className="font-semibold text-foreground text-sm mx-0">Basiselterngeld</h3>
           <p className="text-xs text-muted-foreground mt-space-2xs">Full monthly amount for shorter duration (12-14 months total).</p>
         </div>
         <div className="text-right">
