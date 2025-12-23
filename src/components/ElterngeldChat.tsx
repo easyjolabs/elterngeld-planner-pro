@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { flushSync } from 'react-dom';
-import { ArrowUp, RotateCcw, Copy, RefreshCw, Plus } from 'lucide-react';
+import { ArrowUp, ArrowDown, RotateCcw, Copy, RefreshCw, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -32,18 +32,43 @@ export function ElterngeldChat({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
   
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const pendingDeltaRef = useRef('');
   const streamDoneRef = useRef(false);
   const flushIntervalRef = useRef<number | null>(null);
   const lastUserMessageRef = useRef<string>('');
 
-  useEffect(() => {
+  const scrollToBottom = useCallback(() => {
     if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+      scrollAreaRef.current.scrollTo({
+        top: scrollAreaRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
-  }, [messages]);
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    if (scrollAreaRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollAreaRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      setShowScrollButton(!isNearBottom);
+    }
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  useEffect(() => {
+    const scrollEl = scrollAreaRef.current;
+    if (scrollEl) {
+      scrollEl.addEventListener('scroll', handleScroll);
+      return () => scrollEl.removeEventListener('scroll', handleScroll);
+    }
+  }, [handleScroll]);
 
   useEffect(() => {
     return () => {
@@ -237,6 +262,8 @@ export function ElterngeldChat({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Blur input to collapse mobile keyboard
+    inputRef.current?.blur();
     sendMessage(input);
   };
 
@@ -249,7 +276,7 @@ export function ElterngeldChat({
           variant="ghost"
           size="icon"
           onClick={resetChat}
-          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px]"
           title="Restart chat"
         >
           <RotateCcw className="h-4 w-4" />
@@ -257,109 +284,124 @@ export function ElterngeldChat({
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 px-4 py-3" ref={scrollAreaRef}>
-        {messages.length === 0 ? (
-          <div className="space-y-4">
-            <p className="font-medium text-foreground leading-relaxed text-base">
-              Hi! I'm here to help you understand Elterngeld. Ask me anything about parental allowance in Germany.
-            </p>
-            <div className="space-y-1">
-              {SUGGESTED_QUESTIONS.map((question, index) => (
-                <button
-                  key={index}
-                  onClick={() => sendMessage(question)}
-                  className="block w-full text-left text-muted-foreground hover:text-foreground transition-colors text-sm py-1.5 leading-relaxed"
-                >
-                  {question}
-                </button>
-              ))}
+      <div className="relative flex-1 overflow-hidden">
+        <ScrollArea className="h-full px-4 py-3" ref={scrollAreaRef}>
+          {messages.length === 0 ? (
+            <div className="space-y-4">
+              <p className="font-medium text-foreground leading-relaxed text-base">
+                Hi! I'm here to help you understand Elterngeld. Ask me anything about parental allowance in Germany.
+              </p>
+              <div className="space-y-1">
+                {SUGGESTED_QUESTIONS.map((question, index) => (
+                  <button
+                    key={index}
+                    onClick={() => sendMessage(question)}
+                    className="block w-full text-left text-muted-foreground hover:text-foreground transition-colors text-sm py-3 min-h-[44px] leading-relaxed"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "flex flex-col",
-                  message.role === 'user' ? 'items-end' : 'items-start'
-                )}
-              >
+          ) : (
+            <div className="space-y-4">
+              {messages.map((message, index) => (
                 <div
+                  key={index}
                   className={cn(
-                    "max-w-[85%] text-sm",
-                    message.role === 'user'
-                      ? 'bg-secondary/50 text-foreground rounded-full px-4 py-2'
-                      : 'bg-transparent text-foreground'
+                    "flex flex-col",
+                    message.role === 'user' ? 'items-end' : 'items-start'
                   )}
                 >
-                  {message.content ? (
-                    message.role === 'assistant' ? (
-                      <div className="prose prose-sm max-w-none prose-p:my-2 prose-p:leading-relaxed prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-strong:text-foreground leading-relaxed">
-                        <ReactMarkdown>{message.content}</ReactMarkdown>
-                      </div>
+                  <div
+                    className={cn(
+                      "max-w-[85%] text-sm",
+                      message.role === 'user'
+                        ? 'bg-secondary/50 text-foreground rounded-full px-4 py-2'
+                        : 'bg-transparent text-foreground'
+                    )}
+                  >
+                    {message.content ? (
+                      message.role === 'assistant' ? (
+                        <div className="prose prose-sm max-w-none prose-p:my-2 prose-p:leading-relaxed prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-strong:text-foreground leading-relaxed">
+                          <ReactMarkdown>{message.content}</ReactMarkdown>
+                        </div>
+                      ) : (
+                        <span className="leading-relaxed">{message.content}</span>
+                      )
                     ) : (
-                      <span className="leading-relaxed">{message.content}</span>
-                    )
-                  ) : (
-                    <span className="text-muted-foreground italic flex items-center gap-1">
-                      <span className="animate-pulse">Thinking</span>
-                      <span className="inline-flex">
-                        <span className="animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1s' }}>.</span>
-                        <span className="animate-bounce" style={{ animationDelay: '150ms', animationDuration: '1s' }}>.</span>
-                        <span className="animate-bounce" style={{ animationDelay: '300ms', animationDuration: '1s' }}>.</span>
+                      <span className="text-muted-foreground italic flex items-center gap-1">
+                        <span className="animate-pulse">Thinking</span>
+                        <span className="inline-flex">
+                          <span className="animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1s' }}>.</span>
+                          <span className="animate-bounce" style={{ animationDelay: '150ms', animationDuration: '1s' }}>.</span>
+                          <span className="animate-bounce" style={{ animationDelay: '300ms', animationDuration: '1s' }}>.</span>
+                        </span>
                       </span>
-                    </span>
-                  )}
-                </div>
+                    )}
+                  </div>
 
-                {/* Action buttons for assistant messages - only show when complete (not loading) */}
-                {message.role === 'assistant' && message.content && !isLoading && (
-                  <div className="flex items-center gap-0.5 mt-1.5 ml-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                      onClick={() => copyToClipboard(message.content)}
-                      title="Copy"
-                    >
-                      <Copy className="h-3.5 w-3.5" />
-                    </Button>
-                    {index === messages.length - 1 && (
+                  {/* Action buttons for assistant messages - only show when complete (not loading) */}
+                  {message.role === 'assistant' && message.content && !isLoading && (
+                    <div className="flex items-center gap-0.5 mt-1.5 ml-1">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                        onClick={regenerateResponse}
-                        title="Regenerate"
+                        className="h-8 w-8 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-foreground"
+                        onClick={() => copyToClipboard(message.content)}
+                        title="Copy"
                       >
-                        <RefreshCw className="h-3.5 w-3.5" />
+                        <Copy className="h-3.5 w-3.5" />
                       </Button>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </ScrollArea>
+                      {index === messages.length - 1 && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-foreground"
+                          onClick={regenerateResponse}
+                          title="Regenerate"
+                        >
+                          <RefreshCw className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </ScrollArea>
 
-      {/* Input */}
-      <form onSubmit={handleSubmit} className="p-3 border-t border-border/50">
+        {/* Scroll to bottom button */}
+        {showScrollButton && (
+          <Button
+            variant="secondary"
+            size="icon"
+            onClick={scrollToBottom}
+            className="absolute bottom-2 right-4 h-8 w-8 rounded-full shadow-md z-10"
+          >
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+
+      {/* Input with safe area padding for notched devices */}
+      <form onSubmit={handleSubmit} className="p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-border/50">
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-3 py-1.5 border border-border">
           <Plus className="h-5 w-5 text-muted-foreground shrink-0" />
           <Input
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask anything about Elterngeld"
             disabled={isLoading}
-            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-8 text-sm"
+            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-8 text-base"
           />
           <Button
             type="submit"
             size="icon"
             disabled={isLoading || !input.trim()}
-            className="rounded-full h-8 w-8 bg-foreground hover:bg-foreground/90 shrink-0"
+            className="rounded-full h-10 w-10 min-h-[44px] min-w-[44px] bg-foreground hover:bg-foreground/90 shrink-0"
           >
             <ArrowUp className="h-4 w-4 text-background" />
           </Button>
