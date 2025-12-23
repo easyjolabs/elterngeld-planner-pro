@@ -188,7 +188,7 @@ export function ElterngeldChat({
     e.preventDefault();
     sendMessage(input);
   };
-  return <div className="flex flex-col h-full w-full bg-card rounded-2xl border border-border overflow-hidden">
+  return <div className="flex flex-col h-full w-full bg-card rounded-2xl border border-border overflow-hidden px-[10px] py-[10px]">
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         {messages.length === 0 ? <div className="space-y-4">
