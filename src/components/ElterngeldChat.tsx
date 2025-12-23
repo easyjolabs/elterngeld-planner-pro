@@ -257,7 +257,7 @@ export function ElterngeldChat({
         <ScrollArea className="h-full px-4 py-3" ref={scrollAreaRef}>
           {messages.length === 0 ? <div className="space-y-4">
               <p className="font-medium text-foreground leading-relaxed text-base">
-                Hi! I'm here to help you understand Elterngeld. Ask me anything about parental allowance in Germany.
+                Hi! Do you have questions about Elterngeld?       
               </p>
               <div className="space-y-1">
                 {SUGGESTED_QUESTIONS.map((question, index) => <button key={index} onClick={() => sendMessage(question)} className="block w-full text-left text-muted-foreground hover:text-foreground transition-colors text-sm py-1.5 leading-relaxed">
