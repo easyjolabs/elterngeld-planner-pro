@@ -6,13 +6,41 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+interface SourceInfo {
+  section: string;
+  excerpt: string;
+  chunkIndex: number;
+}
+
+// Extract section reference (§X or RL X.X.X) from content
+function extractSection(content: string): string {
+  // Look for § references
+  const paragraphMatch = content.match(/§\s*\d+[a-z]?/i);
+  if (paragraphMatch) {
+    return paragraphMatch[0].replace(/\s+/g, '');
+  }
+  
+  // Look for RL references (e.g., RL 4.5.3)
+  const rlMatch = content.match(/RL\s*\d+(\.\d+)*/i);
+  if (rlMatch) {
+    return rlMatch[0].replace(/\s+/g, ' ');
+  }
+  
+  // Look for numbered sections like "4.5.3"
+  const numMatch = content.match(/^\d+(\.\d+)+/);
+  if (numMatch) {
+    return `RL ${numMatch[0]}`;
+  }
+  
+  return 'Dokument';
+}
+
 // Search for relevant document chunks using PostgreSQL full-text search
 async function searchDocumentChunks(
   supabase: any,
   query: string,
   matchCount: number = 5
-): Promise<string[]> {
-  // Use the search_document_chunks function
+): Promise<{ content: string; chunkIndex: number }[]> {
   const { data, error } = await supabase.rpc('search_document_chunks', {
     search_query: query,
     match_count: matchCount,
@@ -23,7 +51,28 @@ async function searchDocumentChunks(
     return [];
   }
 
-  return data?.map((chunk: { content: string }) => chunk.content) || [];
+  // Also fetch chunk_index from document_chunks
+  if (data && data.length > 0) {
+    const chunkIds = data.map((chunk: { id: string }) => chunk.id);
+    const { data: chunksWithIndex, error: indexError } = await supabase
+      .from('document_chunks')
+      .select('id, chunk_index, content')
+      .in('id', chunkIds);
+    
+    if (indexError) {
+      console.error('Error fetching chunk indices:', indexError);
+      return data.map((chunk: { content: string }) => ({ content: chunk.content, chunkIndex: 0 }));
+    }
+    
+    // Create a map for quick lookup
+    const indexMap = new Map(chunksWithIndex?.map((c: any) => [c.id, c.chunk_index]) || []);
+    return data.map((chunk: { id: string; content: string }) => ({
+      content: chunk.content,
+      chunkIndex: indexMap.get(chunk.id) || 0
+    }));
+  }
+
+  return [];
 }
 
 // Check if there's a ready document
@@ -44,7 +93,6 @@ async function hasReadyDocument(supabase: any): Promise<boolean> {
 
 // Extract key terms from user message for search
 function extractSearchTerms(message: string): string {
-  // Keep German-specific terms and important words
   const cleaned = message
     .toLowerCase()
     .replace(/[?!.,;:'"()]/g, ' ')
@@ -84,6 +132,7 @@ serve(async (req) => {
     
     let documentContext = '';
     let systemPrompt = '';
+    let sources: SourceInfo[] = [];
 
     if (hasDocument && latestUserMessage) {
       console.log('Searching for relevant document chunks...');
@@ -96,8 +145,15 @@ serve(async (req) => {
       const relevantChunks = await searchDocumentChunks(supabase, searchTerms, 8);
       
       if (relevantChunks.length > 0) {
-        documentContext = relevantChunks.join('\n\n---\n\n');
+        documentContext = relevantChunks.map(c => c.content).join('\n\n---\n\n');
         console.log(`Found ${relevantChunks.length} relevant chunks`);
+        
+        // Build sources for citation
+        sources = relevantChunks.map(chunk => ({
+          section: extractSection(chunk.content),
+          excerpt: chunk.content.slice(0, 120).replace(/\n/g, ' ').trim() + '...',
+          chunkIndex: chunk.chunkIndex
+        }));
       } else {
         console.log('No chunks matched the search query');
       }
@@ -187,7 +243,37 @@ Respond in the same language the user writes in (German or English).`;
 
     console.log('Streaming response from AI gateway');
 
-    return new Response(response.body, {
+    // Create a TransformStream to prepend sources
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    const encoder = new TextEncoder();
+
+    // Start async processing
+    (async () => {
+      try {
+        // First, send sources if we have them
+        if (sources.length > 0) {
+          const sourcesEvent = `data: ${JSON.stringify({ type: 'sources', sources })}\n\n`;
+          await writer.write(encoder.encode(sourcesEvent));
+        }
+
+        // Then pipe the AI response
+        const reader = response.body?.getReader();
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            await writer.write(value);
+          }
+        }
+      } catch (error) {
+        console.error('Stream error:', error);
+      } finally {
+        await writer.close();
+      }
+    })();
+
+    return new Response(readable, {
       headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
     });
   } catch (error) {
