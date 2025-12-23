@@ -64,14 +64,27 @@ serve(async (req) => {
   }
 
   try {
-    const { text, documentName } = await req.json();
+    const { text, documentName, url } = await req.json();
     
-    if (!text || text.length < 100) {
+    let textContent = text;
+    
+    // If URL is provided, fetch the text content from it
+    if (url) {
+      console.log(`Fetching document from URL: ${url}`);
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch document from URL: ${response.status}`);
+      }
+      textContent = await response.text();
+      console.log(`Fetched ${textContent.length} characters from URL`);
+    }
+    
+    if (!textContent || textContent.length < 100) {
       throw new Error('Text content is required (minimum 100 characters)');
     }
 
     console.log(`Processing text document: ${documentName || 'Unnamed'}`);
-    console.log(`Text length: ${text.length} characters`);
+    console.log(`Text length: ${textContent.length} characters`);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -83,7 +96,7 @@ serve(async (req) => {
       .from('documents')
       .insert({
         name: documentName || 'Text Document',
-        storage_path: 'text-import',
+        storage_path: url || 'text-import',
         status: 'processing',
       })
       .select()
@@ -97,7 +110,7 @@ serve(async (req) => {
     console.log(`Created document record: ${doc.id}`);
 
     // Chunk the text
-    const chunks = chunkText(text);
+    const chunks = chunkText(textContent);
     console.log(`Created ${chunks.length} chunks`);
 
     if (chunks.length === 0) {
@@ -147,7 +160,7 @@ serve(async (req) => {
         success: true,
         documentId: doc.id,
         chunkCount: chunks.length,
-        textLength: text.length,
+        textLength: textContent.length,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
