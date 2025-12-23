@@ -1,5 +1,10 @@
 import { useState, useMemo } from "react";
-import { ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowRight, ArrowLeft, MessageCircle } from "lucide-react";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { StepIndicator } from "@/components/StepIndicator";
 import { IncomeSlider } from "@/components/IncomeSlider";
@@ -128,10 +133,27 @@ const Index = () => {
           </p>
         </main>
 
-        {/* Chat Panel */}
-        <aside className="hidden lg:flex w-[400px]">
+        {/* Chat Panel - visible on tablet+ */}
+        <aside className="hidden md:flex w-[320px] lg:w-[400px]">
           <ElterngeldChat calculation={calculation} calculatorState={calculatorState} />
         </aside>
+
+        {/* Mobile Chat FAB + Drawer */}
+        <div className="md:hidden">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button
+                size="icon"
+                className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg gradient-primary z-50"
+              >
+                <MessageCircle className="h-6 w-6" />
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="h-[85vh]">
+              <ElterngeldChat calculation={calculation} calculatorState={calculatorState} />
+            </DrawerContent>
+          </Drawer>
+        </div>
       </div>
     </div>
   );
