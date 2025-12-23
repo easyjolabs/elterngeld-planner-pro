@@ -193,12 +193,12 @@ export function ElterngeldChat({
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         {messages.length === 0 ? <div className="space-y-4">
-            <p className="font-medium text-primary font-sans py-0 text-sm pb-[20px]">
+            <p className="font-medium text-primary font-sans py-0 pb-[20px] text-base">
               Hi! I'm here to help you understand Elterngeld. Ask me anything about parental allowance in Germany.
             </p>
             <div className="space-y-2">
               
-              {SUGGESTED_QUESTIONS.map((question, index) => <button key={index} onClick={() => sendMessage(question)} className="block w-full text-left border transition-colors rounded-full border-white text-primary font-sans font-normal py-[10px] my-[5px] text-xs bg-[#e6e6e6]/0 px-0">
+              {SUGGESTED_QUESTIONS.map((question, index) => <button key={index} onClick={() => sendMessage(question)} className="block w-full text-left border transition-colors rounded-full border-white text-primary font-sans bg-[#e6e6e6]/0 px-0 text-sm font-normal py-[5px] my-[2px]">
                   {question}
                 </button>)}
             </div>
