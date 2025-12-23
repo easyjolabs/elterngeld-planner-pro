@@ -1,21 +1,30 @@
 import { useState, useRef, useEffect } from 'react';
 import { flushSync } from 'react-dom';
-import { Send } from 'lucide-react';
+import { ArrowUp, RotateCcw, Copy, ThumbsUp, ThumbsDown, RefreshCw, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CalculatorState, ElterngeldCalculation } from '@/types/elterngeld';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import { toast } from '@/hooks/use-toast';
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
+
 interface ElterngeldChatProps {
   calculation: ElterngeldCalculation;
   calculatorState: CalculatorState;
 }
-const SUGGESTED_QUESTIONS = ["How much parental allowance will I receive?", "Can I get Elterngeld?", "Which model should I choose?"];
+
+const SUGGESTED_QUESTIONS = [
+  "How much parental allowance will I receive?",
+  "Can I get Elterngeld?",
+  "Which model should I choose?"
+];
+
 export function ElterngeldChat({
   calculation,
   calculatorState
@@ -23,15 +32,19 @@ export function ElterngeldChat({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [feedbackState, setFeedbackState] = useState<Record<number, 'up' | 'down' | null>>({});
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const pendingDeltaRef = useRef('');
   const streamDoneRef = useRef(false);
   const flushIntervalRef = useRef<number | null>(null);
+  const lastUserMessageRef = useRef<string>('');
+
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
   useEffect(() => {
     return () => {
       if (flushIntervalRef.current !== null) {
@@ -40,8 +53,47 @@ export function ElterngeldChat({
       }
     };
   }, []);
+
+  const copyToClipboard = async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      toast({
+        description: "Copied to clipboard",
+      });
+    } catch {
+      toast({
+        description: "Failed to copy",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFeedback = (index: number, type: 'up' | 'down') => {
+    setFeedbackState(prev => ({
+      ...prev,
+      [index]: prev[index] === type ? null : type
+    }));
+  };
+
+  const regenerateResponse = () => {
+    if (lastUserMessageRef.current && !isLoading) {
+      // Remove the last assistant message
+      setMessages(prev => prev.slice(0, -1));
+      sendMessage(lastUserMessageRef.current);
+    }
+  };
+
+  const resetChat = () => {
+    setMessages([]);
+    setFeedbackState({});
+    lastUserMessageRef.current = '';
+  };
+
   const sendMessage = async (messageText: string) => {
     if (!messageText.trim() || isLoading) return;
+
+    lastUserMessageRef.current = messageText;
+
     const userMessage: Message = {
       role: 'user',
       content: messageText
@@ -49,17 +101,21 @@ export function ElterngeldChat({
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+
     let assistantContent = '';
     pendingDeltaRef.current = '';
     streamDoneRef.current = false;
+
     if (flushIntervalRef.current !== null) {
       window.clearInterval(flushIntervalRef.current);
       flushIntervalRef.current = null;
     }
+
     let resolveDrain: (() => void) | null = null;
     const drainPromise = new Promise<void>(resolve => {
       resolveDrain = resolve;
     });
+
     const dequeueNextUnit = (text: string): [string, string] => {
       const ws = text.match(/^\s+/);
       if (ws) return [ws[0], text.slice(ws[0].length)];
@@ -67,6 +123,7 @@ export function ElterngeldChat({
       if (word) return [word[0], text.slice(word[0].length)];
       return [text[0], text.slice(1)];
     };
+
     const ensureFlusher = () => {
       if (flushIntervalRef.current !== null) return;
       flushIntervalRef.current = window.setInterval(() => {
@@ -94,6 +151,7 @@ export function ElterngeldChat({
         });
       }, 25);
     };
+
     try {
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elterngeld-chat`, {
         method: 'POST',
@@ -115,6 +173,7 @@ export function ElterngeldChat({
           }
         })
       });
+
       if (!response.ok) {
         if (response.status === 429) {
           throw new Error('Rate limit exceeded. Please try again later.');
@@ -124,6 +183,7 @@ export function ElterngeldChat({
         }
         throw new Error('Failed to get response');
       }
+
       const reader = response.body?.getReader();
       if (!reader) throw new Error('No reader available');
       const decoder = new TextDecoder();
@@ -134,15 +194,12 @@ export function ElterngeldChat({
         role: 'assistant',
         content: ''
       }]);
+
       while (true) {
-        const {
-          done,
-          value
-        } = await reader.read();
+        const { done, value } = await reader.read();
         if (done) break;
-        buffer += decoder.decode(value, {
-          stream: true
-        });
+        buffer += decoder.decode(value, { stream: true });
+
         let newlineIndex: number;
         while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
           let line = buffer.slice(0, newlineIndex);
@@ -160,7 +217,6 @@ export function ElterngeldChat({
               ensureFlusher();
             }
           } catch {
-            // Incomplete JSON, put back and wait
             buffer = line + '\n' + buffer;
             break;
           }
@@ -185,46 +241,168 @@ export function ElterngeldChat({
       setIsLoading(false);
     }
   };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sendMessage(input);
   };
-  return <div className="flex flex-col h-full w-full bg-card rounded-2xl border border-border overflow-hidden px-[11px] py-[11px]">
+
+  return (
+    <div className="relative flex flex-col h-full w-full bg-card rounded-2xl border border-border overflow-hidden">
+      {/* Left accent bar */}
+      <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-muted rounded-r-full" />
+
+      {/* Header with restart button */}
+      <div className="flex justify-end p-2 border-b border-border/50">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={resetChat}
+          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+          title="Restart chat"
+        >
+          <RotateCcw className="h-4 w-4" />
+        </Button>
+      </div>
+
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-        {messages.length === 0 ? <div className="space-y-4">
-            <p className="font-medium text-primary font-sans py-0 pb-[20px] text-base">
+      <ScrollArea className="flex-1 px-4 py-3" ref={scrollAreaRef}>
+        {messages.length === 0 ? (
+          <div className="space-y-4">
+            <p className="font-medium text-foreground leading-relaxed text-base">
               Hi! I'm here to help you understand Elterngeld. Ask me anything about parental allowance in Germany.
             </p>
-            <div className="space-y-2">
-              
-              {SUGGESTED_QUESTIONS.map((question, index) => <button key={index} onClick={() => sendMessage(question)} className="block w-full text-left border transition-colors rounded-full border-white text-primary font-sans bg-[#e6e6e6]/0 px-0 text-sm font-normal py-[5px] my-[2px]">
+            <div className="space-y-1">
+              {SUGGESTED_QUESTIONS.map((question, index) => (
+                <button
+                  key={index}
+                  onClick={() => sendMessage(question)}
+                  className="block w-full text-left text-muted-foreground hover:text-foreground transition-colors text-sm py-1.5 leading-relaxed"
+                >
                   {question}
-                </button>)}
+                </button>
+              ))}
             </div>
-          </div> : <div className="space-y-4">
-            {messages.map((message, index) => <div key={index} className={cn("flex", message.role === 'user' ? 'justify-end' : 'justify-start')}>
-                <div className={cn("max-w-[85%] text-sm", message.role === 'user' ? 'bg-secondary/50 text-foreground rounded-full px-4 py-2' : 'bg-transparent text-foreground')}>
-                  {message.content ? message.role === 'assistant' ? <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-strong:text-foreground">
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "flex flex-col",
+                  message.role === 'user' ? 'items-end' : 'items-start'
+                )}
+              >
+                <div
+                  className={cn(
+                    "max-w-[85%] text-sm",
+                    message.role === 'user'
+                      ? 'bg-secondary/50 text-foreground rounded-full px-4 py-2'
+                      : 'bg-transparent text-foreground'
+                  )}
+                >
+                  {message.content ? (
+                    message.role === 'assistant' ? (
+                      <div className="prose prose-sm max-w-none prose-p:my-2 prose-p:leading-relaxed prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-strong:text-foreground leading-relaxed">
                         <ReactMarkdown>{message.content}</ReactMarkdown>
-                      </div> : message.content : <span className="inline-flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse" />
-                      <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse delay-100" />
-                      <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse delay-200" />
-                    </span>}
+                      </div>
+                    ) : (
+                      <span className="leading-relaxed">{message.content}</span>
+                    )
+                  ) : (
+                    <span className="text-muted-foreground italic flex items-center gap-1">
+                      <span className="animate-pulse">Thinking</span>
+                      <span className="inline-flex">
+                        <span className="animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1s' }}>.</span>
+                        <span className="animate-bounce" style={{ animationDelay: '150ms', animationDuration: '1s' }}>.</span>
+                        <span className="animate-bounce" style={{ animationDelay: '300ms', animationDuration: '1s' }}>.</span>
+                      </span>
+                    </span>
+                  )}
                 </div>
-              </div>)}
-          </div>}
+
+                {/* Action buttons for assistant messages */}
+                {message.role === 'assistant' && message.content && (
+                  <div className="flex items-center gap-0.5 mt-1.5 ml-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                      onClick={() => copyToClipboard(message.content)}
+                      title="Copy"
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        "h-7 w-7",
+                        feedbackState[index] === 'up'
+                          ? 'text-foreground'
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                      onClick={() => handleFeedback(index, 'up')}
+                      title="Good response"
+                    >
+                      <ThumbsUp className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        "h-7 w-7",
+                        feedbackState[index] === 'down'
+                          ? 'text-foreground'
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                      onClick={() => handleFeedback(index, 'down')}
+                      title="Bad response"
+                    >
+                      <ThumbsDown className="h-3.5 w-3.5" />
+                    </Button>
+                    {index === messages.length - 1 && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                        onClick={regenerateResponse}
+                        disabled={isLoading}
+                        title="Regenerate"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </ScrollArea>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-border">
-        <div className="flex gap-2">
-          <Input value={input} onChange={e => setInput(e.target.value)} placeholder="Ask about Elterngeld..." disabled={isLoading} className="flex-1" />
-          <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
-            <Send className="h-4 w-4" />
+      <form onSubmit={handleSubmit} className="p-3 border-t border-border/50">
+        <div className="flex items-center gap-2 bg-muted/30 rounded-full px-3 py-1.5 border border-border">
+          <Plus className="h-5 w-5 text-muted-foreground shrink-0" />
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Message the AI"
+            disabled={isLoading}
+            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-8 text-sm"
+          />
+          <Button
+            type="submit"
+            size="icon"
+            disabled={isLoading || !input.trim()}
+            className="rounded-full h-8 w-8 bg-foreground hover:bg-foreground/90 shrink-0"
+          >
+            <ArrowUp className="h-4 w-4 text-background" />
           </Button>
         </div>
       </form>
-    </div>;
+    </div>
+  );
 }
