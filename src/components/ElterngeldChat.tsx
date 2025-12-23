@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { flushSync } from 'react-dom';
-import { ArrowUp, RotateCcw, Copy, ThumbsUp, ThumbsDown, RefreshCw, Plus } from 'lucide-react';
+import { ArrowUp, RotateCcw, Copy, RefreshCw, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -32,7 +32,7 @@ export function ElterngeldChat({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [feedbackState, setFeedbackState] = useState<Record<number, 'up' | 'down' | null>>({});
+  
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const pendingDeltaRef = useRef('');
   const streamDoneRef = useRef(false);
@@ -68,12 +68,6 @@ export function ElterngeldChat({
     }
   };
 
-  const handleFeedback = (index: number, type: 'up' | 'down') => {
-    setFeedbackState(prev => ({
-      ...prev,
-      [index]: prev[index] === type ? null : type
-    }));
-  };
 
   const regenerateResponse = () => {
     if (lastUserMessageRef.current && !isLoading) {
@@ -85,7 +79,6 @@ export function ElterngeldChat({
 
   const resetChat = () => {
     setMessages([]);
-    setFeedbackState({});
     lastUserMessageRef.current = '';
   };
 
@@ -248,9 +241,7 @@ export function ElterngeldChat({
   };
 
   return (
-    <div className="relative flex flex-col h-full w-full bg-card rounded-2xl border border-border overflow-hidden">
-      {/* Left accent bar */}
-      <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-muted rounded-r-full" />
+    <div className="flex flex-col h-full w-full bg-card rounded-2xl border border-border overflow-hidden">
 
       {/* Header with restart button */}
       <div className="flex justify-end p-2 border-b border-border/50">
@@ -322,8 +313,8 @@ export function ElterngeldChat({
                   )}
                 </div>
 
-                {/* Action buttons for assistant messages */}
-                {message.role === 'assistant' && message.content && (
+                {/* Action buttons for assistant messages - only show when complete (not loading) */}
+                {message.role === 'assistant' && message.content && !isLoading && (
                   <div className="flex items-center gap-0.5 mt-1.5 ml-1">
                     <Button
                       variant="ghost"
@@ -334,41 +325,12 @@ export function ElterngeldChat({
                     >
                       <Copy className="h-3.5 w-3.5" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={cn(
-                        "h-7 w-7",
-                        feedbackState[index] === 'up'
-                          ? 'text-foreground'
-                          : 'text-muted-foreground hover:text-foreground'
-                      )}
-                      onClick={() => handleFeedback(index, 'up')}
-                      title="Good response"
-                    >
-                      <ThumbsUp className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={cn(
-                        "h-7 w-7",
-                        feedbackState[index] === 'down'
-                          ? 'text-foreground'
-                          : 'text-muted-foreground hover:text-foreground'
-                      )}
-                      onClick={() => handleFeedback(index, 'down')}
-                      title="Bad response"
-                    >
-                      <ThumbsDown className="h-3.5 w-3.5" />
-                    </Button>
                     {index === messages.length - 1 && (
                       <Button
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7 text-muted-foreground hover:text-foreground"
                         onClick={regenerateResponse}
-                        disabled={isLoading}
                         title="Regenerate"
                       >
                         <RefreshCw className="h-3.5 w-3.5" />
@@ -389,7 +351,7 @@ export function ElterngeldChat({
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Message the AI"
+            placeholder="Ask anything about Elterngeld"
             disabled={isLoading}
             className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-8 text-sm"
           />
