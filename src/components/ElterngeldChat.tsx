@@ -7,7 +7,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { CalculatorState, ElterngeldCalculation } from '@/types/elterngeld';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
-
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -199,28 +198,20 @@ export function ElterngeldChat({
             </p>
             <div className="space-y-2">
               
-              {SUGGESTED_QUESTIONS.map((question, index) => <button key={index} onClick={() => sendMessage(question)} className="block w-full text-left px-3 border transition-colors rounded-full border-white text-primary font-sans bg-neutral-200 hover:bg-neutral-100 font-normal py-[10px] my-[5px] text-xs">
+              {SUGGESTED_QUESTIONS.map((question, index) => <button key={index} onClick={() => sendMessage(question)} className="block w-full text-left px-3 border transition-colors rounded-full border-white text-primary font-sans font-normal py-[10px] my-[5px] text-xs bg-[#e6e6e6]/0">
                   {question}
                 </button>)}
             </div>
           </div> : <div className="space-y-4">
             {messages.map((message, index) => <div key={index} className={cn("flex", message.role === 'user' ? 'justify-end' : 'justify-start')}>
                 <div className={cn("max-w-[85%] text-sm", message.role === 'user' ? 'bg-secondary/50 text-foreground rounded-full px-4 py-2' : 'bg-transparent text-foreground')}>
-                  {message.content ? (
-                    message.role === 'assistant' ? (
-                      <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-strong:text-foreground">
+                  {message.content ? message.role === 'assistant' ? <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-strong:text-foreground">
                         <ReactMarkdown>{message.content}</ReactMarkdown>
-                      </div>
-                    ) : (
-                      message.content
-                    )
-                  ) : (
-                    <span className="inline-flex items-center gap-1">
+                      </div> : message.content : <span className="inline-flex items-center gap-1">
                       <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse" />
                       <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse delay-100" />
                       <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse delay-200" />
-                    </span>
-                  )}
+                    </span>}
                 </div>
               </div>)}
           </div>}
