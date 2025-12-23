@@ -79,9 +79,9 @@ export function IncomeSlider({
           <h3 className="text-sm font-semibold text-foreground mb-space-sm">
             Do you already have children?
           </h3>
-          <p className="text-[11px] text-muted-foreground mb-space-xl leading-tight flex-1">
-            10% extra Elterngeld (min. €75/month) if a sibling is under 3, or two siblings are under 6.
-          </p>
+        <p className="text-[11px] text-muted-foreground mb-space-md leading-tight flex-1">
+          10% extra Elterngeld (min. €75/month) if a sibling is under 3, or two siblings are under 6.
+        </p>
           <div className="flex items-center gap-space-sm h-8">
             <Checkbox
               id="siblingBonus"
@@ -99,9 +99,9 @@ export function IncomeSlider({
           <h3 className="text-sm font-semibold text-foreground mb-space-sm">
             More than one child at birth?
           </h3>
-          <p className="text-[11px] text-muted-foreground mb-space-xl leading-tight flex-1">
-            €300 per additional child per month.
-          </p>
+        <p className="text-[11px] text-muted-foreground mb-space-md leading-tight flex-1">
+          €300 per additional child per month.
+        </p>
           <Select
             value={multipleChildren.toString()}
             onValueChange={(v) => onMultipleChildrenChange(parseInt(v))}
