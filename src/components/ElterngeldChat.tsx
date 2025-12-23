@@ -276,7 +276,7 @@ export function ElterngeldChat({
           variant="ghost"
           size="icon"
           onClick={resetChat}
-          className="h-8 w-8 text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px]"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground"
           title="Restart chat"
         >
           <RotateCcw className="h-4 w-4" />
@@ -296,7 +296,7 @@ export function ElterngeldChat({
                   <button
                     key={index}
                     onClick={() => sendMessage(question)}
-                    className="block w-full text-left text-muted-foreground hover:text-foreground transition-colors text-sm py-3 min-h-[44px] leading-relaxed"
+                    className="block w-full text-left text-muted-foreground hover:text-foreground transition-colors text-sm py-1.5 leading-relaxed"
                   >
                     {question}
                   </button>
@@ -347,7 +347,7 @@ export function ElterngeldChat({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-foreground"
+                        className="h-6 w-6 text-muted-foreground hover:text-foreground"
                         onClick={() => copyToClipboard(message.content)}
                         title="Copy"
                       >
@@ -357,7 +357,7 @@ export function ElterngeldChat({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-foreground"
+                          className="h-6 w-6 text-muted-foreground hover:text-foreground"
                           onClick={regenerateResponse}
                           title="Regenerate"
                         >
@@ -386,7 +386,7 @@ export function ElterngeldChat({
       </div>
 
       {/* Input with safe area padding for notched devices */}
-      <form onSubmit={handleSubmit} className="p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-border/50">
+      <form onSubmit={handleSubmit} className="p-3 border-t border-border/50">
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-3 py-1.5 border border-border">
           <Plus className="h-5 w-5 text-muted-foreground shrink-0" />
           <Input
@@ -395,13 +395,13 @@ export function ElterngeldChat({
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask anything about Elterngeld"
             disabled={isLoading}
-            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-8 text-base"
+            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-8 text-sm"
           />
           <Button
             type="submit"
             size="icon"
             disabled={isLoading || !input.trim()}
-            className="rounded-full h-10 w-10 min-h-[44px] min-w-[44px] bg-foreground hover:bg-foreground/90 shrink-0"
+            className="rounded-full h-8 w-8 bg-foreground hover:bg-foreground/90 shrink-0"
           >
             <ArrowUp className="h-4 w-4 text-background" />
           </Button>
