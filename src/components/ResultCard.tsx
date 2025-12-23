@@ -29,9 +29,7 @@ export function ResultCard({
         <h2 className="text-sm font-semibold text-foreground">
           Your estimated Elterngeld
         </h2>
-        <p className="text-xs text-muted-foreground mt-space-2xs">
-          Learn more about the Elterngeld models in the next step.
-        </p>
+        
       </div>
 
       {/* Basiselterngeld */}
@@ -41,7 +39,7 @@ export function ResultCard({
           <p className="text-xs text-muted-foreground mt-space-2xs">Full monthly amount for shorter duration (12-14 months total).</p>
         </div>
         <div className="text-right">
-          <span className="text-xl font-bold text-foreground">
+          <span className="text-xl font-bold text-foreground font-sans">
             €{calculation.totalBasis.toLocaleString('de-DE')}
           </span>
           <p className="text-xs text-muted-foreground whitespace-nowrap mt-space-2xs">per month</p>

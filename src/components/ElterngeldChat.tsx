@@ -188,16 +188,16 @@ export function ElterngeldChat({
     e.preventDefault();
     sendMessage(input);
   };
-  return <div className="flex flex-col h-full w-full bg-card rounded-2xl border border-border overflow-hidden px-[10px] py-[10px]">
+  return <div className="flex flex-col h-full w-full bg-card rounded-2xl border border-border overflow-hidden px-[11px] py-[11px]">
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         {messages.length === 0 ? <div className="space-y-4">
-            <p className="text-xs font-medium text-primary font-sans py-0">
+            <p className="font-medium text-primary font-sans py-0 text-sm pb-[20px]">
               Hi! I'm here to help you understand Elterngeld. Ask me anything about parental allowance in Germany.
             </p>
             <div className="space-y-2">
-              <p className="text-xs font-medium text-success">Suggested questions:</p>
-              {SUGGESTED_QUESTIONS.map((question, index) => <button key={index} onClick={() => sendMessage(question)} className="block w-full text-left px-3 py-2 border transition-colors rounded-full border-white text-xs text-primary font-sans bg-neutral-200 hover:bg-neutral-100 font-normal">
+              
+              {SUGGESTED_QUESTIONS.map((question, index) => <button key={index} onClick={() => sendMessage(question)} className="block w-full text-left px-3 border transition-colors rounded-full border-white text-primary font-sans bg-neutral-200 hover:bg-neutral-100 font-normal py-[10px] my-[5px] text-xs">
                   {question}
                 </button>)}
             </div>
