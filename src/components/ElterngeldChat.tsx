@@ -12,7 +12,9 @@ import { toast } from '@/hooks/use-toast';
 
 interface SourceInfo {
   section: string;
+  sectionEnglish?: string;
   excerpt: string;
+  excerptEnglish?: string;
   chunkIndex: number;
 }
 
@@ -365,8 +367,17 @@ export function ElterngeldChat({
                             key={idx}
                             className="text-xs bg-muted/50 rounded-md px-2.5 py-1.5 border border-border/50"
                           >
-                            <span className="font-medium text-foreground">{source.section}</span>
-                            <p className="text-muted-foreground mt-0.5 line-clamp-2">{source.excerpt}</p>
+                            <span className="font-medium text-foreground">
+                              {source.sectionEnglish || source.section}
+                            </span>
+                            <p className="text-muted-foreground mt-0.5 line-clamp-2">
+                              {source.excerptEnglish || source.excerpt}
+                            </p>
+                            {source.sectionEnglish && (
+                              <p className="text-muted-foreground/60 mt-0.5 text-[10px]">
+                                Original: {source.section}
+                              </p>
+                            )}
                           </div>
                         ))}
                       </CollapsibleContent>
