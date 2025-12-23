@@ -6,43 +6,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Generate embedding for a query
-async function generateQueryEmbedding(text: string, apiKey: string): Promise<number[]> {
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/embeddings', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'text-embedding-3-small',
-      input: text,
-      dimensions: 768,
-    }),
-  });
-
-  if (!response.ok) {
-    console.error('Embedding API error:', await response.text());
-    throw new Error(`Failed to generate embedding: ${response.status}`);
-  }
-
-  const data = await response.json();
-  return data.data[0].embedding;
-}
-
-// Retrieve relevant document chunks
-async function getRelevantChunks(
+// Search for relevant document chunks using PostgreSQL full-text search
+async function searchDocumentChunks(
   supabase: any,
-  queryEmbedding: number[],
+  query: string,
   matchCount: number = 5
 ): Promise<string[]> {
-  const { data, error } = await supabase.rpc('match_document_chunks', {
-    query_embedding: `[${queryEmbedding.join(',')}]`,
+  // Use the search_document_chunks function
+  const { data, error } = await supabase.rpc('search_document_chunks', {
+    search_query: query,
     match_count: matchCount,
   });
 
   if (error) {
-    console.error('Error fetching chunks:', error);
+    console.error('Error searching chunks:', error);
     return [];
   }
 
@@ -65,6 +42,19 @@ async function hasReadyDocument(supabase: any): Promise<boolean> {
   return data && data.length > 0;
 }
 
+// Extract key terms from user message for search
+function extractSearchTerms(message: string): string {
+  // Keep German-specific terms and important words
+  const cleaned = message
+    .toLowerCase()
+    .replace(/[?!.,;:'"()]/g, ' ')
+    .split(/\s+/)
+    .filter(word => word.length > 2)
+    .join(' ');
+  
+  return cleaned;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -83,7 +73,7 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-    // Get the latest user message for RAG query
+    // Get the latest user message for search
     const latestUserMessage = messages
       .slice()
       .reverse()
@@ -96,17 +86,20 @@ serve(async (req) => {
     let systemPrompt = '';
 
     if (hasDocument && latestUserMessage) {
-      console.log('Generating embedding for user query...');
+      console.log('Searching for relevant document chunks...');
       
-      // Generate embedding for the query
-      const queryEmbedding = await generateQueryEmbedding(latestUserMessage, LOVABLE_API_KEY);
+      // Extract search terms and search
+      const searchTerms = extractSearchTerms(latestUserMessage);
+      console.log(`Search terms: ${searchTerms}`);
       
-      // Get relevant chunks
-      const relevantChunks = await getRelevantChunks(supabase, queryEmbedding, 5);
+      // Get relevant chunks using full-text search
+      const relevantChunks = await searchDocumentChunks(supabase, searchTerms, 8);
       
       if (relevantChunks.length > 0) {
         documentContext = relevantChunks.join('\n\n---\n\n');
         console.log(`Found ${relevantChunks.length} relevant chunks`);
+      } else {
+        console.log('No chunks matched the search query');
       }
     }
 
@@ -151,7 +144,7 @@ Respond in the same language the user writes in (German or English).`;
 - Calculated Elterngeld Plus: €${context.totalPlus}/month (base: €${context.plusAmount})`;
     }
 
-    console.log('Sending request to Lovable AI with RAG context');
+    console.log('Sending request to Lovable AI');
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
