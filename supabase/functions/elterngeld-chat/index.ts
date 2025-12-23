@@ -8,25 +8,59 @@ const corsHeaders = {
 
 interface SourceInfo {
   section: string;
+  sectionEnglish?: string;
   excerpt: string;
+  excerptEnglish?: string;
   chunkIndex: number;
+}
+
+// English to German term mapping for search enhancement
+const ENGLISH_TO_GERMAN_TERMS: Record<string, string[]> = {
+  'parental allowance': ['Elterngeld', 'Elternzeit'],
+  'parental leave': ['Elternzeit', 'Bezugszeitraum'],
+  'basic elterngeld': ['Basiselterngeld'],
+  'elterngeld plus': ['ElterngeldPlus'],
+  'partnership bonus': ['Partnerschaftsbonus'],
+  'duration': ['Bezugsdauer', 'Lebensmonate'],
+  'months': ['Monate', 'Lebensmonate'],
+  'eligible': ['Berechtigung', 'Anspruch', 'berechtigt'],
+  'eligibility': ['Berechtigung', 'Anspruch', 'Voraussetzungen'],
+  'requirements': ['Voraussetzungen', 'Anspruchsvoraussetzungen'],
+  'income': ['Einkommen', 'Bemessungsgrundlage'],
+  'calculation': ['Berechnung', 'Höhe'],
+  'how much': ['Höhe', 'Berechnung', 'wieviel'],
+  'apply': ['Antrag', 'beantragen'],
+  'application': ['Antrag', 'Antragstellung'],
+  'model': ['Modell', 'Variante', 'Basiselterngeld', 'ElterngeldPlus'],
+  'which model': ['Modell', 'Basiselterngeld', 'ElterngeldPlus', 'Partnerschaftsbonus'],
+  'receive': ['erhalten', 'bekommen', 'Höhe'],
+  'get': ['erhalten', 'bekommen', 'Anspruch'],
+  'choose': ['wählen', 'Modell', 'Variante'],
+  'sibling': ['Geschwister', 'Geschwisterbonus'],
+  'twins': ['Mehrlinge', 'Zwillinge'],
+  'partner': ['Partner', 'Partnermonate'],
+  'work': ['Arbeit', 'Erwerbstätigkeit', 'arbeiten'],
+  'part-time': ['Teilzeit', 'Teilzeitarbeit'],
+};
+
+// Detect language based on common German words
+function detectLanguage(message: string): 'en' | 'de' {
+  const germanIndicators = /\b(ich|und|oder|wie|viel|kann|mein|bekomme|habe|elterngeld|meine|einen|eine|kann|wird|werden|sind|ist|das|die|der|für|mit|vom|zum|zur|auf|bei|nach|über|unter|wann|warum|welche|welches|welcher)\b/i;
+  return germanIndicators.test(message) ? 'de' : 'en';
 }
 
 // Extract section reference (§X or RL X.X.X) from content
 function extractSection(content: string): string {
-  // Look for § references
   const paragraphMatch = content.match(/§\s*\d+[a-z]?/i);
   if (paragraphMatch) {
     return paragraphMatch[0].replace(/\s+/g, '');
   }
   
-  // Look for RL references (e.g., RL 4.5.3)
   const rlMatch = content.match(/RL\s*\d+(\.\d+)*/i);
   if (rlMatch) {
     return rlMatch[0].replace(/\s+/g, ' ');
   }
   
-  // Look for numbered sections like "4.5.3"
   const numMatch = content.match(/^\d+(\.\d+)+/);
   if (numMatch) {
     return `RL ${numMatch[0]}`;
@@ -51,7 +85,6 @@ async function searchDocumentChunks(
     return [];
   }
 
-  // Also fetch chunk_index from document_chunks
   if (data && data.length > 0) {
     const chunkIds = data.map((chunk: { id: string }) => chunk.id);
     const { data: chunksWithIndex, error: indexError } = await supabase
@@ -64,7 +97,6 @@ async function searchDocumentChunks(
       return data.map((chunk: { content: string }) => ({ content: chunk.content, chunkIndex: 0 }));
     }
     
-    // Create a map for quick lookup
     const indexMap = new Map(chunksWithIndex?.map((c: any) => [c.id, c.chunk_index]) || []);
     return data.map((chunk: { id: string; content: string }) => ({
       content: chunk.content,
@@ -91,16 +123,83 @@ async function hasReadyDocument(supabase: any): Promise<boolean> {
   return data && data.length > 0;
 }
 
-// Extract key terms from user message for search
-function extractSearchTerms(message: string): string {
-  const cleaned = message
-    .toLowerCase()
+// Extract key terms from user message for search, with English-to-German enhancement
+function extractSearchTerms(message: string, language: 'en' | 'de'): string {
+  let searchTerms = message.toLowerCase();
+  
+  // If English, expand with German equivalents
+  if (language === 'en') {
+    for (const [english, germanTerms] of Object.entries(ENGLISH_TO_GERMAN_TERMS)) {
+      if (searchTerms.includes(english)) {
+        searchTerms += ' ' + germanTerms.join(' ');
+      }
+    }
+    // Always add core Elterngeld terms for English queries
+    searchTerms += ' Elterngeld';
+  }
+  
+  const cleaned = searchTerms
     .replace(/[?!.,;:'"()]/g, ' ')
     .split(/\s+/)
     .filter(word => word.length > 2)
     .join(' ');
   
   return cleaned;
+}
+
+// Translate sources to English using AI
+async function translateSources(
+  sources: SourceInfo[],
+  apiKey: string
+): Promise<SourceInfo[]> {
+  if (sources.length === 0) return sources;
+
+  const translationPrompt = `Translate the following German Elterngeld document excerpts to English. Keep section references (like §4, RL 4.5.3) as-is. Return valid JSON only.
+
+Input:
+${JSON.stringify(sources.map(s => ({ section: s.section, excerpt: s.excerpt })))}
+
+Return an array with the same structure but add "sectionEnglish" (translate any German title part, keep § numbers) and "excerptEnglish" (English translation of excerpt). Example:
+[{"section":"§4","sectionEnglish":"§4 Benefit Duration","excerpt":"...german...","excerptEnglish":"...english..."}]`;
+
+  try {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'user', content: translationPrompt }
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Translation API error:', response.status);
+      return sources;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    
+    // Extract JSON from response
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      const translated = JSON.parse(jsonMatch[0]);
+      return sources.map((source, i) => ({
+        ...source,
+        sectionEnglish: translated[i]?.sectionEnglish || source.section,
+        excerptEnglish: translated[i]?.excerptEnglish || source.excerpt,
+      }));
+    }
+  } catch (error) {
+    console.error('Translation error:', error);
+  }
+
+  return sources;
 }
 
 serve(async (req) => {
@@ -127,6 +226,10 @@ serve(async (req) => {
       .reverse()
       .find((m: { role: string }) => m.role === 'user')?.content || '';
 
+    // Detect user language
+    const userLanguage = detectLanguage(latestUserMessage);
+    console.log(`Detected language: ${userLanguage}`);
+
     // Check if there's a document available
     const hasDocument = await hasReadyDocument(supabase);
     
@@ -137,11 +240,10 @@ serve(async (req) => {
     if (hasDocument && latestUserMessage) {
       console.log('Searching for relevant document chunks...');
       
-      // Extract search terms and search
-      const searchTerms = extractSearchTerms(latestUserMessage);
+      // Extract search terms with language-aware enhancement
+      const searchTerms = extractSearchTerms(latestUserMessage, userLanguage);
       console.log(`Search terms: ${searchTerms}`);
       
-      // Get relevant chunks using full-text search
       const relevantChunks = await searchDocumentChunks(supabase, searchTerms, 8);
       
       if (relevantChunks.length > 0) {
@@ -154,23 +256,41 @@ serve(async (req) => {
           excerpt: chunk.content.slice(0, 120).replace(/\n/g, ' ').trim() + '...',
           chunkIndex: chunk.chunkIndex
         }));
+
+        // Translate sources if user is writing in English
+        if (userLanguage === 'en' && sources.length > 0) {
+          console.log('Translating sources to English...');
+          sources = await translateSources(sources, LOVABLE_API_KEY);
+        }
       } else {
         console.log('No chunks matched the search query');
       }
     }
 
     // Build system prompt based on whether we have document context
+    const languageInstruction = userLanguage === 'en' 
+      ? 'Always respond in English, as the user is writing in English.'
+      : 'Antworte auf Deutsch, da der Benutzer auf Deutsch schreibt.';
+
     if (documentContext) {
-      systemPrompt = `Du bist ein Experte für deutsches Elterngeld (Elterngeld). Beantworte Fragen NUR auf Grundlage des unten stehenden Dokumentkontexts.
+      systemPrompt = userLanguage === 'en'
+        ? `You are an expert on German Elterngeld (parental allowance). Answer questions ONLY based on the document context below.
+
+If the answer cannot be found in the context, say "I couldn't find this information in the uploaded document."
+
+Do not use external knowledge. ${languageInstruction}
+
+DOCUMENT CONTEXT:
+${documentContext}`
+        : `Du bist ein Experte für deutsches Elterngeld. Beantworte Fragen NUR auf Grundlage des unten stehenden Dokumentkontexts.
 
 Wenn die Antwort nicht im Kontext gefunden werden kann, sage "Diese Information konnte ich im hochgeladenen Dokument nicht finden."
 
-Verwende kein externes Wissen. Antworte in der Sprache, in der der Benutzer schreibt (Deutsch oder Englisch).
+Verwende kein externes Wissen. ${languageInstruction}
 
 DOKUMENTKONTEXT:
 ${documentContext}`;
     } else {
-      // Fallback to original system prompt if no document
       systemPrompt = `You are an expert assistant specializing in German Elterngeld (parental allowance). You help parents understand their benefits, eligibility, and planning options.
 
 Key knowledge:
@@ -185,19 +305,27 @@ Key knowledge:
 When given user context (income, calculation results), provide personalized advice based on their specific situation.
 
 Be concise, helpful, and accurate. If unsure about specific regulations, recommend consulting the local Elterngeldstelle.
-Respond in the same language the user writes in (German or English).`;
+${languageInstruction}`;
     }
 
     // Build context message if available
     let contextMessage = '';
     if (context) {
-      contextMessage = `\n\nUser's current calculator state:
+      contextMessage = userLanguage === 'en'
+        ? `\n\nUser's current calculator state:
 - Monthly income: €${context.monthlyIncome}
 - Has sibling bonus: ${context.hasSiblingBonus ? 'Yes' : 'No'}
 - Multiple children (twins/triplets): ${context.multipleChildren}
 - Eligibility status: ${context.isEligible ? 'Eligible' : 'Not eligible (income too high)'}
 - Calculated Basis Elterngeld: €${context.totalBasis}/month (base: €${context.basisAmount})
-- Calculated Elterngeld Plus: €${context.totalPlus}/month (base: €${context.plusAmount})`;
+- Calculated Elterngeld Plus: €${context.totalPlus}/month (base: €${context.plusAmount})`
+        : `\n\nAktueller Rechnerstand des Benutzers:
+- Monatliches Einkommen: €${context.monthlyIncome}
+- Geschwisterbonus: ${context.hasSiblingBonus ? 'Ja' : 'Nein'}
+- Mehrlinge: ${context.multipleChildren}
+- Anspruchsberechtigung: ${context.isEligible ? 'Berechtigt' : 'Nicht berechtigt (Einkommen zu hoch)'}
+- Berechnetes Basiselterngeld: €${context.totalBasis}/Monat (Basis: €${context.basisAmount})
+- Berechnetes Elterngeld Plus: €${context.totalPlus}/Monat (Basis: €${context.plusAmount})`;
     }
 
     console.log('Sending request to Lovable AI');
@@ -243,21 +371,17 @@ Respond in the same language the user writes in (German or English).`;
 
     console.log('Streaming response from AI gateway');
 
-    // Create a TransformStream to prepend sources
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
     const encoder = new TextEncoder();
 
-    // Start async processing
     (async () => {
       try {
-        // First, send sources if we have them
         if (sources.length > 0) {
           const sourcesEvent = `data: ${JSON.stringify({ type: 'sources', sources })}\n\n`;
           await writer.write(encoder.encode(sourcesEvent));
         }
 
-        // Then pipe the AI response
         const reader = response.body?.getReader();
         if (reader) {
           while (true) {
