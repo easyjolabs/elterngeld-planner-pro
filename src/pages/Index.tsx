@@ -23,7 +23,7 @@ const Index = () => {
   return <div className="h-screen flex flex-col bg-[#F5F5F5]">
       <Navbar />
       
-      <div className="flex-1 flex gap-6 p-6 overflow-hidden bg-white">
+      <div className="flex-1 flex gap-6 p-6 overflow-hidden bg-white px-px">
         {/* Calculator Panel */}
         <main className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 flex flex-col bg-card rounded-2xl border border-border overflow-hidden">
