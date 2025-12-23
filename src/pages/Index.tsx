@@ -60,7 +60,7 @@ const Index = () => {
             </div>
 
             {/* Navigation */}
-            <div className="px-space-lg py-space-md border-t border-border bg-secondary/30 flex flex-col sm:flex-row gap-space-sm sm:gap-0 justify-between">
+            <div className="px-space-lg py-space-md border-t border-border flex flex-col sm:flex-row gap-space-sm sm:gap-0 justify-between bg-white">
               {currentStep > 1 ? <Button variant="outline" onClick={() => setCurrentStep(prev => prev - 1)} className="gap-2 w-full sm:w-auto">
                   <ArrowLeft className="h-4 w-4" />
                   Back
