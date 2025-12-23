@@ -62,9 +62,9 @@ export function ResultCard({
 
       {/* Max hint - inside box at bottom */}
       <div className="mt-auto pt-space-md">
-        <div className={`w-full px-space-sm py-space-xs rounded-lg flex items-center gap-space-sm min-h-[28px] ${calculation.isMaxReached ? 'bg-muted border border-border' : 'bg-transparent border border-transparent'}`}>
-          <TrendingUp className={`h-3.5 w-3.5 text-muted-foreground flex-shrink-0 transition-opacity ${calculation.isMaxReached ? 'opacity-100' : 'opacity-0'}`} />
-          <p className={`text-xs font-medium text-muted-foreground whitespace-nowrap transition-opacity ${calculation.isMaxReached ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`w-full px-space-sm py-space-xs rounded-lg flex items-start gap-space-sm min-h-[28px] ${calculation.isMaxReached ? 'bg-muted border border-border' : 'bg-transparent border border-transparent'}`}>
+          <TrendingUp className={`h-3.5 w-3.5 text-muted-foreground flex-shrink-0 transition-opacity mt-0.5 ${calculation.isMaxReached ? 'opacity-100' : 'opacity-0'}`} />
+          <p className={`text-xs font-medium text-muted-foreground transition-opacity leading-snug ${calculation.isMaxReached ? 'opacity-100' : 'opacity-0'}`}>
             Maximum Elterngeld reached!
           </p>
         </div>
