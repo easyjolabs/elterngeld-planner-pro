@@ -1,9 +1,12 @@
 import { useState, useMemo } from "react";
-import { ArrowRight, ArrowLeft, MessageCircle } from "lucide-react";
+import { ArrowRight, ArrowLeft, MessageCircle, X } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
   DrawerTrigger,
+  DrawerClose,
+  DrawerHeader,
+  DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { StepIndicator } from "@/components/StepIndicator";
@@ -150,7 +153,17 @@ const Index = () => {
               </Button>
             </DrawerTrigger>
             <DrawerContent className="h-[85vh]">
-              <ElterngeldChat calculation={calculation} calculatorState={calculatorState} />
+              <DrawerHeader className="flex items-center justify-between border-b border-border pb-3">
+                <DrawerTitle>Chat Assistant</DrawerTitle>
+                <DrawerClose asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <X className="h-4 w-4" />
+                  </Button>
+                </DrawerClose>
+              </DrawerHeader>
+              <div className="flex-1 overflow-hidden">
+                <ElterngeldChat calculation={calculation} calculatorState={calculatorState} />
+              </div>
             </DrawerContent>
           </Drawer>
         </div>
