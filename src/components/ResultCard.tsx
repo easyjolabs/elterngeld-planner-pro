@@ -21,9 +21,9 @@ export function ResultCard({
         </div>
       </div>;
   }
-  return <div className="p-space-md rounded-xl border border-border h-full flex flex-col" style={{
+  return <div style={{
     backgroundColor: '#EFEBDE'
-  }}>
+  }} className="p-space-md rounded-xl border border-border h-full flex flex-col bg-[#ae917a]/0">
       {/* Headline */}
       <div className="pb-space-md mb-space-md border-b border-border">
         <h2 className="text-sm font-semibold text-foreground">
