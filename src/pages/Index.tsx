@@ -37,7 +37,7 @@ const Index = () => {
   }, [calculatorState]);
 
   const CalculatorContent = () => (
-    <main className="flex-1 flex flex-col min-w-0">
+    <main className="flex-1 flex flex-col min-w-0 @container">
       <div className="flex-1 flex flex-col bg-card rounded-2xl border border-border overflow-hidden">
         {/* Step Indicator inside card - reduced padding */}
         <div className="px-space-lg py-space-sm border-b border-border bg-white">
@@ -58,7 +58,7 @@ const Index = () => {
                 currentStep === 1 ? "animate-fade-in" : "invisible",
               )}
             >
-              <div className="grid gap-space-md sm:grid-cols-[1fr_minmax(320px,40%)] lg:grid-cols-[1fr_40%] items-stretch">
+              <div className="grid gap-space-md @2xl:grid-cols-[1fr_minmax(280px,40%)] items-stretch">
                 <IncomeSlider
                   value={calculatorState.monthlyIncome}
                   onChange={(value) =>
@@ -99,7 +99,7 @@ const Index = () => {
         </div>
 
         {/* Navigation */}
-        <div className="px-space-lg py-space-md border-t border-border flex flex-col sm:flex-row gap-space-sm sm:gap-0 justify-between bg-white">
+        <div className="px-space-lg py-space-md border-t border-border flex flex-col @sm:flex-row gap-space-sm @sm:gap-0 justify-between bg-white">
           {currentStep > 1 ? (
             <Button
               variant="outline"
@@ -145,7 +145,7 @@ const Index = () => {
       <Navbar />
 
       {/* Desktop: Resizable layout (lg+) */}
-      <div className="hidden lg:flex flex-1 overflow-hidden bg-white p-6">
+      <div className="hidden md:flex flex-1 overflow-hidden bg-white p-6">
         <ResizablePanelGroup direction="horizontal" className="gap-2">
           <ResizablePanel defaultSize={65} minSize={40}>
             <CalculatorContent />
@@ -158,12 +158,12 @@ const Index = () => {
       </div>
 
       {/* Tablet & Mobile: Calculator only + FAB drawer */}
-      <div className="lg:hidden flex-1 flex flex-col p-6 overflow-hidden bg-white">
+      <div className="md:hidden flex-1 flex flex-col p-6 overflow-hidden bg-white">
         <CalculatorContent />
       </div>
 
       {/* Mobile/Tablet Chat FAB + Drawer (visible below lg) */}
-      <div className="lg:hidden">
+      <div className="md:hidden">
         <Drawer>
           <DrawerTrigger asChild>
             <Button
