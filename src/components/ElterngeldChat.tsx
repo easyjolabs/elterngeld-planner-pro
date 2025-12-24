@@ -53,6 +53,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   const flushIntervalRef = useRef<number | null>(null);
   const lastUserMessageRef = useRef<string>("");
   const lastSentUserMessageIdRef = useRef<string | null>(null);
+  const isPinnedToBottomRef = useRef(true);
 
   const scrollToUserMessage = useCallback((messageId: string, instant = false) => {
     const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
@@ -92,6 +93,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
     if (viewport) {
       const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
       const isAtBottom = distanceFromBottom < 100;
+      isPinnedToBottomRef.current = isAtBottom;
       setShowScrollButton(!isAtBottom);
     }
   }, []);
@@ -137,6 +139,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
     if (!messageText.trim() || isLoading) return;
     lastUserMessageRef.current = messageText;
     setSuggestions([]); // Clear suggestions when sending new message
+    isPinnedToBottomRef.current = true; // Re-pin when sending new message
     const userMessageId = generateMessageId();
     const userMessage: Message = {
       id: userMessageId,
@@ -157,10 +160,12 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
       ]);
     });
     
-    // Scroll to align the new user message to the top (after layout)
-    window.setTimeout(() => {
-      scrollToUserMessage(userMessageId, true);
-    }, 0);
+    // Scroll to align the new user message to the top (double-RAF for layout)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        scrollToUserMessage(userMessageId, true);
+      });
+    });
     setInput("");
     setIsLoading(true);
     let assistantContent = "";
@@ -207,6 +212,10 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
             return updated;
           });
         });
+        // Auto-scroll during streaming if pinned to bottom
+        if (isPinnedToBottomRef.current) {
+          scrollToBottom(true);
+        }
       }, 25);
     };
     try {
