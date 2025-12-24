@@ -9,6 +9,19 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "@/hooks/use-toast";
 import { ThinkingAnimation } from "./ThinkingAnimation";
 import ScrollToBottomButton from "./ScrollToBottomButton";
+
+// Normalize unicode bullets and ensure proper markdown list formatting
+function normalizeMarkdown(text: string): string {
+  // Replace unicode bullets with markdown list items
+  let normalized = text.replace(/\n\s*[•●○◦▪▸►]\s*/g, '\n- ');
+  // Also handle bullets at the start of content
+  normalized = normalized.replace(/^\s*[•●○◦▪▸►]\s*/, '- ');
+  // Ensure blank line before lists (colon followed by newline and dash)
+  normalized = normalized.replace(/:\n(-\s)/g, ':\n\n$1');
+  // Ensure blank line before lists after any text
+  normalized = normalized.replace(/([^\n])\n(-\s)/g, '$1\n\n$2');
+  return normalized;
+}
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -304,8 +317,8 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
                     >
                       {message.content ? (
                         message.role === "assistant" ? (
-                          <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-strong:text-foreground leading-relaxed my-px">
-                            <ReactMarkdown>{message.content}</ReactMarkdown>
+                          <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-strong:text-foreground prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-li:my-0.5 leading-relaxed my-px">
+                            <ReactMarkdown>{normalizeMarkdown(message.content)}</ReactMarkdown>
                           </div>
                         ) : (
                           <span className="leading-relaxed">{message.content}</span>
