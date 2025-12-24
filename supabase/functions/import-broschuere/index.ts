@@ -146,12 +146,13 @@ serve(async (req) => {
   }
 
   try {
-    const { pdfUrl } = await req.json();
+    const { pdfBase64 } = await req.json();
     
-    // Default to the official BMFSFJ brochure URL
-    const url = pdfUrl || 'https://www.bmfsfj.de/resource/blob/93614/883f612fc3cfa075315e5905c61e3a1d/elterngeld-und-elternzeit-data.pdf';
+    if (!pdfBase64) {
+      throw new Error('PDF data is required. Please upload the PDF from the frontend.');
+    }
     
-    console.log(`Fetching PDF from: ${url}`);
+    console.log(`Received PDF base64 data: ${pdfBase64.length} characters`);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -175,7 +176,7 @@ serve(async (req) => {
       .from('documents')
       .insert({
         name: 'Elterngeld und Elternzeit - BMFSFJ Broschüre',
-        storage_path: url,
+        storage_path: 'uploaded-pdf',
         status: 'processing',
       })
       .select()
@@ -188,14 +189,9 @@ serve(async (req) => {
 
     console.log(`Created document record: ${doc.id}`);
 
-    // Fetch PDF from URL
-    const pdfResponse = await fetch(url);
-    if (!pdfResponse.ok) {
-      throw new Error(`Failed to fetch PDF: ${pdfResponse.status}`);
-    }
-    
-    const pdfBytes = new Uint8Array(await pdfResponse.arrayBuffer());
-    console.log(`Downloaded PDF: ${pdfBytes.length} bytes`);
+    // Decode base64 to bytes
+    const pdfBytes = Uint8Array.from(atob(pdfBase64), c => c.charCodeAt(0));
+    console.log(`Decoded PDF: ${pdfBytes.length} bytes`);
 
     // Extract text using Gemini
     const text = await extractTextWithGemini(pdfBytes, lovableApiKey);
