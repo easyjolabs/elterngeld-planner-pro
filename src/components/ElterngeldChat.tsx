@@ -365,7 +365,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
         <ScrollToBottomButton
           visible={showScrollButton}
           onClick={scrollToBottom}
-          className="absolute bottom-2 right-4"
+          className="absolute bottom-2 left-1/2 -translate-x-1/2"
         />
       </div>
 

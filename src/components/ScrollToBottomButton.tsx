@@ -12,7 +12,7 @@ const ScrollToBottomButton = ({ visible, onClick, className }: ScrollToBottomBut
     <button
       onClick={onClick}
       className={cn(
-        'fixed z-50 flex h-10 w-10 items-center justify-center rounded-full',
+        'flex h-8 w-8 items-center justify-center rounded-full',
         'bg-background border border-border shadow-lg',
         'transition-all duration-300 ease-out',
         'hover:bg-muted hover:shadow-xl hover:scale-105',
