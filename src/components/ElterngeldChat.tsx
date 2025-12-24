@@ -53,8 +53,12 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   const flushIntervalRef = useRef<number | null>(null);
   const lastUserMessageRef = useRef<string>("");
   const lastSentUserMessageIdRef = useRef<string | null>(null);
-  const isPinnedToBottomRef = useRef(true);
-
+  const lastAssistantMessageIdRef = useRef<string | null>(null);
+  
+  // Auto-follow state: true = keep latest visible during streaming, false = user scrolled up
+  const isAutoFollowRef = useRef(true);
+  const ignoreScrollEventsRef = useRef(false);
+  const lastScrollTopRef = useRef(0);
   const scrollToUserMessage = useCallback((messageId: string, instant = false) => {
     const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
     const messageEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${messageId}"]`);
@@ -81,21 +85,67 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   const scrollToBottom = useCallback((instant = false) => {
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
     if (viewport) {
+      ignoreScrollEventsRef.current = true;
       viewport.scrollTo({
         top: viewport.scrollHeight,
         behavior: instant ? "auto" : "smooth",
+      });
+      requestAnimationFrame(() => {
+        ignoreScrollEventsRef.current = false;
+        lastScrollTopRef.current = viewport.scrollTop;
+      });
+    }
+  }, []);
+
+  // Keep latest assistant message visible during streaming (incremental scroll)
+  const keepLatestVisible = useCallback(() => {
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
+    const assistantId = lastAssistantMessageIdRef.current;
+    if (!viewport || !assistantId) return;
+    
+    const messageEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${assistantId}"]`);
+    if (!messageEl) return;
+    
+    const viewportRect = viewport.getBoundingClientRect();
+    const messageRect = messageEl.getBoundingClientRect();
+    const messageBottom = messageRect.bottom;
+    const viewportBottom = viewportRect.bottom;
+    
+    // If the message bottom is below viewport, scroll down just enough
+    if (messageBottom > viewportBottom) {
+      const overflow = messageBottom - viewportBottom + 20; // 20px padding
+      ignoreScrollEventsRef.current = true;
+      viewport.scrollTop += overflow;
+      requestAnimationFrame(() => {
+        ignoreScrollEventsRef.current = false;
+        lastScrollTopRef.current = viewport.scrollTop;
       });
     }
   }, []);
 
   const handleScroll = useCallback(() => {
-    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
-    if (viewport) {
-      const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
-      const isAtBottom = distanceFromBottom < 100;
-      isPinnedToBottomRef.current = isAtBottom;
-      setShowScrollButton(!isAtBottom);
+    // Ignore programmatic scrolls
+    if (ignoreScrollEventsRef.current) return;
+    
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
+    if (!viewport) return;
+    
+    const currentScrollTop = viewport.scrollTop;
+    const distanceFromBottom = viewport.scrollHeight - currentScrollTop - viewport.clientHeight;
+    const isScrollingUp = currentScrollTop < lastScrollTopRef.current;
+    
+    // User scrolled up significantly → pause auto-follow
+    if (isScrollingUp && distanceFromBottom > 100) {
+      isAutoFollowRef.current = false;
     }
+    
+    // User scrolled back to bottom → resume auto-follow
+    if (distanceFromBottom < 50) {
+      isAutoFollowRef.current = true;
+    }
+    
+    lastScrollTopRef.current = currentScrollTop;
+    setShowScrollButton(!isAutoFollowRef.current);
   }, []);
   useEffect(() => {
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
@@ -139,8 +189,13 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
     if (!messageText.trim() || isLoading) return;
     lastUserMessageRef.current = messageText;
     setSuggestions([]); // Clear suggestions when sending new message
-    isPinnedToBottomRef.current = true; // Re-pin when sending new message
+    isAutoFollowRef.current = true; // Re-enable auto-follow when sending new message
+    setShowScrollButton(false);
+    
     const userMessageId = generateMessageId();
+    const assistantMessageId = generateMessageId();
+    lastAssistantMessageIdRef.current = assistantMessageId;
+    
     const userMessage: Message = {
       id: userMessageId,
       role: "user",
@@ -153,7 +208,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
         ...prev,
         userMessage,
         {
-          id: generateMessageId(),
+          id: assistantMessageId,
           role: "assistant",
           content: "",
         },
@@ -163,7 +218,13 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
     // Scroll to align the new user message to the top (double-RAF for layout)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
+        ignoreScrollEventsRef.current = true;
         scrollToUserMessage(userMessageId, true);
+        requestAnimationFrame(() => {
+          ignoreScrollEventsRef.current = false;
+          const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
+          if (viewport) lastScrollTopRef.current = viewport.scrollTop;
+        });
       });
     });
     setInput("");
@@ -212,9 +273,9 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
             return updated;
           });
         });
-        // Auto-scroll during streaming if pinned to bottom
-        if (isPinnedToBottomRef.current) {
-          scrollToBottom(true);
+        // Auto-scroll during streaming if auto-follow is enabled
+        if (isAutoFollowRef.current) {
+          keepLatestVisible();
         }
       }, 25);
     };
@@ -429,7 +490,11 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
         {/* Scroll to bottom button */}
         <ScrollToBottomButton
           visible={showScrollButton}
-          onClick={() => scrollToBottom()}
+          onClick={() => {
+            isAutoFollowRef.current = true;
+            setShowScrollButton(false);
+            scrollToBottom();
+          }}
           className="absolute bottom-2 left-1/2 -translate-x-1/2"
         />
       </div>
