@@ -273,96 +273,98 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
       {/* Messages */}
       <div className="relative flex-1 overflow-hidden">
         <ScrollArea className="h-full px-4 py-3" ref={scrollAreaRef}>
-          {messages.length === 0 ? (
-            <div className="space-y-4">
-              <p className="font-medium text-foreground leading-relaxed text-base">
-                Hi! Do you have questions about Elterngeld?
-              </p>
-              <div className="space-y-1">
-                {SUGGESTED_QUESTIONS.map((question, index) => (
-                  <button
-                    key={index}
-                    onClick={() => sendMessage(question)}
-                    className="block w-full text-left transition-colors text-sm py-1.5 leading-relaxed text-foreground"
-                  >
-                    {question}
-                  </button>
-                ))}
+          <div className="flex flex-col min-h-full justify-end">
+            {messages.length === 0 ? (
+              <div className="space-y-4">
+                <p className="font-medium text-foreground leading-relaxed text-base">
+                  Hi! Do you have questions about Elterngeld?
+                </p>
+                <div className="space-y-1">
+                  {SUGGESTED_QUESTIONS.map((question, index) => (
+                    <button
+                      key={index}
+                      onClick={() => sendMessage(question)}
+                      className="block w-full text-left transition-colors text-sm py-1.5 leading-relaxed text-foreground"
+                    >
+                      {question}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {messages.map((message, index) => (
-                <div key={index} className={cn("flex flex-col", message.role === "user" ? "items-end" : "items-start")}>
-                  <div
-                    className={cn(
-                      "max-w-[85%] text-sm",
-                      message.role === "user"
-                        ? "bg-secondary/50 text-foreground rounded-full px-4 py-2"
-                        : "bg-transparent text-foreground",
-                    )}
-                  >
-                    {message.content ? (
-                      message.role === "assistant" ? (
-                        <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-strong:text-foreground leading-relaxed my-px">
-                          <ReactMarkdown>{message.content}</ReactMarkdown>
-                        </div>
+            ) : (
+              <div className="space-y-4">
+                {messages.map((message, index) => (
+                  <div key={index} className={cn("flex flex-col", message.role === "user" ? "items-end" : "items-start")}>
+                    <div
+                      className={cn(
+                        "max-w-[85%] text-sm",
+                        message.role === "user"
+                          ? "bg-secondary/50 text-foreground rounded-full px-4 py-2"
+                          : "bg-transparent text-foreground",
+                      )}
+                    >
+                      {message.content ? (
+                        message.role === "assistant" ? (
+                          <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-strong:text-foreground leading-relaxed my-px">
+                            <ReactMarkdown>{message.content}</ReactMarkdown>
+                          </div>
+                        ) : (
+                          <span className="leading-relaxed">{message.content}</span>
+                        )
                       ) : (
-                        <span className="leading-relaxed">{message.content}</span>
-                      )
-                    ) : (
-                      <ThinkingAnimation />
-                    )}
-                  </div>
+                        <ThinkingAnimation />
+                      )}
+                    </div>
 
-                  {/* Action buttons for assistant messages */}
-                  {message.role === "assistant" && message.content && !isLoading && (
-                    <div className="flex items-center gap-0.5 mt-1.5 ml-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 text-muted-foreground hover:text-foreground"
-                        onClick={() => copyToClipboard(message.content)}
-                        title="Copy"
-                      >
-                        <Copy className="h-3.5 w-3.5" />
-                      </Button>
-                      {index === messages.length - 1 && (
+                    {/* Action buttons for assistant messages */}
+                    {message.role === "assistant" && message.content && !isLoading && (
+                      <div className="flex items-center gap-0.5 mt-1.5 ml-1">
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6 text-muted-foreground hover:text-foreground"
-                          onClick={regenerateResponse}
-                          title="Regenerate"
+                          onClick={() => copyToClipboard(message.content)}
+                          title="Copy"
                         >
-                          <RefreshCw className="h-2.5 w-2.5" />
+                          <Copy className="h-3.5 w-3.5" />
                         </Button>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Follow-up suggestions - shown after last assistant message */}
-                  {!isLoading &&
-                    index === messages.length - 1 &&
-                    message.role === "assistant" &&
-                    message.content &&
-                    suggestions.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {suggestions.map((suggestion, i) => (
-                          <button
-                            key={i}
-                            onClick={() => sendMessage(suggestion)}
-                            className="text-sm rounded-full px-3 py-1.5 transition-colors text-primary bg-secondary"
+                        {index === messages.length - 1 && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                            onClick={regenerateResponse}
+                            title="Regenerate"
                           >
-                            {suggestion}
-                          </button>
-                        ))}
+                            <RefreshCw className="h-2.5 w-2.5" />
+                          </Button>
+                        )}
                       </div>
                     )}
-                </div>
-              ))}
-            </div>
-          )}
+
+                    {/* Follow-up suggestions - shown after last assistant message */}
+                    {!isLoading &&
+                      index === messages.length - 1 &&
+                      message.role === "assistant" &&
+                      message.content &&
+                      suggestions.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {suggestions.map((suggestion, i) => (
+                            <button
+                              key={i}
+                              onClick={() => sendMessage(suggestion)}
+                              className="text-sm rounded-full px-3 py-1.5 transition-colors text-primary bg-secondary"
+                            >
+                              {suggestion}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </ScrollArea>
 
         {/* Scroll to bottom button */}
