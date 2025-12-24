@@ -101,7 +101,7 @@ export function ElterngeldChat({
       role: 'user',
       content: messageText
     };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage, { role: 'assistant', content: '' }]);
     setInput('');
     setIsLoading(true);
     let assistantContent = '';
@@ -184,11 +184,6 @@ export function ElterngeldChat({
       const decoder = new TextDecoder();
       let buffer = '';
 
-      // Add empty assistant message
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: ''
-      }]);
       while (true) {
         const {
           done,
