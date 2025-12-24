@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.import-text]
 verify_jwt = false
+
+[functions.import-broschuere]
+verify_jwt = false

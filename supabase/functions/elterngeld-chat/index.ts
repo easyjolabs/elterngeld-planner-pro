@@ -41,24 +41,29 @@ function detectLanguage(message: string): 'en' | 'de' {
   return germanScore > englishScore ? 'de' : 'en';
 }
 
-// Extract section reference (§X or RL X.X.X) from content
+// Extract section reference from brochure content (e.g., "1.3 Basiselterngeld")
 function extractSection(content: string): string {
-  const paragraphMatch = content.match(/§\s*\d+[a-z]?/i);
-  if (paragraphMatch) {
-    return paragraphMatch[0].replace(/\s+/g, '');
+  // Match section numbers like "1.", "1.1", "1.2.3", etc. with optional title
+  const sectionMatch = content.match(/^(\d+(?:\.\d+)*)\s+([^\n]+)/);
+  if (sectionMatch) {
+    const sectionNum = sectionMatch[1];
+    const title = sectionMatch[2].trim().slice(0, 50);
+    return `Kapitel ${sectionNum}: ${title}`;
   }
   
-  const rlMatch = content.match(/RL\s*\d+(\.\d+)*/i);
-  if (rlMatch) {
-    return rlMatch[0].replace(/\s+/g, ' ');
+  // Look for section headers within the text
+  const inlineMatch = content.match(/(\d+(?:\.\d+)+)\s+([A-ZÄÖÜ][^\n]{3,40})/);
+  if (inlineMatch) {
+    return `Kapitel ${inlineMatch[1]}: ${inlineMatch[2].trim()}`;
   }
   
-  const numMatch = content.match(/^\d+(\.\d+)+/);
-  if (numMatch) {
-    return `RL ${numMatch[0]}`;
+  // Extract first meaningful line as fallback
+  const firstLine = content.split('\n')[0].trim().slice(0, 60);
+  if (firstLine.length > 10) {
+    return firstLine;
   }
   
-  return 'Dokument';
+  return 'Elterngeld-Broschüre';
 }
 
 // Search for relevant document chunks using PostgreSQL full-text search
@@ -129,14 +134,15 @@ async function translateQueryToGerman(query: string, apiKey: string): Promise<st
         messages: [
           {
             role: 'system',
-            content: `You are a German legal terminology expert. Given an English question about German Elterngeld (parental allowance), extract 5-8 German keywords that would appear in the official Elterngeld regulations (BEEG).
+            content: `You are a German legal terminology expert. Given an English question about German Elterngeld (parental allowance), extract 5-8 German keywords that would appear in the official BMFSFJ brochure.
 
 Output ONLY the German keywords separated by " OR " (for search query). Include the word "Elterngeld" always.
 
 Examples:
-- "What is the income limit?" → "Elterngeld OR Einkommensgrenze OR Einkommen OR Grenze OR Überschreitung OR entfällt OR Anspruch"
-- "How much will I receive?" → "Elterngeld OR Höhe OR Berechnung OR Einkommen OR Bemessungsgrundlage OR erhalten OR Betrag"
-- "Can I work part-time?" → "Elterngeld OR Teilzeit OR Erwerbstätigkeit OR Arbeit OR Arbeitszeit OR Stunden"`
+- "What is the income limit?" → "Elterngeld OR Einkommensgrenze OR Einkommen OR Grenze OR Anspruch OR verdienen"
+- "How much will I receive?" → "Elterngeld OR Höhe OR Berechnung OR Einkommen OR Betrag OR Euro OR Prozent"
+- "Can I work part-time?" → "Elterngeld OR Teilzeit OR Arbeit OR Arbeitszeit OR Stunden OR Erwerbstätigkeit"
+- "How long can I receive it?" → "Elterngeld OR Bezugsdauer OR Monate OR Lebensmonate OR Bezugszeitraum"`
           },
           { role: 'user', content: query }
         ],
