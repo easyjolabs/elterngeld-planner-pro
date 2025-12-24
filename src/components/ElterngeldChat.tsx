@@ -60,25 +60,17 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   const ignoreScrollEventsRef = useRef(false);
   const lastScrollTopRef = useRef(0);
   const scrollToUserMessage = useCallback((messageId: string, instant = false) => {
-    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
     const messageEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${messageId}"]`);
 
-    if (!viewport || !messageEl) {
-      console.debug("[ElterngeldChat] scrollToUserMessage: element not found", {
-        hasViewport: !!viewport,
-        messageId,
-      });
+    if (!messageEl) {
+      console.debug("[ElterngeldChat] scrollToUserMessage: element not found", { messageId });
       return;
     }
 
-    const viewportRect = viewport.getBoundingClientRect();
-    const messageRect = messageEl.getBoundingClientRect();
-    const delta = messageRect.top - viewportRect.top;
-    const targetTop = viewport.scrollTop + delta;
-
-    viewport.scrollTo({
-      top: targetTop,
-      behavior: instant ? "auto" : "smooth",
+    // Use native scrollIntoView - aligns user message to TOP of viewport
+    messageEl.scrollIntoView({ 
+      behavior: instant ? "auto" : "smooth", 
+      block: "start"
     });
   }, []);
 
