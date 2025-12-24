@@ -101,7 +101,10 @@ export function ElterngeldChat({
       role: 'user',
       content: messageText
     };
-    setMessages(prev => [...prev, userMessage, { role: 'assistant', content: '' }]);
+    setMessages(prev => [...prev, userMessage, {
+      role: 'assistant',
+      content: ''
+    }]);
     setInput('');
     setIsLoading(true);
     let assistantContent = '';
@@ -183,7 +186,6 @@ export function ElterngeldChat({
       if (!reader) throw new Error('No reader available');
       const decoder = new TextDecoder();
       let buffer = '';
-
       while (true) {
         const {
           done,
@@ -286,7 +288,7 @@ export function ElterngeldChat({
 
                   {/* Follow-up suggestions - shown after last assistant message */}
                   {!isLoading && index === messages.length - 1 && message.role === 'assistant' && message.content && suggestions.length > 0 && <div className="flex flex-wrap gap-2 mt-3">
-                      {suggestions.map((suggestion, i) => <button key={i} onClick={() => sendMessage(suggestion)} className="text-sm text-muted-foreground hover:text-foreground bg-secondary/30 hover:bg-secondary/50 rounded-full px-3 py-1.5 transition-colors">
+                      {suggestions.map((suggestion, i) => <button key={i} onClick={() => sendMessage(suggestion)} className="text-sm bg-secondary/30 hover:bg-secondary/50 rounded-full px-3 py-1.5 transition-colors text-primary">
                           {suggestion}
                         </button>)}
                     </div>}
