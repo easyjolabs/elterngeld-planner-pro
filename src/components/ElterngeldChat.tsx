@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { flushSync } from "react-dom";
-import { ArrowUp, ArrowDown, RotateCcw, Copy, RefreshCw } from "lucide-react";
+import { ArrowUp, RotateCcw, Copy, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalculatorState, ElterngeldCalculation } from "@/types/elterngeld";
@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import { toast } from "@/hooks/use-toast";
 import { ThinkingAnimation } from "./ThinkingAnimation";
+import ScrollToBottomButton from "./ScrollToBottomButton";
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -359,16 +360,11 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
         </ScrollArea>
 
         {/* Scroll to bottom button */}
-        {showScrollButton && (
-          <Button
-            variant="secondary"
-            size="icon"
-            onClick={scrollToBottom}
-            className="absolute bottom-2 right-4 h-8 w-8 rounded-full shadow-md z-10"
-          >
-            <ArrowDown className="h-4 w-4" />
-          </Button>
-        )}
+        <ScrollToBottomButton
+          visible={showScrollButton}
+          onClick={scrollToBottom}
+          className="absolute bottom-2 right-4"
+        />
       </div>
 
       {/* Input */}
