@@ -184,6 +184,55 @@ async function extractSearchTerms(message: string, language: 'en' | 'de', apiKey
   return cleaned;
 }
 
+// Generate follow-up questions based on conversation
+async function generateFollowUpQuestions(
+  messages: { role: string; content: string }[],
+  userLanguage: 'en' | 'de',
+  apiKey: string
+): Promise<string[]> {
+  try {
+    const prompt = userLanguage === 'en'
+      ? `Based on this Elterngeld conversation, suggest exactly 3 short follow-up questions the user might ask next. Return ONLY a JSON array of strings, nothing else. Each question should be under 50 characters and be relevant to Elterngeld.`
+      : `Basierend auf diesem Elterngeld-Gespräch, schlage genau 3 kurze Folgefragen vor. Gib NUR ein JSON-Array von Strings zurück. Jede Frage sollte unter 60 Zeichen sein und sich auf Elterngeld beziehen.`;
+
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash-lite',
+        messages: [
+          ...messages.slice(-4), // Last 4 messages for context
+          { role: 'user', content: prompt }
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Follow-up questions API error:', response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content?.trim() || '';
+    
+    // Extract JSON array from response
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      const questions = JSON.parse(jsonMatch[0]);
+      if (Array.isArray(questions) && questions.every(q => typeof q === 'string')) {
+        console.log(`Generated ${questions.length} follow-up questions`);
+        return questions.slice(0, 3);
+      }
+    }
+  } catch (error) {
+    console.error('Follow-up questions error:', error);
+  }
+  return [];
+}
+
 // Translate sources to English using AI
 async function translateSources(
   sources: SourceInfo[],
@@ -478,6 +527,21 @@ Sei prägnant, hilfreich und genau. Bei Unsicherheit empfehle die lokale Elterng
             if (done) break;
             await writer.write(value);
           }
+        }
+
+        // Generate follow-up questions after streaming completes
+        const allMessages = messages.map((m: { role: string; content: string }) => ({
+          role: m.role,
+          content: m.content,
+        }));
+        
+        console.log('Generating follow-up questions...');
+        const suggestions = await generateFollowUpQuestions(allMessages, userLanguage, LOVABLE_API_KEY!);
+        
+        if (suggestions.length > 0) {
+          const suggestionsEvent = `data: ${JSON.stringify({ type: 'suggestions', suggestions })}\n\n`;
+          await writer.write(encoder.encode(suggestionsEvent));
+          console.log(`Sent ${suggestions.length} follow-up suggestions`);
         }
       } catch (error) {
         console.error('Stream error:', error);

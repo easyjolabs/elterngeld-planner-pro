@@ -11,6 +11,7 @@ import { toast } from '@/hooks/use-toast';
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  suggestions?: string[];
 }
 
 interface ElterngeldChatProps {
@@ -28,6 +29,7 @@ export function ElterngeldChat({
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const pendingDeltaRef = useRef('');
@@ -98,6 +100,7 @@ export function ElterngeldChat({
     if (!messageText.trim() || isLoading) return;
     
     lastUserMessageRef.current = messageText;
+    setSuggestions([]); // Clear suggestions when sending new message
     const userMessage: Message = { role: 'user', content: messageText };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
@@ -214,6 +217,12 @@ export function ElterngeldChat({
           
           try {
             const parsed = JSON.parse(jsonStr);
+            
+            // Handle suggestions event
+            if (parsed.type === 'suggestions' && Array.isArray(parsed.suggestions)) {
+              setSuggestions(parsed.suggestions);
+              continue;
+            }
             
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) {
@@ -346,6 +355,21 @@ export function ElterngeldChat({
                           <RefreshCw className="h-3.5 w-3.5" />
                         </Button>
                       )}
+                    </div>
+                  )}
+
+                  {/* Follow-up suggestions - shown after last assistant message */}
+                  {!isLoading && index === messages.length - 1 && message.role === 'assistant' && message.content && suggestions.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {suggestions.map((suggestion, i) => (
+                        <button
+                          key={i}
+                          onClick={() => sendMessage(suggestion)}
+                          className="text-sm text-muted-foreground hover:text-foreground bg-secondary/30 hover:bg-secondary/50 rounded-full px-3 py-1.5 transition-colors"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
