@@ -288,7 +288,7 @@ export function ElterngeldChat({
 
                   {/* Follow-up suggestions - shown after last assistant message */}
                   {!isLoading && index === messages.length - 1 && message.role === 'assistant' && message.content && suggestions.length > 0 && <div className="flex flex-wrap gap-2 mt-3">
-                      {suggestions.map((suggestion, i) => <button key={i} onClick={() => sendMessage(suggestion)} className="text-sm bg-secondary/30 hover:bg-secondary/50 rounded-full px-3 py-1.5 transition-colors text-primary">
+                      {suggestions.map((suggestion, i) => <button key={i} onClick={() => sendMessage(suggestion)} className="text-sm rounded-full px-3 py-1.5 transition-colors text-primary bg-secondary">
                           {suggestion}
                         </button>)}
                     </div>}
