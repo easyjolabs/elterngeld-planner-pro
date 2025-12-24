@@ -449,7 +449,7 @@ export function ElterngeldChat({
             placeholder="Ask anything about Elterngeld" 
             disabled={isLoading} 
             rows={1}
-            className="flex-1 border-0 bg-transparent focus:outline-none focus:ring-0 px-0 text-sm resize-none min-h-[24px] max-h-[120px] py-0.5" 
+            className="flex-1 border-0 bg-transparent focus:outline-none focus:ring-0 px-0 text-sm resize-none min-h-[24px] max-h-[120px] py-0.5 animate-blink-caret" 
           />
           <Button 
             type="submit" 
