@@ -59,18 +59,40 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   const isAutoFollowRef = useRef(true);
   const ignoreScrollEventsRef = useRef(false);
   const lastScrollTopRef = useRef(0);
-  const scrollToUserMessage = useCallback((messageId: string, instant = false) => {
+  const scrollToUserMessage = useCallback((messageId: string, instant = false, retryCount = 0) => {
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
     const messageEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${messageId}"]`);
 
-    if (!messageEl) {
-      console.debug("[ElterngeldChat] scrollToUserMessage: element not found", { messageId });
+    // Retry mechanism if elements aren't ready yet
+    if ((!viewport || !messageEl) && retryCount < 3) {
+      requestAnimationFrame(() => scrollToUserMessage(messageId, instant, retryCount + 1));
       return;
     }
 
-    // Use native scrollIntoView - aligns user message to TOP of viewport
-    messageEl.scrollIntoView({ 
-      behavior: instant ? "auto" : "smooth", 
-      block: "start"
+    if (!viewport || !messageEl) {
+      console.debug("[ElterngeldChat] scrollToUserMessage: element not found after retries", { messageId });
+      return;
+    }
+
+    // Calculate exact scroll position to align message to top with padding
+    const TOP_OFFSET = 16;
+    const viewportRect = viewport.getBoundingClientRect();
+    const messageRect = messageEl.getBoundingClientRect();
+    const delta = messageRect.top - viewportRect.top;
+    const targetTop = Math.max(0, viewport.scrollTop + delta - TOP_OFFSET);
+
+    // Set ignore flag to prevent handleScroll from interfering
+    ignoreScrollEventsRef.current = true;
+    
+    viewport.scrollTo({
+      top: targetTop,
+      behavior: instant ? "auto" : "smooth",
+    });
+
+    // Reset ignore flag after scroll completes
+    requestAnimationFrame(() => {
+      ignoreScrollEventsRef.current = false;
+      lastScrollTopRef.current = viewport.scrollTop;
     });
   }, []);
 
@@ -210,13 +232,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
     // Scroll to align the new user message to the top (double-RAF for layout)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        ignoreScrollEventsRef.current = true;
         scrollToUserMessage(userMessageId, true);
-        requestAnimationFrame(() => {
-          ignoreScrollEventsRef.current = false;
-          const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
-          if (viewport) lastScrollTopRef.current = viewport.scrollTop;
-        });
       });
     });
     setInput("");
