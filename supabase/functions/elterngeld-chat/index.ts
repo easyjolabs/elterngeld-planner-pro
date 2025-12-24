@@ -275,30 +275,37 @@ serve(async (req) => {
       const searchTerms = await extractSearchTerms(latestUserMessage, userLanguage, LOVABLE_API_KEY);
       console.log(`Search terms: ${searchTerms}`);
       
-      let relevantChunks = await searchDocumentChunks(supabase, searchTerms, 8);
+      // Fetch 3 chunks for AI context, but only show 1 source
+      let relevantChunks = await searchDocumentChunks(supabase, searchTerms, 3);
       
       // Fallback: if no results, try with just "Elterngeld"
       if (relevantChunks.length === 0) {
         console.log('No chunks found, trying fallback search with "Elterngeld"...');
-        relevantChunks = await searchDocumentChunks(supabase, 'Elterngeld', 5);
+        relevantChunks = await searchDocumentChunks(supabase, 'Elterngeld', 3);
       }
       
       if (relevantChunks.length > 0) {
         documentContext = relevantChunks.map(c => c.content).join('\n\n---\n\n');
-        console.log(`Found ${relevantChunks.length} relevant chunks`);
+        console.log(`Found ${relevantChunks.length} relevant chunks for context`);
         
-        // Build sources for citation
-        sources = relevantChunks.map(chunk => ({
-          section: extractSection(chunk.content),
-          excerpt: chunk.content.slice(0, 120).replace(/\n/g, ' ').trim() + '...',
-          chunkIndex: chunk.chunkIndex
-        }));
+        // Only take the TOP-RANKED chunk as the single source citation
+        const topChunk = relevantChunks[0];
+        const singleSource: SourceInfo = {
+          section: extractSection(topChunk.content),
+          excerpt: topChunk.content.slice(0, 150).replace(/\n/g, ' ').trim() + '...',
+          chunkIndex: topChunk.chunkIndex
+        };
 
-        // Translate sources if user is writing in English
-        if (userLanguage === 'en' && sources.length > 0) {
-          console.log('Translating sources to English...');
-          sources = await translateSources(sources, LOVABLE_API_KEY);
+        // Translate the single source if user is writing in English
+        if (userLanguage === 'en') {
+          console.log('Translating source to English...');
+          const translated = await translateSources([singleSource], LOVABLE_API_KEY);
+          sources = translated;
+        } else {
+          sources = [singleSource];
         }
+        
+        console.log(`Single source citation: ${singleSource.section}`);
       } else {
         console.log('No chunks matched even fallback search');
       }
