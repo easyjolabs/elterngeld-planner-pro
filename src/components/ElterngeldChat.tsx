@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { flushSync } from 'react-dom';
-import { ArrowUp, ArrowDown, RotateCcw, Copy, RefreshCw, Plus, BookOpen, ChevronDown } from 'lucide-react';
+import { ArrowUp, ArrowDown, RotateCcw, Copy, RefreshCw, BookOpen, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -429,8 +429,7 @@ export function ElterngeldChat({
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-3">
-        <div className="flex items-end gap-2 bg-muted/30 rounded-2xl px-3 py-2 border border-border">
-          <Plus className="h-5 w-5 text-muted-foreground shrink-0 mb-1" />
+        <div className="flex items-center gap-2 bg-muted/30 rounded-2xl px-4 py-2 border border-border">
           <textarea 
             ref={inputRef}
             value={input} 
