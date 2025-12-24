@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import { ArrowUp, ArrowDown, RotateCcw, Copy, RefreshCw, Plus, BookOpen, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { CalculatorState, ElterngeldCalculation } from '@/types/elterngeld';
@@ -40,7 +39,7 @@ export function ElterngeldChat({
   const [isLoading, setIsLoading] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const pendingDeltaRef = useRef('');
   const streamDoneRef = useRef(false);
   const flushIntervalRef = useRef<number | null>(null);
@@ -429,22 +428,35 @@ export function ElterngeldChat({
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="p-3 border-t border-border/50">
-        <div className="flex items-center gap-2 bg-muted/30 rounded-full px-3 py-1.5 border border-border">
-          <Plus className="h-5 w-5 text-muted-foreground shrink-0" />
-          <Input 
-            ref={inputRef} 
+      <form onSubmit={handleSubmit} className="p-3">
+        <div className="flex items-end gap-2 bg-muted/30 rounded-2xl px-3 py-2 border border-border">
+          <Plus className="h-5 w-5 text-muted-foreground shrink-0 mb-1" />
+          <textarea 
+            ref={inputRef}
             value={input} 
-            onChange={e => setInput(e.target.value)} 
+            onChange={e => {
+              setInput(e.target.value);
+              e.target.style.height = 'auto';
+              e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+            }} 
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (input.trim() && !isLoading) {
+                  handleSubmit(e as unknown as React.FormEvent);
+                }
+              }
+            }}
             placeholder="Ask anything about Elterngeld" 
             disabled={isLoading} 
-            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-8 text-sm" 
+            rows={1}
+            className="flex-1 border-0 bg-transparent focus:outline-none focus:ring-0 px-0 text-sm resize-none min-h-[24px] max-h-[120px] py-0.5" 
           />
           <Button 
             type="submit" 
             size="icon" 
             disabled={isLoading || !input.trim()} 
-            className="rounded-full h-8 w-8 bg-foreground hover:bg-foreground/90 shrink-0"
+            className="rounded-full h-8 w-8 bg-foreground hover:bg-foreground/90 shrink-0 mb-0.5"
           >
             <ArrowUp className="h-4 w-4 text-background" />
           </Button>
