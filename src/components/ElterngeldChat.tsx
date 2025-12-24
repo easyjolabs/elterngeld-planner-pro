@@ -430,27 +430,32 @@ export function ElterngeldChat({
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-3">
         <div className="flex items-center gap-2 bg-muted/30 rounded-2xl px-4 py-2 border border-border">
-          <textarea 
-            ref={inputRef}
-            value={input} 
-            onChange={e => {
-              setInput(e.target.value);
-              e.target.style.height = 'auto';
-              e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
-            }} 
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (input.trim() && !isLoading) {
-                  handleSubmit(e as unknown as React.FormEvent);
+          <div className="relative flex-1">
+            {!input && (
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary animate-blink pointer-events-none" />
+            )}
+            <textarea 
+              ref={inputRef}
+              value={input} 
+              onChange={e => {
+                setInput(e.target.value);
+                e.target.style.height = 'auto';
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+              }} 
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (input.trim() && !isLoading) {
+                    handleSubmit(e as unknown as React.FormEvent);
+                  }
                 }
-              }
-            }}
-            placeholder="Ask anything about Elterngeld" 
-            disabled={isLoading} 
-            rows={1}
-            className="flex-1 border-0 bg-transparent focus:outline-none focus:ring-0 px-0 text-sm resize-none min-h-[24px] max-h-[120px] py-0.5 animate-blink-caret" 
-          />
+              }}
+              placeholder="Ask anything about Elterngeld" 
+              disabled={isLoading} 
+              rows={1}
+              className="flex-1 w-full border-0 bg-transparent focus:outline-none focus:ring-0 px-0 text-sm resize-none min-h-[24px] max-h-[120px] py-0.5 caret-primary" 
+            />
+          </div>
           <Button 
             type="submit" 
             size="icon" 
