@@ -195,11 +195,12 @@
   }
 
   @keyframes blink-caret {
-    0%, 100% { caret-color: hsl(var(--primary)); }
-    50% { caret-color: transparent; }
+    0%, 50% { caret-color: hsl(var(--primary)); }
+    50.01%, 100% { caret-color: transparent; }
   }
 
   .animate-blink-caret {
-    animation: blink-caret 1s step-end infinite;
+    animation: blink-caret 1s step-start infinite;
+    caret-color: hsl(var(--primary));
   }
 }
