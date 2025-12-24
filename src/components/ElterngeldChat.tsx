@@ -391,7 +391,7 @@ export function ElterngeldChat({
               </div> : <div className="space-y-4">
                 {messages.map((message, index) => <div key={message.id} data-message-id={message.id} className={cn("flex flex-col", message.role === "user" ? "items-end" : "items-start")}>
                     <div className={cn("max-w-[85%] text-sm", message.role === "user" ? "bg-secondary/50 text-foreground rounded-full px-4 py-2" : "bg-transparent text-foreground")}>
-                      {message.content ? message.role === "assistant" ? <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-li:my-0.5 leading-relaxed my-px text-primary">
+                      {message.content ? message.role === "assistant" ? <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-li:my-0.5 leading-relaxed my-px text-primary font-normal">
                             <ReactMarkdown>{normalizeMarkdown(message.content)}</ReactMarkdown>
                           </div> : <span className="leading-relaxed">{message.content}</span> : <ThinkingAnimation />}
                     </div>
