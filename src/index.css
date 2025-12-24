@@ -193,4 +193,13 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  @keyframes blink-caret {
+    0%, 100% { caret-color: hsl(var(--primary)); }
+    50% { caret-color: transparent; }
+  }
+
+  .animate-blink-caret {
+    animation: blink-caret 1s step-end infinite;
+  }
 }
