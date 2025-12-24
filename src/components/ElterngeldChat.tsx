@@ -35,11 +35,11 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   const streamDoneRef = useRef(false);
   const flushIntervalRef = useRef<number | null>(null);
   const lastUserMessageRef = useRef<string>("");
-  const scrollToBottom = useCallback((instant = false) => {
+  const scrollToTop = useCallback((instant = false) => {
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
     if (viewport) {
       viewport.scrollTo({
-        top: viewport.scrollHeight,
+        top: 0,
         behavior: instant ? "auto" : "smooth",
       });
     }
@@ -47,14 +47,13 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   const handleScroll = useCallback(() => {
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
     if (viewport) {
-      const { scrollTop, scrollHeight, clientHeight } = viewport;
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-      setShowScrollButton(!isNearBottom);
+      const isAtTop = viewport.scrollTop < 100;
+      setShowScrollButton(!isAtTop);
     }
   }, []);
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+    scrollToTop();
+  }, [messages, scrollToTop]);
   useEffect(() => {
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
     if (viewport) {
@@ -111,7 +110,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
         },
       ]);
     });
-    scrollToBottom(true);
+    scrollToTop(true);
     setInput("");
     setIsLoading(true);
     let assistantContent = "";
@@ -157,7 +156,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
             return updated;
           });
         });
-        scrollToBottom(true);
+        scrollToTop(true);
       }, 25);
     };
     try {
@@ -367,10 +366,10 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
           </div>
         </ScrollArea>
 
-        {/* Scroll to bottom button */}
+        {/* Scroll to top button */}
         <ScrollToBottomButton
           visible={showScrollButton}
-          onClick={scrollToBottom}
+          onClick={() => scrollToTop()}
           className="absolute bottom-2 left-1/2 -translate-x-1/2"
         />
       </div>
