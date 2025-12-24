@@ -393,8 +393,8 @@ export function ElterngeldChat({
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-3">
-        <div className="flex items-center gap-2 bg-muted/30 rounded-2xl px-4 py-2 border border-border">
-          <div className="relative flex-1">
+        <div className="flex items-end gap-2 bg-muted/30 rounded-2xl px-4 py-2 border border-border">
+          <div className="relative flex-1 flex items-center min-h-[24px]">
             {!input && (
               <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[1px] h-4 bg-foreground/70 animate-blink pointer-events-none" />
             )}
@@ -424,7 +424,7 @@ export function ElterngeldChat({
             type="submit" 
             size="icon" 
             disabled={isLoading || !input.trim()} 
-            className="rounded-full h-8 w-8 bg-foreground hover:bg-foreground/90 shrink-0 mb-0.5"
+            className="rounded-full h-8 w-8 bg-foreground hover:bg-foreground/90 shrink-0 mb-1"
           >
             <ArrowUp className="h-4 w-4 text-background" />
           </Button>
