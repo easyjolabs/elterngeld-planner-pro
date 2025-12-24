@@ -7,6 +7,7 @@ import { CalculatorState, ElterngeldCalculation } from '@/types/elterngeld';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { toast } from '@/hooks/use-toast';
+import { ThinkingAnimation } from './ThinkingAnimation';
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -274,23 +275,7 @@ export function ElterngeldChat({
                   <div className={cn("max-w-[85%] text-sm", message.role === 'user' ? 'bg-secondary/50 text-foreground rounded-full px-4 py-2' : 'bg-transparent text-foreground')}>
                     {message.content ? message.role === 'assistant' ? <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-strong:text-foreground leading-relaxed my-px">
                           <ReactMarkdown>{message.content}</ReactMarkdown>
-                        </div> : <span className="leading-relaxed">{message.content}</span> : <span className="text-muted-foreground italic flex items-center gap-1">
-                        <span className="animate-pulse">Thinking</span>
-                        <span className="inline-flex">
-                          <span className="animate-bounce" style={{
-                    animationDelay: '0ms',
-                    animationDuration: '1s'
-                  }}>.</span>
-                          <span className="animate-bounce" style={{
-                    animationDelay: '150ms',
-                    animationDuration: '1s'
-                  }}>.</span>
-                          <span className="animate-bounce" style={{
-                    animationDelay: '300ms',
-                    animationDuration: '1s'
-                  }}>.</span>
-                        </span>
-                      </span>}
+                        </div> : <span className="leading-relaxed">{message.content}</span> : <ThinkingAnimation />}
                   </div>
 
 
