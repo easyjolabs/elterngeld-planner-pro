@@ -20,22 +20,29 @@ export default function AdminImport() {
       if (!response.ok) {
         throw new Error('Failed to fetch PDF file');
       }
-      
-      const arrayBuffer = await response.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
-      
-      // Convert to base64
-      let binary = '';
-      for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      const pdfBase64 = btoa(binary);
-      
-      toast.info(`Sending ${Math.round(bytes.length / 1024)}KB PDF for processing...`);
 
-      // Call the edge function with the PDF data
+      const arrayBuffer = await response.arrayBuffer();
+
+      // Convert to base64 via FileReader (more memory-friendly than manual loops)
+      const pdfBase64 = await new Promise<string>((resolve, reject) => {
+        const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Failed to read PDF file'));
+        reader.onload = () => {
+          const result = reader.result;
+          if (typeof result !== 'string') return reject(new Error('Invalid FileReader result'));
+          const commaIndex = result.indexOf(',');
+          if (commaIndex < 0) return reject(new Error('Invalid data URL'));
+          resolve(result.slice(commaIndex + 1));
+        };
+        reader.readAsDataURL(blob);
+      });
+
+      toast.info('Uploading PDF for processing...');
+
+      // Call the backend function with the PDF data
       const { data, error } = await supabase.functions.invoke('import-broschuere', {
-        body: { pdfBase64 }
+        body: { pdfBase64 },
       });
 
       if (error) throw error;
