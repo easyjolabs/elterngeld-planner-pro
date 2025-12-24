@@ -273,7 +273,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
       {/* Messages */}
       <div className="relative flex-1 overflow-hidden">
         <ScrollArea className="h-full px-4 py-3" ref={scrollAreaRef}>
-          <div className="flex flex-col min-h-full justify-end">
+          <div className="flex flex-col">
             {messages.length === 0 ? (
               <div className="space-y-4">
                 <p className="font-medium text-foreground leading-relaxed text-base">
@@ -408,9 +408,9 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
             type="submit"
             size="icon"
             disabled={isLoading || !input.trim()}
-            className="rounded-full h-8 w-8 bg-foreground hover:bg-foreground/90 shrink-0"
+            className="rounded-full h-8 w-8 bg-black hover:bg-black/90 shrink-0 disabled:bg-black disabled:opacity-100"
           >
-            <ArrowUp className="h-4 w-4 text-background" />
+            <ArrowUp className="h-4 w-4 text-white" />
           </Button>
         </div>
       </form>
