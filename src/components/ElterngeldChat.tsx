@@ -1,26 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { flushSync } from 'react-dom';
-import { ArrowUp, ArrowDown, RotateCcw, Copy, RefreshCw, BookOpen, ChevronDown } from 'lucide-react';
+import { ArrowUp, ArrowDown, RotateCcw, Copy, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { CalculatorState, ElterngeldCalculation } from '@/types/elterngeld';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { toast } from '@/hooks/use-toast';
 
-interface SourceInfo {
-  section: string;
-  sectionEnglish?: string;
-  excerpt: string;
-  excerptEnglish?: string;
-  chunkIndex: number;
-}
-
 interface Message {
   role: 'user' | 'assistant';
   content: string;
-  sources?: SourceInfo[];
 }
 
 interface ElterngeldChatProps {
@@ -44,7 +34,6 @@ export function ElterngeldChat({
   const streamDoneRef = useRef(false);
   const flushIntervalRef = useRef<number | null>(null);
   const lastUserMessageRef = useRef<string>('');
-  const pendingSourcesRef = useRef<SourceInfo[]>([]);
 
   const scrollToBottom = useCallback(() => {
     if (scrollAreaRef.current) {
@@ -117,7 +106,6 @@ export function ElterngeldChat({
     let assistantContent = '';
     pendingDeltaRef.current = '';
     streamDoneRef.current = false;
-    pendingSourcesRef.current = [];
     
     if (flushIntervalRef.current !== null) {
       window.clearInterval(flushIntervalRef.current);
@@ -145,17 +133,6 @@ export function ElterngeldChat({
           if (streamDoneRef.current) {
             window.clearInterval(flushIntervalRef.current!);
             flushIntervalRef.current = null;
-            // Final update with sources
-            if (pendingSourcesRef.current.length > 0) {
-              setMessages(prev => {
-                const updated = [...prev];
-                updated[updated.length - 1] = {
-                  ...updated[updated.length - 1],
-                  sources: pendingSourcesRef.current
-                };
-                return updated;
-              });
-            }
             resolveDrain?.();
           }
           return;
@@ -168,8 +145,7 @@ export function ElterngeldChat({
             const updated = [...prev];
             updated[updated.length - 1] = {
               role: 'assistant',
-              content: assistantContent,
-              sources: pendingSourcesRef.current.length > 0 ? pendingSourcesRef.current : undefined
+              content: assistantContent
             };
             return updated;
           });
@@ -238,12 +214,6 @@ export function ElterngeldChat({
           
           try {
             const parsed = JSON.parse(jsonStr);
-            
-            // Check for sources event
-            if (parsed.type === 'sources' && parsed.sources) {
-              pendingSourcesRef.current = parsed.sources;
-              continue;
-            }
             
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) {
@@ -352,36 +322,6 @@ export function ElterngeldChat({
                     )}
                   </div>
 
-                  {/* Sources citation for assistant messages */}
-                  {message.role === 'assistant' && message.sources && message.sources.length > 0 && !isLoading && (
-                    <Collapsible className="mt-2 w-full max-w-[85%]">
-                      <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group">
-                        <BookOpen className="h-3 w-3" />
-                        <span>Sources: {message.sources.length} sections</span>
-                        <ChevronDown className="h-3 w-3 transition-transform group-data-[state=open]:rotate-180" />
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="mt-2 space-y-1.5">
-                        {message.sources.map((source, idx) => (
-                          <div 
-                            key={idx}
-                            className="text-xs bg-muted/50 rounded-md px-2.5 py-1.5 border border-border/50"
-                          >
-                            <span className="font-medium text-foreground">
-                              {source.sectionEnglish || source.section}
-                            </span>
-                            <p className="text-muted-foreground mt-0.5 line-clamp-2">
-                              {source.excerptEnglish || source.excerpt}
-                            </p>
-                            {source.sectionEnglish && (
-                              <p className="text-muted-foreground/60 mt-0.5 text-[10px]">
-                                Original: {source.section}
-                              </p>
-                            )}
-                          </div>
-                        ))}
-                      </CollapsibleContent>
-                    </Collapsible>
-                  )}
 
                   {/* Action buttons for assistant messages */}
                   {message.role === 'assistant' && message.content && !isLoading && (
