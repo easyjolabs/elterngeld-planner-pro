@@ -35,12 +35,12 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   const streamDoneRef = useRef(false);
   const flushIntervalRef = useRef<number | null>(null);
   const lastUserMessageRef = useRef<string>("");
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = useCallback((instant = false) => {
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
     if (viewport) {
       viewport.scrollTo({
         top: viewport.scrollHeight,
-        behavior: "smooth",
+        behavior: instant ? "auto" : "smooth",
       });
     }
   }, []);
@@ -101,14 +101,17 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
       role: "user",
       content: messageText,
     };
-    setMessages((prev) => [
-      ...prev,
-      userMessage,
-      {
-        role: "assistant",
-        content: "",
-      },
-    ]);
+    flushSync(() => {
+      setMessages((prev) => [
+        ...prev,
+        userMessage,
+        {
+          role: "assistant",
+          content: "",
+        },
+      ]);
+    });
+    scrollToBottom(true);
     setInput("");
     setIsLoading(true);
     let assistantContent = "";
@@ -154,6 +157,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
             return updated;
           });
         });
+        scrollToBottom(true);
       }, 25);
     };
     try {
