@@ -13,11 +13,29 @@ export default function AdminImport() {
     setResult(null);
 
     try {
-      toast.info('Fetching and processing BMFSFJ brochure... This may take a minute.');
+      toast.info('Fetching PDF from local file...');
 
-      // Call the edge function to fetch and process the PDF
+      // Fetch the PDF from the public folder
+      const response = await fetch('/elterngeld-broschuere.pdf');
+      if (!response.ok) {
+        throw new Error('Failed to fetch PDF file');
+      }
+      
+      const arrayBuffer = await response.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      
+      // Convert to base64
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const pdfBase64 = btoa(binary);
+      
+      toast.info(`Sending ${Math.round(bytes.length / 1024)}KB PDF for processing...`);
+
+      // Call the edge function with the PDF data
       const { data, error } = await supabase.functions.invoke('import-broschuere', {
-        body: {}
+        body: { pdfBase64 }
       });
 
       if (error) throw error;
