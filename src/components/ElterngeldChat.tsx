@@ -55,17 +55,26 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   const lastSentUserMessageIdRef = useRef<string | null>(null);
 
   const scrollToUserMessage = useCallback((messageId: string, instant = false) => {
-    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
-    const messageEl = scrollAreaRef.current?.querySelector(`[data-message-id="${messageId}"]`);
-    if (viewport && messageEl) {
-      const viewportRect = viewport.getBoundingClientRect();
-      const messageRect = messageEl.getBoundingClientRect();
-      const delta = messageRect.top - viewportRect.top;
-      viewport.scrollBy({
-        top: delta,
-        behavior: instant ? "auto" : "smooth",
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
+    const messageEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${messageId}"]`);
+
+    if (!viewport || !messageEl) {
+      console.debug("[ElterngeldChat] scrollToUserMessage: element not found", {
+        hasViewport: !!viewport,
+        messageId,
       });
+      return;
     }
+
+    const viewportRect = viewport.getBoundingClientRect();
+    const messageRect = messageEl.getBoundingClientRect();
+    const delta = messageRect.top - viewportRect.top;
+    const targetTop = viewport.scrollTop + delta;
+
+    viewport.scrollTo({
+      top: targetTop,
+      behavior: instant ? "auto" : "smooth",
+    });
   }, []);
 
   const scrollToBottom = useCallback((instant = false) => {
@@ -148,10 +157,10 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
       ]);
     });
     
-    // Scroll to align the new user message to the top
-    requestAnimationFrame(() => {
+    // Scroll to align the new user message to the top (after layout)
+    window.setTimeout(() => {
       scrollToUserMessage(userMessageId, true);
-    });
+    }, 0);
     setInput("");
     setIsLoading(true);
     let assistantContent = "";
