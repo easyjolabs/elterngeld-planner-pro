@@ -36,16 +36,18 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   const flushIntervalRef = useRef<number | null>(null);
   const lastUserMessageRef = useRef<string>("");
   const scrollToBottom = useCallback(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
+    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+    if (viewport) {
+      viewport.scrollTo({
+        top: viewport.scrollHeight,
         behavior: "smooth",
       });
     }
   }, []);
   const handleScroll = useCallback(() => {
-    if (scrollAreaRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = scrollAreaRef.current;
+    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+    if (viewport) {
+      const { scrollTop, scrollHeight, clientHeight } = viewport;
       const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
       setShowScrollButton(!isNearBottom);
     }
@@ -54,10 +56,10 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
     scrollToBottom();
   }, [messages, scrollToBottom]);
   useEffect(() => {
-    const scrollEl = scrollAreaRef.current;
-    if (scrollEl) {
-      scrollEl.addEventListener("scroll", handleScroll);
-      return () => scrollEl.removeEventListener("scroll", handleScroll);
+    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+    if (viewport) {
+      viewport.addEventListener("scroll", handleScroll);
+      return () => viewport.removeEventListener("scroll", handleScroll);
     }
   }, [handleScroll]);
   useEffect(() => {
