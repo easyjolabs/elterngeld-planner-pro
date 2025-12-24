@@ -265,7 +265,7 @@ export function ElterngeldChat({
                 Hi! Do you have questions about Elterngeld?       
               </p>
               <div className="space-y-1">
-                {SUGGESTED_QUESTIONS.map((question, index) => <button key={index} onClick={() => sendMessage(question)} className="block w-full text-left transition-colors text-sm py-1.5 leading-relaxed text-primary">
+                {SUGGESTED_QUESTIONS.map((question, index) => <button key={index} onClick={() => sendMessage(question)} className="block w-full text-left transition-colors text-sm py-1.5 leading-relaxed text-foreground">
                     {question}
                   </button>)}
               </div>
