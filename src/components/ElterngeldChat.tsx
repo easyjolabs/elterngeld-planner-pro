@@ -432,7 +432,7 @@ export function ElterngeldChat({
         <div className="flex items-center gap-2 bg-muted/30 rounded-2xl px-4 py-2 border border-border">
           <div className="relative flex-1">
             {!input && (
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary animate-blink pointer-events-none" />
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[1px] h-4 bg-foreground/70 animate-blink pointer-events-none" />
             )}
             <textarea 
               ref={inputRef}
