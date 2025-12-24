@@ -23,10 +23,14 @@ function normalizeMarkdown(text: string): string {
   return normalized;
 }
 interface Message {
+  id: string;
   role: "user" | "assistant";
   content: string;
   suggestions?: string[];
 }
+
+let messageIdCounter = 0;
+const generateMessageId = () => `msg-${++messageIdCounter}-${Date.now()}`;
 interface ElterngeldChatProps {
   calculation: ElterngeldCalculation;
   calculatorState: CalculatorState;
@@ -48,25 +52,40 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
   const streamDoneRef = useRef(false);
   const flushIntervalRef = useRef<number | null>(null);
   const lastUserMessageRef = useRef<string>("");
-  const scrollToTop = useCallback((instant = false) => {
+  const lastSentUserMessageIdRef = useRef<string | null>(null);
+
+  const scrollToUserMessage = useCallback((messageId: string, instant = false) => {
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
-    if (viewport) {
-      viewport.scrollTo({
-        top: 0,
+    const messageEl = scrollAreaRef.current?.querySelector(`[data-message-id="${messageId}"]`);
+    if (viewport && messageEl) {
+      const viewportRect = viewport.getBoundingClientRect();
+      const messageRect = messageEl.getBoundingClientRect();
+      const delta = messageRect.top - viewportRect.top;
+      viewport.scrollBy({
+        top: delta,
         behavior: instant ? "auto" : "smooth",
       });
     }
   }, []);
+
+  const scrollToBottom = useCallback((instant = false) => {
+    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+    if (viewport) {
+      viewport.scrollTo({
+        top: viewport.scrollHeight,
+        behavior: instant ? "auto" : "smooth",
+      });
+    }
+  }, []);
+
   const handleScroll = useCallback(() => {
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
     if (viewport) {
-      const isAtTop = viewport.scrollTop < 100;
-      setShowScrollButton(!isAtTop);
+      const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+      const isAtBottom = distanceFromBottom < 100;
+      setShowScrollButton(!isAtBottom);
     }
   }, []);
-  useEffect(() => {
-    scrollToTop();
-  }, [messages, scrollToTop]);
   useEffect(() => {
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
     if (viewport) {
@@ -109,21 +128,30 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
     if (!messageText.trim() || isLoading) return;
     lastUserMessageRef.current = messageText;
     setSuggestions([]); // Clear suggestions when sending new message
+    const userMessageId = generateMessageId();
     const userMessage: Message = {
+      id: userMessageId,
       role: "user",
       content: messageText,
     };
+    lastSentUserMessageIdRef.current = userMessageId;
+    
     flushSync(() => {
       setMessages((prev) => [
         ...prev,
         userMessage,
         {
+          id: generateMessageId(),
           role: "assistant",
           content: "",
         },
       ]);
     });
-    scrollToTop(true);
+    
+    // Scroll to align the new user message to the top
+    requestAnimationFrame(() => {
+      scrollToUserMessage(userMessageId, true);
+    });
     setInput("");
     setIsLoading(true);
     let assistantContent = "";
@@ -162,14 +190,14 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
         flushSync(() => {
           setMessages((prev) => {
             const updated = [...prev];
+            const lastMsg = updated[updated.length - 1];
             updated[updated.length - 1] = {
-              role: "assistant",
+              ...lastMsg,
               content: assistantContent,
             };
             return updated;
           });
         });
-        scrollToTop(true);
       }, 25);
     };
     try {
@@ -254,6 +282,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
       setMessages((prev) => [
         ...prev.filter((m) => m.content !== ""),
         {
+          id: generateMessageId(),
           role: "assistant",
           content: error instanceof Error ? error.message : "Sorry, I encountered an error. Please try again.",
         },
@@ -306,7 +335,7 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
             ) : (
               <div className="space-y-4">
                 {messages.map((message, index) => (
-                  <div key={index} className={cn("flex flex-col", message.role === "user" ? "items-end" : "items-start")}>
+                  <div key={message.id} data-message-id={message.id} className={cn("flex flex-col", message.role === "user" ? "items-end" : "items-start")}>
                     <div
                       className={cn(
                         "max-w-[85%] text-sm",
@@ -379,10 +408,10 @@ export function ElterngeldChat({ calculation, calculatorState }: ElterngeldChatP
           </div>
         </ScrollArea>
 
-        {/* Scroll to top button */}
+        {/* Scroll to bottom button */}
         <ScrollToBottomButton
           visible={showScrollButton}
-          onClick={() => scrollToTop()}
+          onClick={() => scrollToBottom()}
           className="absolute bottom-2 left-1/2 -translate-x-1/2"
         />
       </div>
