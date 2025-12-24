@@ -14,35 +14,6 @@ interface SourceInfo {
   chunkIndex: number;
 }
 
-// English to German term mapping for search enhancement
-const ENGLISH_TO_GERMAN_TERMS: Record<string, string[]> = {
-  'parental allowance': ['Elterngeld', 'Elternzeit'],
-  'parental leave': ['Elternzeit', 'Bezugszeitraum'],
-  'basic elterngeld': ['Basiselterngeld'],
-  'elterngeld plus': ['ElterngeldPlus'],
-  'partnership bonus': ['Partnerschaftsbonus'],
-  'duration': ['Bezugsdauer', 'Lebensmonate'],
-  'months': ['Monate', 'Lebensmonate'],
-  'eligible': ['Berechtigung', 'Anspruch', 'berechtigt'],
-  'eligibility': ['Berechtigung', 'Anspruch', 'Voraussetzungen'],
-  'requirements': ['Voraussetzungen', 'Anspruchsvoraussetzungen'],
-  'income': ['Einkommen', 'Bemessungsgrundlage'],
-  'calculation': ['Berechnung', 'Höhe'],
-  'how much': ['Höhe', 'Berechnung', 'wieviel'],
-  'apply': ['Antrag', 'beantragen'],
-  'application': ['Antrag', 'Antragstellung'],
-  'model': ['Modell', 'Variante', 'Basiselterngeld', 'ElterngeldPlus'],
-  'which model': ['Modell', 'Basiselterngeld', 'ElterngeldPlus', 'Partnerschaftsbonus'],
-  'receive': ['erhalten', 'bekommen', 'Höhe'],
-  'get': ['erhalten', 'bekommen', 'Anspruch'],
-  'choose': ['wählen', 'Modell', 'Variante'],
-  'sibling': ['Geschwister', 'Geschwisterbonus'],
-  'twins': ['Mehrlinge', 'Zwillinge'],
-  'partner': ['Partner', 'Partnermonate'],
-  'work': ['Arbeit', 'Erwerbstätigkeit', 'arbeiten'],
-  'part-time': ['Teilzeit', 'Teilzeitarbeit'],
-};
-
 // Detect language using word scoring (treats "Elterngeld" as neutral)
 function detectLanguage(message: string): 'en' | 'de' {
   const lowerMsg = message.toLowerCase();
@@ -144,23 +115,57 @@ async function hasReadyDocument(supabase: any): Promise<boolean> {
   return data && data.length > 0;
 }
 
-// Extract key terms from user message for search - builds German-only terms for English queries
-function extractSearchTerms(message: string, language: 'en' | 'de'): string {
-  if (language === 'en') {
-    // For English queries, build German-only search terms using OR logic
-    const germanTerms: Set<string> = new Set(['Elterngeld']);
-    const lowerMsg = message.toLowerCase();
-    
-    for (const [english, terms] of Object.entries(ENGLISH_TO_GERMAN_TERMS)) {
-      if (lowerMsg.includes(english)) {
-        terms.forEach(term => germanTerms.add(term));
-      }
+// Translate English query to German search terms using AI
+async function translateQueryToGerman(query: string, apiKey: string): Promise<string> {
+  try {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash-lite',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a German legal terminology expert. Given an English question about German Elterngeld (parental allowance), extract 5-8 German keywords that would appear in the official Elterngeld regulations (BEEG).
+
+Output ONLY the German keywords separated by " OR " (for search query). Include the word "Elterngeld" always.
+
+Examples:
+- "What is the income limit?" → "Elterngeld OR Einkommensgrenze OR Einkommen OR Grenze OR Überschreitung OR entfällt OR Anspruch"
+- "How much will I receive?" → "Elterngeld OR Höhe OR Berechnung OR Einkommen OR Bemessungsgrundlage OR erhalten OR Betrag"
+- "Can I work part-time?" → "Elterngeld OR Teilzeit OR Erwerbstätigkeit OR Arbeit OR Arbeitszeit OR Stunden"`
+          },
+          { role: 'user', content: query }
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Query translation API error:', response.status);
+      return 'Elterngeld';
     }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content?.trim() || 'Elterngeld';
     
-    // Return German terms joined with OR for websearch_to_tsquery
-    const termsArray = Array.from(germanTerms);
-    console.log(`Building German search from English query: ${termsArray.join(' OR ')}`);
-    return termsArray.join(' OR ');
+    console.log(`AI translated query to German terms: ${content}`);
+    return content;
+  } catch (error) {
+    console.error('Query translation error:', error);
+    return 'Elterngeld';
+  }
+}
+
+// Extract key terms from user message for search - uses AI for English queries
+async function extractSearchTerms(message: string, language: 'en' | 'de', apiKey: string): Promise<string> {
+  if (language === 'en') {
+    // For English queries, use AI to translate to German search terms
+    const germanTerms = await translateQueryToGerman(message, apiKey);
+    console.log(`Building German search from English query: ${germanTerms}`);
+    return germanTerms;
   }
   
   // For German queries, use cleaned message text
@@ -266,8 +271,8 @@ serve(async (req) => {
     if (hasDocument && latestUserMessage) {
       console.log('Searching for relevant document chunks...');
       
-      // Extract search terms with language-aware enhancement
-      const searchTerms = extractSearchTerms(latestUserMessage, userLanguage);
+      // Extract search terms with language-aware enhancement (async for AI translation)
+      const searchTerms = await extractSearchTerms(latestUserMessage, userLanguage, LOVABLE_API_KEY);
       console.log(`Search terms: ${searchTerms}`);
       
       let relevantChunks = await searchDocumentChunks(supabase, searchTerms, 8);
