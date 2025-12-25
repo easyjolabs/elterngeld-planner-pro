@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import { flushSync } from "react-dom";
-import { ArrowUp, RotateCcw, Copy, RefreshCw, Bug } from "lucide-react";
+import { ArrowUp, RotateCcw, Copy, RefreshCw, Bug, UserCheck, Calculator, Scale, Clock, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalculatorState, ElterngeldCalculation } from "@/types/elterngeld";
@@ -54,7 +54,13 @@ interface DebugMetrics {
   pendingAnchor: string | null;
 }
 
-const SUGGESTED_QUESTIONS = ["How much parental allowance will I receive?", "Can I get Elterngeld?", "Which model should I choose?"];
+const SUGGESTED_QUESTIONS = [
+  "Am I eligible?",
+  "How much will I get?",
+  "Which model is best for me?",
+  "Can I work part-time?",
+  "How do I apply?"
+];
 export function ElterngeldChat({
   calculation,
   calculatorState
@@ -647,14 +653,32 @@ export function ElterngeldChat({
       <div className="relative flex-1 overflow-hidden">
         <ScrollArea className="h-full px-4 py-3" ref={scrollAreaRef}>
           <div className="flex flex-col">
-            {messages.length === 0 ? <div className="space-y-4">
-                <p className="font-medium text-foreground leading-relaxed text-base font-sans">
-                  Hi! Do you have questions about Elterngeld?
-                </p>
-                <div className="space-y-1">
-                  {SUGGESTED_QUESTIONS.map((question, index) => <button key={index} onClick={() => sendMessage(question)} className="block w-full text-left transition-colors text-sm py-1.5 leading-relaxed text-foreground">
-                      {question}
-                    </button>)}
+            {messages.length === 0 ? <div className="flex flex-col h-full min-h-[400px]">
+                {/* Spacer to push content to bottom */}
+                <div className="flex-1" />
+                
+                {/* Bottom aligned content */}
+                <div className="space-y-4 pb-4">
+                  <p className="font-semibold text-foreground text-xl font-sans">
+                    What can I help with today?
+                  </p>
+                  <div className="space-y-1">
+                    {SUGGESTED_QUESTIONS.map((question, index) => {
+                      const icons = [UserCheck, Calculator, Scale, Clock, FileText];
+                      const Icon = icons[index];
+                      return (
+                        <button 
+                          key={index} 
+                          onClick={() => sendMessage(question)} 
+                          className="group flex items-center w-full text-left rounded-lg px-3 py-3 transition-colors text-sm leading-relaxed text-foreground hover:bg-[#F3F3F3]"
+                        >
+                          <Icon className="h-5 w-5 mr-3 text-muted-foreground flex-shrink-0" />
+                          <span className="flex-1">{question}</span>
+                          <ArrowUp className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity rotate-45" />
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div> : <div className="space-y-4">
                 {messages.map((message, index) => <div 
