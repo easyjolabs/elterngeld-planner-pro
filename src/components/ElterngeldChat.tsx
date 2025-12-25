@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import { flushSync } from "react-dom";
 import { ArrowUp, RotateCcw, Copy, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,7 +44,15 @@ export function ElterngeldChat({
   const [isLoading, setIsLoading] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  // Bottom spacer to guarantee enough scroll room to anchor the latest user message at the top.
   const [bottomSpacerPx, setBottomSpacerPx] = useState(0);
+  const [spacerAnimated, setSpacerAnimated] = useState(true);
+  const [pendingAnchor, setPendingAnchor] = useState<{ userId: string; assistantId: string } | null>(null);
+
+  const spacerObserverRef = useRef<ResizeObserver | null>(null);
+  const spacerZeroStreakRef = useRef(0);
+
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const pendingDeltaRef = useRef("");
@@ -60,49 +68,37 @@ export function ElterngeldChat({
   const ignoreScrollEventsRef = useRef(false);
   const lastScrollTopRef = useRef(0);
   const scrollToUserMessage = useCallback((messageId: string, instant = false, retryCount = 0) => {
-    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
-    const messageEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${messageId}"]`);
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>(
+      '[data-radix-scroll-area-viewport]'
+    );
+    const messageEl = scrollAreaRef.current?.querySelector<HTMLElement>(
+      `[data-message-id="${messageId}"]`
+    );
 
     // Retry mechanism if elements aren't ready yet
-    if ((!viewport || !messageEl) && retryCount < 3) {
+    if ((!viewport || !messageEl) && retryCount < 6) {
       requestAnimationFrame(() => scrollToUserMessage(messageId, instant, retryCount + 1));
       return;
     }
     if (!viewport || !messageEl) {
-      console.debug("[ElterngeldChat] scrollToUserMessage: element not found after retries", {
-        messageId
-      });
+      if (import.meta.env.DEV) {
+        console.debug("[ElterngeldChat] scrollToUserMessage: element not found", { messageId });
+      }
       return;
     }
 
-    // Calculate exact scroll position to align message to top with padding
+    // Deterministic: offsetTop is already in scroll coordinates.
     const TOP_OFFSET = 16;
-    const viewportRect = viewport.getBoundingClientRect();
-    const messageRect = messageEl.getBoundingClientRect();
-    const delta = messageRect.top - viewportRect.top;
-    const targetTop = Math.max(0, viewport.scrollTop + delta - TOP_OFFSET);
-    
-    // Check for clamping
-    const maxScrollTop = viewport.scrollHeight - viewport.clientHeight;
+    const targetTop = Math.max(0, messageEl.offsetTop - TOP_OFFSET);
+    const maxScrollTop = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
     const finalTop = Math.min(targetTop, maxScrollTop);
-    
-    console.debug("[ElterngeldChat] scrollToUserMessage", {
-      targetTop,
-      maxScrollTop,
-      finalTop,
-      clamped: targetTop > maxScrollTop,
-      scrollHeight: viewport.scrollHeight,
-      clientHeight: viewport.clientHeight
-    });
 
-    // Set ignore flag to prevent handleScroll from interfering
     ignoreScrollEventsRef.current = true;
     viewport.scrollTo({
       top: finalTop,
       behavior: instant ? "auto" : "smooth"
     });
 
-    // Reset ignore flag after scroll completes
     requestAnimationFrame(() => {
       ignoreScrollEventsRef.current = false;
       lastScrollTopRef.current = viewport.scrollTop;
@@ -122,6 +118,100 @@ export function ElterngeldChat({
       });
     }
   }, []);
+
+  const stopBottomSpacerObserver = useCallback(() => {
+    spacerObserverRef.current?.disconnect();
+    spacerObserverRef.current = null;
+    spacerZeroStreakRef.current = 0;
+  }, []);
+
+  const computeRequiredSpacer = useCallback((viewport: HTMLElement, userEl: HTMLElement, assistantEl: HTMLElement) => {
+    const TOP_OFFSET = 16;
+    const desiredScrollTop = Math.max(0, userEl.offsetTop - TOP_OFFSET);
+    const desiredBottom = desiredScrollTop + viewport.clientHeight;
+    const assistantEnd = assistantEl.offsetTop + assistantEl.offsetHeight;
+    return Math.max(0, Math.ceil(desiredBottom - assistantEnd));
+  }, []);
+
+  const recomputeSpacerForTurn = useCallback((userId: string, assistantId: string) => {
+    if (!isAutoFollowRef.current) return; // freeze while user is reading older messages
+
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
+    const userEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${userId}"]`);
+    const assistantEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${assistantId}"]`);
+    if (!viewport || !userEl || !assistantEl) return;
+
+    const required = computeRequiredSpacer(viewport, userEl, assistantEl);
+    setBottomSpacerPx(prev => (Math.abs(prev - required) < 1 ? prev : required));
+
+    if (required <= 0) {
+      spacerZeroStreakRef.current += 1;
+      if (spacerZeroStreakRef.current >= 2) {
+        setBottomSpacerPx(0);
+        stopBottomSpacerObserver();
+      }
+    } else {
+      spacerZeroStreakRef.current = 0;
+    }
+  }, [computeRequiredSpacer, stopBottomSpacerObserver]);
+
+  useLayoutEffect(() => {
+    if (!pendingAnchor) return;
+
+    const { userId, assistantId } = pendingAnchor;
+
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
+    const userEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${userId}"]`);
+    const assistantEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${assistantId}"]`);
+
+    if (!viewport || !userEl || !assistantEl) return;
+
+    stopBottomSpacerObserver();
+
+    // Expand instantly (no transition) so the browser won't clamp the anchor scroll.
+    const required = computeRequiredSpacer(viewport, userEl, assistantEl);
+    flushSync(() => {
+      setSpacerAnimated(false);
+      setBottomSpacerPx(required);
+    });
+
+    // Anchor deterministically using offsetTop.
+    const TOP_OFFSET = 16;
+    const targetTop = Math.max(0, userEl.offsetTop - TOP_OFFSET);
+    const maxScrollTop = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
+
+    ignoreScrollEventsRef.current = true;
+    viewport.scrollTop = Math.min(targetTop, maxScrollTop);
+
+    requestAnimationFrame(() => {
+      ignoreScrollEventsRef.current = false;
+      lastScrollTopRef.current = viewport.scrollTop;
+      setSpacerAnimated(true);
+    });
+
+    // Shrink spacer as assistant grows.
+    const ro = new ResizeObserver(() => {
+      recomputeSpacerForTurn(userId, assistantId);
+    });
+    ro.observe(assistantEl);
+    spacerObserverRef.current = ro;
+
+    scrollLockRef.current = false;
+    setPendingAnchor(null);
+  }, [pendingAnchor, computeRequiredSpacer, recomputeSpacerForTurn, stopBottomSpacerObserver]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      stopBottomSpacerObserver();
+      setBottomSpacerPx(0);
+    }
+  }, [isLoading, stopBottomSpacerObserver]);
+
+  useEffect(() => {
+    return () => {
+      stopBottomSpacerObserver();
+    };
+  }, [stopBottomSpacerObserver]);
 
   // Keep latest assistant message visible during streaming (incremental scroll)
   const keepLatestVisible = useCallback(() => {
@@ -205,66 +295,50 @@ export function ElterngeldChat({
     }
   };
   const resetChat = () => {
-    setMessages([]);
+    stopBottomSpacerObserver();
+    setBottomSpacerPx(0);
+    setPendingAnchor(null);
     lastUserMessageRef.current = "";
+    setMessages([]);
   };
   const sendMessage = async (messageText: string) => {
     if (!messageText.trim() || isLoading) return;
+
     lastUserMessageRef.current = messageText;
     setSuggestions([]); // Clear suggestions when sending new message
     isAutoFollowRef.current = true; // Re-enable auto-follow when sending new message
     setShowScrollButton(false);
+
     const userMessageId = generateMessageId();
     const assistantMessageId = generateMessageId();
     lastAssistantMessageIdRef.current = assistantMessageId;
+
     const userMessage: Message = {
       id: userMessageId,
       role: "user",
       content: messageText
     };
-    lastSentUserMessageIdRef.current = userMessageId;
-    
-    // Add user message first
-    flushSync(() => {
-      setMessages(prev => [...prev, userMessage]);
-    });
 
-    // Lock auto-scroll during positioning phase
+    lastSentUserMessageIdRef.current = userMessageId;
+
+    // Lock auto-follow until we anchored the user message (done in useLayoutEffect).
     scrollLockRef.current = true;
 
-    // Get viewport and calculate spacer height BEFORE scrolling
-    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
-    if (viewport) {
-      // Set spacer to viewport height to guarantee enough scroll room
-      flushSync(() => {
-        setBottomSpacerPx(viewport.clientHeight);
-      });
-    }
-
-    // Double-RAF to ensure layout is committed with spacer
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        scrollToUserMessage(userMessageId, true);
-
-        // Add assistant placeholder after scroll is positioned
-        setTimeout(() => {
-          flushSync(() => {
-            setMessages(prev => [...prev, {
-              id: assistantMessageId,
-              role: "assistant",
-              content: ""
-            }]);
-          });
-
-          // Release lock and start shrinking spacer
-          setTimeout(() => {
-            scrollLockRef.current = false;
-            // Gradually shrink spacer as streaming fills the space
-            setBottomSpacerPx(0);
-          }, 100);
-        }, 50);
-      });
+    // Add user + assistant placeholder in one commit so the anchor effect can measure both.
+    flushSync(() => {
+      setMessages(prev => [
+        ...prev,
+        userMessage,
+        {
+          id: assistantMessageId,
+          role: "assistant",
+          content: ""
+        }
+      ]);
     });
+
+    setPendingAnchor({ userId: userMessageId, assistantId: assistantMessageId });
+
     setInput("");
     setIsLoading(true);
     let assistantContent = "";
@@ -465,7 +539,7 @@ export function ElterngeldChat({
             <div 
               style={{ 
                 height: bottomSpacerPx,
-                transition: 'height 0.3s ease-out'
+                transition: spacerAnimated ? "height 0.3s ease-out" : "none"
               }} 
             />
           </div>
@@ -475,7 +549,10 @@ export function ElterngeldChat({
         <ScrollToBottomButton visible={showScrollButton} onClick={() => {
         isAutoFollowRef.current = true;
         setShowScrollButton(false);
-        scrollToBottom();
+        stopBottomSpacerObserver();
+        setBottomSpacerPx(0);
+        setSpacerAnimated(true);
+        scrollToBottom(true);
       }} className="absolute bottom-2 left-1/2 -translate-x-1/2" />
       </div>
 
