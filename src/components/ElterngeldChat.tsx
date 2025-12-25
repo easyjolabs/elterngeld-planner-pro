@@ -52,6 +52,7 @@ export function ElterngeldChat({
   const lastUserMessageRef = useRef<string>("");
   const lastSentUserMessageIdRef = useRef<string | null>(null);
   const lastAssistantMessageIdRef = useRef<string | null>(null);
+  const scrollLockRef = useRef(false);
 
   // Auto-follow state: true = keep latest visible during streaming, false = user scrolled up
   const isAutoFollowRef = useRef(true);
@@ -110,6 +111,9 @@ export function ElterngeldChat({
 
   // Keep latest assistant message visible during streaming (incremental scroll)
   const keepLatestVisible = useCallback(() => {
+    // Don't override the initial scroll-to-user-message
+    if (scrollLockRef.current) return;
+
     const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
     const assistantId = lastAssistantMessageIdRef.current;
     if (!viewport || !assistantId) return;
@@ -211,10 +215,12 @@ export function ElterngeldChat({
     });
 
     // Scroll to align the new user message to the top (double-RAF for layout)
+    scrollLockRef.current = true; // Lock auto-scroll
+
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         scrollToUserMessage(userMessageId, true);
-        
+
         // Add assistant placeholder after scroll is positioned
         setTimeout(() => {
           setMessages(prev => [...prev, {
@@ -222,6 +228,11 @@ export function ElterngeldChat({
             role: "assistant",
             content: ""
           }]);
+
+          // Release lock after assistant message is added and layout settles
+          setTimeout(() => {
+            scrollLockRef.current = false;
+          }, 100);
         }, 50);
       });
     });
