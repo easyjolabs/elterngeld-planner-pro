@@ -404,17 +404,82 @@ export function ElterngeldChat({
         content: messageText
       };
       
-      const assistantMessage: Message = {
-        id: assistantMessageId,
-        role: "assistant",
-        content: predefined.answer
-      };
-      
       lastSentUserMessageIdRef.current = userMessageId;
       lastAssistantMessageIdRef.current = assistantMessageId;
       
-      setMessages(prev => [...prev, userMessage, assistantMessage]);
+      // Lock auto-follow until we anchored the user message
+      scrollLockRef.current = true;
+      
+      // Add user + empty assistant placeholder (like AI streaming)
+      flushSync(() => {
+        setMessages(prev => [...prev, userMessage, {
+          id: assistantMessageId,
+          role: "assistant",
+          content: ""
+        }]);
+      });
+      
+      setIsLoading(true);
+      setPendingAnchor({
+        userId: userMessageId,
+        assistantId: assistantMessageId
+      });
       setInput("");
+      
+      // Set up the streaming simulation
+      let assistantContent = "";
+      pendingDeltaRef.current = predefined.answer;
+      streamDoneRef.current = false;
+      
+      // Clear any existing interval
+      if (flushIntervalRef.current !== null) {
+        window.clearInterval(flushIntervalRef.current);
+        flushIntervalRef.current = null;
+      }
+      
+      // Helper to dequeue word by word
+      const dequeueNextUnit = (text: string): [string, string] => {
+        const ws = text.match(/^\s+/);
+        if (ws) return [ws[0], text.slice(ws[0].length)];
+        const word = text.match(/^[^\s]+/);
+        if (word) return [word[0], text.slice(word[0].length)];
+        return [text[0], text.slice(1)];
+      };
+      
+      // Start the streaming interval
+      flushIntervalRef.current = window.setInterval(() => {
+        const pending = pendingDeltaRef.current;
+        
+        if (!pending) {
+          // Done streaming
+          window.clearInterval(flushIntervalRef.current!);
+          flushIntervalRef.current = null;
+          setIsLoading(false);
+          return;
+        }
+        
+        const [next, rest] = dequeueNextUnit(pending);
+        pendingDeltaRef.current = rest;
+        assistantContent += next;
+        
+        flushSync(() => {
+          setMessages(prev => {
+            const updated = [...prev];
+            const lastMsg = updated[updated.length - 1];
+            updated[updated.length - 1] = {
+              ...lastMsg,
+              content: assistantContent
+            };
+            return updated;
+          });
+        });
+        
+        // Auto-scroll during streaming
+        if (isAutoFollowRef.current) {
+          keepLatestVisible();
+        }
+      }, 25);
+      
       return; // Skip AI call entirely - 0 tokens used!
     }
 
