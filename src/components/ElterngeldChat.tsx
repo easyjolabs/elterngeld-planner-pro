@@ -648,7 +648,7 @@ export function ElterngeldChat({
         <ScrollArea className="h-full px-4 py-3" ref={scrollAreaRef}>
           <div className="flex flex-col">
             {messages.length === 0 ? <div className="space-y-4">
-                <p className="font-medium text-foreground leading-relaxed text-base">
+                <p className="font-medium text-foreground leading-relaxed text-base font-sans">
                   Hi! Do you have questions about Elterngeld?
                 </p>
                 <div className="space-y-1">
@@ -669,7 +669,7 @@ export function ElterngeldChat({
                   )}
                 >
                     <div className={cn("max-w-[85%] text-sm", message.role === "user" ? "bg-secondary/50 text-foreground rounded-full px-4 py-2" : "bg-transparent text-foreground")}>
-                      {message.content ? message.role === "assistant" ? <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-li:my-0.5 leading-relaxed my-px text-primary font-sans text-sm font-medium">
+                      {message.content ? message.role === "assistant" ? <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-li:my-0.5 prose-strong:font-semibold prose-strong:text-foreground prose-em:italic prose-headings:font-semibold prose-headings:text-foreground prose-a:text-primary prose-a:underline leading-relaxed text-foreground font-sans text-sm">
                             <ReactMarkdown>{normalizeMarkdown(message.content)}</ReactMarkdown>
                           </div> : <span className="leading-relaxed">{message.content}</span> : <ThinkingAnimation />}
                     </div>
