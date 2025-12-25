@@ -11,7 +11,6 @@ import { ThinkingAnimation } from "./ThinkingAnimation";
 import ScrollToBottomButton from "./ScrollToBottomButton";
 
 // Normalize unicode bullets and ensure proper markdown list formatting
-// Also strip incomplete markdown syntax at the end (for streaming)
 function normalizeMarkdown(text: string): string {
   // Replace unicode bullets with markdown list items
   let normalized = text.replace(/\n\s*[•●○◦▪▸►]\s*/g, '\n- ');
@@ -21,11 +20,6 @@ function normalizeMarkdown(text: string): string {
   normalized = normalized.replace(/:\n(-\s)/g, ':\n\n$1');
   // Ensure blank line before lists after any text
   normalized = normalized.replace(/([^\n])\n(-\s)/g, '$1\n\n$2');
-  
-  // Strip incomplete markdown formatting at the end (during streaming)
-  // This prevents raw ** or * from flashing before the closing marker arrives
-  normalized = normalized.replace(/(\*{1,2}|\_{1,2})(?=[^*_]*$)(?![^*_]*\1)/, '');
-  
   return normalized;
 }
 interface Message {
