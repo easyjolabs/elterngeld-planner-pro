@@ -92,6 +92,9 @@ export function ElterngeldChat({
   const ignoreScrollEventsRef = useRef(false);
   const lastScrollTopRef = useRef(0);
 
+  // Flag to protect spacer during anchoring phase
+  const isAnchoringRef = useRef(false);
+
   // Debug: collect metrics
   const collectDebugMetrics = useCallback(() => {
     const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
@@ -244,19 +247,29 @@ export function ElterngeldChat({
     const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
     const userEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${userId}"]`);
     const assistantEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${assistantId}"]`);
+    const spacerEl = scrollAreaRef.current?.querySelector<HTMLElement>('[data-spacer]');
 
     if (!viewport || !userEl || !assistantEl) return;
 
+    // Mark anchoring phase - protects spacer from being reset
+    isAnchoringRef.current = true;
+
     stopBottomSpacerObserver();
 
-    // Expand instantly (no transition) so the browser won't clamp the anchor scroll.
+    // Compute required spacer
     const required = computeRequiredSpacer(viewport, userEl, assistantEl);
-    flushSync(() => {
-      setSpacerAnimated(false);
-      setBottomSpacerPx(required);
-    });
 
-    // Anchor deterministically using offsetTop.
+    // CRITICAL: Set spacer via direct DOM manipulation BEFORE scroll calculation
+    // This guarantees the DOM has the spacer height before we compute maxScrollTop
+    if (spacerEl) {
+      spacerEl.style.transition = 'none';
+      spacerEl.style.height = `${required}px`;
+    }
+
+    // Force layout recalculation
+    void viewport.scrollHeight;
+
+    // Now anchor deterministically using offsetTop
     const TOP_OFFSET = 16;
     const targetTop = Math.max(0, userEl.offsetTop - TOP_OFFSET);
     const maxScrollTop = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
@@ -264,10 +277,18 @@ export function ElterngeldChat({
     ignoreScrollEventsRef.current = true;
     viewport.scrollTop = Math.min(targetTop, maxScrollTop);
 
+    // Sync React state with DOM (after scroll is done)
+    flushSync(() => {
+      setSpacerAnimated(false);
+      setBottomSpacerPx(required);
+    });
+
     requestAnimationFrame(() => {
       ignoreScrollEventsRef.current = false;
       lastScrollTopRef.current = viewport.scrollTop;
       setSpacerAnimated(true);
+      // Clear anchoring flag after scroll is complete
+      isAnchoringRef.current = false;
     });
 
     // Shrink spacer as assistant grows.
@@ -282,6 +303,9 @@ export function ElterngeldChat({
   }, [pendingAnchor, computeRequiredSpacer, recomputeSpacerForTurn, stopBottomSpacerObserver]);
 
   useEffect(() => {
+    // Guard: don't reset spacer during anchoring phase
+    if (isAnchoringRef.current) return;
+    
     if (!isLoading) {
       stopBottomSpacerObserver();
       setBottomSpacerPx(0);
@@ -418,10 +442,11 @@ export function ElterngeldChat({
       ]);
     });
 
+    // Set loading BEFORE pendingAnchor so the guard is active when layout effect runs
+    setIsLoading(true);
     setPendingAnchor({ userId: userMessageId, assistantId: assistantMessageId });
 
     setInput("");
-    setIsLoading(true);
     let assistantContent = "";
     pendingDeltaRef.current = "";
     streamDoneRef.current = false;
@@ -670,6 +695,7 @@ export function ElterngeldChat({
             
             {/* Dynamic spacer to allow user message to scroll to top */}
             <div 
+              data-spacer
               style={{ 
                 height: bottomSpacerPx,
                 transition: spacerAnimated ? "height 0.3s ease-out" : "none"
