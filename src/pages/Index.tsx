@@ -50,7 +50,7 @@ const Index = () => {
 
         {/* Step Content */}
         <div className="flex-1 overflow-auto p-space-lg bg-black/0">
-          <div className="grid grid-rows-1 overflow-hidden">
+          <div className="grid grid-rows-1">
             {/* Step 1 - always rendered */}
             <div
               className={cn(
@@ -158,7 +158,7 @@ const Index = () => {
       </div>
 
       {/* Tablet & Mobile: Calculator only + FAB drawer */}
-      <div className="md:hidden flex-1 flex flex-col p-6 overflow-hidden bg-white">
+      <div className="md:hidden flex-1 flex flex-col p-6 overflow-auto bg-white">
         <CalculatorContent />
       </div>
 
