@@ -684,7 +684,7 @@ export function ElterngeldChat({
         </div>}
 
       {/* Header with restart and debug buttons */}
-      <div className="flex justify-end gap-1 p-2 border-b border-success">
+      <div className="flex justify-end gap-1 p-2 border-b border-[#ededed]">
         <Button variant="ghost" size="icon" onClick={() => setDebugMode(d => !d)} className={cn("h-8 w-8", debugMode ? "text-yellow-500 bg-yellow-500/10" : "text-muted-foreground hover:text-foreground")} title="Toggle debug mode">
           <Bug className="h-4 w-4" />
         </Button>
