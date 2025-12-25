@@ -668,7 +668,7 @@ export function ElterngeldChat({
                     debugMode && message.id === lastAssistantMessageIdRef.current && "ring-2 ring-orange-500 ring-offset-1"
                   )}
                 >
-                    <div className={cn("max-w-[85%] text-sm", message.role === "user" ? "bg-secondary/50 text-foreground rounded-full px-4 py-2" : "bg-transparent text-foreground")}>
+                    <div className={cn("max-w-[85%] text-sm", message.role === "user" ? "bg-[#F3F3F3] text-foreground rounded-full px-4 py-2" : "bg-transparent text-foreground")}>
                       {message.content ? message.role === "assistant" ? <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-li:my-0.5 prose-strong:font-semibold prose-strong:text-foreground prose-em:italic prose-headings:font-semibold prose-headings:text-foreground prose-a:text-primary prose-a:underline leading-relaxed text-foreground font-sans text-sm">
                             <ReactMarkdown>{normalizeMarkdown(message.content)}</ReactMarkdown>
                           </div> : <span className="leading-relaxed">{message.content}</span> : <ThinkingAnimation />}
@@ -686,7 +686,7 @@ export function ElterngeldChat({
 
                     {/* Follow-up suggestions - shown after last assistant message */}
                     {!isLoading && index === messages.length - 1 && message.role === "assistant" && message.content && suggestions.length > 0 && <div className="flex flex-wrap gap-2 mt-3">
-                          {suggestions.map((suggestion, i) => <button key={i} onClick={() => sendMessage(suggestion)} className="text-sm rounded-full px-3 py-1.5 transition-colors text-primary bg-secondary">
+                          {suggestions.map((suggestion, i) => <button key={i} onClick={() => sendMessage(suggestion)} className="text-sm rounded-full px-3 py-1.5 transition-colors text-primary bg-[#F3F3F3]">
                               {suggestion}
                             </button>)}
                         </div>}
@@ -718,7 +718,7 @@ export function ElterngeldChat({
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-3">
-        <div className="flex items-end gap-2 bg-muted/30 rounded-2xl px-4 py-2 border border-border">
+        <div className="flex items-end gap-2 bg-[#F3F3F3] rounded-2xl px-4 py-2 border border-border">
           <div className="relative flex-1 flex items-center min-h-[32px]">
             {!input && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[1px] h-4 bg-foreground/70 animate-blink pointer-events-none" />}
             <textarea ref={inputRef} value={input} onChange={e => {
