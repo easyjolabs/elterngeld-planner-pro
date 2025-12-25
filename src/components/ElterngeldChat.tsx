@@ -44,7 +44,7 @@ export function ElterngeldChat({
   const [isLoading, setIsLoading] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [spacerActive, setSpacerActive] = useState(false);
+  const [bottomSpacerPx, setBottomSpacerPx] = useState(0);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const pendingDeltaRef = useRef("");
@@ -81,11 +81,24 @@ export function ElterngeldChat({
     const messageRect = messageEl.getBoundingClientRect();
     const delta = messageRect.top - viewportRect.top;
     const targetTop = Math.max(0, viewport.scrollTop + delta - TOP_OFFSET);
+    
+    // Check for clamping
+    const maxScrollTop = viewport.scrollHeight - viewport.clientHeight;
+    const finalTop = Math.min(targetTop, maxScrollTop);
+    
+    console.debug("[ElterngeldChat] scrollToUserMessage", {
+      targetTop,
+      maxScrollTop,
+      finalTop,
+      clamped: targetTop > maxScrollTop,
+      scrollHeight: viewport.scrollHeight,
+      clientHeight: viewport.clientHeight
+    });
 
     // Set ignore flag to prevent handleScroll from interfering
     ignoreScrollEventsRef.current = true;
     viewport.scrollTo({
-      top: targetTop,
+      top: finalTop,
       behavior: instant ? "auto" : "smooth"
     });
 
@@ -210,32 +223,44 @@ export function ElterngeldChat({
       content: messageText
     };
     lastSentUserMessageIdRef.current = userMessageId;
-    // Add only user message first
+    
+    // Add user message first
     flushSync(() => {
       setMessages(prev => [...prev, userMessage]);
     });
 
-    // Scroll to align the new user message to the top (double-RAF for layout)
-    scrollLockRef.current = true; // Lock auto-scroll
-    setSpacerActive(true); // Activate spacer to create scroll room
+    // Lock auto-scroll during positioning phase
+    scrollLockRef.current = true;
 
+    // Get viewport and calculate spacer height BEFORE scrolling
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
+    if (viewport) {
+      // Set spacer to viewport height to guarantee enough scroll room
+      flushSync(() => {
+        setBottomSpacerPx(viewport.clientHeight);
+      });
+    }
+
+    // Double-RAF to ensure layout is committed with spacer
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         scrollToUserMessage(userMessageId, true);
 
         // Add assistant placeholder after scroll is positioned
         setTimeout(() => {
-          setMessages(prev => [...prev, {
-            id: assistantMessageId,
-            role: "assistant",
-            content: ""
-          }]);
+          flushSync(() => {
+            setMessages(prev => [...prev, {
+              id: assistantMessageId,
+              role: "assistant",
+              content: ""
+            }]);
+          });
 
-          // Release lock after assistant message is added and layout settles
+          // Release lock and start shrinking spacer
           setTimeout(() => {
             scrollLockRef.current = false;
-            // Shrink spacer gradually as streaming fills the space
-            setTimeout(() => setSpacerActive(false), 300);
+            // Gradually shrink spacer as streaming fills the space
+            setBottomSpacerPx(0);
           }, 100);
         }, 50);
       });
@@ -439,7 +464,7 @@ export function ElterngeldChat({
             {/* Dynamic spacer to allow user message to scroll to top */}
             <div 
               style={{ 
-                height: spacerActive ? 'calc(100vh - 200px)' : 0,
+                height: bottomSpacerPx,
                 transition: 'height 0.3s ease-out'
               }} 
             />
