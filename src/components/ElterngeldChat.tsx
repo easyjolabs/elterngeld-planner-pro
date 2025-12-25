@@ -44,6 +44,7 @@ export function ElterngeldChat({
   const [isLoading, setIsLoading] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [spacerActive, setSpacerActive] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const pendingDeltaRef = useRef("");
@@ -216,6 +217,7 @@ export function ElterngeldChat({
 
     // Scroll to align the new user message to the top (double-RAF for layout)
     scrollLockRef.current = true; // Lock auto-scroll
+    setSpacerActive(true); // Activate spacer to create scroll room
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -232,6 +234,8 @@ export function ElterngeldChat({
           // Release lock after assistant message is added and layout settles
           setTimeout(() => {
             scrollLockRef.current = false;
+            // Shrink spacer gradually as streaming fills the space
+            setTimeout(() => setSpacerActive(false), 300);
           }, 100);
         }, 50);
       });
@@ -431,6 +435,14 @@ export function ElterngeldChat({
                         </div>}
                   </div>)}
               </div>}
+            
+            {/* Dynamic spacer to allow user message to scroll to top */}
+            <div 
+              style={{ 
+                height: spacerActive ? 'calc(100vh - 200px)' : 0,
+                transition: 'height 0.3s ease-out'
+              }} 
+            />
           </div>
         </ScrollArea>
 
