@@ -393,23 +393,20 @@ export function ElterngeldChat({
 
     // Check for pre-defined answer first (saves AI tokens!)
     const predefined = getPredefinedAnswer(messageText);
-    
     if (predefined) {
       const userMessageId = generateMessageId();
       const assistantMessageId = generateMessageId();
-      
       const userMessage: Message = {
         id: userMessageId,
         role: "user",
         content: messageText
       };
-      
       lastSentUserMessageIdRef.current = userMessageId;
       lastAssistantMessageIdRef.current = assistantMessageId;
-      
+
       // Lock auto-follow until we anchored the user message
       scrollLockRef.current = true;
-      
+
       // Add user + empty assistant placeholder (like AI streaming)
       flushSync(() => {
         setMessages(prev => [...prev, userMessage, {
@@ -418,26 +415,25 @@ export function ElterngeldChat({
           content: ""
         }]);
       });
-      
       setIsLoading(true);
       setPendingAnchor({
         userId: userMessageId,
         assistantId: assistantMessageId
       });
       setInput("");
-      
+
       // Set up the streaming simulation
       let assistantContent = "";
       pendingDeltaRef.current = predefined.answer;
       streamDoneRef.current = false;
       const predefinedSuggestions = predefined.suggestions;
-      
+
       // Clear any existing interval
       if (flushIntervalRef.current !== null) {
         window.clearInterval(flushIntervalRef.current);
         flushIntervalRef.current = null;
       }
-      
+
       // Helper to dequeue word by word
       const dequeueNextUnit = (text: string): [string, string] => {
         const ws = text.match(/^\s+/);
@@ -446,11 +442,10 @@ export function ElterngeldChat({
         if (word) return [word[0], text.slice(word[0].length)];
         return [text[0], text.slice(1)];
       };
-      
+
       // Start the streaming interval
       flushIntervalRef.current = window.setInterval(() => {
         const pending = pendingDeltaRef.current;
-        
         if (!pending) {
           // Done streaming
           window.clearInterval(flushIntervalRef.current!);
@@ -459,11 +454,9 @@ export function ElterngeldChat({
           setSuggestions(predefinedSuggestions);
           return;
         }
-        
         const [next, rest] = dequeueNextUnit(pending);
         pendingDeltaRef.current = rest;
         assistantContent += next;
-        
         flushSync(() => {
           setMessages(prev => {
             const updated = [...prev];
@@ -475,16 +468,14 @@ export function ElterngeldChat({
             return updated;
           });
         });
-        
+
         // Auto-scroll during streaming
         if (isAutoFollowRef.current) {
           keepLatestVisible();
         }
       }, 25);
-      
       return; // Skip AI call entirely - 0 tokens used!
     }
-
     const userMessageId = generateMessageId();
     const assistantMessageId = generateMessageId();
     lastAssistantMessageIdRef.current = assistantMessageId;
@@ -693,7 +684,7 @@ export function ElterngeldChat({
         </div>}
 
       {/* Header with restart and debug buttons */}
-      <div className="flex justify-end gap-1 p-2 border-b border-border/50">
+      <div className="flex justify-end gap-1 p-2 border-b border-success">
         <Button variant="ghost" size="icon" onClick={() => setDebugMode(d => !d)} className={cn("h-8 w-8", debugMode ? "text-yellow-500 bg-yellow-500/10" : "text-muted-foreground hover:text-foreground")} title="Toggle debug mode">
           <Bug className="h-4 w-4" />
         </Button>
