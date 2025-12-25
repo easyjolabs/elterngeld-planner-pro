@@ -85,7 +85,7 @@ const Index = () => {
       <Navbar />
 
       {/* Desktop: Resizable layout (lg+) */}
-      <div className="hidden md:flex flex-1 overflow-hidden bg-white p-6 py-[5px]">
+      <div className="hidden md:flex flex-1 overflow-hidden bg-white p-6 py-[5px] pb-[20px]">
         <ResizablePanelGroup direction="horizontal" className="gap-2">
           <ResizablePanel defaultSize={65} minSize={40}>
             <CalculatorContent />
