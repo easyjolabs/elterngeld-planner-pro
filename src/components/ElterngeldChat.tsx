@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import { flushSync } from "react-dom";
-import { ArrowUp, RotateCcw, Copy, RefreshCw } from "lucide-react";
+import { ArrowUp, RotateCcw, Copy, RefreshCw, Bug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalculatorState, ElterngeldCalculation } from "@/types/elterngeld";
@@ -34,6 +34,26 @@ interface ElterngeldChatProps {
   calculation: ElterngeldCalculation;
   calculatorState: CalculatorState;
 }
+
+// Debug overlay state type
+interface DebugMetrics {
+  viewportTag: string;
+  scrollTop: number;
+  scrollHeight: number;
+  clientHeight: number;
+  maxScrollTop: number;
+  userOffsetTop: number | null;
+  userOffsetHeight: number | null;
+  assistantOffsetTop: number | null;
+  assistantOffsetHeight: number | null;
+  bottomSpacerPx: number;
+  requiredSpacer: number | null;
+  isClamped: boolean;
+  scrollLock: boolean;
+  isAutoFollow: boolean;
+  pendingAnchor: string | null;
+}
+
 const SUGGESTED_QUESTIONS = ["How much parental allowance will I receive?", "Can I get Elterngeld?", "Which model should I choose?"];
 export function ElterngeldChat({
   calculation,
@@ -44,6 +64,10 @@ export function ElterngeldChat({
   const [isLoading, setIsLoading] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  // Debug mode toggle
+  const [debugMode, setDebugMode] = useState(false);
+  const [debugMetrics, setDebugMetrics] = useState<DebugMetrics | null>(null);
 
   // Bottom spacer to guarantee enough scroll room to anchor the latest user message at the top.
   const [bottomSpacerPx, setBottomSpacerPx] = useState(0);
@@ -67,6 +91,63 @@ export function ElterngeldChat({
   const isAutoFollowRef = useRef(true);
   const ignoreScrollEventsRef = useRef(false);
   const lastScrollTopRef = useRef(0);
+
+  // Debug: collect metrics
+  const collectDebugMetrics = useCallback(() => {
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
+    const userId = lastSentUserMessageIdRef.current;
+    const assistantId = lastAssistantMessageIdRef.current;
+    const userEl = userId ? scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${userId}"]`) : null;
+    const assistantEl = assistantId ? scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${assistantId}"]`) : null;
+
+    if (!viewport) {
+      setDebugMetrics(null);
+      return;
+    }
+
+    const scrollTop = viewport.scrollTop;
+    const scrollHeight = viewport.scrollHeight;
+    const clientHeight = viewport.clientHeight;
+    const maxScrollTop = Math.max(0, scrollHeight - clientHeight);
+
+    const TOP_OFFSET = 16;
+    let requiredSpacer: number | null = null;
+    if (userEl && assistantEl) {
+      const desiredScrollTop = Math.max(0, userEl.offsetTop - TOP_OFFSET);
+      const desiredBottom = desiredScrollTop + clientHeight;
+      const assistantEnd = assistantEl.offsetTop + assistantEl.offsetHeight;
+      requiredSpacer = Math.max(0, Math.ceil(desiredBottom - assistantEnd));
+    }
+
+    const targetTop = userEl ? Math.max(0, userEl.offsetTop - TOP_OFFSET) : 0;
+    const isClamped = targetTop > maxScrollTop;
+
+    setDebugMetrics({
+      viewportTag: `${viewport.tagName}.${viewport.className.split(' ')[0] || ''}`,
+      scrollTop: Math.round(scrollTop),
+      scrollHeight: Math.round(scrollHeight),
+      clientHeight: Math.round(clientHeight),
+      maxScrollTop: Math.round(maxScrollTop),
+      userOffsetTop: userEl ? Math.round(userEl.offsetTop) : null,
+      userOffsetHeight: userEl ? Math.round(userEl.offsetHeight) : null,
+      assistantOffsetTop: assistantEl ? Math.round(assistantEl.offsetTop) : null,
+      assistantOffsetHeight: assistantEl ? Math.round(assistantEl.offsetHeight) : null,
+      bottomSpacerPx: Math.round(bottomSpacerPx),
+      requiredSpacer: requiredSpacer !== null ? Math.round(requiredSpacer) : null,
+      isClamped,
+      scrollLock: scrollLockRef.current,
+      isAutoFollow: isAutoFollowRef.current,
+      pendingAnchor: pendingAnchor ? `${pendingAnchor.userId.slice(-6)}/${pendingAnchor.assistantId.slice(-6)}` : null,
+    });
+  }, [bottomSpacerPx, pendingAnchor]);
+
+  // Update debug metrics on scroll and periodically during loading
+  useEffect(() => {
+    if (!debugMode) return;
+    collectDebugMetrics();
+    const interval = setInterval(collectDebugMetrics, 100);
+    return () => clearInterval(interval);
+  }, [debugMode, collectDebugMetrics, messages, bottomSpacerPx, isLoading]);
   const scrollToUserMessage = useCallback((messageId: string, instant = false, retryCount = 0) => {
     const viewport = scrollAreaRef.current?.querySelector<HTMLElement>(
       '[data-radix-scroll-area-viewport]'
@@ -487,9 +568,51 @@ export function ElterngeldChat({
     inputRef.current?.blur();
     sendMessage(input);
   };
-  return <div className="flex flex-col h-full w-full bg-card rounded-2xl border border-border overflow-hidden">
-      {/* Header with restart button */}
-      <div className="flex justify-end p-2 border-b border-border/50">
+  return <div className="flex flex-col h-full w-full bg-card rounded-2xl border border-border overflow-hidden relative">
+      {/* Debug overlay */}
+      {debugMode && debugMetrics && (
+        <div className="absolute top-12 left-2 right-2 z-50 bg-black/90 text-white text-xs font-mono p-3 rounded-lg max-h-[50%] overflow-auto">
+          <div className="font-bold text-yellow-400 mb-2">🐛 Scroll Debug</div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+            <div>viewport: <span className="text-green-400">{debugMetrics.viewportTag}</span></div>
+            <div>scrollLock: <span className={debugMetrics.scrollLock ? "text-red-400" : "text-green-400"}>{String(debugMetrics.scrollLock)}</span></div>
+            
+            <div>scrollTop: <span className="text-cyan-400">{debugMetrics.scrollTop}</span></div>
+            <div>scrollHeight: <span className="text-cyan-400">{debugMetrics.scrollHeight}</span></div>
+            <div>clientHeight: <span className="text-cyan-400">{debugMetrics.clientHeight}</span></div>
+            <div>maxScrollTop: <span className="text-cyan-400">{debugMetrics.maxScrollTop}</span></div>
+            
+            <div className="col-span-2 border-t border-white/20 mt-1 pt-1">User Message:</div>
+            <div>offsetTop: <span className="text-purple-400">{debugMetrics.userOffsetTop ?? 'N/A'}</span></div>
+            <div>offsetHeight: <span className="text-purple-400">{debugMetrics.userOffsetHeight ?? 'N/A'}</span></div>
+            
+            <div className="col-span-2 border-t border-white/20 mt-1 pt-1">Assistant Message:</div>
+            <div>offsetTop: <span className="text-orange-400">{debugMetrics.assistantOffsetTop ?? 'N/A'}</span></div>
+            <div>offsetHeight: <span className="text-orange-400">{debugMetrics.assistantOffsetHeight ?? 'N/A'}</span></div>
+            
+            <div className="col-span-2 border-t border-white/20 mt-1 pt-1">Spacer:</div>
+            <div>current: <span className="text-yellow-400">{debugMetrics.bottomSpacerPx}px</span></div>
+            <div>required: <span className="text-yellow-400">{debugMetrics.requiredSpacer ?? 'N/A'}px</span></div>
+            
+            <div className="col-span-2 border-t border-white/20 mt-1 pt-1">State:</div>
+            <div>isClamped: <span className={debugMetrics.isClamped ? "text-red-400 font-bold" : "text-green-400"}>{String(debugMetrics.isClamped)}</span></div>
+            <div>autoFollow: <span className={debugMetrics.isAutoFollow ? "text-green-400" : "text-yellow-400"}>{String(debugMetrics.isAutoFollow)}</span></div>
+            <div className="col-span-2">pendingAnchor: <span className="text-blue-400">{debugMetrics.pendingAnchor ?? 'none'}</span></div>
+          </div>
+        </div>
+      )}
+
+      {/* Header with restart and debug buttons */}
+      <div className="flex justify-end gap-1 p-2 border-b border-border/50">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => setDebugMode(d => !d)} 
+          className={cn("h-8 w-8", debugMode ? "text-yellow-500 bg-yellow-500/10" : "text-muted-foreground hover:text-foreground")} 
+          title="Toggle debug mode"
+        >
+          <Bug className="h-4 w-4" />
+        </Button>
         <Button variant="ghost" size="icon" onClick={resetChat} className="h-8 w-8 text-muted-foreground hover:text-foreground" title="Restart chat">
           <RotateCcw className="h-4 w-4" />
         </Button>
@@ -509,7 +632,17 @@ export function ElterngeldChat({
                     </button>)}
                 </div>
               </div> : <div className="space-y-4">
-                {messages.map((message, index) => <div key={message.id} data-message-id={message.id} className={cn("flex flex-col", message.role === "user" ? "items-end" : "items-start")}>
+                {messages.map((message, index) => <div 
+                  key={message.id} 
+                  data-message-id={message.id} 
+                  className={cn(
+                    "flex flex-col", 
+                    message.role === "user" ? "items-end" : "items-start",
+                    // Debug mode: highlight user/assistant elements
+                    debugMode && message.id === lastSentUserMessageIdRef.current && "ring-2 ring-purple-500 ring-offset-1",
+                    debugMode && message.id === lastAssistantMessageIdRef.current && "ring-2 ring-orange-500 ring-offset-1"
+                  )}
+                >
                     <div className={cn("max-w-[85%] text-sm", message.role === "user" ? "bg-secondary/50 text-foreground rounded-full px-4 py-2" : "bg-transparent text-foreground")}>
                       {message.content ? message.role === "assistant" ? <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-li:my-0.5 leading-relaxed my-px text-primary font-sans text-sm font-medium">
                             <ReactMarkdown>{normalizeMarkdown(message.content)}</ReactMarkdown>
@@ -540,7 +673,8 @@ export function ElterngeldChat({
               style={{ 
                 height: bottomSpacerPx,
                 transition: spacerAnimated ? "height 0.3s ease-out" : "none"
-              }} 
+              }}
+              className={debugMode ? "bg-yellow-500/30 border border-dashed border-yellow-500" : ""}
             />
           </div>
         </ScrollArea>
