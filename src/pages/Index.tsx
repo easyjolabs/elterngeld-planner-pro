@@ -37,10 +37,10 @@ const Index = () => {
   }, [calculatorState]);
 
   const CalculatorContent = () => (
-    <main className="flex-1 flex flex-col min-w-0 @container">
-      <div className="flex-1 flex flex-col bg-card rounded-2xl border border-border overflow-hidden">
+    <main className="flex-1 flex flex-col min-w-0 min-h-0 @container">
+      <div className="flex-1 flex flex-col min-h-0 bg-card rounded-2xl border border-border overflow-hidden">
         {/* Step Indicator inside card - reduced padding */}
-        <div className="px-space-lg py-space-sm border-b border-border bg-white">
+        <div className="px-space-lg py-space-sm border-b border-border bg-white shrink-0">
           <StepIndicator
             currentStep={currentStep}
             totalSteps={2}
@@ -49,8 +49,8 @@ const Index = () => {
         </div>
 
         {/* Step Content */}
-        <div className="flex-1 overflow-auto p-space-lg bg-black/0">
-          <div className="grid grid-rows-1">
+        <div className="flex-1 min-h-0 overflow-auto p-space-lg bg-black/0">
+          <div className="grid grid-rows-1 min-h-0">
             {/* Step 1 - always rendered */}
             <div
               className={cn(
@@ -99,7 +99,7 @@ const Index = () => {
         </div>
 
         {/* Navigation */}
-        <div className="px-space-lg py-space-md border-t border-border flex flex-col @sm:flex-row gap-space-sm @sm:gap-0 justify-between bg-white">
+        <div className="px-space-lg py-space-md border-t border-border flex flex-col @sm:flex-row gap-space-sm @sm:gap-0 justify-between bg-white shrink-0">
           {currentStep > 1 ? (
             <Button
               variant="outline"
@@ -141,7 +141,7 @@ const Index = () => {
   );
 
   return (
-    <div className="h-screen flex flex-col bg-[#F5F5F5]">
+    <div className="h-dvh flex flex-col bg-[#F5F5F5]">
       <Navbar />
 
       {/* Desktop: Resizable layout (lg+) */}
@@ -158,7 +158,7 @@ const Index = () => {
       </div>
 
       {/* Tablet & Mobile: Calculator only + FAB drawer */}
-      <div className="md:hidden flex-1 flex flex-col p-6 overflow-auto bg-white">
+      <div className="md:hidden flex-1 flex flex-col min-h-0 p-6 overflow-auto bg-white">
         <CalculatorContent />
       </div>
 

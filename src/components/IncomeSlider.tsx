@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -21,9 +22,21 @@ export function IncomeSlider({
   multipleChildren,
   onMultipleChildrenChange,
 }: IncomeSliderProps) {
-  const handleChange = (values: number[]) => {
+  // Local state for smooth dragging - only commits on release
+  const [localValue, setLocalValue] = useState(value);
+  const [isDragging, setIsDragging] = useState(false);
+  
+  const displayValue = isDragging ? localValue : value;
+
+  const handleChange = useCallback((values: number[]) => {
+    setLocalValue(values[0]);
+    setIsDragging(true);
+  }, []);
+  
+  const handleCommit = useCallback((values: number[]) => {
     onChange(values[0]);
-  };
+    setIsDragging(false);
+  }, [onChange]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const numericValue = parseInt(e.target.value.replace(/\D/g, '')) || 0;
@@ -48,7 +61,7 @@ export function IncomeSlider({
             <span className="text-xl font-bold text-foreground">€</span>
             <input
               type="text"
-              value={value.toLocaleString('de-DE')}
+              value={displayValue.toLocaleString('de-DE')}
               onChange={handleInputChange}
               className="text-xl font-bold text-foreground bg-transparent text-right w-20 outline-none focus:ring-1 focus:ring-primary rounded px-1"
             />
@@ -57,8 +70,9 @@ export function IncomeSlider({
         
         <div className="mt-space-xl">
           <Slider
-            value={[value]}
+            value={[displayValue]}
             onValueChange={handleChange}
+            onValueCommit={handleCommit}
             min={0}
             max={7000}
             step={50}
