@@ -723,7 +723,7 @@ export function ElterngeldChat({
             // Debug mode: highlight user/assistant elements
             debugMode && message.id === lastSentUserMessageIdRef.current && "ring-2 ring-purple-500 ring-offset-1", debugMode && message.id === lastAssistantMessageIdRef.current && "ring-2 ring-orange-500 ring-offset-1")}>
                     <div className={cn("max-w-[85%] text-sm", message.role === "user" ? "bg-[#F3F3F3] text-foreground rounded-full px-4 py-2" : "bg-transparent text-foreground")}>
-                      {message.content ? message.role === "assistant" ? <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-li:my-0.5 prose-li:leading-relaxed prose-strong:font-semibold prose-strong:text-foreground prose-em:italic prose-headings:font-semibold prose-headings:text-foreground prose-a:text-primary prose-a:underline leading-relaxed text-foreground font-sans text-sm">
+                      {message.content ? message.role === "assistant" ? <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-li:my-0 prose-li:leading-relaxed prose-strong:font-semibold prose-strong:text-foreground prose-em:italic prose-headings:font-semibold prose-headings:text-foreground prose-a:text-primary prose-a:underline leading-relaxed text-foreground font-sans text-sm">
                             <ReactMarkdown>{normalizeMarkdown(message.content)}</ReactMarkdown>
                           </div> : <span className="leading-relaxed">{message.content}</span> : <ThinkingAnimation />}
                     </div>
