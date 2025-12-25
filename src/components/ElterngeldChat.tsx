@@ -205,18 +205,24 @@ export function ElterngeldChat({
       content: messageText
     };
     lastSentUserMessageIdRef.current = userMessageId;
+    // Add only user message first
     flushSync(() => {
-      setMessages(prev => [...prev, userMessage, {
-        id: assistantMessageId,
-        role: "assistant",
-        content: ""
-      }]);
+      setMessages(prev => [...prev, userMessage]);
     });
 
     // Scroll to align the new user message to the top (double-RAF for layout)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         scrollToUserMessage(userMessageId, true);
+        
+        // Add assistant placeholder after scroll is positioned
+        setTimeout(() => {
+          setMessages(prev => [...prev, {
+            id: assistantMessageId,
+            role: "assistant",
+            content: ""
+          }]);
+        }, 50);
       });
     });
     setInput("");
