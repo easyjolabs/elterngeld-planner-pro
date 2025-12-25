@@ -53,14 +53,7 @@ interface DebugMetrics {
   isAutoFollow: boolean;
   pendingAnchor: string | null;
 }
-
-const SUGGESTED_QUESTIONS = [
-  "Am I eligible?",
-  "How much will I get?",
-  "Which model is best for me?",
-  "Can I work part-time?",
-  "How do I apply?"
-];
+const SUGGESTED_QUESTIONS = ["Am I eligible?", "How much will I get?", "Which model is best for me?", "Can I work part-time?", "How do I apply?"];
 export function ElterngeldChat({
   calculation,
   calculatorState
@@ -78,11 +71,12 @@ export function ElterngeldChat({
   // Bottom spacer to guarantee enough scroll room to anchor the latest user message at the top.
   const [bottomSpacerPx, setBottomSpacerPx] = useState(0);
   const [spacerAnimated, setSpacerAnimated] = useState(true);
-  const [pendingAnchor, setPendingAnchor] = useState<{ userId: string; assistantId: string } | null>(null);
-
+  const [pendingAnchor, setPendingAnchor] = useState<{
+    userId: string;
+    assistantId: string;
+  } | null>(null);
   const spacerObserverRef = useRef<ResizeObserver | null>(null);
   const spacerZeroStreakRef = useRef(0);
-
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const pendingDeltaRef = useRef("");
@@ -108,17 +102,14 @@ export function ElterngeldChat({
     const assistantId = lastAssistantMessageIdRef.current;
     const userEl = userId ? scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${userId}"]`) : null;
     const assistantEl = assistantId ? scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${assistantId}"]`) : null;
-
     if (!viewport) {
       setDebugMetrics(null);
       return;
     }
-
     const scrollTop = viewport.scrollTop;
     const scrollHeight = viewport.scrollHeight;
     const clientHeight = viewport.clientHeight;
     const maxScrollTop = Math.max(0, scrollHeight - clientHeight);
-
     const TOP_OFFSET = 16;
     let requiredSpacer: number | null = null;
     if (userEl && assistantEl) {
@@ -127,10 +118,8 @@ export function ElterngeldChat({
       const assistantEnd = assistantEl.offsetTop + assistantEl.offsetHeight;
       requiredSpacer = Math.max(0, Math.ceil(desiredBottom - assistantEnd));
     }
-
     const targetTop = userEl ? Math.max(0, userEl.offsetTop - TOP_OFFSET) : 0;
     const isClamped = targetTop > maxScrollTop;
-
     setDebugMetrics({
       viewportTag: `${viewport.tagName}.${viewport.className.split(' ')[0] || ''}`,
       scrollTop: Math.round(scrollTop),
@@ -146,7 +135,7 @@ export function ElterngeldChat({
       isClamped,
       scrollLock: scrollLockRef.current,
       isAutoFollow: isAutoFollowRef.current,
-      pendingAnchor: pendingAnchor ? `${pendingAnchor.userId.slice(-6)}/${pendingAnchor.assistantId.slice(-6)}` : null,
+      pendingAnchor: pendingAnchor ? `${pendingAnchor.userId.slice(-6)}/${pendingAnchor.assistantId.slice(-6)}` : null
     });
   }, [bottomSpacerPx, pendingAnchor]);
 
@@ -158,12 +147,8 @@ export function ElterngeldChat({
     return () => clearInterval(interval);
   }, [debugMode, collectDebugMetrics, messages, bottomSpacerPx, isLoading]);
   const scrollToUserMessage = useCallback((messageId: string, instant = false, retryCount = 0) => {
-    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>(
-      '[data-radix-scroll-area-viewport]'
-    );
-    const messageEl = scrollAreaRef.current?.querySelector<HTMLElement>(
-      `[data-message-id="${messageId}"]`
-    );
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
+    const messageEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${messageId}"]`);
 
     // Retry mechanism if elements aren't ready yet
     if ((!viewport || !messageEl) && retryCount < 6) {
@@ -172,7 +157,9 @@ export function ElterngeldChat({
     }
     if (!viewport || !messageEl) {
       if (import.meta.env.DEV) {
-        console.debug("[ElterngeldChat] scrollToUserMessage: element not found", { messageId });
+        console.debug("[ElterngeldChat] scrollToUserMessage: element not found", {
+          messageId
+        });
       }
       return;
     }
@@ -182,13 +169,11 @@ export function ElterngeldChat({
     const targetTop = Math.max(0, messageEl.offsetTop - TOP_OFFSET);
     const maxScrollTop = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
     const finalTop = Math.min(targetTop, maxScrollTop);
-
     ignoreScrollEventsRef.current = true;
     viewport.scrollTo({
       top: finalTop,
       behavior: instant ? "auto" : "smooth"
     });
-
     requestAnimationFrame(() => {
       ignoreScrollEventsRef.current = false;
       lastScrollTopRef.current = viewport.scrollTop;
@@ -208,13 +193,11 @@ export function ElterngeldChat({
       });
     }
   }, []);
-
   const stopBottomSpacerObserver = useCallback(() => {
     spacerObserverRef.current?.disconnect();
     spacerObserverRef.current = null;
     spacerZeroStreakRef.current = 0;
   }, []);
-
   const computeRequiredSpacer = useCallback((viewport: HTMLElement, userEl: HTMLElement, assistantEl: HTMLElement) => {
     const TOP_OFFSET = 16;
     const desiredScrollTop = Math.max(0, userEl.offsetTop - TOP_OFFSET);
@@ -222,7 +205,6 @@ export function ElterngeldChat({
     const assistantEnd = assistantEl.offsetTop + assistantEl.offsetHeight;
     return Math.max(0, Math.ceil(desiredBottom - assistantEnd));
   }, []);
-
   const recomputeSpacerForTurn = useCallback((userId: string, assistantId: string) => {
     if (!isAutoFollowRef.current) return; // freeze while user is reading older messages
 
@@ -230,10 +212,8 @@ export function ElterngeldChat({
     const userEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${userId}"]`);
     const assistantEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${assistantId}"]`);
     if (!viewport || !userEl || !assistantEl) return;
-
     const required = computeRequiredSpacer(viewport, userEl, assistantEl);
-    setBottomSpacerPx(prev => (Math.abs(prev - required) < 1 ? prev : required));
-
+    setBottomSpacerPx(prev => Math.abs(prev - required) < 1 ? prev : required);
     if (required <= 0) {
       spacerZeroStreakRef.current += 1;
       if (spacerZeroStreakRef.current >= 2) {
@@ -244,22 +224,20 @@ export function ElterngeldChat({
       spacerZeroStreakRef.current = 0;
     }
   }, [computeRequiredSpacer, stopBottomSpacerObserver]);
-
   useLayoutEffect(() => {
     if (!pendingAnchor) return;
-
-    const { userId, assistantId } = pendingAnchor;
-
+    const {
+      userId,
+      assistantId
+    } = pendingAnchor;
     const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
     const userEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${userId}"]`);
     const assistantEl = scrollAreaRef.current?.querySelector<HTMLElement>(`[data-message-id="${assistantId}"]`);
     const spacerEl = scrollAreaRef.current?.querySelector<HTMLElement>('[data-spacer]');
-
     if (!viewport || !userEl || !assistantEl) return;
 
     // Mark anchoring phase - protects spacer from being reset
     isAnchoringRef.current = true;
-
     stopBottomSpacerObserver();
 
     // Compute required spacer
@@ -279,7 +257,6 @@ export function ElterngeldChat({
     const TOP_OFFSET = 16;
     const targetTop = Math.max(0, userEl.offsetTop - TOP_OFFSET);
     const maxScrollTop = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
-
     ignoreScrollEventsRef.current = true;
     viewport.scrollTop = Math.min(targetTop, maxScrollTop);
 
@@ -288,7 +265,6 @@ export function ElterngeldChat({
       setSpacerAnimated(false);
       setBottomSpacerPx(required);
     });
-
     requestAnimationFrame(() => {
       ignoreScrollEventsRef.current = false;
       lastScrollTopRef.current = viewport.scrollTop;
@@ -303,21 +279,17 @@ export function ElterngeldChat({
     });
     ro.observe(assistantEl);
     spacerObserverRef.current = ro;
-
     scrollLockRef.current = false;
     setPendingAnchor(null);
   }, [pendingAnchor, computeRequiredSpacer, recomputeSpacerForTurn, stopBottomSpacerObserver]);
-
   useEffect(() => {
     // Guard: don't reset spacer during anchoring phase
     if (isAnchoringRef.current) return;
-    
     if (!isLoading) {
       stopBottomSpacerObserver();
       setBottomSpacerPx(0);
     }
   }, [isLoading, stopBottomSpacerObserver]);
-
   useEffect(() => {
     return () => {
       stopBottomSpacerObserver();
@@ -328,7 +300,6 @@ export function ElterngeldChat({
   const keepLatestVisible = useCallback(() => {
     // Don't override the initial scroll-to-user-message
     if (scrollLockRef.current) return;
-
     const viewport = scrollAreaRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
     const assistantId = lastAssistantMessageIdRef.current;
     if (!viewport || !assistantId) return;
@@ -414,22 +385,18 @@ export function ElterngeldChat({
   };
   const sendMessage = async (messageText: string) => {
     if (!messageText.trim() || isLoading) return;
-
     lastUserMessageRef.current = messageText;
     setSuggestions([]); // Clear suggestions when sending new message
     isAutoFollowRef.current = true; // Re-enable auto-follow when sending new message
     setShowScrollButton(false);
-
     const userMessageId = generateMessageId();
     const assistantMessageId = generateMessageId();
     lastAssistantMessageIdRef.current = assistantMessageId;
-
     const userMessage: Message = {
       id: userMessageId,
       role: "user",
       content: messageText
     };
-
     lastSentUserMessageIdRef.current = userMessageId;
 
     // Lock auto-follow until we anchored the user message (done in useLayoutEffect).
@@ -437,21 +404,19 @@ export function ElterngeldChat({
 
     // Add user + assistant placeholder in one commit so the anchor effect can measure both.
     flushSync(() => {
-      setMessages(prev => [
-        ...prev,
-        userMessage,
-        {
-          id: assistantMessageId,
-          role: "assistant",
-          content: ""
-        }
-      ]);
+      setMessages(prev => [...prev, userMessage, {
+        id: assistantMessageId,
+        role: "assistant",
+        content: ""
+      }]);
     });
 
     // Set loading BEFORE pendingAnchor so the guard is active when layout effect runs
     setIsLoading(true);
-    setPendingAnchor({ userId: userMessageId, assistantId: assistantMessageId });
-
+    setPendingAnchor({
+      userId: userMessageId,
+      assistantId: assistantMessageId
+    });
     setInput("");
     let assistantContent = "";
     pendingDeltaRef.current = "";
@@ -601,8 +566,7 @@ export function ElterngeldChat({
   };
   return <div className="flex flex-col h-full w-full bg-card rounded-2xl border border-border overflow-hidden relative">
       {/* Debug overlay */}
-      {debugMode && debugMetrics && (
-        <div className="absolute top-12 left-2 right-2 z-50 bg-black/90 text-white text-xs font-mono p-3 rounded-lg max-h-[50%] overflow-auto">
+      {debugMode && debugMetrics && <div className="absolute top-12 left-2 right-2 z-50 bg-black/90 text-white text-xs font-mono p-3 rounded-lg max-h-[50%] overflow-auto">
           <div className="font-bold text-yellow-400 mb-2">🐛 Scroll Debug</div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1">
             <div>viewport: <span className="text-green-400">{debugMetrics.viewportTag}</span></div>
@@ -630,18 +594,11 @@ export function ElterngeldChat({
             <div>autoFollow: <span className={debugMetrics.isAutoFollow ? "text-green-400" : "text-yellow-400"}>{String(debugMetrics.isAutoFollow)}</span></div>
             <div className="col-span-2">pendingAnchor: <span className="text-blue-400">{debugMetrics.pendingAnchor ?? 'none'}</span></div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Header with restart and debug buttons */}
       <div className="flex justify-end gap-1 p-2 border-b border-border/50">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => setDebugMode(d => !d)} 
-          className={cn("h-8 w-8", debugMode ? "text-yellow-500 bg-yellow-500/10" : "text-muted-foreground hover:text-foreground")} 
-          title="Toggle debug mode"
-        >
+        <Button variant="ghost" size="icon" onClick={() => setDebugMode(d => !d)} className={cn("h-8 w-8", debugMode ? "text-yellow-500 bg-yellow-500/10" : "text-muted-foreground hover:text-foreground")} title="Toggle debug mode">
           <Bug className="h-4 w-4" />
         </Button>
         <Button variant="ghost" size="icon" onClick={resetChat} className="h-8 w-8 text-muted-foreground hover:text-foreground" title="Restart chat">
@@ -664,34 +621,20 @@ export function ElterngeldChat({
                   </p>
                   <div className="space-y-1">
                     {SUGGESTED_QUESTIONS.map((question, index) => {
-                      const icons = [UserCheck, Calculator, Scale, Clock, FileText];
-                      const Icon = icons[index];
-                      return (
-                        <button 
-                          key={index} 
-                          onClick={() => sendMessage(question)} 
-                          className="group flex items-center w-full text-left rounded-lg px-3 py-3 transition-colors text-sm leading-relaxed text-foreground hover:bg-[#F3F3F3]"
-                        >
+                  const icons = [UserCheck, Calculator, Scale, Clock, FileText];
+                  const Icon = icons[index];
+                  return <button key={index} onClick={() => sendMessage(question)} className="group flex items-center w-full text-left rounded-lg px-3 py-3 transition-colors text-sm leading-relaxed text-foreground hover:bg-[#F3F3F3]">
                           <Icon className="h-5 w-5 mr-3 text-muted-foreground flex-shrink-0" />
                           <span className="flex-1">{question}</span>
                           <ArrowUp className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity rotate-45" />
-                        </button>
-                      );
-                    })}
+                        </button>;
+                })}
                   </div>
                 </div>
               </div> : <div className="space-y-4">
-                {messages.map((message, index) => <div 
-                  key={message.id} 
-                  data-message-id={message.id} 
-                  className={cn(
-                    "flex flex-col", 
-                    message.role === "user" ? "items-end" : "items-start",
-                    // Debug mode: highlight user/assistant elements
-                    debugMode && message.id === lastSentUserMessageIdRef.current && "ring-2 ring-purple-500 ring-offset-1",
-                    debugMode && message.id === lastAssistantMessageIdRef.current && "ring-2 ring-orange-500 ring-offset-1"
-                  )}
-                >
+                {messages.map((message, index) => <div key={message.id} data-message-id={message.id} className={cn("flex flex-col", message.role === "user" ? "items-end" : "items-start",
+            // Debug mode: highlight user/assistant elements
+            debugMode && message.id === lastSentUserMessageIdRef.current && "ring-2 ring-purple-500 ring-offset-1", debugMode && message.id === lastAssistantMessageIdRef.current && "ring-2 ring-orange-500 ring-offset-1")}>
                     <div className={cn("max-w-[85%] text-sm", message.role === "user" ? "bg-[#F3F3F3] text-foreground rounded-full px-4 py-2" : "bg-transparent text-foreground")}>
                       {message.content ? message.role === "assistant" ? <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-li:my-0.5 prose-strong:font-semibold prose-strong:text-foreground prose-em:italic prose-headings:font-semibold prose-headings:text-foreground prose-a:text-primary prose-a:underline leading-relaxed text-foreground font-sans text-sm">
                             <ReactMarkdown>{normalizeMarkdown(message.content)}</ReactMarkdown>
@@ -718,14 +661,10 @@ export function ElterngeldChat({
               </div>}
             
             {/* Dynamic spacer to allow user message to scroll to top */}
-            <div 
-              data-spacer
-              style={{ 
-                height: bottomSpacerPx,
-                transition: spacerAnimated ? "height 0.3s ease-out" : "none"
-              }}
-              className={debugMode ? "bg-yellow-500/30 border border-dashed border-yellow-500" : ""}
-            />
+            <div data-spacer style={{
+            height: bottomSpacerPx,
+            transition: spacerAnimated ? "height 0.3s ease-out" : "none"
+          }} className={debugMode ? "bg-yellow-500/30 border border-dashed border-yellow-500" : ""} />
           </div>
         </ScrollArea>
 
@@ -742,7 +681,7 @@ export function ElterngeldChat({
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-3">
-        <div className="flex items-end gap-2 bg-[#F3F3F3] rounded-2xl px-4 py-2 border border-border">
+        <div className="flex items-end gap-2 rounded-2xl px-4 py-2 border border-border bg-white">
           <div className="relative flex-1 flex items-center min-h-[32px]">
             {!input && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[1px] h-4 bg-foreground/70 animate-blink pointer-events-none" />}
             <textarea ref={inputRef} value={input} onChange={e => {
