@@ -617,7 +617,7 @@ export function ElterngeldChat({
                 {/* Bottom aligned content */}
                 <div className="space-y-4 pb-4">
                   <p className="font-semibold text-foreground text-xl font-sans">
-                    What can I help with today?
+                    Ask anything about Elterngeld   
                   </p>
                   <div className="space-y-1">
                     {SUGGESTED_QUESTIONS.map((question, index) => {
