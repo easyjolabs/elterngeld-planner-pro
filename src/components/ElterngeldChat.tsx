@@ -13,15 +13,40 @@ import { getPredefinedAnswer } from "@/data/predefinedAnswers";
 
 // Normalize unicode bullets and ensure proper markdown list formatting
 function normalizeMarkdown(text: string): string {
+  let normalized = text.replace(/\r\n/g, "\n");
+
   // Replace unicode bullets with markdown list items
-  let normalized = text.replace(/\n\s*[•●○◦▪▸►]\s*/g, '\n- ');
+  normalized = normalized.replace(/\n\s*[•●○◦▪▸►]\s*/g, "\n- ");
   // Also handle bullets at the start of content
-  normalized = normalized.replace(/^\s*[•●○◦▪▸►]\s*/, '- ');
-  // Ensure blank line before lists (colon followed by newline and dash)
-  normalized = normalized.replace(/:\n(-\s)/g, ':\n\n$1');
-  // Ensure blank line before lists after any text
-  normalized = normalized.replace(/([^\n])\n(-\s)/g, '$1\n\n$2');
-  return normalized;
+  normalized = normalized.replace(/^\s*[•●○◦▪▸►]\s*/g, "- ");
+
+  const isUnorderedListItem = (line: string) => /^\s*-\s+/.test(line);
+  const isOrderedListItem = (line: string) => /^\s*\d+\.\s+/.test(line);
+  const isListItem = (line: string) => isUnorderedListItem(line) || isOrderedListItem(line);
+
+  // Ensure blank line before lists, but never between list items (prevents “loose lists”)
+  const lines = normalized.split("\n");
+  const out: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const prevOut = out[out.length - 1] ?? "";
+    const next = lines[i + 1];
+
+    // Drop blank lines between list items (tight list spacing)
+    if (line.trim() === "" && isListItem(prevOut) && next && isListItem(next)) {
+      continue;
+    }
+
+    out.push(line);
+
+    if (!next) continue;
+
+    const needsBlankLineBeforeList = line.trim() !== "" && !isListItem(line) && isListItem(next);
+    if (needsBlankLineBeforeList) out.push("");
+  }
+
+  return out.join("\n");
 }
 interface Message {
   id: string;
@@ -723,7 +748,7 @@ export function ElterngeldChat({
             // Debug mode: highlight user/assistant elements
             debugMode && message.id === lastSentUserMessageIdRef.current && "ring-2 ring-purple-500 ring-offset-1", debugMode && message.id === lastAssistantMessageIdRef.current && "ring-2 ring-orange-500 ring-offset-1")}>
                     <div className={cn("max-w-[85%] text-sm", message.role === "user" ? "bg-[#F3F3F3] text-foreground rounded-full px-4 py-2" : "bg-transparent text-foreground")}>
-                      {message.content ? message.role === "assistant" ? <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-li:my-0 prose-li:leading-relaxed prose-strong:font-semibold prose-strong:text-foreground prose-em:italic prose-headings:font-semibold prose-headings:text-foreground prose-a:text-primary prose-a:underline leading-relaxed text-foreground font-sans text-sm">
+                      {message.content ? message.role === "assistant" ? <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-li:my-0 prose-li:leading-relaxed [&_li>p]:my-0 prose-strong:font-semibold prose-strong:text-foreground prose-em:italic prose-headings:font-semibold prose-headings:text-foreground prose-a:text-primary prose-a:underline leading-relaxed text-foreground font-sans text-sm">
                             <ReactMarkdown>{normalizeMarkdown(message.content)}</ReactMarkdown>
                           </div> : <span className="leading-relaxed">{message.content}</span> : <ThinkingAnimation />}
                     </div>
