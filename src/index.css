@@ -209,4 +209,10 @@
   .animate-blink {
     animation: blink 1s step-start infinite;
   }
+
+  /* Hide raw markdown syntax during streaming - asterisks for bold/italic */
+  .prose-streaming strong,
+  .prose-streaming em {
+    transition: opacity 0.1s ease-in;
+  }
 }
