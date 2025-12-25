@@ -9,6 +9,7 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "@/hooks/use-toast";
 import { ThinkingAnimation } from "./ThinkingAnimation";
 import ScrollToBottomButton from "./ScrollToBottomButton";
+import { getPredefinedAnswer } from "@/data/predefinedAnswers";
 
 // Normalize unicode bullets and ensure proper markdown list formatting
 function normalizeMarkdown(text: string): string {
@@ -389,6 +390,34 @@ export function ElterngeldChat({
     setSuggestions([]); // Clear suggestions when sending new message
     isAutoFollowRef.current = true; // Re-enable auto-follow when sending new message
     setShowScrollButton(false);
+
+    // Check for pre-defined answer first (saves AI tokens!)
+    const predefined = getPredefinedAnswer(messageText);
+    
+    if (predefined) {
+      const userMessageId = generateMessageId();
+      const assistantMessageId = generateMessageId();
+      
+      const userMessage: Message = {
+        id: userMessageId,
+        role: "user",
+        content: messageText
+      };
+      
+      const assistantMessage: Message = {
+        id: assistantMessageId,
+        role: "assistant",
+        content: predefined.answer
+      };
+      
+      lastSentUserMessageIdRef.current = userMessageId;
+      lastAssistantMessageIdRef.current = assistantMessageId;
+      
+      setMessages(prev => [...prev, userMessage, assistantMessage]);
+      setInput("");
+      return; // Skip AI call entirely - 0 tokens used!
+    }
+
     const userMessageId = generateMessageId();
     const assistantMessageId = generateMessageId();
     lastAssistantMessageIdRef.current = assistantMessageId;
