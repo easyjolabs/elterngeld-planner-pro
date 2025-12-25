@@ -430,6 +430,7 @@ export function ElterngeldChat({
       let assistantContent = "";
       pendingDeltaRef.current = predefined.answer;
       streamDoneRef.current = false;
+      const predefinedSuggestions = predefined.suggestions;
       
       // Clear any existing interval
       if (flushIntervalRef.current !== null) {
@@ -455,6 +456,7 @@ export function ElterngeldChat({
           window.clearInterval(flushIntervalRef.current!);
           flushIntervalRef.current = null;
           setIsLoading(false);
+          setSuggestions(predefinedSuggestions);
           return;
         }
         
