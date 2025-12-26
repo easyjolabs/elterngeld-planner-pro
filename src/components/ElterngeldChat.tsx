@@ -743,10 +743,10 @@ export function ElterngeldChat({
       {/* Messages */}
       <div className="relative flex-1 overflow-hidden">
         <ScrollArea className="h-full px-4 py-3" ref={scrollAreaRef}>
-          <div className="flex flex-col">
+          <div className="flex flex-col w-full min-w-0 max-w-full">
             {/* Mini Calculator */}
             {showCalculator && (
-              <div className="mb-4">
+              <div className="mb-4 w-full min-w-0 max-w-full">
                 <MiniCalculator onClose={() => setShowCalculator(false)} />
               </div>
             )}
