@@ -139,7 +139,7 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({
     }).format(amount);
   };
   return <TooltipProvider>
-      <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden w-full min-w-0 max-w-full">
         {/* Header */}
         <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/30">
           {step === 2 ? <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="h-7 px-2 text-xs">
@@ -235,7 +235,7 @@ or 2 under 6 years?
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>) : (/* Step 2: Month Planner */
-      <div className="p-4 space-y-4">
+      <div className="p-4 space-y-4 w-full min-w-0 max-w-full">
             {/* Date & Single Parent Row */}
             <div className="flex items-center gap-4 flex-wrap">
               <Popover>
@@ -264,7 +264,7 @@ or 2 under 6 years?
             </div>
 
             {/* Month Boxes */}
-            <div className="relative overflow-hidden">
+            <div className="relative overflow-hidden w-full min-w-0 max-w-full">
               {canScrollLeft && (
                 <Button 
                   variant="ghost" 
@@ -279,7 +279,7 @@ or 2 under 6 years?
               <div 
                 ref={scrollContainerRef} 
                 className={cn(
-                  "flex gap-2 overflow-x-scroll py-2",
+                  "flex gap-2 overflow-x-auto py-2 w-full min-w-0 max-w-full",
                   canScrollLeft ? "pl-10" : "pl-0",
                   "pr-10",
                   isDragging ? "cursor-grabbing select-none" : "cursor-grab"

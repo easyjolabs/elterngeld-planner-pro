@@ -91,7 +91,7 @@ const Index = () => {
             <CalculatorContent />
           </ResizablePanel>
           <ResizableHandle withHandle className="mx-2" />
-          <ResizablePanel defaultSize={35} minSize={25}>
+          <ResizablePanel defaultSize={35} minSize={25} className="min-w-0">
             <ElterngeldChat calculation={calculation} calculatorState={calculatorState} />
           </ResizablePanel>
         </ResizablePanelGroup>
