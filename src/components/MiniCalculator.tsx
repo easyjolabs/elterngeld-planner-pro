@@ -145,16 +145,16 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({
           {step === 2 ? <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="h-7 px-2 text-xs">
               <ArrowLeft className="h-3 w-3 mr-1" />
               Back
-            </Button> : <span className="text-sm font-medium text-foreground">Calculator</span>}
+            </Button> : <span className="text-sm font-medium text-foreground">Quick-Calculator</span>}
           {onClose && <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7">
               <X className="h-4 w-4" />
             </Button>}
         </div>
 
         {step === 1 ? (/* Step 1: Calculator */
-      <div className="p-4 space-y-5">
+      <div className="p-4 space-y-5 pt-[5px] pb-[10px]">
             {/* Results Display */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 my-px py-[10px]">
               <div className="bg-muted/50 rounded-lg p-3 text-center">
                 <div className="text-xs text-muted-foreground mb-1">Basiselterngeld</div>
                 <div className="text-xl font-semibold text-foreground">
@@ -172,8 +172,8 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({
             </div>
 
             {/* Income Slider */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between gap-2">
+            <div className="space-y-3 my-[10px]">
+              <div className="flex items-center justify-between gap-2 py-[10px] my-0">
                 <span className="text-sm text-foreground">What was the average net income in the year before birth?</span>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -184,7 +184,7 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 my-[10px] py-[10px] pt-0">
                 <Slider value={[income]} onValueChange={([val]) => setIncome(val)} min={0} max={5000} step={50} className="flex-1" />
                 <div className="text-sm font-medium w-20 text-right">
                   {formatCurrency(income)}
@@ -212,7 +212,7 @@ or 2 under 6 years?
             </div>
 
             {/* Twins Checkbox */}
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-2 pb-[10px]">
               <div className="flex items-center gap-2">
                 <Checkbox id="expecting-twins" checked={isExpectingTwins} onCheckedChange={checked => setIsExpectingTwins(checked === true)} />
                 <label htmlFor="expecting-twins" className="cursor-pointer text-xs">
