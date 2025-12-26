@@ -254,8 +254,8 @@ or 2 under 6 years?
 
               <div className="flex items-center gap-2">
                 <Checkbox id="single-parent" checked={isSingleParent} onCheckedChange={checked => setIsSingleParent(checked === true)} />
-                <label htmlFor="single-parent" className="text-sm cursor-pointer">
-                  Single parent
+                <label htmlFor="single-parent" className="cursor-pointer text-xs font-normal">
+                  I am a single parent
                 </label>
               </div>
 
