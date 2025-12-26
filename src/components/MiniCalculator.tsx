@@ -240,11 +240,9 @@ or 2 under 6 years?
             <div className="flex items-center gap-4 flex-wrap">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 gap-2">
+                  <Button variant="outline" size="sm" className="h-8 gap-2 text-xs font-normal">
                     <CalendarIcon className="h-4 w-4" />
-                    {birthDate ? format(birthDate, 'dd.MM.yyyy', {
-                  locale: de
-                }) : 'Birth date'}
+                    {birthDate ? format(birthDate, 'dd.MM.yyyy', { locale: de }) : 'Birth date of child'}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -267,26 +265,73 @@ or 2 under 6 years?
 
             {/* Month Boxes */}
             <div className="relative">
-              {canScrollLeft && <Button variant="ghost" size="icon" className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background/80 shadow-sm" onClick={() => scroll('left')}>
+              {canScrollLeft && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background/80 shadow-sm border border-border" 
+                  onClick={() => scroll('left')}
+                >
                   <ChevronLeft className="h-4 w-4" />
-                </Button>}
+                </Button>
+              )}
 
-              <div ref={scrollContainerRef} className={cn("flex gap-3 overflow-x-auto py-2 scrollbar-hide", canScrollLeft ? "pl-8" : "pl-0", "pr-8", isDragging ? "cursor-grabbing" : "cursor-grab")} style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
-          }} onScroll={handleScroll} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseLeave}>
-                {months.slice(0, visibleMonths).map((month, index) => <MiniMonthBox key={index} index={index} month={month} calculation={calculation} isSingleParent={isSingleParent} birthDate={birthDate} hasError={validationErrors.some(e => e.message.includes(`Month ${index + 1}`))} onChange={handleMonthChange} />)}
+              <div 
+                ref={scrollContainerRef} 
+                className={cn(
+                  "flex gap-2 overflow-x-scroll py-2",
+                  canScrollLeft ? "pl-10" : "pl-0",
+                  "pr-10",
+                  isDragging ? "cursor-grabbing select-none" : "cursor-grab"
+                )} 
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  WebkitOverflowScrolling: 'touch',
+                  touchAction: 'pan-x'
+                }} 
+                onScroll={handleScroll} 
+                onMouseDown={handleMouseDown} 
+                onMouseMove={handleMouseMove} 
+                onMouseUp={handleMouseUp} 
+                onMouseLeave={handleMouseLeave}
+              >
+                {months.slice(0, visibleMonths).map((month, index) => (
+                  <MiniMonthBox 
+                    key={index} 
+                    index={index} 
+                    month={month} 
+                    calculation={calculation} 
+                    isSingleParent={isSingleParent} 
+                    birthDate={birthDate} 
+                    hasError={validationErrors.some(e => e.message.includes(`Month ${index + 1}`))} 
+                    onChange={handleMonthChange} 
+                  />
+                ))}
               </div>
 
-              <Button variant="ghost" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background/80 shadow-sm" onClick={() => scroll('right')}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background/80 shadow-sm border border-border" 
+                onClick={() => scroll('right')}
+              >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
 
             {/* Validation Errors */}
-            {validationErrors.length > 0 && <div className="text-xs text-destructive space-y-1">
+            {validationErrors.length > 0 && (
+              <div className="text-xs text-destructive space-y-1">
                 {validationErrors.slice(0, 2).map((error, i) => <p key={i}>{error.message}</p>)}
-              </div>}
+              </div>
+            )}
+
+            {/* Start Application Button */}
+            <Button variant="outline" className="w-full border-foreground">
+              Start your application
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
           </div>)}
       </div>
     </TooltipProvider>;
@@ -314,31 +359,46 @@ const MiniMonthBox: React.FC<MiniMonthBoxProps> = ({
   const hasSelection = month.youBasis || month.youPlus || month.partnerBasis || month.partnerPlus;
   const amount = calculateMonthAmount(month, calculation);
   const dateRange = birthDate ? getMonthDateRange(birthDate, index) : null;
-  return <div className={cn('flex-shrink-0 w-32 border rounded-lg p-3 text-xs select-none', hasError ? 'border-destructive' : hasSelection ? 'border-primary' : 'border-border', 'bg-card')}>
+
+  const formatCurrency = (val: number) => new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0
+  }).format(val);
+
+  return (
+    <div className={cn(
+      'flex-shrink-0 w-24 border rounded-lg p-4 text-xs select-none',
+      hasError ? 'border-destructive' : hasSelection ? 'border-primary' : 'border-border',
+      'bg-card'
+    )}>
       <div className="text-left mb-3">
         <div className="font-medium text-sm">Month {index + 1}</div>
-        {dateRange && <div className="text-[10px] text-muted-foreground">
-            {format(dateRange.start, 'dd.MM', {
-          locale: de
-        })}
-          </div>}
+        {dateRange && (
+          <div className="text-[10px] text-muted-foreground whitespace-nowrap">
+            {format(dateRange.start, 'dd.MM.yy', { locale: de })} - {format(dateRange.end, 'dd.MM.yy', { locale: de })}
+          </div>
+        )}
       </div>
 
-      <div className="space-y-2">
-        <div className="text-[10px] text-muted-foreground">You</div>
-        <div className="flex flex-col gap-1">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <Checkbox checked={month.youBasis} onCheckedChange={c => onChange(index, 'youBasis', c === true)} className="h-3 w-3" />
-            <span className="text-xs">Basis</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <Checkbox checked={month.youPlus} onCheckedChange={c => onChange(index, 'youPlus', c === true)} className="h-3 w-3" />
-            <span className="text-xs">Plus</span>
-          </label>
+      <div className="space-y-3">
+        <div>
+          <div className="text-[10px] text-muted-foreground mb-1">You</div>
+          <div className="flex flex-col gap-1">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox checked={month.youBasis} onCheckedChange={c => onChange(index, 'youBasis', c === true)} className="h-3 w-3" />
+              <span className="text-xs">Basis</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox checked={month.youPlus} onCheckedChange={c => onChange(index, 'youPlus', c === true)} className="h-3 w-3" />
+              <span className="text-xs">Plus</span>
+            </label>
+          </div>
         </div>
 
-        {!isSingleParent && <>
-            <div className="text-[10px] text-muted-foreground mt-2">Partner</div>
+        {!isSingleParent && (
+          <div>
+            <div className="text-[10px] text-muted-foreground mb-1">Partner</div>
             <div className="flex flex-col gap-1">
               <label className="flex items-center gap-2 cursor-pointer">
                 <Checkbox checked={month.partnerBasis} onCheckedChange={c => onChange(index, 'partnerBasis', c === true)} className="h-3 w-3" />
@@ -349,16 +409,19 @@ const MiniMonthBox: React.FC<MiniMonthBoxProps> = ({
                 <span className="text-xs">Plus</span>
               </label>
             </div>
-          </>}
+          </div>
+        )}
       </div>
 
-      {hasSelection && <div className="text-left mt-3 text-xs font-medium text-primary">
-          {new Intl.NumberFormat('de-DE', {
-        style: 'currency',
-        currency: 'EUR',
-        maximumFractionDigits: 0
-      }).format(amount)}
-        </div>}
-    </div>;
+      {/* Sum section - always visible */}
+      <div className="pt-3 mt-3 border-t border-border text-left">
+        {hasSelection ? (
+          <span className="text-xs font-medium text-primary">{formatCurrency(amount)}</span>
+        ) : (
+          <span className="text-xs text-muted-foreground">Sum</span>
+        )}
+      </div>
+    </div>
+  );
 };
 export default MiniCalculator;
