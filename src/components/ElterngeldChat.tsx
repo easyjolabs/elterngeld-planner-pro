@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { ThinkingAnimation } from "./ThinkingAnimation";
 import ScrollToBottomButton from "./ScrollToBottomButton";
 import { getPredefinedAnswer } from "@/data/predefinedAnswers";
+import MiniCalculator from "./MiniCalculator";
 
 // Normalize unicode bullets and ensure proper markdown list formatting
 function normalizeMarkdown(text: string): string {
@@ -89,6 +90,7 @@ export function ElterngeldChat({
   const [isLoading, setIsLoading] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showCalculator, setShowCalculator] = useState(false);
 
   // Debug mode toggle
   const [debugMode, setDebugMode] = useState(false);
@@ -709,19 +711,41 @@ export function ElterngeldChat({
         </div>}
 
       {/* Header with restart and debug buttons */}
-      <div className="flex justify-end gap-1 p-2 border-b border-[#ededed]">
-        <Button variant="ghost" size="icon" onClick={() => setDebugMode(d => !d)} className={cn("h-8 w-8", debugMode ? "text-yellow-500 bg-yellow-500/10" : "text-muted-foreground hover:text-foreground")} title="Toggle debug mode">
-          <Bug className="h-4 w-4" />
+      <div className="flex justify-between items-center p-2 border-b border-[#ededed]">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowCalculator(prev => !prev)}
+          className={cn(
+            "h-8 w-8",
+            showCalculator
+              ? "text-primary bg-primary/10"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+          title="Toggle calculator"
+        >
+          <Calculator className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={resetChat} className="h-8 w-8 text-muted-foreground hover:text-foreground" title="Restart chat">
-          <RotateCcw className="h-4 w-4" />
-        </Button>
+        <div className="flex gap-1">
+          <Button variant="ghost" size="icon" onClick={() => setDebugMode(d => !d)} className={cn("h-8 w-8", debugMode ? "text-yellow-500 bg-yellow-500/10" : "text-muted-foreground hover:text-foreground")} title="Toggle debug mode">
+            <Bug className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={resetChat} className="h-8 w-8 text-muted-foreground hover:text-foreground" title="Restart chat">
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Messages */}
       <div className="relative flex-1 overflow-hidden">
         <ScrollArea className="h-full px-4 py-3" ref={scrollAreaRef}>
           <div className="flex flex-col">
+            {/* Mini Calculator */}
+            {showCalculator && (
+              <div className="mb-4">
+                <MiniCalculator onClose={() => setShowCalculator(false)} />
+              </div>
+            )}
             {messages.length === 0 ? <div className="flex flex-col h-full min-h-[400px]">
                 {/* Spacer to push content to bottom */}
                 <div className="flex-1" />
