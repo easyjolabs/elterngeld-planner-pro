@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { ThinkingAnimation } from "./ThinkingAnimation";
 import ScrollToBottomButton from "./ScrollToBottomButton";
 import { getPredefinedAnswer } from "@/data/predefinedAnswers";
+import { detectLanguage } from "@/lib/detectLanguage";
 import MiniCalculator from "./MiniCalculator";
 
 // Normalize unicode bullets and ensure proper markdown list formatting
@@ -418,8 +419,11 @@ export function ElterngeldChat({
     isAutoFollowRef.current = true; // Re-enable auto-follow when sending new message
     setShowScrollButton(false);
 
+    // Detect language from the user's message
+    const detectedLanguage = detectLanguage(messageText);
+    
     // Check for pre-defined answer first (saves AI tokens!)
-    const predefined = getPredefinedAnswer(messageText);
+    const predefined = getPredefinedAnswer(messageText, detectedLanguage);
     if (predefined) {
       const userMessageId = generateMessageId();
       const assistantMessageId = generateMessageId();
