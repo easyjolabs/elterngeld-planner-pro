@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.import-chunks]
 verify_jwt = false
+
+[functions.verify-site-password]
+verify_jwt = false
