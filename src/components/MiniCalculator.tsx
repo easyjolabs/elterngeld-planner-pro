@@ -264,7 +264,7 @@ or 2 under 6 years?
             </div>
 
             {/* Month Boxes */}
-            <div className="relative">
+            <div className="relative overflow-hidden">
               {canScrollLeft && (
                 <Button 
                   variant="ghost" 
@@ -328,10 +328,12 @@ or 2 under 6 years?
             )}
 
             {/* Start Application Button */}
-            <Button variant="outline" className="w-full border-foreground">
-              Start your application
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
+            <div className="flex justify-center">
+              <Button variant="outline" className="border-foreground">
+                Start your application
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
           </div>)}
       </div>
     </TooltipProvider>;
@@ -375,8 +377,9 @@ const MiniMonthBox: React.FC<MiniMonthBoxProps> = ({
       <div className="text-left mb-3">
         <div className="font-medium text-sm">Month {index + 1}</div>
         {dateRange && (
-          <div className="text-[10px] text-muted-foreground whitespace-nowrap">
-            {format(dateRange.start, 'dd.MM.yy', { locale: de })} - {format(dateRange.end, 'dd.MM.yy', { locale: de })}
+          <div className="text-[10px] text-muted-foreground leading-tight">
+            <div>{format(dateRange.start, 'dd.MM.yy', { locale: de })}</div>
+            <div>{format(dateRange.end, 'dd.MM.yy', { locale: de })}</div>
           </div>
         )}
       </div>
@@ -384,7 +387,7 @@ const MiniMonthBox: React.FC<MiniMonthBoxProps> = ({
       <div className="space-y-3">
         <div>
           <div className="text-[10px] text-muted-foreground mb-1">You</div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             <label className="flex items-center gap-2 cursor-pointer">
               <Checkbox checked={month.youBasis} onCheckedChange={c => onChange(index, 'youBasis', c === true)} className="h-3 w-3" />
               <span className="text-xs">Basis</span>
@@ -399,7 +402,7 @@ const MiniMonthBox: React.FC<MiniMonthBoxProps> = ({
         {!isSingleParent && (
           <div>
             <div className="text-[10px] text-muted-foreground mb-1">Partner</div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
               <label className="flex items-center gap-2 cursor-pointer">
                 <Checkbox checked={month.partnerBasis} onCheckedChange={c => onChange(index, 'partnerBasis', c === true)} className="h-3 w-3" />
                 <span className="text-xs">Basis</span>
