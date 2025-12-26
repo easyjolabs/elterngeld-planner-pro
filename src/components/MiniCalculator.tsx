@@ -1,16 +1,15 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Info, ChevronLeft, ChevronRight, CalendarIcon, ArrowLeft, Plus, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { calculateElterngeld, validateMonthPlan, calculateMonthAmount, getMonthDateRange, formatDateRange } from '@/lib/elterngeld';
+import { calculateElterngeld, validateMonthPlan, calculateMonthAmount, getMonthDateRange } from '@/lib/elterngeld';
 import type { CalculatorState, MonthSelection, ElterngeldCalculation } from '@/types/elterngeld';
 
 interface MiniCalculatorProps {
@@ -31,7 +30,7 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
   // Step 1 state
   const [income, setIncome] = useState(2500);
   const [hasSiblingBonus, setHasSiblingBonus] = useState(false);
-  const [multipleChildren, setMultipleChildren] = useState(0);
+  const [isExpectingTwins, setIsExpectingTwins] = useState(false);
 
   // Step 2 state
   const [birthDate, setBirthDate] = useState<Date | null>(null);
@@ -41,20 +40,24 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
   );
   const [visibleMonths, setVisibleMonths] = useState(14);
 
-  // Scroll container ref
+  // Scroll state
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   // Calculator state for calculation
   const calculatorState: CalculatorState = {
     monthlyIncome: income,
     hasSiblingBonus,
-    multipleChildren,
+    multipleChildren: isExpectingTwins ? 1 : 0,
   };
 
   // Calculate Elterngeld
   const calculation = useMemo(
     () => calculateElterngeld(calculatorState),
-    [income, hasSiblingBonus, multipleChildren]
+    [income, hasSiblingBonus, isExpectingTwins]
   );
 
   // Validate month plan
@@ -62,13 +65,6 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
     () => validateMonthPlan(months.slice(0, visibleMonths), isSingleParent),
     [months, visibleMonths, isSingleParent]
   );
-
-  // Calculate total
-  const totalAmount = useMemo(() => {
-    return months.slice(0, visibleMonths).reduce((sum, month) => {
-      return sum + calculateMonthAmount(month, calculation);
-    }, 0);
-  }, [months, visibleMonths, calculation]);
 
   // Handlers
   const handleMonthChange = (index: number, field: keyof MonthSelection, value: boolean) => {
@@ -107,6 +103,12 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
     }
   };
 
+  const handleScroll = useCallback(() => {
+    if (scrollContainerRef.current) {
+      setCanScrollLeft(scrollContainerRef.current.scrollLeft > 0);
+    }
+  }, []);
+
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
       const scrollAmount = 200;
@@ -115,6 +117,30 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
         behavior: 'smooth',
       });
     }
+  };
+
+  // Mouse drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
   };
 
   const formatCurrency = (amount: number) => {
@@ -153,7 +179,7 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
 
         {step === 1 ? (
           /* Step 1: Calculator */
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-5">
             {/* Results Display */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-muted/50 rounded-lg p-3 text-center">
@@ -173,12 +199,12 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
             </div>
 
             {/* Income Slider */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground">Average net income</span>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm text-foreground">What was the average net income in the year before birth?</span>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help flex-shrink-0" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
                     <p>The average net income in the 12 months before the birth of the child.</p>
@@ -201,7 +227,7 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
             </div>
 
             {/* Sibling Bonus */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Checkbox
                   id="sibling-bonus"
@@ -209,12 +235,12 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
                   onCheckedChange={(checked) => setHasSiblingBonus(checked === true)}
                 />
                 <label htmlFor="sibling-bonus" className="text-sm cursor-pointer">
-                  Child under 3 or 2 under 6?
+                  Do you already have 1 child under 3 years, or 2 under 6 years?
                 </label>
               </div>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  <Info className="h-4 w-4 text-muted-foreground cursor-help flex-shrink-0" />
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
                   <p>If you have a child under 3 or two children under 6, you receive a sibling bonus.</p>
@@ -222,27 +248,21 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
               </Tooltip>
             </div>
 
-            {/* Multiple Children */}
-            <div className="flex items-center justify-between">
+            {/* Twins Checkbox */}
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <Select
-                  value={multipleChildren.toString()}
-                  onValueChange={(val) => setMultipleChildren(parseInt(val))}
-                >
-                  <SelectTrigger className="w-16 h-8">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">0</SelectItem>
-                    <SelectItem value="1">1</SelectItem>
-                    <SelectItem value="2">2+</SelectItem>
-                  </SelectContent>
-                </Select>
-                <span className="text-sm">Additional children (twins/triplets)</span>
+                <Checkbox
+                  id="expecting-twins"
+                  checked={isExpectingTwins}
+                  onCheckedChange={(checked) => setIsExpectingTwins(checked === true)}
+                />
+                <label htmlFor="expecting-twins" className="text-sm cursor-pointer">
+                  Are you expecting twins?
+                </label>
               </div>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  <Info className="h-4 w-4 text-muted-foreground cursor-help flex-shrink-0" />
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
                   <p>For each additional child in a multiple birth, you receive €300 extra per month.</p>
@@ -251,7 +271,11 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
             </div>
 
             {/* CTA Button */}
-            <Button onClick={() => setStep(2)} className="w-full">
+            <Button 
+              onClick={() => setStep(2)} 
+              variant="outline"
+              className="w-full border-foreground"
+            >
               Plan your months
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
@@ -289,23 +313,40 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
                   Single parent
                 </label>
               </div>
+
+              <Button variant="outline" size="sm" onClick={addMonth} disabled={visibleMonths >= 28} className="ml-auto">
+                <Plus className="h-3 w-3 mr-1" />
+                Add month
+              </Button>
             </div>
 
             {/* Month Boxes */}
             <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background/80 shadow-sm"
-                onClick={() => scroll('left')}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
+              {canScrollLeft && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background/80 shadow-sm"
+                  onClick={() => scroll('left')}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              )}
 
               <div
                 ref={scrollContainerRef}
-                className="flex gap-2 overflow-x-auto px-8 py-1 scrollbar-hide"
+                className={cn(
+                  "flex gap-3 overflow-x-auto py-2 scrollbar-hide",
+                  canScrollLeft ? "pl-8" : "pl-0",
+                  "pr-8",
+                  isDragging ? "cursor-grabbing" : "cursor-grab"
+                )}
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                onScroll={handleScroll}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseLeave}
               >
                 {months.slice(0, visibleMonths).map((month, index) => (
                   <MiniMonthBox
@@ -339,18 +380,6 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({ onClose }) => {
                 ))}
               </div>
             )}
-
-            {/* Total & Add Month */}
-            <div className="flex items-center justify-between pt-2 border-t border-border">
-              <div className="text-sm">
-                <span className="text-muted-foreground">Total: </span>
-                <span className="font-semibold text-foreground">{formatCurrency(totalAmount)}</span>
-              </div>
-              <Button variant="outline" size="sm" onClick={addMonth} disabled={visibleMonths >= 28}>
-                <Plus className="h-3 w-3 mr-1" />
-                Add month
-              </Button>
-            </div>
           </div>
         )}
       </div>
@@ -386,60 +415,60 @@ const MiniMonthBox: React.FC<MiniMonthBoxProps> = ({
   return (
     <div
       className={cn(
-        'flex-shrink-0 w-24 border rounded-lg p-2 text-xs',
+        'flex-shrink-0 w-32 border rounded-lg p-3 text-xs select-none',
         hasError ? 'border-destructive' : hasSelection ? 'border-primary' : 'border-border',
         'bg-card'
       )}
     >
-      <div className="text-center mb-2">
-        <div className="font-medium">M{index + 1}</div>
+      <div className="text-left mb-3">
+        <div className="font-medium text-sm">Month {index + 1}</div>
         {dateRange && (
-          <div className="text-[10px] text-muted-foreground truncate">
+          <div className="text-[10px] text-muted-foreground">
             {format(dateRange.start, 'dd.MM', { locale: de })}
           </div>
         )}
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-2">
         <div className="text-[10px] text-muted-foreground">You</div>
-        <div className="flex gap-1">
-          <label className="flex items-center gap-1 cursor-pointer">
+        <div className="flex flex-col gap-1">
+          <label className="flex items-center gap-2 cursor-pointer">
             <Checkbox
               checked={month.youBasis}
               onCheckedChange={(c) => onChange(index, 'youBasis', c === true)}
               className="h-3 w-3"
             />
-            <span className="text-[10px]">B</span>
+            <span className="text-xs">Basis</span>
           </label>
-          <label className="flex items-center gap-1 cursor-pointer">
+          <label className="flex items-center gap-2 cursor-pointer">
             <Checkbox
               checked={month.youPlus}
               onCheckedChange={(c) => onChange(index, 'youPlus', c === true)}
               className="h-3 w-3"
             />
-            <span className="text-[10px]">P</span>
+            <span className="text-xs">Plus</span>
           </label>
         </div>
 
         {!isSingleParent && (
           <>
-            <div className="text-[10px] text-muted-foreground mt-1">Partner</div>
-            <div className="flex gap-1">
-              <label className="flex items-center gap-1 cursor-pointer">
+            <div className="text-[10px] text-muted-foreground mt-2">Partner</div>
+            <div className="flex flex-col gap-1">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <Checkbox
                   checked={month.partnerBasis}
                   onCheckedChange={(c) => onChange(index, 'partnerBasis', c === true)}
                   className="h-3 w-3"
                 />
-                <span className="text-[10px]">B</span>
+                <span className="text-xs">Basis</span>
               </label>
-              <label className="flex items-center gap-1 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <Checkbox
                   checked={month.partnerPlus}
                   onCheckedChange={(c) => onChange(index, 'partnerPlus', c === true)}
                   className="h-3 w-3"
                 />
-                <span className="text-[10px]">P</span>
+                <span className="text-xs">Plus</span>
               </label>
             </div>
           </>
@@ -447,7 +476,7 @@ const MiniMonthBox: React.FC<MiniMonthBoxProps> = ({
       </div>
 
       {hasSelection && (
-        <div className="text-center mt-2 text-[10px] font-medium text-primary">
+        <div className="text-left mt-3 text-xs font-medium text-primary">
           {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(amount)}
         </div>
       )}
