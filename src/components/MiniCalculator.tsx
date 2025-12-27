@@ -274,11 +274,6 @@ or 2 under 6 years?
                 </label>
               </div>
 
-              <Button variant="outline" size="sm" onClick={addMonth} disabled={visibleMonths >= 28} className="ml-auto shrink-0">
-                <Plus className="h-3 w-3 mr-1" />
-                <span className="hidden sm:inline">Add month</span>
-                <span className="sm:hidden">Add</span>
-              </Button>
             </div>
 
             {/* Month Boxes */}
@@ -328,6 +323,18 @@ or 2 under 6 years?
                       onChange={handleMonthChange} 
                     />
                   ))}
+                  {visibleMonths < 28 && (
+                    <Button
+                      variant="outline"
+                      onClick={addMonth}
+                      className="flex-shrink-0 w-24 h-auto border-dashed hover:border-foreground hover:bg-muted"
+                    >
+                      <div className="flex flex-col items-center gap-1">
+                        <Plus className="h-4 w-4" />
+                        <span className="text-[10px]">Add month</span>
+                      </div>
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -351,12 +358,10 @@ or 2 under 6 years?
             )}
 
             {/* Start Application Button */}
-            <div className="flex justify-center">
-              <Button variant="outline" className="border-foreground">
-                Start your application
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
+            <Button variant="outline" className="w-full border-foreground">
+              Start your application
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
           </div>)}
       </div>
     </TooltipProvider>;

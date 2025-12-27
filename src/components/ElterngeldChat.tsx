@@ -831,7 +831,7 @@ export function ElterngeldChat({
                 <MiniCalculator onClose={() => setShowCalculator(false)} />
               </div>
             )}
-            {messages.length === 0 ? <div className="flex flex-col h-full min-h-[400px]">
+            {messages.length === 0 && !showCalculator ? <div className="flex flex-col h-full min-h-[400px]">
                 {/* Spacer to push content to bottom */}
                 <div className="flex-1" />
                 
