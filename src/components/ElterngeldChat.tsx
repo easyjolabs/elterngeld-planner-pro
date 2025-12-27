@@ -80,6 +80,15 @@ interface DebugMetrics {
   scrollLock: boolean;
   isAutoFollow: boolean;
   pendingAnchor: string | null;
+  // Width debug metrics
+  viewportClientWidth: number;
+  viewportScrollWidth: number;
+  miniRootWidth: { client: number; scroll: number } | null;
+  step2ContainerWidth: { client: number; scroll: number } | null;
+  step2RowWidth: { client: number; scroll: number } | null;
+  monthWrapperWidth: { client: number; scroll: number } | null;
+  monthStripWidth: { client: number; scroll: number } | null;
+  overflowingElements: { tag: string; class: string; overflow: number }[];
 }
 const SUGGESTED_QUESTIONS = ["Am I eligible?", "How much will I get?", "Which model is best for me?", "Can I work part-time?", "How do I apply?"];
 export function ElterngeldChat({
@@ -149,6 +158,36 @@ export function ElterngeldChat({
     }
     const targetTop = userEl ? Math.max(0, userEl.offsetTop - TOP_OFFSET) : 0;
     const isClamped = targetTop > maxScrollTop;
+
+    // Width debug: query mini-calculator elements
+    const getWidths = (selector: string): { client: number; scroll: number } | null => {
+      const el = scrollAreaRef.current?.querySelector<HTMLElement>(selector);
+      return el ? { client: el.clientWidth, scroll: el.scrollWidth } : null;
+    };
+    const miniRootWidth = getWidths('[data-debug="mini-root"]');
+    const step2ContainerWidth = getWidths('[data-debug="step2-container"]');
+    const step2RowWidth = getWidths('[data-debug="step2-row"]');
+    const monthWrapperWidth = getWidths('[data-debug="month-wrapper"]');
+    const monthStripWidth = getWidths('[data-debug="month-strip"]');
+
+    // Find overflowing elements in the chat area
+    const overflowingElements: { tag: string; class: string; overflow: number }[] = [];
+    const checkOverflow = (el: HTMLElement) => {
+      if (el.scrollWidth > el.clientWidth + 1) {
+        overflowingElements.push({
+          tag: el.tagName.toLowerCase(),
+          class: el.className.split(' ').slice(0, 2).join('.') || '(no-class)',
+          overflow: el.scrollWidth - el.clientWidth
+        });
+      }
+    };
+    // Check viewport descendants (limit to first 100 for performance)
+    const descendants = viewport.querySelectorAll<HTMLElement>('*');
+    for (let i = 0; i < Math.min(descendants.length, 100); i++) {
+      checkOverflow(descendants[i]);
+    }
+    checkOverflow(viewport);
+
     setDebugMetrics({
       viewportTag: `${viewport.tagName}.${viewport.className.split(' ')[0] || ''}`,
       scrollTop: Math.round(scrollTop),
@@ -164,7 +203,15 @@ export function ElterngeldChat({
       isClamped,
       scrollLock: scrollLockRef.current,
       isAutoFollow: isAutoFollowRef.current,
-      pendingAnchor: pendingAnchor ? `${pendingAnchor.userId.slice(-6)}/${pendingAnchor.assistantId.slice(-6)}` : null
+      pendingAnchor: pendingAnchor ? `${pendingAnchor.userId.slice(-6)}/${pendingAnchor.assistantId.slice(-6)}` : null,
+      viewportClientWidth: viewport.clientWidth,
+      viewportScrollWidth: viewport.scrollWidth,
+      miniRootWidth,
+      step2ContainerWidth,
+      step2RowWidth,
+      monthWrapperWidth,
+      monthStripWidth,
+      overflowingElements: overflowingElements.slice(0, 5) // Top 5 offenders
     });
   }, [bottomSpacerPx, pendingAnchor]);
 
@@ -711,6 +758,40 @@ export function ElterngeldChat({
             <div>isClamped: <span className={debugMetrics.isClamped ? "text-red-400 font-bold" : "text-green-400"}>{String(debugMetrics.isClamped)}</span></div>
             <div>autoFollow: <span className={debugMetrics.isAutoFollow ? "text-green-400" : "text-yellow-400"}>{String(debugMetrics.isAutoFollow)}</span></div>
             <div className="col-span-2">pendingAnchor: <span className="text-blue-400">{debugMetrics.pendingAnchor ?? 'none'}</span></div>
+
+            <div className="col-span-2 border-t border-white/20 mt-1 pt-1 font-bold text-pink-400">📏 WIDTH DEBUG</div>
+            <div>viewport: <span className={debugMetrics.viewportScrollWidth > debugMetrics.viewportClientWidth ? "text-red-400 font-bold" : "text-green-400"}>{debugMetrics.viewportClientWidth} / {debugMetrics.viewportScrollWidth}</span></div>
+            <div className="text-gray-400">(client / scroll)</div>
+            
+            {debugMetrics.miniRootWidth && <>
+              <div>mini-root: <span className={debugMetrics.miniRootWidth.scroll > debugMetrics.miniRootWidth.client ? "text-red-400 font-bold" : "text-green-400"}>{debugMetrics.miniRootWidth.client} / {debugMetrics.miniRootWidth.scroll}</span></div>
+              <div className="text-gray-400">overflow: {debugMetrics.miniRootWidth.scroll - debugMetrics.miniRootWidth.client}px</div>
+            </>}
+            {debugMetrics.step2ContainerWidth && <>
+              <div>step2-container: <span className={debugMetrics.step2ContainerWidth.scroll > debugMetrics.step2ContainerWidth.client ? "text-red-400 font-bold" : "text-green-400"}>{debugMetrics.step2ContainerWidth.client} / {debugMetrics.step2ContainerWidth.scroll}</span></div>
+              <div className="text-gray-400">overflow: {debugMetrics.step2ContainerWidth.scroll - debugMetrics.step2ContainerWidth.client}px</div>
+            </>}
+            {debugMetrics.step2RowWidth && <>
+              <div>step2-row: <span className={debugMetrics.step2RowWidth.scroll > debugMetrics.step2RowWidth.client ? "text-red-400 font-bold" : "text-green-400"}>{debugMetrics.step2RowWidth.client} / {debugMetrics.step2RowWidth.scroll}</span></div>
+              <div className="text-gray-400">overflow: {debugMetrics.step2RowWidth.scroll - debugMetrics.step2RowWidth.client}px</div>
+            </>}
+            {debugMetrics.monthWrapperWidth && <>
+              <div>month-wrapper: <span className={debugMetrics.monthWrapperWidth.scroll > debugMetrics.monthWrapperWidth.client ? "text-red-400 font-bold" : "text-green-400"}>{debugMetrics.monthWrapperWidth.client} / {debugMetrics.monthWrapperWidth.scroll}</span></div>
+              <div className="text-gray-400">overflow: {debugMetrics.monthWrapperWidth.scroll - debugMetrics.monthWrapperWidth.client}px</div>
+            </>}
+            {debugMetrics.monthStripWidth && <>
+              <div>month-strip: <span className="text-cyan-400">{debugMetrics.monthStripWidth.client} / {debugMetrics.monthStripWidth.scroll}</span></div>
+              <div className="text-gray-400">(should overflow!)</div>
+            </>}
+
+            {debugMetrics.overflowingElements.length > 0 && <>
+              <div className="col-span-2 border-t border-white/20 mt-1 pt-1 font-bold text-red-400">⚠️ OVERFLOW OFFENDERS</div>
+              {debugMetrics.overflowingElements.map((el, i) => (
+                <div key={i} className="col-span-2 text-red-300">
+                  {el.tag}.{el.class} → +{el.overflow}px
+                </div>
+              ))}
+            </>}
           </div>
         </div>}
 
