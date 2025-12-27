@@ -902,9 +902,8 @@ export function ElterngeldChat({
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-3">
-        <div className="flex items-end gap-2 rounded-2xl px-4 py-2 border border-border bg-white">
+        <div className="flex items-end gap-2 rounded-2xl px-4 py-2 border border-border bg-white transition-shadow duration-200 focus-within:shadow-md">
           <div className="relative flex-1 flex items-center min-h-[32px]">
-            {!input && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[1px] h-4 bg-foreground/70 animate-blink pointer-events-none" />}
             <textarea ref={inputRef} value={input} onChange={e => {
             setInput(e.target.value);
             e.target.style.height = "auto";
