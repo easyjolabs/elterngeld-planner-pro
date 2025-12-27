@@ -252,14 +252,14 @@ or 2 under 6 years?
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>) : (/* Step 2: Month Planner */
-      <div className="p-4 space-y-4 w-full min-w-0 max-w-full">
+      <div className="p-4 space-y-4 w-full min-w-0 max-w-full overflow-hidden">
             {/* Date & Single Parent Row */}
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap w-full min-w-0">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 gap-2 text-xs font-normal">
-                    <CalendarIcon className="h-4 w-4" />
-                    {birthDate ? format(birthDate, 'dd.MM.yyyy', { locale: de }) : 'Birth date of child'}
+                  <Button variant="outline" size="sm" className="h-8 gap-2 text-xs font-normal min-w-0 shrink">
+                    <CalendarIcon className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{birthDate ? format(birthDate, 'dd.MM.yyyy', { locale: de }) : 'Birth date of child'}</span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -267,16 +267,17 @@ or 2 under 6 years?
                 </PopoverContent>
               </Popover>
 
-              <div className="flex items-center gap-2">
-                <Checkbox id="single-parent" checked={isSingleParent} onCheckedChange={checked => setIsSingleParent(checked === true)} />
-                <label htmlFor="single-parent" className="cursor-pointer text-xs font-normal">
+              <div className="flex items-center gap-2 min-w-0 shrink">
+                <Checkbox id="single-parent" checked={isSingleParent} onCheckedChange={checked => setIsSingleParent(checked === true)} className="shrink-0" />
+                <label htmlFor="single-parent" className="cursor-pointer text-xs font-normal truncate">
                   I am a single parent
                 </label>
               </div>
 
-              <Button variant="outline" size="sm" onClick={addMonth} disabled={visibleMonths >= 28} className="ml-auto">
+              <Button variant="outline" size="sm" onClick={addMonth} disabled={visibleMonths >= 28} className="ml-auto shrink-0">
                 <Plus className="h-3 w-3 mr-1" />
-                Add month
+                <span className="hidden sm:inline">Add month</span>
+                <span className="sm:hidden">Add</span>
               </Button>
             </div>
 
