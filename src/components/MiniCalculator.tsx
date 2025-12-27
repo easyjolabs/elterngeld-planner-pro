@@ -42,9 +42,10 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({
   // Scroll state
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
+  const [dragStartX, setDragStartX] = useState(0);
+  const [dragScrollLeft, setDragScrollLeft] = useState(0);
 
   // Calculator state for calculation
   const calculatorState: CalculatorState = {
@@ -97,7 +98,9 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({
   };
   const handleScroll = useCallback(() => {
     if (scrollContainerRef.current) {
-      setCanScrollLeft(scrollContainerRef.current.scrollLeft > 0);
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
     }
   }, []);
   const scroll = (direction: 'left' | 'right') => {
@@ -110,25 +113,39 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({
     }
   };
 
-  // Mouse drag handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // Pointer drag handlers (works with mouse + touch, uses pointer capture)
+  const handlePointerDown = (e: React.PointerEvent) => {
     if (!scrollContainerRef.current) return;
+    // Ignore if target is interactive
+    const target = e.target as HTMLElement;
+    if (target.closest('button, input, label, [role="checkbox"]')) return;
+    
     setIsDragging(true);
-    setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
-    setScrollLeft(scrollContainerRef.current.scrollLeft);
+    setDragStartX(e.clientX);
+    setDragScrollLeft(scrollContainerRef.current.scrollLeft);
+    scrollContainerRef.current.setPointerCapture(e.pointerId);
   };
-  const handleMouseMove = (e: React.MouseEvent) => {
+  
+  const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging || !scrollContainerRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - scrollContainerRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5;
-    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+    const walk = (e.clientX - dragStartX) * 1.5;
+    scrollContainerRef.current.scrollLeft = dragScrollLeft - walk;
   };
-  const handleMouseUp = () => {
+  
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!scrollContainerRef.current) return;
     setIsDragging(false);
+    scrollContainerRef.current.releasePointerCapture(e.pointerId);
   };
-  const handleMouseLeave = () => {
-    setIsDragging(false);
+  
+  // Wheel handler for horizontal scrolling
+  const handleWheel = (e: React.WheelEvent) => {
+    if (!scrollContainerRef.current) return;
+    const { scrollWidth, clientWidth } = scrollContainerRef.current;
+    if (scrollWidth > clientWidth) {
+      e.preventDefault();
+      scrollContainerRef.current.scrollLeft += e.deltaY;
+    }
   };
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('de-DE', {
@@ -141,12 +158,12 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({
   return <TooltipProvider>
       <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden w-full min-w-0 max-w-full">
         {/* Header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/30">
-          {step === 2 ? <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="h-7 px-2 text-xs">
-              <ArrowLeft className="h-3 w-3 mr-1" />
-              Back
-            </Button> : <span className="text-sm font-medium text-foreground">Quick-Calculator</span>}
-          {onClose && <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/30 w-full min-w-0">
+          {step === 2 ? <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="h-7 px-2 text-xs max-w-full min-w-0 shrink">
+              <ArrowLeft className="h-3 w-3 mr-1 shrink-0" />
+              <span className="truncate">Back</span>
+            </Button> : <span className="text-sm font-medium text-foreground truncate">Quick-Calculator</span>}
+          {onClose && <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7 shrink-0">
               <X className="h-4 w-4" />
             </Button>}
         </div>
@@ -279,9 +296,9 @@ or 2 under 6 years?
               <div 
                 ref={scrollContainerRef} 
                 className={cn(
-                  "flex gap-2 overflow-x-auto py-2 w-full min-w-0 max-w-full",
+                  "flex gap-2 overflow-x-auto overflow-y-hidden py-2 w-full min-w-0 max-w-full",
                   canScrollLeft ? "pl-10" : "pl-0",
-                  "pr-10",
+                  canScrollRight ? "pr-10" : "pr-0",
                   isDragging ? "cursor-grabbing select-none" : "cursor-grab"
                 )} 
                 style={{
@@ -291,10 +308,10 @@ or 2 under 6 years?
                   touchAction: 'pan-x'
                 }} 
                 onScroll={handleScroll} 
-                onMouseDown={handleMouseDown} 
-                onMouseMove={handleMouseMove} 
-                onMouseUp={handleMouseUp} 
-                onMouseLeave={handleMouseLeave}
+                onPointerDown={handlePointerDown} 
+                onPointerMove={handlePointerMove} 
+                onPointerUp={handlePointerUp}
+                onWheel={handleWheel}
               >
                 {months.slice(0, visibleMonths).map((month, index) => (
                   <MiniMonthBox 
@@ -310,14 +327,16 @@ or 2 under 6 years?
                 ))}
               </div>
 
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background/80 shadow-sm border border-border" 
-                onClick={() => scroll('right')}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+              {canScrollRight && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background/80 shadow-sm border border-border" 
+                  onClick={() => scroll('right')}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
             </div>
 
             {/* Validation Errors */}

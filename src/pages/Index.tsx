@@ -91,7 +91,7 @@ const Index = () => {
             <CalculatorContent />
           </ResizablePanel>
           <ResizableHandle withHandle className="mx-2" />
-          <ResizablePanel defaultSize={35} minSize={25} className="min-w-0">
+          <ResizablePanel defaultSize={35} minSize={25} className="min-w-0 min-h-0 overflow-hidden">
             <ElterngeldChat calculation={calculation} calculatorState={calculatorState} />
           </ResizablePanel>
         </ResizablePanelGroup>
@@ -119,7 +119,7 @@ const Index = () => {
                 </Button>
               </DrawerClose>
             </DrawerHeader>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <ElterngeldChat calculation={calculation} calculatorState={calculatorState} />
             </div>
           </DrawerContent>

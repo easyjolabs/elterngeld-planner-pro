@@ -682,7 +682,7 @@ export function ElterngeldChat({
     inputRef.current?.blur();
     sendMessage(input);
   };
-  return <div className="flex flex-col h-full w-full bg-card rounded-2xl border border-border overflow-hidden relative">
+  return <div className="flex flex-col h-full w-full min-h-0 min-w-0 bg-card rounded-2xl border border-border overflow-hidden relative">
       {/* Debug overlay */}
       {debugMode && debugMetrics && <div className="absolute top-12 left-2 right-2 z-50 bg-black/90 text-white text-xs font-mono p-3 rounded-lg max-h-[50%] overflow-auto">
           <div className="font-bold text-yellow-400 mb-2">🐛 Scroll Debug</div>
@@ -741,8 +741,8 @@ export function ElterngeldChat({
       </div>
 
       {/* Messages */}
-      <div className="relative flex-1 overflow-hidden">
-        <ScrollArea className="h-full px-4 py-3" ref={scrollAreaRef}>
+      <div className="relative flex flex-col flex-1 min-h-0 min-w-0 overflow-hidden">
+        <ScrollArea className="flex-1 min-h-0 min-w-0 px-4 py-3" ref={scrollAreaRef}>
           <div className="flex flex-col w-full min-w-0 max-w-full">
             {/* Mini Calculator */}
             {showCalculator && (
