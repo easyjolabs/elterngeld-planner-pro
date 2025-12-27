@@ -298,7 +298,7 @@ or 2 under 6 years?
                 ref={scrollContainerRef}
                 data-debug="month-strip"
                 className={cn(
-                  "flex gap-2 overflow-x-auto overflow-y-hidden py-2 w-full min-w-0 max-w-full",
+                  "w-full max-w-full overflow-x-auto overflow-y-hidden",
                   canScrollLeft ? "pl-10" : "pl-0",
                   canScrollRight ? "pr-10" : "pr-0",
                   isDragging ? "cursor-grabbing select-none" : "cursor-grab"
@@ -315,18 +315,20 @@ or 2 under 6 years?
                 onPointerUp={handlePointerUp}
                 onWheel={handleWheel}
               >
-                {months.slice(0, visibleMonths).map((month, index) => (
-                  <MiniMonthBox 
-                    key={index} 
-                    index={index} 
-                    month={month} 
-                    calculation={calculation} 
-                    isSingleParent={isSingleParent} 
-                    birthDate={birthDate} 
-                    hasError={validationErrors.some(e => e.message.includes(`Month ${index + 1}`))} 
-                    onChange={handleMonthChange} 
-                  />
-                ))}
+                <div className="flex gap-2 py-2 w-max">
+                  {months.slice(0, visibleMonths).map((month, index) => (
+                    <MiniMonthBox 
+                      key={index} 
+                      index={index} 
+                      month={month} 
+                      calculation={calculation} 
+                      isSingleParent={isSingleParent} 
+                      birthDate={birthDate} 
+                      hasError={validationErrors.some(e => e.message.includes(`Month ${index + 1}`))} 
+                      onChange={handleMonthChange} 
+                    />
+                  ))}
+                </div>
               </div>
 
               {canScrollRight && (
