@@ -156,7 +156,7 @@ const MiniCalculator: React.FC<MiniCalculatorProps> = ({
     }).format(amount);
   };
   return <TooltipProvider>
-      <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden w-full min-w-0 max-w-full">
+      <div data-debug="mini-root" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden w-full min-w-0 max-w-full">
         {/* Header */}
         <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/30 w-full min-w-0">
           {step === 2 ? <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="h-7 px-2 text-xs max-w-full min-w-0 shrink">
@@ -252,9 +252,9 @@ or 2 under 6 years?
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>) : (/* Step 2: Month Planner */
-      <div className="p-4 space-y-4 w-full min-w-0 max-w-full overflow-hidden">
+      <div data-debug="step2-container" className="p-4 space-y-4 w-full min-w-0 max-w-full overflow-hidden">
             {/* Date & Single Parent Row */}
-            <div className="flex items-center gap-2 flex-wrap w-full min-w-0">
+            <div data-debug="step2-row" className="flex items-center gap-2 flex-wrap w-full min-w-0">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="h-8 gap-2 text-xs font-normal min-w-0 shrink">
@@ -282,7 +282,7 @@ or 2 under 6 years?
             </div>
 
             {/* Month Boxes */}
-            <div className="relative overflow-hidden w-full min-w-0 max-w-full">
+            <div data-debug="month-wrapper" className="relative overflow-hidden w-full min-w-0 max-w-full">
               {canScrollLeft && (
                 <Button 
                   variant="ghost" 
@@ -295,7 +295,8 @@ or 2 under 6 years?
               )}
 
               <div 
-                ref={scrollContainerRef} 
+                ref={scrollContainerRef}
+                data-debug="month-strip"
                 className={cn(
                   "flex gap-2 overflow-x-auto overflow-y-hidden py-2 w-full min-w-0 max-w-full",
                   canScrollLeft ? "pl-10" : "pl-0",
