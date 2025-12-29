@@ -59,42 +59,44 @@ export function Sidebar({ children }: SidebarProps) {
   };
 
   // Sidebar content component to avoid duplication
-  const SidebarContent = ({ showLabels }: { showLabels: boolean }) => (
+  const SidebarContent = ({ showLabels, hideLogo = false }: { showLabels: boolean; hideLogo?: boolean }) => (
     <>
-      {/* Logo - both rendered, controlled by opacity to prevent blink */}
-      <div style={{ 
-        padding: 16, 
-        display: 'flex', 
-        alignItems: 'center', 
-        height: 60,
-        overflow: 'hidden',
-      }}>
-        <div style={{ position: 'relative', height: 28, display: 'flex', alignItems: 'center' }}>
-          <img 
-            src={logoFull} 
-            alt="ElterngeldHelper" 
-            style={{ 
-              height: 28,
-              opacity: showLabels ? 1 : 0,
-              transition: 'opacity 0.2s ease',
-              position: showLabels ? 'relative' : 'absolute',
-              left: 0,
-            }} 
-          />
-          <img 
-            src={logoIcon} 
-            alt="ElterngeldHelper" 
-            style={{ 
-              width: 28,
-              height: 28,
-              opacity: showLabels ? 0 : 1,
-              transition: 'opacity 0.2s ease',
-              position: showLabels ? 'absolute' : 'relative',
-              left: 0,
-            }} 
-          />
+      {/* Logo - both rendered, controlled by opacity to prevent blink - hidden on mobile */}
+      {!hideLogo && (
+        <div style={{ 
+          padding: 16, 
+          display: 'flex', 
+          alignItems: 'center', 
+          height: 60,
+          overflow: 'hidden',
+        }}>
+          <div style={{ position: 'relative', height: 28, display: 'flex', alignItems: 'center' }}>
+            <img 
+              src={logoFull} 
+              alt="ElterngeldHelper" 
+              style={{ 
+                height: 28,
+                opacity: showLabels ? 1 : 0,
+                transition: 'opacity 0.2s ease',
+                position: showLabels ? 'relative' : 'absolute',
+                left: 0,
+              }} 
+            />
+            <img 
+              src={logoIcon} 
+              alt="ElterngeldHelper" 
+              style={{ 
+                width: 28,
+                height: 28,
+                opacity: showLabels ? 0 : 1,
+                transition: 'opacity 0.2s ease',
+                position: showLabels ? 'absolute' : 'relative',
+                left: 0,
+              }} 
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Nav */}
       <div style={{ flex: 1, padding: '8px 12px', overflow: 'hidden' }}>
@@ -267,7 +269,7 @@ export function Sidebar({ children }: SidebarProps) {
           flexDirection: 'column',
           animation: 'fadeIn 0.2s ease-out',
         }}>
-          <SidebarContent showLabels={true} />
+          <SidebarContent showLabels={true} hideLogo={true} />
         </div>
       )}
 
