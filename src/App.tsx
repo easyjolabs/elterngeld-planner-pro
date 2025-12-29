@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AdminImport from "./pages/AdminImport";
 import Beratung from "./pages/Beratung";
+import Guide from "./pages/Guide";
 import { PasswordGate } from "./components/PasswordGate";
 import { usePasswordProtection } from "./hooks/usePasswordProtection";
 
@@ -35,6 +36,7 @@ function ProtectedApp() {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/beratung" element={<Beratung />} />
+        <Route path="/guide" element={<Guide />} />
         <Route path="/admin/import" element={<AdminImport />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
