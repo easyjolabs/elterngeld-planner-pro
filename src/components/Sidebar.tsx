@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Lightbulb, FileText, MessageCircle, ChevronsLeft, ChevronsRight } from 'lucide-react';
 
 const colors = {
   background: '#FAF9F5',
@@ -33,22 +34,9 @@ export function Sidebar({ children }: SidebarProps) {
   const location = useLocation();
 
   const navItems = [
-    { id: 'guide', path: '/beratung', label: 'Elterngeld Guide', icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M12 20V10M18 20V4M6 20v-4"/>
-      </svg>
-    )},
-    { id: 'application', path: '/', label: 'Elterngeld Application', icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <rect x="3" y="4" width="18" height="18" rx="2"/>
-        <path d="M16 2v4M8 2v4M3 10h18"/>
-      </svg>
-    )},
-    { id: 'chat', path: '/', label: 'Elterngeld Chat', icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-      </svg>
-    )},
+    { id: 'guide', path: '/beratung', label: 'Elterngeld Guide', icon: <Lightbulb size={20} /> },
+    { id: 'application', path: '/', label: 'Elterngeld Application', icon: <FileText size={20} /> },
+    { id: 'chat', path: '/', label: 'Elterngeld Chat', icon: <MessageCircle size={20} /> },
   ];
 
   const getActiveNav = () => {
@@ -176,7 +164,7 @@ export function Sidebar({ children }: SidebarProps) {
               cursor: 'pointer',
             }}
           >
-            {sidebarOpen ? '«' : '»'}
+            {sidebarOpen ? <ChevronsLeft size={20} /> : <ChevronsRight size={20} />}
           </button>
         </div>
 
