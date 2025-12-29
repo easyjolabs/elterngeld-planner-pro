@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ElterngeldBeratung } from "@/components/ElterngeldBeratung";
-import { Navbar } from "@/components/Navbar";
+import { Sidebar } from "@/components/Sidebar";
 import { useNavigate } from "react-router-dom";
 
 const Beratung = () => {
@@ -71,9 +71,8 @@ const Beratung = () => {
   };
 
   return (
-    <div className="h-dvh flex flex-col bg-[#F5F5F5]">
-      <Navbar />
-      <div className="flex-1 min-h-0 p-4 md:p-6 overflow-hidden">
+    <Sidebar>
+      <div className="flex-1 min-h-0 p-4 md:p-6 overflow-hidden bg-[#FAF9F5]">
         <div className="max-w-2xl mx-auto h-full">
           <ElterngeldBeratung
             onSendMessage={sendMessage}
@@ -83,7 +82,7 @@ const Beratung = () => {
           />
         </div>
       </div>
-    </div>
+    </Sidebar>
   );
 };
 
