@@ -253,36 +253,22 @@ export function Sidebar({ children }: SidebarProps) {
         </div>
       )}
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Overlay - Full Screen */}
       {isMobile && mobileMenuOpen && (
-        <>
-          {/* Backdrop */}
-          <div
-            onClick={() => setMobileMenuOpen(false)}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              backgroundColor: 'rgba(0,0,0,0.3)',
-              zIndex: 45,
-            }}
-          />
-          {/* Slide-in Menu */}
-          <div style={{
-            position: 'fixed',
-            top: 56,
-            left: 0,
-            bottom: 0,
-            width: 260,
-            backgroundColor: colors.background,
-            borderRight: `1px solid ${colors.border}`,
-            zIndex: 50,
-            display: 'flex',
-            flexDirection: 'column',
-            animation: 'slideIn 0.2s ease-out',
-          }}>
-            <SidebarContent showLabels={true} />
-          </div>
-        </>
+        <div style={{
+          position: 'fixed',
+          top: 56,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: colors.background,
+          zIndex: 50,
+          display: 'flex',
+          flexDirection: 'column',
+          animation: 'fadeIn 0.2s ease-out',
+        }}>
+          <SidebarContent showLabels={true} />
+        </div>
       )}
 
       {/* Desktop Sidebar */}
@@ -313,12 +299,12 @@ export function Sidebar({ children }: SidebarProps) {
 
       {/* Animation keyframes */}
       <style>{`
-        @keyframes slideIn {
+        @keyframes fadeIn {
           from {
-            transform: translateX(-100%);
+            opacity: 0;
           }
           to {
-            transform: translateX(0);
+            opacity: 1;
           }
         }
       `}</style>
