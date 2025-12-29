@@ -61,51 +61,83 @@ export function Sidebar({ children }: SidebarProps) {
   // Sidebar content component to avoid duplication
   const SidebarContent = ({ showLabels }: { showLabels: boolean }) => (
     <>
-      {/* Logo - fixed height */}
+      {/* Logo - both rendered, controlled by opacity to prevent blink */}
       <div style={{ 
         padding: 16, 
         display: 'flex', 
         alignItems: 'center', 
-        gap: 10,
         height: 60,
+        overflow: 'hidden',
       }}>
-        {showLabels ? (
-          <img src={logoFull} alt="ElterngeldHelper" style={{ height: 28 }} />
-        ) : (
-          <img src={logoIcon} alt="ElterngeldHelper" style={{ width: 28, height: 28 }} />
-        )}
+        <div style={{ position: 'relative', height: 28, display: 'flex', alignItems: 'center' }}>
+          <img 
+            src={logoFull} 
+            alt="ElterngeldHelper" 
+            style={{ 
+              height: 28,
+              opacity: showLabels ? 1 : 0,
+              transition: 'opacity 0.2s ease',
+              position: showLabels ? 'relative' : 'absolute',
+              left: 0,
+            }} 
+          />
+          <img 
+            src={logoIcon} 
+            alt="ElterngeldHelper" 
+            style={{ 
+              width: 28,
+              height: 28,
+              opacity: showLabels ? 0 : 1,
+              transition: 'opacity 0.2s ease',
+              position: showLabels ? 'absolute' : 'relative',
+              left: 0,
+            }} 
+          />
+        </div>
       </div>
 
       {/* Nav */}
-      <div style={{ flex: 1, padding: '8px 12px' }}>
+      <div style={{ flex: 1, padding: '8px 12px', overflow: 'hidden' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {navItems.map(item => (
             <button
               key={item.id}
               onClick={() => handleNavClick(item.path)}
-              className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm font-medium transition-all ${showLabels ? '' : 'justify-center'}`}
+              className="w-full flex items-center gap-2 px-2 rounded-lg text-sm font-medium transition-all"
               style={{ 
+                height: 40,
                 backgroundColor: activeNav === item.id ? colors.tile : 'transparent',
                 color: activeNav === item.id ? colors.textDark : colors.text,
                 border: 'none',
                 cursor: 'pointer',
+                justifyContent: showLabels ? 'flex-start' : 'center',
+                overflow: 'hidden',
               }}
             >
-              {item.icon}
-              {showLabels && <span>{item.label}</span>}
+              <span style={{ flexShrink: 0 }}>{item.icon}</span>
+              <span style={{ 
+                whiteSpace: 'nowrap',
+                opacity: showLabels ? 1 : 0,
+                width: showLabels ? 'auto' : 0,
+                overflow: 'hidden',
+                transition: 'opacity 0.2s ease',
+              }}>
+                {item.label}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Profile */}
-      <div style={{ padding: 12, borderTop: `1px solid ${colors.border}` }}>
+      <div style={{ padding: 12, borderTop: `1px solid ${colors.border}`, height: 72, overflow: 'hidden' }}>
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
           gap: 10,
           padding: 8,
           borderRadius: 8,
+          height: 48,
         }}>
           <div style={{ 
             width: 32, 
@@ -122,33 +154,37 @@ export function Sidebar({ children }: SidebarProps) {
           }}>
             J
           </div>
-          {showLabels && (
-            <div style={{ overflow: 'hidden' }}>
-              <div style={{ 
-                fontSize: 13, 
-                fontWeight: 500, 
-                color: colors.textDark,
-                whiteSpace: 'nowrap',
-              }}>Jochen</div>
-              <div style={{ 
-                fontSize: 11, 
-                color: colors.text,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}>jochen@email.com</div>
-            </div>
-          )}
+          <div style={{ 
+            overflow: 'hidden',
+            opacity: showLabels ? 1 : 0,
+            width: showLabels ? 'auto' : 0,
+            transition: 'opacity 0.2s ease',
+          }}>
+            <div style={{ 
+              fontSize: 13, 
+              fontWeight: 500, 
+              color: colors.textDark,
+              whiteSpace: 'nowrap',
+            }}>Jochen</div>
+            <div style={{ 
+              fontSize: 11, 
+              color: colors.text,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}>jochen@email.com</div>
+          </div>
         </div>
       </div>
 
       {/* Collapse - only on desktop */}
       {!isMobile && (
-        <div style={{ padding: 12, paddingTop: 0 }}>
+        <div style={{ padding: 12, paddingTop: 0, height: 52 }}>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="w-full flex items-center justify-center p-2 rounded-lg text-lg"
             style={{ 
+              height: 40,
               backgroundColor: colors.tile, 
               color: colors.text,
               border: 'none',
