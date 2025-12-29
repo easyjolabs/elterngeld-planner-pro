@@ -103,7 +103,7 @@ export function Sidebar({ children }: SidebarProps) {
             <button
               key={item.id}
               onClick={() => handleNavClick(item.path)}
-              className="w-full flex items-center gap-2 px-2 rounded-lg text-sm font-medium transition-all"
+              className="w-full flex items-center gap-2 px-2 rounded-lg text-sm font-medium transition-all hover:scale-[1.02]"
               style={{ 
                 height: 40,
                 backgroundColor: activeNav === item.id ? colors.tile : 'transparent',
@@ -112,6 +112,16 @@ export function Sidebar({ children }: SidebarProps) {
                 cursor: 'pointer',
                 justifyContent: showLabels ? 'flex-start' : 'center',
                 overflow: 'hidden',
+              }}
+              onMouseEnter={(e) => {
+                if (activeNav !== item.id) {
+                  e.currentTarget.style.backgroundColor = colors.tile;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeNav !== item.id) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
               }}
             >
               <span style={{ flexShrink: 0 }}>{item.icon}</span>
