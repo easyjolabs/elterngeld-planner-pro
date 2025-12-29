@@ -7,7 +7,7 @@ import { StepIndicator } from "@/components/StepIndicator";
 import { IncomeSlider } from "@/components/IncomeSlider";
 import { ResultCard } from "@/components/ResultCard";
 import { MonthPlanner } from "@/components/MonthPlanner";
-import { Navbar } from "@/components/Navbar";
+import { Sidebar } from "@/components/Sidebar";
 import { ElterngeldChat } from "@/components/ElterngeldChat";
 import { CalculatorState } from "@/types/elterngeld";
 import { calculateElterngeld } from "@/lib/elterngeld";
@@ -81,9 +81,7 @@ const Index = () => {
         please consult your local Elterngeldstelle.
       </p>
     </main>;
-  return <div className="h-dvh flex flex-col bg-[#F5F5F5]">
-      <Navbar />
-
+  return <Sidebar>
       {/* Desktop: Resizable layout (lg+) */}
       <div className="hidden md:flex flex-1 overflow-hidden bg-white p-6 py-[5px] pb-[20px]">
         <ResizablePanelGroup direction="horizontal" className="gap-2">
@@ -125,6 +123,6 @@ const Index = () => {
           </DrawerContent>
         </Drawer>
       </div>
-    </div>;
+    </Sidebar>;
 };
 export default Index;
