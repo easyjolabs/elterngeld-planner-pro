@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Lightbulb, FileText, MessageCircle, ChevronsLeft, ChevronsRight, Menu, X } from 'lucide-react';
+import logoIcon from '@/assets/logo-icon.svg';
+import logoFull from '@/assets/logo-full.svg';
 
 const colors = {
   background: '#FAF9F5',
@@ -11,18 +13,6 @@ const colors = {
   border: '#E7E5E4',
   progress: '#FF6347',
 };
-
-// Logo SVG component - Original, smaller
-const LogoIcon = () => (
-  <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="100" height="100" rx="20" fill={colors.basis}/>
-    <ellipse cx="50" cy="42" rx="18" ry="20" fill="white"/>
-    <ellipse cx="42" cy="70" rx="10" ry="12" fill="white"/>
-    <ellipse cx="58" cy="70" rx="10" ry="12" fill="white"/>
-    <circle cx="45" cy="38" r="3" fill={colors.basis}/>
-    <circle cx="55" cy="38" r="3" fill={colors.basis}/>
-  </svg>
-);
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -79,16 +69,10 @@ export function Sidebar({ children }: SidebarProps) {
         gap: 10,
         height: 60,
       }}>
-        <LogoIcon />
-        {showLabels && (
-          <span style={{ 
-            fontSize: 15, 
-            fontWeight: 600, 
-            color: colors.textDark,
-            whiteSpace: 'nowrap',
-          }}>
-            ElterngeldHelper
-          </span>
+        {showLabels ? (
+          <img src={logoFull} alt="ElterngeldHelper" style={{ height: 28 }} />
+        ) : (
+          <img src={logoIcon} alt="ElterngeldHelper" style={{ width: 28, height: 28 }} />
         )}
       </div>
 
@@ -203,14 +187,7 @@ export function Sidebar({ children }: SidebarProps) {
           zIndex: 40,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <LogoIcon />
-            <span style={{ 
-              fontSize: 15, 
-              fontWeight: 600, 
-              color: colors.textDark,
-            }}>
-              ElterngeldHelper
-            </span>
+            <img src={logoFull} alt="ElterngeldHelper" style={{ height: 28 }} />
           </div>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
