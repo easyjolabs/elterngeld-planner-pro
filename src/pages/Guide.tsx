@@ -1263,5 +1263,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   );
 };
 
-export default ElterngeldGuide;
-
+export default function Guide() {
+  return <ElterngeldGuide />;
+}
