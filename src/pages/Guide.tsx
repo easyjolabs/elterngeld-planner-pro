@@ -4,6 +4,7 @@
 // Copy this entire file into Lovable as a new page or component
 
 import React, { useState, useEffect, useRef } from 'react';
+import { Sidebar } from '@/components/Sidebar';
 
 // ===========================================
 // TYPES
@@ -1264,5 +1265,11 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 };
 
 export default function Guide() {
-  return <ElterngeldGuide />;
+  return (
+    <Sidebar>
+      <div className="flex-1 overflow-hidden">
+        <ElterngeldGuide />
+      </div>
+    </Sidebar>
+  );
 }
