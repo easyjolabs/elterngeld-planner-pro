@@ -284,6 +284,16 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const [isPaused, setIsPaused] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  
+  // Streaming state
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingContent, setStreamingContent] = useState('');
+  const [pendingMessage, setPendingMessage] = useState<FlowMessage | null>(null);
+  const streamingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Scroll anchoring state
+  const [anchorMessageIndex, setAnchorMessageIndex] = useState<number | null>(null);
+  const [bottomSpacerPx, setBottomSpacerPx] = useState(0);
 
   // Scroll detection for chat
   const handleScroll = () => {
@@ -302,6 +312,88 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     }
   };
 
+  // Scroll to anchor user message (position at top of viewport)
+  const scrollToAnchorMessage = (messageIndex: number) => {
+    const viewport = scrollRef.current;
+    if (!viewport) return;
+    
+    const messageEl = viewport.querySelector(`[data-message-index="${messageIndex}"]`) as HTMLElement;
+    if (!messageEl) return;
+    
+    const TOP_OFFSET = 16;
+    const targetTop = Math.max(0, messageEl.offsetTop - TOP_OFFSET);
+    viewport.scrollTo({ top: targetTop, behavior: 'instant' });
+  };
+
+  // Update bottom spacer to keep user message at top during streaming
+  const updateBottomSpacer = () => {
+    if (anchorMessageIndex === null) {
+      setBottomSpacerPx(0);
+      return;
+    }
+    
+    const viewport = scrollRef.current;
+    if (!viewport) return;
+    
+    const messageEl = viewport.querySelector(`[data-message-index="${anchorMessageIndex}"]`) as HTMLElement;
+    if (!messageEl) return;
+    
+    const viewportHeight = viewport.clientHeight;
+    const messagesContainer = viewport.querySelector('[data-messages-container]') as HTMLElement;
+    if (!messagesContainer) return;
+    
+    const contentHeight = messagesContainer.scrollHeight;
+    const neededSpacer = Math.max(0, viewportHeight - (contentHeight - messageEl.offsetTop + 16));
+    setBottomSpacerPx(neededSpacer);
+  };
+
+  // Stream text word by word
+  const startStreaming = (msg: FlowMessage, onComplete: () => void) => {
+    if (!msg.content) {
+      onComplete();
+      return;
+    }
+    
+    setIsStreaming(true);
+    setPendingMessage(msg);
+    setStreamingContent('');
+    
+    const words = msg.content.split(/(\s+)/);
+    let index = 0;
+    
+    streamingIntervalRef.current = setInterval(() => {
+      if (index < words.length) {
+        setStreamingContent(prev => prev + words[index]);
+        index++;
+        updateBottomSpacer();
+        
+        // Keep anchor message at top
+        if (anchorMessageIndex !== null) {
+          scrollToAnchorMessage(anchorMessageIndex);
+        }
+      } else {
+        if (streamingIntervalRef.current) {
+          clearInterval(streamingIntervalRef.current);
+          streamingIntervalRef.current = null;
+        }
+        setIsStreaming(false);
+        setStreamingContent('');
+        setPendingMessage(null);
+        setMessages(prev => [...prev, msg]);
+        onComplete();
+      }
+    }, 25);
+  };
+
+  // Cleanup streaming interval on unmount
+  useEffect(() => {
+    return () => {
+      if (streamingIntervalRef.current) {
+        clearInterval(streamingIntervalRef.current);
+      }
+    };
+  }, []);
+
   // Check scroll position when messages change (don't auto-hide button)
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -315,7 +407,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 
   // Flow Logic
   useEffect(() => {
-    if (isPaused || step >= flow.length) return;
+    if (isPaused || step >= flow.length || isStreaming) return;
     
     const msg = flow[step];
     
@@ -326,11 +418,32 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     }
     
     if (msg.type === 'end') {
+      setAnchorMessageIndex(null);
+      setBottomSpacerPx(0);
       setShowInput({ type: 'end' } as FlowMessage);
       return;
     }
     
     if (['bot', 'category', 'component'].includes(msg.type)) {
+      // For bot messages with content after user input, use streaming
+      if (msg.type === 'bot' && msg.content && anchorMessageIndex !== null) {
+        setIsTyping(false);
+        
+        startStreaming(msg, () => {
+          // Clear anchor after a few messages if no input expected
+          if (msg.input) {
+            setShowInput(msg);
+          } else if (msg.pause) {
+            setShowInput({ type: 'component', component: 'continue' } as FlowMessage);
+            setIsPaused(true);
+          } else {
+            setStep(s => s + 1);
+          }
+        });
+        return;
+      }
+      
+      // Normal flow for non-streaming messages
       setIsTyping(true);
       const delay = msg.content ? 80 + msg.content.length * 1.5 : 80;
       
@@ -340,9 +453,14 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
         
         if (msg.input) {
           setShowInput(msg);
+          // Clear anchor when showing input
+          setAnchorMessageIndex(null);
+          setBottomSpacerPx(0);
         } else if (msg.pause) {
           setShowInput({ type: 'component', component: 'continue' } as FlowMessage);
           setIsPaused(true);
+          setAnchorMessageIndex(null);
+          setBottomSpacerPx(0);
         } else {
           setStep(s => s + 1);
         }
@@ -350,7 +468,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
       
       return () => clearTimeout(timer);
     }
-  }, [step, isPaused]);
+  }, [step, isPaused, isStreaming, anchorMessageIndex]);
 
   const handleDynamic = (key: string) => {
     let response: FlowMessage | null = null;
@@ -424,7 +542,18 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     setShowInput(null);
     
     if (displayValue) {
-      setMessages(prev => [...prev, { type: 'user', content: displayValue }]);
+      const userMessage: FlowMessage = { type: 'user', content: displayValue };
+      setMessages(prev => [...prev, userMessage]);
+      
+      // Set anchor to the new user message (will be at index messages.length)
+      const newMessageIndex = messages.length;
+      setAnchorMessageIndex(newMessageIndex);
+      
+      // Scroll user message to top after a small delay
+      setTimeout(() => {
+        scrollToAnchorMessage(newMessageIndex);
+        updateBottomSpacer();
+      }, 50);
     }
     
     if (currentInput?.field) {
@@ -441,6 +570,8 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const handleContinue = () => {
     setIsPaused(false);
     setShowInput(null);
+    setAnchorMessageIndex(null);
+    setBottomSpacerPx(0);
     setStep(s => s + 1);
   };
 
@@ -1133,7 +1264,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     
     if (msg.type === 'user') {
       return (
-        <div key={i} className="flex justify-end py-2">
+        <div key={i} data-message-index={i} className="flex justify-end py-2">
           <div className="rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[80%]" style={{ backgroundColor: colors.userBubble }}>
             <span className="text-sm" style={{ color: colors.textDark }}>{msg.content}</span>
           </div>
@@ -1143,7 +1274,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     
     if (msg.type === 'bot') {
       return (
-        <div key={i} className="py-2">
+        <div key={i} data-message-index={i} className="py-2">
           <p className="text-[15px] leading-relaxed" style={{ color: colors.textDark }}>
             {formatText(msg.content, onOpenChat)}
           </p>
@@ -1219,10 +1350,19 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
           ref={scrollRef}
           onScroll={handleScroll}
         >
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-lg mx-auto" data-messages-container>
             {messages.map((msg, i) => renderMessage(msg, i))}
             
-            {isTyping && (
+            {/* Streaming message */}
+            {isStreaming && streamingContent && (
+              <div className="py-2">
+                <p className="text-[15px] leading-relaxed" style={{ color: colors.textDark }}>
+                  {formatText(streamingContent, onOpenChat)}
+                </p>
+              </div>
+            )}
+            
+            {isTyping && !isStreaming && (
               <div className="py-2">
                 <div className="flex gap-1.5">
                   <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: colors.text }} />
@@ -1231,6 +1371,15 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
                 </div>
               </div>
             )}
+            
+            {/* Dynamic spacer for scroll anchoring */}
+            <div 
+              data-spacer 
+              style={{ 
+                height: bottomSpacerPx,
+                transition: 'height 0.1s ease-out'
+              }} 
+            />
           </div>
         </div>
       </div>
