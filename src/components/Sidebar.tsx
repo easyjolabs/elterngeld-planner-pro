@@ -39,13 +39,14 @@ export function Sidebar({ children }: SidebarProps) {
   }, []);
 
   const navItems = [
-    { id: 'guide', path: '/beratung', label: 'Elterngeld Guide', icon: <Lightbulb size={20} /> },
+    { id: 'guide', path: '/guide', label: 'Elterngeld Guide', icon: <Lightbulb size={20} /> },
     { id: 'application', path: '/', label: 'Elterngeld Application', icon: <FileText size={20} /> },
-    { id: 'chat', path: '/', label: 'Elterngeld Chat', icon: <MessageCircle size={20} /> },
+    { id: 'chat', path: '/beratung', label: 'Elterngeld Chat', icon: <MessageCircle size={20} /> },
   ];
 
   const getActiveNav = () => {
-    if (location.pathname === '/beratung') return 'guide';
+    if (location.pathname === '/guide') return 'guide';
+    if (location.pathname === '/beratung') return 'chat';
     return 'application';
   };
 
