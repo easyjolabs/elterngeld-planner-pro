@@ -314,6 +314,8 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 
   // Scroll to anchor user message (position at top of viewport)
   const scrollToAnchorMessage = (messageIndex: number) => {
+    if (showInput) return; // Don't scroll when input is active
+    
     const viewport = scrollRef.current;
     if (!viewport) return;
     
@@ -327,7 +329,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 
   // Update bottom spacer to keep user message at top during streaming
   const updateBottomSpacer = () => {
-    if (anchorMessageIndex === null) {
+    if (!isStreaming || anchorMessageIndex === null) {
       setBottomSpacerPx(0);
       return;
     }
@@ -365,10 +367,10 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
       if (index < words.length) {
         setStreamingContent(prev => prev + words[index]);
         index++;
-        updateBottomSpacer();
         
-        // Keep anchor message at top
-        if (anchorMessageIndex !== null) {
+        // Throttle scroll updates - only every 5 words
+        if (index % 5 === 0 && anchorMessageIndex !== null) {
+          updateBottomSpacer();
           scrollToAnchorMessage(anchorMessageIndex);
         }
       } else {
@@ -376,6 +378,9 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
           clearInterval(streamingIntervalRef.current);
           streamingIntervalRef.current = null;
         }
+        // Clear anchor before completing
+        setAnchorMessageIndex(null);
+        setBottomSpacerPx(0);
         setIsStreaming(false);
         setStreamingContent('');
         setPendingMessage(null);
@@ -468,7 +473,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
       
       return () => clearTimeout(timer);
     }
-  }, [step, isPaused, isStreaming, anchorMessageIndex]);
+  }, [step, isPaused, isStreaming]);
 
   const handleDynamic = (key: string) => {
     let response: FlowMessage | null = null;
