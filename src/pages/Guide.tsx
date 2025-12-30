@@ -1190,7 +1190,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: colors.background }}>
+    <div className="h-full flex flex-col overflow-hidden" style={{ backgroundColor: colors.background }}>
       {/* Header */}
       <div className="px-5 py-4 sticky top-0 z-10" style={{ backgroundColor: colors.background, borderBottom: `1px solid ${colors.border}` }}>
         <div className="flex items-center justify-between max-w-lg mx-auto">
@@ -1267,9 +1267,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 export default function Guide() {
   return (
     <Sidebar>
-      <div className="flex-1 overflow-hidden">
-        <ElterngeldGuide />
-      </div>
+      <ElterngeldGuide />
     </Sidebar>
   );
 }
