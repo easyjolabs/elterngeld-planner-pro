@@ -4,6 +4,7 @@
 // Copy this entire file into Lovable as a new page or component
 
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { Sidebar } from '@/components/Sidebar';
 
 // ===========================================
@@ -297,6 +298,8 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     botIndex: number;
   } | null>(null);
   const [bottomSpacerPx, setBottomSpacerPx] = useState(0);
+  const [shouldStreamNext, setShouldStreamNext] = useState(false);
+  const isAnchoringRef = useRef(false);
 
   // Scroll detection for chat
   const handleScroll = () => {
@@ -319,13 +322,16 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   useLayoutEffect(() => {
     if (!pendingAnchor) return;
     
+    isAnchoringRef.current = true;
+    
     const viewport = scrollRef.current;
-    if (!viewport) return;
+    const userEl = viewport?.querySelector(`[data-message-index="${pendingAnchor.userIndex}"]`) as HTMLElement;
+    const spacerEl = viewport?.querySelector('[data-spacer]') as HTMLElement;
     
-    const userEl = viewport.querySelector(`[data-message-index="${pendingAnchor.userIndex}"]`) as HTMLElement;
-    const spacerEl = viewport.querySelector('[data-spacer]') as HTMLElement;
-    
-    if (!userEl) return;
+    if (!viewport || !userEl) {
+      isAnchoringRef.current = false;
+      return;
+    }
     
     // Calculate required spacer: viewport height minus content below user message
     const TOP_OFFSET = 16;
@@ -347,14 +353,22 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     const targetTop = Math.max(0, userEl.offsetTop - TOP_OFFSET);
     viewport.scrollTo({ top: targetTop, behavior: 'instant' });
     
-    // Sync React state
-    setBottomSpacerPx(requiredSpacer);
+    // Synchronous state updates with flushSync
+    flushSync(() => {
+      setBottomSpacerPx(requiredSpacer);
+      setShouldStreamNext(true);
+    });
+    
+    requestAnimationFrame(() => {
+      isAnchoringRef.current = false;
+    });
+    
     setPendingAnchor(null);
   }, [pendingAnchor]);
 
   // Update spacer during streaming to shrink as content grows
   const updateBottomSpacer = () => {
-    if (!isStreaming) {
+    if (!isStreaming || isAnchoringRef.current) {
       return;
     }
     
@@ -453,7 +467,8 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 
   // Flow Logic
   useEffect(() => {
-    if (isPaused || step >= flow.length || isStreaming) return;
+    if (isPaused || step >= flow.length) return;
+    if (isStreaming) return; // Check inside, not in dependency
     
     const msg = flow[step];
     
@@ -470,8 +485,9 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     }
     
     if (['bot', 'category', 'component'].includes(msg.type)) {
-      // For bot messages with content after user input, use streaming when spacer is active
-      if (msg.type === 'bot' && msg.content && bottomSpacerPx > 0) {
+      // For bot messages with content after user input, use streaming when shouldStreamNext is true
+      if (msg.type === 'bot' && msg.content && shouldStreamNext) {
+        setShouldStreamNext(false); // Reset flag
         setIsTyping(false);
         
         startStreaming(msg, () => {
@@ -510,7 +526,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
       
       return () => clearTimeout(timer);
     }
-  }, [step, isPaused, isStreaming]);
+  }, [step, isPaused, shouldStreamNext]);
 
   const handleDynamic = (key: string) => {
     let response: FlowMessage | null = null;
