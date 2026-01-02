@@ -71,7 +71,7 @@ export function Sidebar({ children }: SidebarProps) {
           height: 60,
           overflow: 'hidden',
         }}>
-          <div style={{ position: 'relative', height: 28, display: 'flex', alignItems: 'center' }}>
+        <div style={{ position: 'relative', width: showLabels ? 'auto' : 28, height: 28, display: 'flex', alignItems: 'center' }}>
             <img 
               src={logoFull} 
               alt="ElterngeldHelper" 
@@ -79,8 +79,9 @@ export function Sidebar({ children }: SidebarProps) {
                 height: 28,
                 opacity: showLabels ? 1 : 0,
                 transition: 'opacity 0.2s ease',
-                position: showLabels ? 'relative' : 'absolute',
+                position: 'absolute',
                 left: 0,
+                top: 0,
               }} 
             />
             <img 
@@ -91,8 +92,9 @@ export function Sidebar({ children }: SidebarProps) {
                 height: 28,
                 opacity: showLabels ? 0 : 1,
                 transition: 'opacity 0.2s ease',
-                position: showLabels ? 'absolute' : 'relative',
+                position: 'absolute',
                 left: 0,
+                top: 0,
               }} 
             />
           </div>
@@ -106,7 +108,7 @@ export function Sidebar({ children }: SidebarProps) {
             <button
               key={item.id}
               onClick={() => handleNavClick(item.path)}
-              className="w-full flex items-center gap-2 px-2 rounded-lg text-sm font-medium transition-all hover:scale-[1.02]"
+              className="w-full flex items-center rounded-lg text-sm font-medium transition-all hover:scale-[1.02]"
               style={{ 
                 height: 40,
                 backgroundColor: activeNav === item.id ? colors.tile : 'transparent',
@@ -115,6 +117,9 @@ export function Sidebar({ children }: SidebarProps) {
                 cursor: 'pointer',
                 justifyContent: showLabels ? 'flex-start' : 'center',
                 overflow: 'hidden',
+                gap: showLabels ? 8 : 0,
+                paddingLeft: showLabels ? 8 : 0,
+                paddingRight: showLabels ? 8 : 0,
               }}
               onMouseEnter={(e) => {
                 if (activeNav !== item.id) {
@@ -127,7 +132,7 @@ export function Sidebar({ children }: SidebarProps) {
                 }
               }}
             >
-              <span style={{ flexShrink: 0 }}>{item.icon}</span>
+              <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20 }}>{item.icon}</span>
               <span style={{ 
                 whiteSpace: 'nowrap',
                 opacity: showLabels ? 1 : 0,
