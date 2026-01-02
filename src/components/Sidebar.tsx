@@ -71,7 +71,7 @@ export function Sidebar({ children }: SidebarProps) {
           height: 60,
           overflow: 'hidden',
         }}>
-        <div style={{ position: 'relative', width: showLabels ? 'auto' : 28, height: 28, display: 'flex', alignItems: 'center' }}>
+        <div style={{ position: 'relative', height: 28, display: 'flex', alignItems: 'center' }}>
             <img 
               src={logoFull} 
               alt="ElterngeldHelper" 
@@ -79,9 +79,7 @@ export function Sidebar({ children }: SidebarProps) {
                 height: 28,
                 opacity: showLabels ? 1 : 0,
                 transition: 'opacity 0.2s ease',
-                position: 'absolute',
-                left: 0,
-                top: 0,
+                position: 'relative',
               }} 
             />
             <img 
