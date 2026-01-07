@@ -1,11 +1,7 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import AdminImport from "./pages/AdminImport";
 import Beratung from "./pages/Beratung";
 import Guide from "./pages/Guide";
 import { PasswordGate } from "./components/PasswordGate";
@@ -37,7 +33,6 @@ function ProtectedApp() {
         <Route path="/" element={<Index />} />
         <Route path="/beratung" element={<Beratung />} />
         <Route path="/guide" element={<Guide />} />
-        <Route path="/admin/import" element={<AdminImport />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -47,11 +42,7 @@ function ProtectedApp() {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <ProtectedApp />
-    </TooltipProvider>
+    <ProtectedApp />
   </QueryClientProvider>
 );
 

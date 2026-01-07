@@ -1,6 +1,4 @@
 import { useState, FormEvent } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Lock, Loader2 } from 'lucide-react';
 
 interface PasswordGateProps {
@@ -40,14 +38,14 @@ export function PasswordGate({ onLogin, error, isLoading }: PasswordGateProps) {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Input
+              <input
                 type="password"
                 placeholder="Passwort"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={showLoading}
-                className="w-full"
                 autoFocus
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
 
@@ -55,9 +53,9 @@ export function PasswordGate({ onLogin, error, isLoading }: PasswordGateProps) {
               <p className="text-sm text-destructive text-center">{error}</p>
             )}
 
-            <Button
+            <button
               type="submit"
-              className="w-full"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
               disabled={showLoading || !password.trim()}
             >
               {showLoading ? (
@@ -68,7 +66,7 @@ export function PasswordGate({ onLogin, error, isLoading }: PasswordGateProps) {
               ) : (
                 'Zugang erhalten'
               )}
-            </Button>
+            </button>
           </form>
         </div>
       </div>
