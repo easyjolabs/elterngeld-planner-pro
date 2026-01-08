@@ -5,7 +5,7 @@ import logoIcon from '@/assets/logo-icon.svg';
 import logoFull from '@/assets/logo-full.svg';
 
 const colors = {
-  background: '#FAF9F5',
+  background: '#FFFFFF',  // Changed to white
   tile: '#F0EEE6',
   text: '#57534E',
   textDark: '#1C1917',
