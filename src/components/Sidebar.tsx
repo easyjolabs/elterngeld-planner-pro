@@ -1,319 +1,302 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Lightbulb, FileText, MessageCircle, ChevronsLeft, ChevronsRight, Menu, X } from 'lucide-react';
-import logoIcon from '@/assets/logo-icon.svg';
-import logoFull from '@/assets/logo-full.svg';
 
+// Colors matching ElterngeldGuide
 const colors = {
-  background: '#FFFFFF',  // Changed to white
-  tile: '#F0EEE6',
-  text: '#57534E',
+  background: '#FAF9F7',
+  white: '#FFFFFF',
+  tile: '#F0EFED',
+  border: '#E8E6E3',
+  text: '#78716c',
   textDark: '#1C1917',
-  basis: '#FF8752',
-  border: '#E7E5E4',
-  progress: '#FF6347',
+  accent: '#C0630B',
 };
 
+export type SidebarView = 'home' | 'guide' | 'chat' | 'pdf';
+
 interface SidebarProps {
-  children: React.ReactNode;
+  activeView: SidebarView;
+  onNavigate: (view: SidebarView) => void;
 }
 
-export function Sidebar({ children }: SidebarProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+// Hook to detect mobile (400px breakpoint)
+const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // Check if mobile on mount and resize
+  
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth < 768) {
-        setSidebarOpen(false);
-      }
-    };
+    const checkMobile = () => setIsMobile(window.innerWidth < 400);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+  
+  return isMobile;
+};
 
-  const navItems = [
-    { id: 'guide', path: '/guide', label: 'Elterngeld Guide', icon: <Lightbulb size={20} /> },
-    { id: 'application', path: '/', label: 'Elterngeld Application', icon: <FileText size={20} /> },
-    { id: 'chat', path: '/beratung', label: 'Elterngeld Chat', icon: <MessageCircle size={20} /> },
+// Tooltip wrapper component
+const Tooltip: React.FC<{ label: string; show: boolean; children: React.ReactNode }> = ({ label, show, children }) => (
+  <div className="relative group">
+    {children}
+    {show && (
+      <div 
+        className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50"
+        style={{ 
+          backgroundColor: colors.textDark, 
+          color: colors.white,
+          transition: 'opacity 0.15s ease-in-out 0.3s',
+        }}
+      >
+        {label}
+      </div>
+    )}
+  </div>
+);
+
+const Sidebar: React.FC<SidebarProps> = ({ 
+  activeView, 
+  onNavigate,
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  const navItems: Array<{ id: SidebarView; label: string; icon: React.ReactNode }> = [
+    {
+      id: 'home',
+      label: 'Home',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+      ),
+    },
+    {
+      id: 'guide',
+      label: 'Guide',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+      ),
+    },
+    {
+      id: 'chat',
+      label: 'Chat',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'pdf',
+      label: 'PDF',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+        </svg>
+      ),
+    },
   ];
 
-  const getActiveNav = () => {
-    if (location.pathname === '/guide') return 'guide';
-    if (location.pathname === '/beratung') return 'chat';
-    return 'application';
+  const handleMobileNavigate = (view: SidebarView) => {
+    onNavigate(view);
+    setMobileOpen(false);
   };
 
-  const activeNav = getActiveNav();
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile: Hamburger Button */}
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="fixed top-3 right-3 z-40 w-10 h-10 rounded-lg flex items-center justify-center transition-all"
+          style={{ backgroundColor: '#3D3D3A', color: colors.white }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
 
-  const handleNavClick = (path: string) => {
-    navigate(path);
-    if (isMobile) {
-      setMobileMenuOpen(false);
-    }
-  };
-
-  // Sidebar content component to avoid duplication
-  const SidebarContent = ({ showLabels, hideLogo = false }: { showLabels: boolean; hideLogo?: boolean }) => (
-    <>
-      {/* Logo - both rendered, controlled by opacity to prevent blink - hidden on mobile */}
-      {!hideLogo && (
-        <div style={{ 
-          padding: 16, 
-          display: 'flex', 
-          alignItems: 'center', 
-          height: 60,
-          overflow: 'hidden',
-        }}>
-        <div style={{ position: 'relative', height: 28, display: 'flex', alignItems: 'center' }}>
-            <img 
-              src={logoFull} 
-              alt="ElterngeldHelper" 
-              style={{ 
-                height: 28,
-                opacity: showLabels ? 1 : 0,
-                transition: 'opacity 0.2s ease',
-                position: 'relative',
-              }} 
-            />
-            <img 
-              src={logoIcon} 
-              alt="ElterngeldHelper" 
-              style={{ 
-                width: 28,
-                height: 28,
-                opacity: showLabels ? 0 : 1,
-                transition: 'opacity 0.2s ease',
-                position: 'absolute',
-                left: 0,
-                top: 0,
-              }} 
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Nav */}
-      <div style={{ flex: 1, padding: '8px 12px', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {navItems.map(item => (
+        {/* Mobile: Fullscreen Menu */}
+        <div 
+          className={`fixed inset-0 z-50 flex flex-col transition-all duration-300 ${mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+          style={{ backgroundColor: '#3D3D3A' }}
+        >
+          {/* Header with Close */}
+          <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.2)' }}>
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <div 
+                className="w-8 h-8 rounded-md flex items-center justify-center text-sm font-bold"
+                style={{ backgroundColor: colors.white, color: '#3D3D3A' }}
+              >
+                E
+              </div>
+              <span className="text-base font-semibold" style={{ color: colors.white }}>
+                Elterngeld
+              </span>
+            </div>
+            
+            {/* Close Button */}
             <button
-              key={item.id}
-              onClick={() => handleNavClick(item.path)}
-              className="w-full flex items-center rounded-lg text-sm font-medium transition-all hover:scale-[1.02]"
-              style={{ 
-                height: 40,
-                backgroundColor: activeNav === item.id ? colors.tile : 'transparent',
-                color: activeNav === item.id ? colors.textDark : colors.text,
-                border: 'none',
-                cursor: 'pointer',
-                justifyContent: showLabels ? 'flex-start' : 'center',
-                overflow: 'hidden',
-                gap: showLabels ? 8 : 0,
-                paddingLeft: showLabels ? 8 : 0,
-                paddingRight: showLabels ? 8 : 0,
-              }}
-              onMouseEnter={(e) => {
-                if (activeNav !== item.id) {
-                  e.currentTarget.style.backgroundColor = colors.tile;
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeNav !== item.id) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }
-              }}
+              onClick={() => setMobileOpen(false)}
+              className="w-10 h-10 rounded-lg flex items-center justify-center transition-all"
+              style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: colors.white }}
             >
-              <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20 }}>{item.icon}</span>
-              <span style={{ 
-                whiteSpace: 'nowrap',
-                opacity: showLabels ? 1 : 0,
-                width: showLabels ? 'auto' : 0,
-                overflow: 'hidden',
-                transition: 'opacity 0.2s ease',
-              }}>
-                {item.label}
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Navigation Items */}
+          <nav className="flex-1 p-4">
+            <div className="space-y-2">
+              {navItems.map((item) => {
+                const isActive = activeView === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleMobileNavigate(item.id)}
+                    className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all active:scale-[0.98]"
+                    style={{
+                      backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : 'transparent',
+                      color: colors.white,
+                    }}
+                  >
+                    <span style={{ color: colors.white }}>{item.icon}</span>
+                    <span className="text-base font-medium" style={{ color: colors.white }}>
+                      {item.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
+
+          {/* Bottom Section */}
+          <div className="p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.2)' }}>
+            <button
+              className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all active:scale-[0.98]"
+              style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+            >
+              <div 
+                className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold"
+                style={{ backgroundColor: colors.white, color: '#3D3D3A' }}
+              >
+                U
+              </div>
+              <span className="text-base font-medium" style={{ color: colors.white }}>
+                User Profile
               </span>
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Profile */}
-      <div style={{ padding: 12, borderTop: `1px solid ${colors.border}`, height: 72, overflow: 'hidden' }}>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 10,
-          padding: 8,
-          borderRadius: 8,
-          height: 48,
-        }}>
-          <div style={{ 
-            width: 32, 
-            height: 32, 
-            borderRadius: 8, 
-            backgroundColor: colors.tile,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 14,
-            fontWeight: 500,
-            color: colors.text,
-            flexShrink: 0,
-          }}>
-            J
-          </div>
-          <div style={{ 
-            overflow: 'hidden',
-            opacity: showLabels ? 1 : 0,
-            width: showLabels ? 'auto' : 0,
-            transition: 'opacity 0.2s ease',
-          }}>
-            <div style={{ 
-              fontSize: 13, 
-              fontWeight: 500, 
-              color: colors.textDark,
-              whiteSpace: 'nowrap',
-            }}>Jochen</div>
-            <div style={{ 
-              fontSize: 11, 
-              color: colors.text,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}>jochen@email.com</div>
           </div>
         </div>
-      </div>
+      </>
+    );
+  }
 
-      {/* Collapse - only on desktop */}
-      {!isMobile && (
-        <div style={{ padding: 12, paddingTop: 0, height: 52 }}>
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="w-full flex items-center justify-center p-2 rounded-lg text-lg"
-            style={{ 
-              height: 40,
-              backgroundColor: colors.tile, 
-              color: colors.text,
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            {sidebarOpen ? <ChevronsLeft size={20} /> : <ChevronsRight size={20} />}
-          </button>
-        </div>
-      )}
-    </>
-  );
-
+  // Desktop Layout
   return (
-    <div style={{ 
-      display: 'flex', 
-      height: '100dvh', 
-      backgroundColor: colors.background,
-      fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
-    }}>
-
-      {/* Mobile Header */}
-      {isMobile && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 56,
-          backgroundColor: colors.background,
-          borderBottom: `1px solid ${colors.border}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 16px',
-          zIndex: 40,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <img src={logoFull} alt="ElterngeldHelper" style={{ height: 28 }} />
-          </div>
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={{
-              backgroundColor: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 8,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: colors.textDark,
-            }}
+    <div 
+      className="h-screen flex flex-col border-r transition-all duration-200"
+      style={{ 
+        width: expanded ? 240 : 56,
+        backgroundColor: colors.background, 
+        borderColor: colors.border 
+      }}
+    >
+      {/* Logo */}
+      <div className={`p-2 ${expanded ? 'px-3' : ''}`}>
+        <div 
+          className={`h-10 rounded-lg flex items-center ${expanded ? 'px-2 gap-2' : 'justify-center'}`}
+        >
+          <div 
+            className="w-8 h-8 rounded-md flex items-center justify-center text-sm font-bold shrink-0"
+            style={{ backgroundColor: colors.accent, color: colors.white }}
           >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+            E
+          </div>
+          {expanded && (
+            <span className="text-sm font-semibold" style={{ color: colors.textDark }}>
+              Elterngeld
+            </span>
+          )}
         </div>
-      )}
-
-      {/* Mobile Menu Overlay - Full Screen */}
-      {isMobile && mobileMenuOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 56,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: colors.background,
-          zIndex: 50,
-          display: 'flex',
-          flexDirection: 'column',
-          animation: 'fadeIn 0.2s ease-out',
-        }}>
-          <SidebarContent showLabels={true} hideLogo={true} />
-        </div>
-      )}
-
-      {/* Desktop Sidebar */}
-      {!isMobile && (
-        <div style={{ 
-          width: sidebarOpen ? 220 : 64, 
-          backgroundColor: colors.background,
-          borderRight: `1px solid ${colors.border}`,
-          display: 'flex',
-          flexDirection: 'column',
-          transition: 'width 0.2s ease',
-          flexShrink: 0,
-        }}>
-          <SidebarContent showLabels={sidebarOpen} />
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div style={{ 
-        flex: 1, 
-        display: 'flex', 
-        flexDirection: 'column', 
-        minWidth: 0,
-        marginTop: isMobile ? 56 : 0,
-      }}>
-        {children}
       </div>
 
-      {/* Animation keyframes */}
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-      `}</style>
+      {/* Navigation Items */}
+      <nav className="flex-1 px-2 mt-2">
+        <div className="space-y-1">
+          {navItems.map((item) => {
+            const isActive = activeView === item.id;
+            return (
+              <Tooltip key={item.id} label={item.label} show={!expanded}>
+                <button
+                  onClick={() => onNavigate(item.id)}
+                  className={`w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 ${expanded ? 'px-3 gap-3' : 'justify-center'}`}
+                  style={{
+                    backgroundColor: isActive ? colors.tile : 'transparent',
+                    color: colors.textDark,
+                  }}
+                >
+                  <span style={{ color: colors.textDark }}>{item.icon}</span>
+                  {expanded && (
+                    <span className="text-sm" style={{ color: colors.textDark }}>
+                      {item.label}
+                    </span>
+                  )}
+                </button>
+              </Tooltip>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* Bottom Section */}
+      <div className="p-2 border-t" style={{ borderColor: colors.border }}>
+        {/* User Profile */}
+        <Tooltip label="Profile" show={!expanded}>
+          <button
+            className={`w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1 ${expanded ? 'px-3 gap-3' : 'justify-center'}`}
+          >
+            <div 
+              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold shrink-0"
+              style={{ backgroundColor: colors.textDark, color: colors.white }}
+            >
+              U
+            </div>
+            {expanded && (
+              <span className="text-sm flex-1 text-left truncate" style={{ color: colors.textDark }}>
+                User
+              </span>
+            )}
+          </button>
+        </Tooltip>
+
+        {/* Expand/Collapse Button */}
+        <Tooltip label={expanded ? 'Collapse' : 'Expand'} show={!expanded}>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className={`w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 ${expanded ? 'px-3' : 'justify-center'}`}
+            style={{ color: colors.text }}
+          >
+            <svg 
+              className="w-5 h-5 transition-transform duration-200" 
+              style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth={1.5} 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </button>
+        </Tooltip>
+      </div>
     </div>
   );
-}
+};
+
+export default Sidebar;
