@@ -2009,13 +2009,13 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
             subtext: "Premature births qualify for extra Elterngeld months.",
             input: "buttons" as const,
             field: "premature",
-            options: [
-              { value: "no", label: "No, born on time", icon: "check" },
-              { value: "6weeks", label: "6+ weeks early", icon: "calendar", accent: "basis", note: "+1 month" },
-              { value: "8weeks", label: "8+ weeks early", icon: "calendar", accent: "basis", note: "+2 months" },
-              { value: "12weeks", label: "12+ weeks early", icon: "calendar", accent: "basis", note: "+3 months" },
-              { value: "16weeks", label: "16+ weeks early", icon: "calendar", accent: "basis", note: "+4 months" },
-            ],
+        options: [
+          { value: "no", label: "No, born on time", icon: "check" },
+          { value: "6weeks", label: "6+ weeks early", icon: "calendar", accent: "basis" as const, note: "+1 month" },
+          { value: "8weeks", label: "8+ weeks early", icon: "calendar", accent: "basis" as const, note: "+2 months" },
+          { value: "12weeks", label: "12+ weeks early", icon: "calendar", accent: "basis" as const, note: "+3 months" },
+          { value: "16weeks", label: "16+ weeks early", icon: "calendar", accent: "basis" as const, note: "+4 months" },
+        ] as ButtonOption[],
           };
           streamMessage(prematureMsg, () => {
             setShowInput(prematureMsg);
