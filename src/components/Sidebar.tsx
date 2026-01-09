@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const navItems: Array<{ id: SidebarView; label: string; icon: React.ReactNode }> = [
     {
       id: 'home',
-      label: 'Home',
+      label: 'Overview',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       id: 'guide',
-      label: 'Guide',
+      label: 'Planner',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -89,7 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       id: 'pdf',
-      label: 'PDF',
+      label: 'Application',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -159,7 +159,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     key={item.id}
                     onClick={() => handleMobileNavigate(item.id)}
-                    className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all active:scale-[0.98]"
+                    className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all"
                     style={{
                       backgroundColor: isActive ? colors.tile : 'transparent',
                       color: colors.textDark,
@@ -178,7 +178,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Bottom Section */}
           <div className="p-4 border-t" style={{ borderColor: colors.border }}>
             <button
-              className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all active:scale-[0.98]"
+              className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all"
               style={{ backgroundColor: colors.tile }}
             >
               <div 
@@ -202,24 +202,24 @@ const Sidebar: React.FC<SidebarProps> = ({
     <div 
       className="h-screen flex flex-col border-r transition-all duration-200"
       style={{ 
-        width: expanded ? 240 : 56,
+        width: expanded ? 200 : 56,
         backgroundColor: colors.background, 
         borderColor: colors.border 
       }}
     >
       {/* Logo */}
-      <div className={`p-2 ${expanded ? 'px-3' : ''}`}>
-        <div 
-          className={`h-10 rounded-lg flex items-center ${expanded ? 'px-2 gap-2' : 'justify-center'}`}
-        >
-          <div 
-            className="w-8 h-8 rounded-md flex items-center justify-center text-sm font-bold shrink-0"
-            style={{ backgroundColor: colors.accent, color: colors.white }}
-          >
-            E
+      <div className="p-2">
+        <div className="h-10 rounded-lg flex items-center">
+          <div className="w-10 flex items-center justify-center shrink-0">
+            <div 
+              className="w-8 h-8 rounded-md flex items-center justify-center text-sm font-bold"
+              style={{ backgroundColor: colors.accent, color: colors.white }}
+            >
+              E
+            </div>
           </div>
           {expanded && (
-            <span className="text-sm font-semibold" style={{ color: colors.textDark }}>
+            <span className="text-sm font-semibold ml-2" style={{ color: colors.textDark }}>
               Elterngeld
             </span>
           )}
@@ -235,15 +235,17 @@ const Sidebar: React.FC<SidebarProps> = ({
               <Tooltip key={item.id} label={item.label} show={!expanded}>
                 <button
                   onClick={() => onNavigate(item.id)}
-                  className={`w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 ${expanded ? 'px-3 gap-3' : 'justify-center'}`}
+                  className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100"
                   style={{
                     backgroundColor: isActive ? colors.tile : 'transparent',
                     color: colors.textDark,
                   }}
                 >
-                  <span style={{ color: colors.textDark }}>{item.icon}</span>
+                  <div className="w-10 flex items-center justify-center shrink-0">
+                    <span style={{ color: colors.textDark }}>{item.icon}</span>
+                  </div>
                   {expanded && (
-                    <span className="text-sm" style={{ color: colors.textDark }}>
+                    <span className="text-sm ml-2" style={{ color: colors.textDark }}>
                       {item.label}
                     </span>
                   )}
@@ -259,16 +261,18 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* User Profile */}
         <Tooltip label="Profile" show={!expanded}>
           <button
-            className={`w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1 ${expanded ? 'px-3 gap-3' : 'justify-center'}`}
+            className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1"
           >
-            <div 
-              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold shrink-0"
-              style={{ backgroundColor: colors.textDark, color: colors.white }}
-            >
-              U
+            <div className="w-10 flex items-center justify-center shrink-0">
+              <div 
+                className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                style={{ backgroundColor: colors.textDark, color: colors.white }}
+              >
+                U
+              </div>
             </div>
             {expanded && (
-              <span className="text-sm flex-1 text-left truncate" style={{ color: colors.textDark }}>
+              <span className="text-sm flex-1 text-left truncate ml-2" style={{ color: colors.textDark }}>
                 User
               </span>
             )}
@@ -279,19 +283,21 @@ const Sidebar: React.FC<SidebarProps> = ({
         <Tooltip label={expanded ? 'Collapse' : 'Expand'} show={!expanded}>
           <button
             onClick={() => setExpanded(!expanded)}
-            className={`w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 ${expanded ? 'px-3' : 'justify-center'}`}
+            className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100"
             style={{ color: colors.text }}
           >
-            <svg 
-              className="w-5 h-5 transition-transform duration-200" 
-              style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth={1.5} 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
+            <div className="w-10 flex items-center justify-center shrink-0">
+              <svg 
+                className="w-5 h-5 transition-transform duration-200" 
+                style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth={1.5} 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </div>
           </button>
         </Tooltip>
       </div>
