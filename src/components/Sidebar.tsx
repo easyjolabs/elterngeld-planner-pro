@@ -65,7 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       label: 'Overview',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
         </svg>
       ),
     },
@@ -74,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       label: 'Planner',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
         </svg>
       ),
     },
@@ -126,16 +126,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Header with Close */}
           <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: colors.border }}>
             {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div 
-                className="w-8 h-8 rounded-md flex items-center justify-center text-sm font-bold"
-                style={{ backgroundColor: colors.accent, color: colors.white }}
-              >
-                E
-              </div>
-              <span className="text-base font-semibold" style={{ color: colors.textDark }}>
-                Elterngeld
-              </span>
+            <div className="flex items-center">
+              <svg className="w-8 h-8" viewBox="0 0 64 71" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M47.83 2.64c-4.28-1.43-7.74-2.27-10.36-2.52-2.52-.24-8.22-.2-13.23.91-4.47.99-8.31 2.95-10.26 4.2-2.64 1.68-6.67 5.36-9.33 9.49-1.78 2.77-2.72 6.29-3.1 7.53-.69 2.22-1.2 5.76-1.55 10.61 0 2.12 0 13.72 0 34.8 0 .09.23 1.88 1.19 2.78.75.7 2.22.58 2.58.49 1.02-.26 2.53-1.44 2.62-1.71.02-.05 2.26-2.19 4.74-4.79.81-.84 3.04-3.13 6.07-4.11 3.58-1.15 13.84-.83 13.96-.85 1.74-.42 6.71.26 13.56-1.87 1.35-.42 6.47-2.42 10.26-5.88 1.87-1.71 4.38-4.33 5.89-7.5 2.05-4.27 2.84-9.13 2.96-10.26.45-4.21-.04-7.59-.26-9.99-.05-.57-1.06-5.63-2.7-9.24-1.5-3.33-3.62-5.24-4.18-5.84-2.61-2.79-7.31-5.8-8.85-6.24z" fill="#C0630B"/>
+                <ellipse cx="28.59" cy="25.68" rx="7.74" ry="8.69" fill="#fff"/>
+                <ellipse cx="47.08" cy="25.68" rx="7.74" ry="8.69" fill="#fff"/>
+                <ellipse cx="29.84" cy="27.17" rx="4" ry="4.22" fill="#000"/>
+                <ellipse cx="48.83" cy="27.17" rx="4" ry="4.22" fill="#000"/>
+              </svg>
             </div>
             
             {/* Close Button */}
@@ -211,18 +209,14 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="p-2">
         <div className="h-10 rounded-lg flex items-center">
           <div className="w-10 flex items-center justify-center shrink-0">
-            <div 
-              className="w-8 h-8 rounded-md flex items-center justify-center text-sm font-bold"
-              style={{ backgroundColor: colors.accent, color: colors.white }}
-            >
-              E
-            </div>
+            <svg className="w-8 h-8" viewBox="0 0 64 71" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M47.83 2.64c-4.28-1.43-7.74-2.27-10.36-2.52-2.52-.24-8.22-.2-13.23.91-4.47.99-8.31 2.95-10.26 4.2-2.64 1.68-6.67 5.36-9.33 9.49-1.78 2.77-2.72 6.29-3.1 7.53-.69 2.22-1.2 5.76-1.55 10.61 0 2.12 0 13.72 0 34.8 0 .09.23 1.88 1.19 2.78.75.7 2.22.58 2.58.49 1.02-.26 2.53-1.44 2.62-1.71.02-.05 2.26-2.19 4.74-4.79.81-.84 3.04-3.13 6.07-4.11 3.58-1.15 13.84-.83 13.96-.85 1.74-.42 6.71.26 13.56-1.87 1.35-.42 6.47-2.42 10.26-5.88 1.87-1.71 4.38-4.33 5.89-7.5 2.05-4.27 2.84-9.13 2.96-10.26.45-4.21-.04-7.59-.26-9.99-.05-.57-1.06-5.63-2.7-9.24-1.5-3.33-3.62-5.24-4.18-5.84-2.61-2.79-7.31-5.8-8.85-6.24z" fill="#C0630B"/>
+              <ellipse cx="28.59" cy="25.68" rx="7.74" ry="8.69" fill="#fff"/>
+              <ellipse cx="47.08" cy="25.68" rx="7.74" ry="8.69" fill="#fff"/>
+              <ellipse cx="29.84" cy="27.17" rx="4" ry="4.22" fill="#000"/>
+              <ellipse cx="48.83" cy="27.17" rx="4" ry="4.22" fill="#000"/>
+            </svg>
           </div>
-          {expanded && (
-            <span className="text-sm font-semibold ml-2" style={{ color: colors.textDark }}>
-              Elterngeld
-            </span>
-          )}
         </div>
       </div>
 
