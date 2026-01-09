@@ -20,7 +20,16 @@ interface FlowMessage {
   field?: string;
   person?: "you" | "partner";
   options?: ButtonOption[];
-  component?: "calculation" | "planner" | "checkmarks" | "summary" | "ctaCard" | "introChecklist";
+  component?:
+    | "calculation"
+    | "planner"
+    | "checkmarks"
+    | "summary"
+    | "ctaCard"
+    | "introChecklist"
+    | "continue"
+    | "ineligible"
+    | "summaryBox";
   pause?: boolean;
   pauseLabel?: string;
   key?: string;
@@ -1908,7 +1917,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     }
 
     if (msg.type === "end") {
-      setShowInput({ type: "end" } as FlowMessage);
+      setShowInput({ type: "end" });
       return;
     }
 
@@ -1924,7 +1933,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
           if (msg.input) {
             setShowInput(msg);
           } else if (msg.pause) {
-            setShowInput({ type: "component", component: "continue", pauseLabel: msg.pauseLabel } as FlowMessage);
+            setShowInput({ type: "component", component: "continue", pauseLabel: msg.pauseLabel });
             setIsPaused(true);
           } else {
             setStep((s) => s + 1);
@@ -2082,7 +2091,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             : "Now let's plan your months.";
         const plannerMsg = { type: "bot" as const, content: plannerText, pause: true, pauseLabel: "Start planning →" };
         streamMessage(plannerMsg, () => {
-          setShowInput({ type: "component", component: "continue", pauseLabel: plannerMsg.pauseLabel } as FlowMessage);
+          setShowInput({ type: "component", component: "continue", pauseLabel: plannerMsg.pauseLabel });
           setIsPaused(true);
         });
         return;
