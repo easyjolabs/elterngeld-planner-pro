@@ -6,13 +6,13 @@ import Beratung from "./pages/Beratung";
 import Guide from "./pages/Guide";
 import { PasswordGate } from "./components/PasswordGate";
 import { usePasswordProtection } from "./hooks/usePasswordProtection";
+import { AppLayout } from "./components/AppLayout";
 
 const queryClient = new QueryClient();
 
 function ProtectedApp() {
   const { isAuthenticated, isLoading, error, login } = usePasswordProtection();
 
-  // Show loading state briefly while checking localStorage
   if (isLoading && !error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -21,19 +21,18 @@ function ProtectedApp() {
     );
   }
 
-  // Show password gate if not authenticated
   if (!isAuthenticated) {
     return <PasswordGate onLogin={login} error={error} isLoading={isLoading} />;
   }
 
-  // Render the app if authenticated
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/beratung" element={<Beratung />} />
-        <Route path="/guide" element={<Guide />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Index />} />
+          <Route path="/beratung" element={<Beratung />} />
+          <Route path="/guide" element={<Guide />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
