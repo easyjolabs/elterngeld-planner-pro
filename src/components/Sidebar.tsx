@@ -111,7 +111,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <button
           onClick={() => setMobileOpen(true)}
           className="fixed top-3 right-3 z-40 w-10 h-10 rounded-lg flex items-center justify-center transition-all"
-          style={{ backgroundColor: '#3D3D3A', color: colors.white }}
+          style={{ backgroundColor: colors.tile, color: colors.textDark }}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -121,19 +121,19 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Mobile: Fullscreen Menu */}
         <div 
           className={`fixed inset-0 z-50 flex flex-col transition-all duration-300 ${mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-          style={{ backgroundColor: '#3D3D3A' }}
+          style={{ backgroundColor: colors.background }}
         >
           {/* Header with Close */}
-          <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.2)' }}>
+          <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: colors.border }}>
             {/* Logo */}
             <div className="flex items-center gap-2">
               <div 
                 className="w-8 h-8 rounded-md flex items-center justify-center text-sm font-bold"
-                style={{ backgroundColor: colors.white, color: '#3D3D3A' }}
+                style={{ backgroundColor: colors.accent, color: colors.white }}
               >
                 E
               </div>
-              <span className="text-base font-semibold" style={{ color: colors.white }}>
+              <span className="text-base font-semibold" style={{ color: colors.textDark }}>
                 Elterngeld
               </span>
             </div>
@@ -142,7 +142,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <button
               onClick={() => setMobileOpen(false)}
               className="w-10 h-10 rounded-lg flex items-center justify-center transition-all"
-              style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: colors.white }}
+              style={{ backgroundColor: colors.tile, color: colors.textDark }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -161,12 +161,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => handleMobileNavigate(item.id)}
                     className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all active:scale-[0.98]"
                     style={{
-                      backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : 'transparent',
-                      color: colors.white,
+                      backgroundColor: isActive ? colors.tile : 'transparent',
+                      color: colors.textDark,
                     }}
                   >
-                    <span style={{ color: colors.white }}>{item.icon}</span>
-                    <span className="text-base font-medium" style={{ color: colors.white }}>
+                    <span style={{ color: colors.textDark }}>{item.icon}</span>
+                    <span className="text-base font-medium" style={{ color: colors.textDark }}>
                       {item.label}
                     </span>
                   </button>
@@ -176,18 +176,18 @@ const Sidebar: React.FC<SidebarProps> = ({
           </nav>
 
           {/* Bottom Section */}
-          <div className="p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.2)' }}>
+          <div className="p-4 border-t" style={{ borderColor: colors.border }}>
             <button
               className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all active:scale-[0.98]"
-              style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+              style={{ backgroundColor: colors.tile }}
             >
               <div 
                 className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold"
-                style={{ backgroundColor: colors.white, color: '#3D3D3A' }}
+                style={{ backgroundColor: colors.textDark, color: colors.white }}
               >
                 U
               </div>
-              <span className="text-base font-medium" style={{ color: colors.white }}>
+              <span className="text-base font-medium" style={{ color: colors.textDark }}>
                 User Profile
               </span>
             </button>
@@ -299,4 +299,5 @@ const Sidebar: React.FC<SidebarProps> = ({
   );
 };
 
+export { Sidebar };
 export default Sidebar;
