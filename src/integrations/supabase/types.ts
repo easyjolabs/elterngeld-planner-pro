@@ -87,6 +87,7 @@ export type Database = {
           answer_de: string
           answer_en: string
           category: string
+          content_tsv: unknown
           created_at: string | null
           embedding: string | null
           id: string
@@ -98,6 +99,7 @@ export type Database = {
           answer_de: string
           answer_en: string
           category: string
+          content_tsv?: unknown
           created_at?: string | null
           embedding?: string | null
           id: string
@@ -109,6 +111,7 @@ export type Database = {
           answer_de?: string
           answer_en?: string
           category?: string
+          content_tsv?: unknown
           created_at?: string | null
           embedding?: string | null
           id?: string
@@ -153,6 +156,19 @@ export type Database = {
           question_de: string
           question_en: string
           similarity: number
+          tags: string[]
+        }[]
+      }
+      search_faqs_keyword: {
+        Args: { match_count?: number; search_query: string }
+        Returns: {
+          answer_de: string
+          answer_en: string
+          category: string
+          id: string
+          question_de: string
+          question_en: string
+          rank: number
           tags: string[]
         }[]
       }
