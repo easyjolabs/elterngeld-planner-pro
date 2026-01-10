@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ElterngeldChat from "@/components/ElterngeldChat";
 
-const Beratung = () => {
+const Chat = () => {
   const [isChatOpen, setIsChatOpen] = useState(true);
 
   return (
@@ -13,4 +13,4 @@ const Beratung = () => {
   );
 };
 
-export default Beratung;
+export default Chat;

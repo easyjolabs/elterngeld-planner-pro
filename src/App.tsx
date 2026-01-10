@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Beratung from "./pages/Beratung";
+import Chat from "./pages/Chat";
 import Guide from "./pages/Guide";
 import ImportFaqs from "./pages/ImportFaqs";
 import { PasswordGate } from "./components/PasswordGate";
@@ -31,7 +31,7 @@ function ProtectedApp() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/" element={<Index />} />
-          <Route path="/beratung" element={<Beratung />} />
+          <Route path="/chat" element={<Chat />} />
           <Route path="/guide" element={<Guide />} />
         </Route>
         <Route path="/import-faqs" element={<ImportFaqs />} />
