@@ -8,6 +8,8 @@
 // import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 // ===========================================
 // TYPES
@@ -1183,6 +1185,7 @@ interface ElterngeldGuideProps {
 }
 
 const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
+  const { user, signInWithGoogle, signInWithEmail } = useAuth();
   const [step, setStep] = useState(0);
   const [stepHistory, setStepHistory] = useState<
     Array<{ step: number; messagesLength: number; savedShowInput: FlowMessage | null }>
@@ -1329,6 +1332,71 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   useEffect(() => {
     messagesLengthRef.current = messages.length;
   }, [messages.length]);
+
+  // Save plan to database when user logs in
+  useEffect(() => {
+    const savePlanToDatabase = async () => {
+      if (!user) return;
+      
+      // Check if we have any plan data to save
+      const hasData = plannerData.some(m => m.you !== "none" || m.partner !== "none");
+      if (!hasData && Object.keys(data).length === 0) return;
+
+      try {
+        // Check if user already has a plan
+        const { data: existingPlans, error: fetchError } = await supabase
+          .from('user_plans')
+          .select('id')
+          .eq('user_id', user.id)
+          .limit(1);
+
+        if (fetchError) {
+          console.error('Error fetching existing plans:', fetchError);
+          return;
+        }
+
+        const planPayload = {
+          user_id: user.id,
+          plan_data: JSON.parse(JSON.stringify(plannerData)),
+          user_data: JSON.parse(JSON.stringify(data)),
+          selected_state: selectedState || null,
+        };
+
+        if (existingPlans && existingPlans.length > 0) {
+          // Update existing plan
+          const { error: updateError } = await supabase
+            .from('user_plans')
+            .update({
+              plan_data: planPayload.plan_data,
+              user_data: planPayload.user_data,
+              selected_state: planPayload.selected_state,
+            })
+            .eq('id', existingPlans[0].id);
+
+          if (updateError) {
+            console.error('Error updating plan:', updateError);
+          }
+        } else {
+          // Insert new plan
+          const { error: insertError } = await supabase
+            .from('user_plans')
+            .insert([planPayload]);
+
+          if (insertError) {
+            console.error('Error inserting plan:', insertError);
+          }
+        }
+
+        // Mark as saved and close modal
+        setPlannerEmailSaved(true);
+        setShowPlannerSaveInput(false);
+      } catch (err) {
+        console.error('Error saving plan:', err);
+      }
+    };
+
+    savePlanToDatabase();
+  }, [user, plannerData, data, selectedState]);
 
   // Go back to previous question
   const goBack = useCallback(() => {
@@ -3422,15 +3490,16 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               <button
                 onClick={async () => {
                   setPlannerEmailSaving(true);
-                  // TODO: Supabase Google OAuth
-                  // await supabase.auth.signInWithOAuth({ provider: 'google' });
-                  await new Promise((resolve) => setTimeout(resolve, 500));
-                  setPlannerEmailSaved(true);
+                  try {
+                    await signInWithGoogle();
+                  } catch (error) {
+                    console.error('Google sign in error:', error);
+                    setPlannerEmailError('Failed to sign in with Google');
+                  }
                   setPlannerEmailSaving(false);
-                  setShowPlannerSaveInput(false);
                 }}
                 disabled={plannerEmailSaving}
-                className="w-full py-3 rounded-xl text-[14px] font-medium flex items-center justify-center gap-3 mb-2"
+                className="w-full py-3 rounded-xl text-[14px] font-medium flex items-center justify-center gap-3 mb-4"
                 style={{
                   backgroundColor: colors.white,
                   color: colors.textDark,
@@ -3456,30 +3525,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   />
                 </svg>
                 Continue with Google
-              </button>
-
-              {/* Facebook Button */}
-              <button
-                onClick={async () => {
-                  setPlannerEmailSaving(true);
-                  // TODO: Supabase Facebook OAuth
-                  // await supabase.auth.signInWithOAuth({ provider: 'facebook' });
-                  await new Promise((resolve) => setTimeout(resolve, 500));
-                  setPlannerEmailSaved(true);
-                  setPlannerEmailSaving(false);
-                  setShowPlannerSaveInput(false);
-                }}
-                disabled={plannerEmailSaving}
-                className="w-full py-3 rounded-xl text-[14px] font-medium flex items-center justify-center gap-3 mb-4"
-                style={{
-                  backgroundColor: "#1877F2",
-                  color: colors.white,
-                }}
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-                Continue with Facebook
               </button>
 
               {/* Divider */}
@@ -3535,15 +3580,15 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                     return;
                   }
                   setPlannerEmailSaving(true);
-                  // TODO: Supabase Magic Link or Email Sign Up
-                  // await supabase.auth.signInWithOtp({
-                  //   email: plannerSaveEmail,
-                  //   options: { data: { email_consent: emailConsent } }
-                  // });
-                  await new Promise((resolve) => setTimeout(resolve, 500));
-                  setPlannerEmailSaved(true);
-                  setPlannerEmailSaving(false);
-                  setShowPlannerSaveInput(false);
+                  const { error } = await signInWithEmail(plannerSaveEmail, emailConsent);
+                  if (error) {
+                    setPlannerEmailError(error.message);
+                    setPlannerEmailSaving(false);
+                  } else {
+                    setPlannerEmailSaved(true);
+                    setPlannerEmailSaving(false);
+                    setShowPlannerSaveInput(false);
+                  }
                 }}
                 disabled={plannerEmailSaving}
                 className="w-full py-3 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2"
@@ -3556,7 +3601,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 {plannerEmailSaving ? (
                   <>
                     <span className="w-4 h-4 border-2 border-stone-600 border-t-transparent rounded-full animate-spin" />
-                    Saving...
+                    Sending link...
                   </>
                 ) : (
                   "Continue with Email"
@@ -4069,10 +4114,14 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         return;
       }
       setWaitlistSubmitting(true);
-      // TODO: Save to Supabase waitlist
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setWaitlistSubmitted(true);
-      setWaitlistSubmitting(false);
+      const { error } = await signInWithEmail(waitlistEmail, waitlistConsent);
+      if (error) {
+        setWaitlistError(error.message);
+        setWaitlistSubmitting(false);
+      } else {
+        setWaitlistSubmitted(true);
+        setWaitlistSubmitting(false);
+      }
     };
 
     // STEP 1: Teaser + Bundesland Selection
@@ -4436,13 +4485,16 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   <button
                     onClick={async () => {
                       setWaitlistSubmitting(true);
-                      // TODO: Supabase Google OAuth for waitlist
-                      await new Promise((resolve) => setTimeout(resolve, 500));
-                      setWaitlistSubmitted(true);
+                      try {
+                        await signInWithGoogle();
+                      } catch (error) {
+                        console.error('Google sign in error:', error);
+                        setWaitlistError('Failed to sign in with Google');
+                      }
                       setWaitlistSubmitting(false);
                     }}
                     disabled={waitlistSubmitting}
-                    className="w-full py-3 rounded-xl text-[14px] font-medium flex items-center justify-center gap-3 mb-2"
+                    className="w-full py-3 rounded-xl text-[14px] font-medium flex items-center justify-center gap-3 mb-4"
                     style={{
                       backgroundColor: colors.white,
                       color: colors.textDark,
@@ -4468,28 +4520,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                       />
                     </svg>
                     Continue with Google
-                  </button>
-
-                  {/* Facebook Button */}
-                  <button
-                    onClick={async () => {
-                      setWaitlistSubmitting(true);
-                      // TODO: Supabase Facebook OAuth for waitlist
-                      await new Promise((resolve) => setTimeout(resolve, 500));
-                      setWaitlistSubmitted(true);
-                      setWaitlistSubmitting(false);
-                    }}
-                    disabled={waitlistSubmitting}
-                    className="w-full py-3 rounded-xl text-[14px] font-medium flex items-center justify-center gap-3 mb-4"
-                    style={{
-                      backgroundColor: "#1877F2",
-                      color: colors.white,
-                    }}
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                    </svg>
-                    Continue with Facebook
                   </button>
 
                   {/* Divider */}

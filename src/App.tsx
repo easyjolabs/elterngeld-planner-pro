@@ -8,6 +8,7 @@ import ImportFaqs from "./pages/ImportFaqs";
 import { PasswordGate } from "./components/PasswordGate";
 import { usePasswordProtection } from "./hooks/usePasswordProtection";
 import { AppLayout } from "./components/AppLayout";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -43,7 +44,9 @@ function ProtectedApp() {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ProtectedApp />
+    <AuthProvider>
+      <ProtectedApp />
+    </AuthProvider>
   </QueryClientProvider>
 );
 

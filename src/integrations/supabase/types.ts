@@ -121,6 +121,63 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          email_consent: boolean | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          email_consent?: boolean | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          email_consent?: boolean | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_plans: {
+        Row: {
+          created_at: string | null
+          id: string
+          plan_data: Json
+          selected_state: string | null
+          updated_at: string | null
+          user_data: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          plan_data?: Json
+          selected_state?: string | null
+          updated_at?: string | null
+          user_data?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          plan_data?: Json
+          selected_state?: string | null
+          updated_at?: string | null
+          user_data?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
