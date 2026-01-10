@@ -411,8 +411,7 @@ const flow: FlowMessage[] = [
   { type: "dynamic", key: "plannerIntro" },
 
   // PLANNING
-  { type: "bot", content: "Select the cells below to assign months. You'll see how your choices affect the total." },
-  { type: "component", component: "planner", pause: true, pauseLabel: "Continue →" },
+  { type: "component", component: "planner", pause: true, pauseLabel: "Continue to application →" },
 
   // CTA
   {
@@ -800,7 +799,7 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
       <button
         onClick={() => isComplete && value && onConfirm(formatDateISO(value), formatDateDisplay(value))}
         disabled={!isComplete}
-        className="w-full py-2.5 rounded-xl text-[14px] font-semibold transition-opacity"
+        className="w-full py-2.5 px-4 rounded-xl text-[14px] font-semibold transition-opacity flex items-center justify-between"
         style={{
           backgroundColor: colors.buttonDark,
           color: colors.white,
@@ -808,7 +807,9 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
           cursor: isComplete ? "pointer" : "not-allowed",
         }}
       >
-        Confirm
+        <span className="w-[18px]" />
+        <span>Confirm</span>
+        <span className="text-[18px]">→</span>
       </button>
     </div>
   );
@@ -940,13 +941,12 @@ const SliderInputComponent: React.FC<SliderInputProps & { label?: string }> = ({
       {/* Button */}
       <button
         onClick={() => onConfirm(value, `€${value.toLocaleString()}`)}
-        className="w-full mt-6 py-3 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2"
+        className="w-full mt-6 py-3 px-4 rounded-xl text-[14px] font-semibold flex items-center justify-between"
         style={{ backgroundColor: colors.buttonDark, color: colors.white }}
       >
-        Continue
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-        </svg>
+        <span className="w-[18px]" />
+        <span>Continue</span>
+        <span className="text-[18px]">→</span>
       </button>
     </div>
   );
@@ -1304,7 +1304,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   );
   const [selectedScenario, setSelectedScenario] = useState("");
   const [lastEditedCell, setLastEditedCell] = useState<{ month: number; person: "you" | "partner" } | null>(null);
-  const [bonusResetMessage, setBonusResetMessage] = useState<string | null>(null);
+
   const [openTooltips, setOpenTooltips] = useState<Set<string>>(new Set());
   const [isPaused, setIsPaused] = useState(false);
   const [showPdfFlow, setShowPdfFlow] = useState(false);
@@ -1359,74 +1359,8 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
         const nextIndex = (cycle.indexOf(current) + 1) % cycle.length;
         const newValue = cycle[nextIndex];
 
-        // If selecting bonus, auto-fill requirements
-        if (newValue === "bonus" && data.applicationType === "couple") {
-          // Find existing bonus month indices
-          const bonusIndices: number[] = [];
-          newData.forEach((m, i) => {
-            if (m.you === "bonus" || m.partner === "bonus") {
-              bonusIndices.push(i);
-            }
-          });
-
-          const existingBonusCount = bonusIndices.length;
-
-          // Check if this month is adjacent to existing bonus block
-          let isAdjacent = false;
-          if (existingBonusCount > 0) {
-            const minBonus = Math.min(...bonusIndices);
-            const maxBonus = Math.max(...bonusIndices);
-            isAdjacent = monthIndex === minBonus - 1 || monthIndex === maxBonus + 1;
-          }
-
-          // If no existing bonus OR clicking adjacent to existing block
-          if (existingBonusCount === 0 || isAdjacent) {
-            // Check max 4 limit
-            if (existingBonusCount >= 4) {
-              // At max, skip to 'none'
-              newData[monthIndex] = { ...newData[monthIndex], [person]: "none" };
-              setBonusResetMessage(null);
-            } else if (existingBonusCount === 0) {
-              // Start fresh with 2 months
-              newData[monthIndex] = { ...newData[monthIndex], you: "bonus", partner: "bonus" };
-              if (monthIndex + 1 < newData.length) {
-                newData[monthIndex + 1] = { ...newData[monthIndex + 1], you: "bonus", partner: "bonus" };
-              }
-              // Show info message
-              setTimeout(() => {
-                setBonusResetMessage("Bonus requires both parents for 2-4 consecutive months. Auto-filled for you.");
-              }, 0);
-            } else {
-              // Extend existing block by 1 month
-              newData[monthIndex] = { ...newData[monthIndex], you: "bonus", partner: "bonus" };
-              // Clear any existing message
-              setBonusResetMessage(null);
-            }
-          } else {
-            // Not adjacent - clear all existing bonus and start fresh
-            bonusIndices.forEach((i) => {
-              newData[i] = { ...newData[i], you: "none", partner: "none" };
-            });
-            // Start new block with 2 months
-            newData[monthIndex] = { ...newData[monthIndex], you: "bonus", partner: "bonus" };
-            if (monthIndex + 1 < newData.length) {
-              newData[monthIndex + 1] = { ...newData[monthIndex + 1], you: "bonus", partner: "bonus" };
-            }
-            // Trigger message (via setTimeout to run after state update)
-            setTimeout(() => {
-              setBonusResetMessage("Bonus months must be consecutive. Previous selection was cleared.");
-            }, 0);
-          }
-        }
-        // If deselecting bonus (cycling away from it)
-        else if (current === "bonus" && newValue !== "bonus") {
-          newData[monthIndex] = { ...newData[monthIndex], [person]: newValue };
-          setBonusResetMessage(null);
-        } else {
-          // Normal behavior for non-bonus
-          newData[monthIndex] = { ...newData[monthIndex], [person]: newValue };
-          setBonusResetMessage(null);
-        }
+        // Simply set the new value for this cell only
+        newData[monthIndex] = { ...newData[monthIndex], [person]: newValue };
 
         return newData;
       });
@@ -2884,31 +2818,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       <div className="py-4">
         {/* Status Row: Tips/Error/Success + Budget Counter + Fullscreen */}
         <div className="mb-3 flex items-stretch gap-2" style={{ minHeight: 60 }}>
-          {bonusResetMessage ? (
-            // Bonus info message (priority)
-            <div
-              className="flex-1 flex items-center gap-2 p-3 rounded-lg overflow-hidden"
-              style={{ backgroundColor: "rgba(255, 189, 240, 0.5)" }}
-            >
-              <svg
-                className="w-4 h-4 shrink-0"
-                style={{ color: colors.textDark }}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                />
-              </svg>
-              <p className="line-clamp-2" style={{ color: colors.textDark, fontSize: "13px", lineHeight: 1.4 }}>
-                {bonusResetMessage}
-              </p>
-            </div>
-          ) : isEmpty ? (
+          {isEmpty ? (
             // Tips carousel
             <button
               onClick={nextTip}
@@ -3652,8 +3562,18 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             <div className="flex-shrink-0" style={{ backgroundColor: colors.background }}>
               <div className="px-5 py-3">
                 <div className="max-w-lg mx-auto flex items-center justify-between">
-                  {/* Empty left side for alignment */}
-                  <div style={{ width: 32 }}></div>
+                  {/* Budget Counter */}
+                  <div
+                    className="px-3 py-2 rounded-xl flex items-center justify-center"
+                    style={{ backgroundColor: plannerColors.tipBg }}
+                  >
+                    <span
+                      className="text-xs font-bold"
+                      style={{ color: totalBudget > maxBudget ? plannerColors.errorText : colors.textDark }}
+                    >
+                      {totalBudget % 1 === 0 ? totalBudget : totalBudget.toFixed(1)}/{maxBudget}
+                    </span>
+                  </div>
 
                   {/* Right Side - Close Button */}
                   <button
@@ -3996,10 +3916,11 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 </div>
                 <button
                   onClick={() => setPlannerFullscreen(false)}
-                  className="px-4 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
+                  className="px-4 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 flex items-center gap-2"
                   style={{ backgroundColor: colors.buttonDark, color: colors.white }}
                 >
-                  Done
+                  <span>Done</span>
+                  <span className="text-[14px]">→</span>
                 </button>
               </div>
             </div>
@@ -4205,7 +4126,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               <button
                 onClick={handleContinue}
                 disabled={!selectedState}
-                className="w-full py-3 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2 transition-opacity"
+                className="w-full py-3 px-4 rounded-xl text-[14px] font-semibold flex items-center justify-between transition-opacity"
                 style={{
                   backgroundColor: colors.buttonDark,
                   color: colors.white,
@@ -4213,10 +4134,9 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   cursor: selectedState ? "pointer" : "not-allowed",
                 }}
               >
-                Create my application
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
+                <span className="w-[18px]" />
+                <span>Create my application</span>
+                <span className="text-[18px]">→</span>
               </button>
             </div>
           </div>
@@ -4377,13 +4297,12 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   saveToPdfFlow();
                   setShowPdfFlow(true);
                 }}
-                className="w-full py-3 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 rounded-xl text-[14px] font-semibold flex items-center justify-between"
                 style={{ backgroundColor: colors.buttonDark, color: colors.white }}
               >
-                Continue to payment
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
+                <span className="w-[18px]" />
+                <span>Continue to application</span>
+                <span className="text-[18px]">→</span>
               </button>
 
               {/* Back Button */}
@@ -5012,48 +4931,71 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
   const ButtonOptions = React.memo(
     ({ options, onSelect }: { options: ButtonOption[]; onSelect: (value: string, label: string) => void }) => (
       <div className="space-y-2">
-        {options.map((opt, i) => (
-          <button
-            key={i}
-            onClick={() => onSelect(opt.value, opt.label)}
-            className="w-full px-3.5 py-2.5 rounded-xl text-left transition-all flex items-center justify-between hover:border-stone-400"
-            style={{ backgroundColor: colors.white, border: `1.5px solid ${colors.border}` }}
-          >
-            <div className="flex items-center gap-3">
-              {opt.icon && (
-                <span style={{ color: colors.textDark }}>
-                  <ButtonIcon name={opt.icon} />
-                </span>
+        {options.map((opt, i) => {
+          const hasArrow = opt.label.includes("→");
+          const labelText = hasArrow ? opt.label.replace("→", "").trim() : opt.label;
+          const shouldCenter = hasArrow && !opt.icon && !opt.note;
+          
+          return (
+            <button
+              key={i}
+              onClick={() => onSelect(opt.value, opt.label)}
+              className={`w-full px-3.5 py-2.5 rounded-xl transition-all flex items-center hover:border-stone-400 ${shouldCenter ? 'justify-between' : 'justify-between text-left'}`}
+              style={{ backgroundColor: colors.white, border: `1.5px solid ${colors.border}` }}
+            >
+              {shouldCenter ? (
+                <>
+                  <span className="w-[18px]" />
+                  <span className="text-[14px] font-medium" style={{ color: colors.textDark }}>
+                    {labelText}
+                  </span>
+                  <span className="text-[18px]" style={{ color: colors.textDark }}>→</span>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3">
+                    {opt.icon && (
+                      <span style={{ color: colors.textDark }}>
+                        <ButtonIcon name={opt.icon} />
+                      </span>
+                    )}
+                    <div>
+                      <span className="text-[14px] font-medium" style={{ color: colors.textDark }}>
+                        {labelText}
+                      </span>
+                      {opt.sub && (
+                        <p className="text-[12px] mt-0.5" style={{ color: colors.text }}>
+                          {opt.sub}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {opt.note && (
+                      <span
+                        className="text-[12px] px-2.5 py-1 rounded-full font-semibold"
+                        style={{
+                          backgroundColor:
+                            opt.accent === "basis"
+                              ? "rgba(192, 99, 11, 0.3)"
+                              : opt.accent === "bonus"
+                                ? colors.bonus
+                                : colors.tile,
+                          color: opt.accent === "bonus" ? colors.textDark : opt.accent ? colors.textDark : colors.text,
+                        }}
+                      >
+                        {opt.note}
+                      </span>
+                    )}
+                    {hasArrow && (
+                      <span className="text-[18px]" style={{ color: colors.textDark }}>→</span>
+                    )}
+                  </div>
+                </>
               )}
-              <div>
-                <span className="text-[14px] font-medium" style={{ color: colors.textDark }}>
-                  {opt.label}
-                </span>
-                {opt.sub && (
-                  <p className="text-[12px] mt-0.5" style={{ color: colors.text }}>
-                    {opt.sub}
-                  </p>
-                )}
-              </div>
-            </div>
-            {opt.note && (
-              <span
-                className="text-[12px] px-2.5 py-1 rounded-full font-semibold"
-                style={{
-                  backgroundColor:
-                    opt.accent === "basis"
-                      ? "rgba(192, 99, 11, 0.3)"
-                      : opt.accent === "bonus"
-                        ? colors.bonus
-                        : colors.tile,
-                  color: opt.accent === "bonus" ? colors.textDark : opt.accent ? colors.textDark : colors.text,
-                }}
-              >
-                {opt.note}
-              </span>
-            )}
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     ),
   );
@@ -5221,13 +5163,17 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
 
     if (showInput.component === "continue") {
       const label = showInput.pauseLabel || "Continue to Summary";
+      const hasArrow = label.includes("→");
+      const labelText = hasArrow ? label.replace("→", "").trim() : label;
       return (
         <button
           onClick={() => handleContinue(label)}
-          className="w-full py-2.5 rounded-xl text-[14px] font-semibold"
+          className="w-full py-2.5 px-4 rounded-xl text-[14px] font-semibold flex items-center justify-between"
           style={{ backgroundColor: colors.buttonDark, color: colors.white }}
         >
-          {label}
+          <span className="w-[18px]" />
+          <span>{labelText}</span>
+          <span className="text-[18px]">→</span>
         </button>
       );
     }
@@ -5440,13 +5386,12 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             <div className="max-w-lg mx-auto flex items-center justify-between">
               <div />
               <button
-                className="flex items-center justify-center gap-1.5 px-8 py-2.5 rounded-xl text-sm font-semibold"
-                style={{ backgroundColor: colors.buttonDark, color: colors.white }}
+                className="flex items-center justify-between gap-1.5 px-8 py-2.5 rounded-xl text-sm font-semibold"
+                style={{ backgroundColor: colors.buttonDark, color: colors.white, minWidth: 160 }}
               >
-                Continue
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
+                <span className="w-[18px]" />
+                <span>Continue</span>
+                <span className="text-[18px]">→</span>
               </button>
             </div>
           </div>
