@@ -82,6 +82,42 @@ export type Database = {
         }
         Relationships: []
       }
+      faqs: {
+        Row: {
+          answer_de: string
+          answer_en: string
+          category: string
+          created_at: string | null
+          embedding: string | null
+          id: string
+          question_de: string
+          question_en: string
+          tags: string[] | null
+        }
+        Insert: {
+          answer_de: string
+          answer_en: string
+          category: string
+          created_at?: string | null
+          embedding?: string | null
+          id: string
+          question_de: string
+          question_en: string
+          tags?: string[] | null
+        }
+        Update: {
+          answer_de?: string
+          answer_en?: string
+          category?: string
+          created_at?: string | null
+          embedding?: string | null
+          id?: string
+          question_de?: string
+          question_en?: string
+          tags?: string[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -101,6 +137,23 @@ export type Database = {
           content: string
           id: string
           rank: number
+        }[]
+      }
+      search_faqs: {
+        Args: {
+          match_count?: number
+          query_embedding: string
+          similarity_threshold?: number
+        }
+        Returns: {
+          answer_de: string
+          answer_en: string
+          category: string
+          id: string
+          question_de: string
+          question_en: string
+          similarity: number
+          tags: string[]
         }[]
       }
     }

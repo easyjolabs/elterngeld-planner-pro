@@ -1,0 +1,975 @@
+{
+  "meta": {
+    "version": "2.0",
+    "source": "BMFSFJ Broschüre 'Elterngeld und Elternzeit' + BEEG Richtlinien + Antrag 2025",
+    "lastUpdated": "2025-01",
+    "totalFaqs": 95,
+    "note": "Bilingual DE/EN, optimized for expats in Germany"
+  },
+  "faqs": [
+    
+    {
+      "id": "basics-001",
+      "category": "basics",
+      "question": {
+        "de": "Was ist Elterngeld?",
+        "en": "What is Elterngeld?"
+      },
+      "answer": {
+        "de": "Elterngeld ist eine staatliche Leistung für Mütter und Väter, die nach der Geburt zu Hause bleiben oder weniger arbeiten möchten, um sich um ihr Kind zu kümmern. Es gleicht das wegfallende Einkommen aus und sichert die finanzielle Lebensgrundlage der Familie. Es gibt drei Varianten: Basiselterngeld, ElterngeldPlus und Partnerschaftsbonus.",
+        "en": "Elterngeld (parental allowance) is a government benefit for mothers and fathers who want to stay home or work less after birth to care for their child. It compensates for lost income and secures the family's financial foundation. There are three variants: Basiselterngeld (basic), ElterngeldPlus, and Partnerschaftsbonus (partnership bonus)."
+      },
+      "tags": ["definition", "overview", "grundlagen", "what is"]
+    },
+    {
+      "id": "basics-002",
+      "category": "basics",
+      "question": {
+        "de": "Welche Varianten von Elterngeld gibt es?",
+        "en": "What types of Elterngeld are there?"
+      },
+      "answer": {
+        "de": "Es gibt drei Varianten: 1) Basiselterngeld – die klassische Form, 65% des Nettoeinkommens, max. 14 Monate für beide Eltern. 2) ElterngeldPlus – halb so hoch, aber doppelt so lang beziehbar, ideal bei Teilzeitarbeit. 3) Partnerschaftsbonus – 2-4 zusätzliche Monate, wenn beide Eltern gleichzeitig 24-32 Stunden/Woche arbeiten.",
+        "en": "There are three variants: 1) Basiselterngeld (basic) – the classic form, 65% of net income, max. 14 months for both parents. 2) ElterngeldPlus – half the amount but twice as long, ideal for part-time work. 3) Partnerschaftsbonus (partnership bonus) – 2-4 additional months when both parents work 24-32 hours/week simultaneously."
+      },
+      "tags": ["varianten", "types", "basiselterngeld", "elterngeldplus", "partnerschaftsbonus"]
+    },
+    {
+      "id": "basics-003",
+      "category": "basics",
+      "question": {
+        "de": "Ist Elterngeld das gleiche wie Kindergeld?",
+        "en": "Is Elterngeld the same as Kindergeld?"
+      },
+      "answer": {
+        "de": "Nein, das sind zwei verschiedene Leistungen. Elterngeld ist ein zeitlich begrenzter Einkommensersatz nach der Geburt (max. 14-28 Monate). Kindergeld ist eine monatliche Zahlung pro Kind (aktuell 250€/Monat), die Sie bis zum 18. Geburtstag (oder 25 bei Ausbildung/Studium) bekommen. Sie können beide gleichzeitig erhalten.",
+        "en": "No, these are two different benefits. Elterngeld is a temporary income replacement after birth (max. 14-28 months). Kindergeld is a monthly payment per child (currently €250/month) that you receive until the child's 18th birthday (or 25 if in education). You can receive both simultaneously."
+      },
+      "tags": ["kindergeld", "child benefit", "unterschied", "difference"]
+    },
+    {
+      "id": "basics-004",
+      "category": "basics",
+      "question": {
+        "de": "Ab wann gilt das neue Elterngeld-Gesetz?",
+        "en": "When do the new Elterngeld rules apply?"
+      },
+      "answer": {
+        "de": "Die aktuellen Regelungen gelten für Geburten ab dem 1. April 2024. Die wichtigsten Änderungen: Einkommensgrenze auf 175.000€ gesenkt (für alle), gleichzeitiger Basiselterngeld-Bezug nur noch 1 Monat (Ausnahmen: Frühchen, Mehrlinge, Behinderung). Für Geburten vor April 2024 gelten teilweise andere Regeln.",
+        "en": "The current rules apply for births from April 1, 2024. Key changes: Income limit lowered to €175,000 (for everyone), simultaneous Basiselterngeld only for 1 month (exceptions: premature births, multiples, disability). Different rules may apply for births before April 2024."
+      },
+      "tags": ["2024", "neue regeln", "new rules", "änderungen", "changes", "april"]
+    },
+
+    {
+      "id": "expat-001",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Kann ich als Ausländer Elterngeld bekommen?",
+        "en": "Can I get Elterngeld as a foreigner?"
+      },
+      "answer": {
+        "de": "Ja, auch ausländische Eltern können Elterngeld bekommen! EU/EWR/Schweiz-Bürger sind in der Regel berechtigt, wenn sie in Deutschland wohnen oder arbeiten. Andere Staatsangehörige benötigen einen Aufenthaltstitel, der zur Arbeit berechtigt (z.B. Blue Card, Niederlassungserlaubnis, Aufenthaltserlaubnis mit Arbeitserlaubnis).",
+        "en": "Yes, foreign parents can receive Elterngeld! EU/EEA/Swiss citizens are generally eligible if they live or work in Germany. Other nationals need a residence permit that allows work (e.g., Blue Card, Niederlassungserlaubnis/settlement permit, residence permit with work authorization)."
+      },
+      "tags": ["ausländer", "foreigner", "expat", "berechtigung", "eligibility"]
+    },
+    {
+      "id": "expat-002",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Bekomme ich Elterngeld mit einer Blue Card?",
+        "en": "Can I get Elterngeld with a Blue Card?"
+      },
+      "answer": {
+        "de": "Ja! Die Blue Card EU berechtigt zum Elterngeld-Bezug. Sie ist einer der Aufenthaltstitel, die ausdrücklich im Gesetz als berechtigt aufgeführt sind. Sie müssen die anderen Voraussetzungen erfüllen (in Deutschland wohnen, Kind betreuen, max. 32h arbeiten).",
+        "en": "Yes! The EU Blue Card entitles you to Elterngeld. It's one of the residence permits explicitly listed in the law as eligible. You must meet the other requirements (live in Germany, care for child, work max. 32h)."
+      },
+      "tags": ["blue card", "blaue karte", "visa", "aufenthaltstitel", "eligible"]
+    },
+    {
+      "id": "expat-003",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Bekomme ich Elterngeld mit einer Aufenthaltserlaubnis?",
+        "en": "Can I get Elterngeld with an Aufenthaltserlaubnis (residence permit)?"
+      },
+      "answer": {
+        "de": "Ja, aber es kommt auf die Art an. Sie sind berechtigt, wenn Ihre Aufenthaltserlaubnis zur Arbeit berechtigt UND Sie entweder aktuell arbeiten, in Elternzeit sind, oder Arbeitslosengeld beziehen. Reine Studenten-Visa (§16b) berechtigen nur, wenn Sie nebenbei arbeiten oder gearbeitet haben.",
+        "en": "Yes, but it depends on the type. You're eligible if your Aufenthaltserlaubnis permits work AND you're either currently employed, on Elternzeit, or receiving unemployment benefits. Pure student visas (§16b) only qualify if you work or have worked alongside your studies."
+      },
+      "tags": ["aufenthaltserlaubnis", "residence permit", "work permit", "arbeitserlaubnis"]
+    },
+    {
+      "id": "expat-004",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Bekomme ich Elterngeld mit einem Studentenvisum?",
+        "en": "Can I get Elterngeld on a student visa?"
+      },
+      "answer": {
+        "de": "Nur unter bestimmten Voraussetzungen. Mit einem Studentenvisum (§16b AufenthG) bekommen Sie Elterngeld nur, wenn Sie aktuell erwerbstätig sind (z.B. Werkstudent), in Elternzeit sind, oder Arbeitslosengeld beziehen. Ohne jegliche Erwerbstätigkeit besteht kein Anspruch.",
+        "en": "Only under certain conditions. With a student visa (§16b AufenthG), you can only get Elterngeld if you're currently employed (e.g., working student), on Elternzeit, or receiving unemployment benefits. Without any employment, you're not eligible."
+      },
+      "tags": ["student", "studentenvisum", "student visa", "§16b", "werkstudent"]
+    },
+    {
+      "id": "expat-005",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Bekomme ich Elterngeld mit einer Niederlassungserlaubnis?",
+        "en": "Can I get Elterngeld with a Niederlassungserlaubnis (permanent residence)?"
+      },
+      "answer": {
+        "de": "Ja! Die Niederlassungserlaubnis (§9 AufenthG) ist ein unbefristeter Aufenthaltstitel und berechtigt vollständig zum Elterngeld. Sie müssen keine zusätzlichen Bedingungen bezüglich Arbeit erfüllen – die normalen Elterngeld-Voraussetzungen reichen aus.",
+        "en": "Yes! The Niederlassungserlaubnis (§9 AufenthG) is a permanent residence permit and fully qualifies for Elterngeld. You don't need to meet additional employment conditions – the normal Elterngeld requirements are sufficient."
+      },
+      "tags": ["niederlassungserlaubnis", "permanent residence", "settlement permit", "§9"]
+    },
+    {
+      "id": "expat-006",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Bekomme ich Elterngeld als Geflüchteter?",
+        "en": "Can I get Elterngeld as a refugee?"
+      },
+      "answer": {
+        "de": "Es kommt auf Ihren Status an. Mit anerkanntem Flüchtlingsstatus (§25 Abs. 1, 2) oder subsidiärem Schutz: Ja, wenn Sie arbeiten oder 15+ Monate in Deutschland sind. Mit Aufenthaltsgestattung (während Asylverfahren): Nein. Mit Duldung: Nur mit Beschäftigungsduldung (§60d). Ukraine-Geflüchtete (§24): Ja, sind berechtigt.",
+        "en": "It depends on your status. With recognized refugee status (§25 para. 1, 2) or subsidiary protection: Yes, if you work or have been in Germany 15+ months. With Aufenthaltsgestattung (during asylum procedure): No. With Duldung (toleration): Only with Beschäftigungsduldung (§60d). Ukrainian refugees (§24): Yes, eligible."
+      },
+      "tags": ["refugee", "flüchtling", "asyl", "asylum", "ukraine", "§24", "§25"]
+    },
+    {
+      "id": "expat-007",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Bekomme ich Elterngeld mit einer ICT-Karte?",
+        "en": "Can I get Elterngeld with an ICT Card (Intra-Company Transfer)?"
+      },
+      "answer": {
+        "de": "Ja! Die ICT-Karte (Intra-Company Transfer) und die Mobiler-ICT-Karte sind im Gesetz ausdrücklich als berechtigt aufgeführt. Sie können Elterngeld beziehen, wenn Sie die anderen Voraussetzungen erfüllen.",
+        "en": "Yes! The ICT Card (Intra-Company Transfer) and Mobile ICT Card are explicitly listed in the law as eligible. You can receive Elterngeld if you meet the other requirements."
+      },
+      "tags": ["ict", "intra-company transfer", "entsendung", "secondment"]
+    },
+    {
+      "id": "expat-008",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Ich bin britischer Staatsbürger. Bekomme ich nach dem Brexit noch Elterngeld?",
+        "en": "I'm a British citizen. Can I still get Elterngeld after Brexit?"
+      },
+      "answer": {
+        "de": "Es kommt darauf an, wann Sie nach Deutschland gekommen sind. Wenn Sie vor dem 31.12.2020 in Deutschland gelebt haben und ein Aufenthaltsdokument-GB besitzen, behalten Sie Ihre EU-Rechte und sind berechtigt. Wenn Sie nach dem Brexit gekommen sind, gelten die Regeln für Drittstaatsangehörige – Sie brauchen einen entsprechenden Aufenthaltstitel.",
+        "en": "It depends on when you came to Germany. If you lived in Germany before Dec 31, 2020 and have an Aufenthaltsdokument-GB, you retain your EU rights and are eligible. If you arrived after Brexit, the rules for third-country nationals apply – you need an appropriate residence permit."
+      },
+      "tags": ["brexit", "british", "uk", "großbritannien", "aufenthaltsdokument-gb"]
+    },
+    {
+      "id": "expat-009",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Mein Partner hat kein Visum für Deutschland. Können wir trotzdem Elterngeld bekommen?",
+        "en": "My partner doesn't have a German visa. Can we still get Elterngeld?"
+      },
+      "answer": {
+        "de": "Ja, aber nur der berechtigte Elternteil kann Elterngeld beziehen. Wenn Sie berechtigt sind, aber Ihr Partner nicht (z.B. weil er/sie im Ausland lebt oder kein gültiges Visum hat), können Sie bis zu 12 Monate Basiselterngeld alleine beziehen. Die 2 Partnermonate entfallen dann.",
+        "en": "Yes, but only the eligible parent can receive Elterngeld. If you're eligible but your partner isn't (e.g., living abroad or no valid visa), you can receive up to 12 months of Basiselterngeld alone. The 2 partner months are not available in this case."
+      },
+      "tags": ["partner", "visa", "ausland", "abroad", "12 monate"]
+    },
+    {
+      "id": "expat-010",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Ich habe gerade mein Arbeitsvisum bekommen. Wie lange muss ich arbeiten, bevor ich Elterngeld beantragen kann?",
+        "en": "I just got my work visa. How long do I need to work before I can apply for Elterngeld?"
+      },
+      "answer": {
+        "de": "Es gibt keine Mindestarbeitszeit! Sie können Elterngeld beantragen, sobald Ihr Kind geboren ist – auch wenn Sie erst kurz vorher angefangen haben zu arbeiten. Allerdings: Je kürzer Sie gearbeitet haben, desto weniger Einkommen fließt in die Berechnung ein. Bei weniger als 12 Monaten Arbeit wird nur das tatsächliche Einkommen berücksichtigt.",
+        "en": "There's no minimum working period! You can apply for Elterngeld as soon as your child is born – even if you just started working. However: The shorter you worked, the less income goes into the calculation. With less than 12 months of work, only your actual income is considered."
+      },
+      "tags": ["neu in deutschland", "new to germany", "mindestzeit", "minimum period", "just arrived"]
+    },
+    {
+      "id": "expat-011",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Zählt mein Einkommen aus dem Ausland für die Elterngeld-Berechnung?",
+        "en": "Does my income from abroad count for Elterngeld calculation?"
+      },
+      "answer": {
+        "de": "Nur Einkommen aus Deutschland, EU, EWR oder Schweiz wird berücksichtigt. Einkommen aus USA, UK (nach Brexit), Asien oder anderen Nicht-EU-Ländern zählt NICHT für die Berechnung. Das kann bedeuten, dass Sie nur den Mindestbetrag (300€) bekommen, wenn Sie erst kürzlich nach Deutschland gezogen sind.",
+        "en": "Only income from Germany, EU, EEA, or Switzerland is considered. Income from USA, UK (post-Brexit), Asia, or other non-EU countries does NOT count for the calculation. This may mean you only get the minimum amount (€300) if you recently moved to Germany."
+      },
+      "tags": ["ausland", "abroad", "income abroad", "einkommen ausland", "usa", "uk", "non-eu"]
+    },
+    {
+      "id": "expat-012",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Ich arbeite für eine ausländische Firma remote von Deutschland aus. Bekomme ich Elterngeld?",
+        "en": "I work remotely for a foreign company from Germany. Can I get Elterngeld?"
+      },
+      "answer": {
+        "de": "Ja, wenn Sie in Deutschland leben und hier steuerpflichtig sind. Entscheidend ist Ihr Wohnsitz, nicht der Sitz Ihres Arbeitgebers. Allerdings: Wenn Ihr Arbeitsvertrag nach ausländischem Recht gilt, gibt es möglicherweise Besonderheiten bei der Einkommensberechnung. Im Antrag müssen Sie angeben, dass Sie für einen ausländischen Arbeitgeber arbeiten.",
+        "en": "Yes, if you live in Germany and pay taxes here. What matters is your residence, not your employer's location. However: If your employment contract is under foreign law, there may be specifics in income calculation. In the application, you must indicate that you work for a foreign employer."
+      },
+      "tags": ["remote", "ausländischer arbeitgeber", "foreign employer", "home office"]
+    },
+    {
+      "id": "expat-013",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Was ist ein Grenzgänger und welche Regeln gelten?",
+        "en": "What is a cross-border commuter and what rules apply?"
+      },
+      "answer": {
+        "de": "Grenzgänger leben in einem Land und arbeiten in einem anderen (nur EU/EWR/Schweiz). Sie bekommen Familienleistungen vorrangig vom Arbeitsland. Beispiel: Sie wohnen in Deutschland, arbeiten in der Schweiz → Schweizer Leistungen vorrangig. Ist das deutsche Elterngeld höher, zahlt Deutschland den Unterschiedsbetrag.",
+        "en": "Cross-border commuters live in one country and work in another (EU/EEA/Switzerland only). They receive family benefits primarily from the country of work. Example: You live in Germany, work in Switzerland → Swiss benefits are primary. If German Elterngeld is higher, Germany pays the difference."
+      },
+      "tags": ["grenzgänger", "cross-border", "commuter", "schweiz", "switzerland", "österreich", "austria"]
+    },
+    {
+      "id": "expat-014",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Muss ich Deutsch sprechen, um Elterngeld zu beantragen?",
+        "en": "Do I need to speak German to apply for Elterngeld?"
+      },
+      "answer": {
+        "de": "Der offizielle Antrag ist auf Deutsch, aber Sie können Hilfe bekommen. Einige Bundesländer bieten englische Ausfüllhilfen an. Die Elterngeldstellen haben oft Mitarbeiter, die Englisch sprechen. Sie können auch eine Person bevollmächtigen, den Antrag für Sie zu stellen. Online-Anträge (ElterngeldDigital) haben teilweise englische Oberflächen.",
+        "en": "The official application is in German, but you can get help. Some states offer English guides. Elterngeldstelle staff often speak English. You can authorize someone to submit the application for you. Online applications (ElterngeldDigital) sometimes have English interfaces."
+      },
+      "tags": ["sprache", "language", "english", "englisch", "translation", "übersetzung"]
+    },
+    {
+      "id": "expat-015",
+      "category": "expat_eligibility",
+      "question": {
+        "de": "Ich bin EU-Bürger. Brauche ich eine Anmeldung, um Elterngeld zu bekommen?",
+        "en": "I'm an EU citizen. Do I need registration (Anmeldung) to get Elterngeld?"
+      },
+      "answer": {
+        "de": "Ja, Sie müssen in Deutschland gemeldet sein (Anmeldung beim Einwohnermeldeamt). Das ist eine Grundvoraussetzung: Sie müssen Ihren Wohnsitz oder gewöhnlichen Aufenthalt in Deutschland haben. Als EU-Bürger brauchen Sie kein Visum, aber die Anmeldung ist trotzdem erforderlich.",
+        "en": "Yes, you must be registered in Germany (Anmeldung at the Einwohnermeldeamt/registration office). This is a basic requirement: You must have your residence in Germany. As an EU citizen, you don't need a visa, but registration is still required."
+      },
+      "tags": ["anmeldung", "registration", "eu bürger", "eu citizen", "einwohnermeldeamt"]
+    },
+
+    {
+      "id": "eligibility-001",
+      "category": "eligibility",
+      "question": {
+        "de": "Wer kann Elterngeld bekommen?",
+        "en": "Who is eligible for Elterngeld?"
+      },
+      "answer": {
+        "de": "Sie können Elterngeld bekommen, wenn Sie: 1) Ihr Kind selbst betreuen und erziehen, 2) mit dem Kind in einem gemeinsamen Haushalt leben, 3) nicht oder maximal 32 Stunden pro Woche erwerbstätig sind, 4) in Deutschland leben. Es gilt für Arbeitnehmer, Beamte, Selbstständige, Erwerbslose und Hausfrauen/-männer.",
+        "en": "You can receive Elterngeld if you: 1) Care for and raise your child yourself, 2) live with the child in the same household, 3) are not employed or work max. 32 hours per week, 4) live in Germany. It applies to employees, civil servants, self-employed, unemployed, and homemakers."
+      },
+      "tags": ["voraussetzungen", "eligibility", "requirements", "berechtigung"]
+    },
+    {
+      "id": "eligibility-002",
+      "category": "eligibility",
+      "question": {
+        "de": "Gibt es eine Einkommensgrenze für Elterngeld?",
+        "en": "Is there an income limit for Elterngeld?"
+      },
+      "answer": {
+        "de": "Ja, seit April 2024 liegt die Einkommensgrenze bei 175.000 Euro zu versteuerndem Jahreseinkommen. Diese Grenze gilt sowohl für Paare (gemeinsames Einkommen) als auch für Alleinerziehende. Wenn Ihr Einkommen darüber liegt, haben Sie keinen Anspruch auf Elterngeld.",
+        "en": "Yes, since April 2024 the income limit is €175,000 taxable annual income. This limit applies to both couples (combined income) and single parents. If your income exceeds this, you are not eligible for Elterngeld."
+      },
+      "tags": ["einkommensgrenze", "income limit", "175000", "grenze"]
+    },
+    {
+      "id": "eligibility-003",
+      "category": "eligibility",
+      "question": {
+        "de": "Bekomme ich Elterngeld, wenn ich nie in Deutschland gearbeitet habe?",
+        "en": "Can I get Elterngeld if I never worked in Germany?"
+      },
+      "answer": {
+        "de": "Ja! Elterngeld gibt es auch ohne vorheriges Einkommen. Sie erhalten dann den Mindestbetrag: 300€/Monat bei Basiselterngeld oder 150€/Monat bei ElterngeldPlus. Das gilt auch für Hausfrauen/-männer, Studierende oder Personen, die gerade erst nach Deutschland gezogen sind.",
+        "en": "Yes! Elterngeld is available even without prior income. You'll receive the minimum amount: €300/month for Basiselterngeld or €150/month for ElterngeldPlus. This applies to homemakers, students, or people who just moved to Germany."
+      },
+      "tags": ["kein einkommen", "no income", "mindestbetrag", "minimum", "hausfau", "homemaker"]
+    },
+    {
+      "id": "eligibility-004",
+      "category": "eligibility",
+      "question": {
+        "de": "Kann ich als Vater Elterngeld bekommen?",
+        "en": "Can I get Elterngeld as a father?"
+      },
+      "answer": {
+        "de": "Ja, absolut! Elterngeld ist für beide Elternteile. Väter können die gleichen Leistungen beantragen wie Mütter. Tatsächlich ist es sogar vorteilhaft, wenn beide Eltern Elterngeld beziehen: Sie bekommen dann zusammen 14 statt 12 Monate (die 2 zusätzlichen 'Partnermonate').",
+        "en": "Yes, absolutely! Elterngeld is for both parents. Fathers can apply for the same benefits as mothers. In fact, it's advantageous if both parents take Elterngeld: You get 14 months together instead of 12 (the 2 additional 'partner months')."
+      },
+      "tags": ["vater", "father", "männer", "men", "partnermonate"]
+    },
+    {
+      "id": "eligibility-005",
+      "category": "eligibility",
+      "question": {
+        "de": "Bekommen gleichgeschlechtliche Paare Elterngeld?",
+        "en": "Can same-sex couples get Elterngeld?"
+      },
+      "answer": {
+        "de": "Ja, gleichgeschlechtliche Paare haben die gleichen Rechte wie heterosexuelle Paare. Bei eingetragenen Lebenspartnerschaften oder gleichgeschlechtlichen Ehen gelten alle Regelungen zu Partnermonaten und Partnerschaftsbonus. Auch bei Adoptionen oder wenn ein Partner das Kind des anderen adoptiert.",
+        "en": "Yes, same-sex couples have the same rights as heterosexual couples. For registered partnerships or same-sex marriages, all rules about partner months and Partnerschaftsbonus apply. This also applies for adoptions or when one partner adopts the other's child."
+      },
+      "tags": ["lgbtq", "gleichgeschlechtlich", "same-sex", "lebenspartnerschaft", "civil union"]
+    },
+    {
+      "id": "eligibility-006",
+      "category": "eligibility",
+      "question": {
+        "de": "Bekomme ich Elterngeld für ein Adoptivkind?",
+        "en": "Can I get Elterngeld for an adopted child?"
+      },
+      "answer": {
+        "de": "Ja, bei Adoption oder Adoptionspflege können Sie Elterngeld bekommen. Die Lebensmonate zählen dann ab dem Tag der Haushaltsaufnahme, nicht ab Geburt. Das Kind darf bei Aufnahme noch nicht 8 Jahre alt sein. Sie brauchen Nachweise vom Jugendamt oder der Adoptionsvermittlungsstelle.",
+        "en": "Yes, you can get Elterngeld for adoption or pre-adoption foster care. The life months count from the day the child joins your household, not from birth. The child must be under 8 years old at placement. You need documentation from the youth welfare office or adoption agency."
+      },
+      "tags": ["adoption", "adoptivkind", "adopted child", "pflegekind"]
+    },
+
+    {
+      "id": "duration-001",
+      "category": "duration",
+      "question": {
+        "de": "Wie lange kann ich Elterngeld bekommen?",
+        "en": "How long can I receive Elterngeld?"
+      },
+      "answer": {
+        "de": "Beim Basiselterngeld können beide Eltern zusammen bis zu 14 Monate bekommen (12+2 Partnermonate). Ein Elternteil kann maximal 12 Monate beziehen. Beim ElterngeldPlus verdoppelt sich die Zeit: 1 Monat Basiselterngeld = 2 Monate ElterngeldPlus. Der Partnerschaftsbonus gibt zusätzlich 2-4 Monate pro Elternteil.",
+        "en": "With Basiselterngeld, both parents can receive up to 14 months together (12+2 partner months). One parent can receive max. 12 months. With ElterngeldPlus, the time doubles: 1 month Basiselterngeld = 2 months ElterngeldPlus. The Partnerschaftsbonus adds 2-4 months per parent."
+      },
+      "tags": ["dauer", "duration", "monate", "months", "wie lange"]
+    },
+    {
+      "id": "duration-002",
+      "category": "duration",
+      "question": {
+        "de": "Was sind Lebensmonate?",
+        "en": "What are life months (Lebensmonate)?"
+      },
+      "answer": {
+        "de": "Elterngeld wird nach Lebensmonaten des Kindes gezahlt, nicht nach Kalendermonaten. Ein Lebensmonat beginnt am Geburtstag des Kindes. Beispiel: Kind geboren am 15. März → 1. Lebensmonat: 15. März bis 14. April, 2. Lebensmonat: 15. April bis 14. Mai, usw. Wichtig: Ihre Elternzeit sollte auch nach Lebensmonaten geplant werden!",
+        "en": "Elterngeld is paid according to the child's life months, not calendar months. A life month starts on the child's birthday. Example: Child born March 15 → 1st life month: March 15 to April 14, 2nd life month: April 15 to May 14, etc. Important: Your Elternzeit should also be planned according to life months!"
+      },
+      "tags": ["lebensmonate", "life months", "berechnung", "calculation"]
+    },
+    {
+      "id": "duration-003",
+      "category": "duration",
+      "question": {
+        "de": "Was passiert, wenn ich eine Pause im Elterngeld-Bezug mache?",
+        "en": "What happens if I take a break in receiving Elterngeld?"
+      },
+      "answer": {
+        "de": "In den ersten 14 Lebensmonaten können Sie den Bezug unterbrechen und später fortsetzen. Ab dem 15. Lebensmonat ist eine Unterbrechung nicht mehr erlaubt – Sie müssen dann durchgehend beziehen (ElterngeldPlus oder Partnerschaftsbonus), sonst verfallen die restlichen Monate. Sie können sich aber mit Ihrem Partner abwechseln.",
+        "en": "In the first 14 life months, you can interrupt and resume later. From the 15th life month, interruptions are not allowed – you must receive continuously (ElterngeldPlus or Partnerschaftsbonus), or the remaining months are forfeited. However, you can alternate with your partner."
+      },
+      "tags": ["pause", "break", "unterbrechung", "interruption", "15. lebensmonat"]
+    },
+    {
+      "id": "duration-004",
+      "category": "duration",
+      "question": {
+        "de": "Können beide Eltern gleichzeitig Elterngeld bekommen?",
+        "en": "Can both parents receive Elterngeld at the same time?"
+      },
+      "answer": {
+        "de": "Ja, aber mit Einschränkungen seit April 2024. Basiselterngeld gleichzeitig geht nur noch für 1 Monat (innerhalb der ersten 12 Lebensmonate). Ausnahmen: Frühchen, Mehrlinge, Kind mit Behinderung. ElterngeldPlus und Partnerschaftsbonus können Sie weiterhin gleichzeitig beziehen. Wichtig: Gleichzeitig = doppelter Monatsverbrauch!",
+        "en": "Yes, but with restrictions since April 2024. Simultaneous Basiselterngeld is only allowed for 1 month (within the first 12 life months). Exceptions: premature births, multiples, child with disability. You can still receive ElterngeldPlus and Partnerschaftsbonus simultaneously. Important: Simultaneous = double month consumption!"
+      },
+      "tags": ["gleichzeitig", "simultaneous", "beide eltern", "both parents"]
+    },
+
+    {
+      "id": "amount-001",
+      "category": "amount",
+      "question": {
+        "de": "Wie viel Elterngeld bekomme ich?",
+        "en": "How much Elterngeld will I receive?"
+      },
+      "answer": {
+        "de": "Das Basiselterngeld beträgt in der Regel 65% Ihres durchschnittlichen Nettoeinkommens vor der Geburt, mindestens 300€ und maximal 1.800€ pro Monat. Bei Geringverdienern (unter 1.240€ netto) steigt der Prozentsatz auf bis zu 100%. ElterngeldPlus ist halb so hoch (150€-900€), kann aber doppelt so lange bezogen werden.",
+        "en": "Basiselterngeld is typically 65% of your average net income before birth, minimum €300 and maximum €1,800 per month. For low earners (under €1,240 net), the percentage increases up to 100%. ElterngeldPlus is half as much (€150-900) but can be received twice as long."
+      },
+      "tags": ["höhe", "amount", "berechnung", "calculation", "wie viel", "how much"]
+    },
+    {
+      "id": "amount-002",
+      "category": "amount",
+      "question": {
+        "de": "Welches Einkommen zählt für die Berechnung?",
+        "en": "Which income counts for the calculation?"
+      },
+      "answer": {
+        "de": "Es zählt Ihr durchschnittliches monatliches Nettoeinkommen aus Erwerbstätigkeit. Bei Angestellten: die 12 Kalendermonate vor dem Geburtsmonat. Bei Selbstständigen: das letzte abgeschlossene Steuerjahr vor der Geburt. Monate mit Mutterschutz, Elterngeld für ein älteres Kind oder schwangerschaftsbedingter Erkrankung können ausgeklammert werden.",
+        "en": "Your average monthly net income from employment counts. For employees: the 12 calendar months before the birth month. For self-employed: the last completed tax year before birth. Months with maternity protection, Elterngeld for an older child, or pregnancy-related illness can be excluded."
+      },
+      "tags": ["bemessungszeitraum", "einkommen", "income", "calculation period", "12 monate"]
+    },
+    {
+      "id": "amount-003",
+      "category": "amount",
+      "question": {
+        "de": "Was ist der Geschwisterbonus?",
+        "en": "What is the sibling bonus (Geschwisterbonus)?"
+      },
+      "answer": {
+        "de": "Der Geschwisterbonus ist ein Zuschlag von 10% (mindestens 75€ bei Basiselterngeld, 37,50€ bei ElterngeldPlus), wenn Sie bereits ältere Kinder haben: mindestens ein Kind unter 3 Jahren ODER mindestens zwei Kinder unter 6 Jahren ODER ein Kind mit Behinderung unter 14 Jahren im Haushalt.",
+        "en": "The sibling bonus is a supplement of 10% (minimum €75 for Basiselterngeld, €37.50 for ElterngeldPlus) if you already have older children: at least one child under 3 years OR at least two children under 6 years OR one child with disability under 14 years in the household."
+      },
+      "tags": ["geschwisterbonus", "sibling bonus", "zuschlag", "mehrere kinder"]
+    },
+    {
+      "id": "amount-004",
+      "category": "amount",
+      "question": {
+        "de": "Bekomme ich mehr Elterngeld bei Zwillingen?",
+        "en": "Do I get more Elterngeld for twins?"
+      },
+      "answer": {
+        "de": "Ja, bei Mehrlingen gibt es den Mehrlingszuschlag: 300€ zusätzlich pro Monat für jedes weitere Kind bei Basiselterngeld (150€ bei ElterngeldPlus). Bei Zwillingen also +300€, bei Drillingen +600€ usw. Außerdem können beide Eltern bei Mehrlingen auch länger als einen Monat gleichzeitig Basiselterngeld beziehen.",
+        "en": "Yes, for multiples there is the multiple birth supplement: €300 extra per month for each additional child with Basiselterngeld (€150 with ElterngeldPlus). So +€300 for twins, +€600 for triplets, etc. Additionally, both parents can receive Basiselterngeld simultaneously for more than one month with multiples."
+      },
+      "tags": ["mehrlinge", "zwillinge", "twins", "multiples", "mehrlingszuschlag", "drillinge", "triplets"]
+    },
+    {
+      "id": "amount-005",
+      "category": "amount",
+      "question": {
+        "de": "Wie wird das Nettoeinkommen berechnet?",
+        "en": "How is net income calculated?"
+      },
+      "answer": {
+        "de": "Die Elterngeldstelle berechnet ein 'Elterngeld-Netto' nach einer festen Formel: Bruttoeinkommen minus Steuern (pauschal nach Steuerklasse) minus Sozialabgaben (pauschal 21%). Das kann von Ihrem echten Netto abweichen! Einmalzahlungen (Weihnachtsgeld, Boni) zählen nicht. Steuerfreie Zuschläge (Nachtarbeit etc.) zählen auch nicht.",
+        "en": "The Elterngeldstelle calculates an 'Elterngeld net' using a fixed formula: Gross income minus taxes (flat rate by tax class) minus social contributions (flat 21%). This may differ from your actual net! One-time payments (Christmas bonus, bonuses) don't count. Tax-free supplements (night work, etc.) also don't count."
+      },
+      "tags": ["netto", "net", "berechnung", "calculation", "brutto", "gross"]
+    },
+    {
+      "id": "amount-006",
+      "category": "amount",
+      "question": {
+        "de": "Soll ich vor der Geburt die Steuerklasse wechseln?",
+        "en": "Should I change my tax class before the birth?"
+      },
+      "answer": {
+        "de": "Ja, das kann sich lohnen! Der Elternteil, der mehr Elterngeld bekommen soll, sollte in Steuerklasse III sein (weniger Steuerabzug = höheres Netto = höheres Elterngeld). Der Wechsel muss spätestens 7 Monate vor dem Geburtsmonat erfolgen, damit er für alle 12 Bemessungsmonate gilt.",
+        "en": "Yes, it can be worthwhile! The parent who should receive more Elterngeld should be in tax class III (less tax deduction = higher net = higher Elterngeld). The change must happen at least 7 months before the birth month to apply to all 12 assessment months."
+      },
+      "tags": ["steuerklasse", "tax class", "wechsel", "change", "optimierung", "optimization"]
+    },
+    {
+      "id": "amount-007",
+      "category": "amount",
+      "question": {
+        "de": "Ich verdiene weniger als 1.000€. Bekomme ich mehr als 65%?",
+        "en": "I earn less than €1,000. Do I get more than 65%?"
+      },
+      "answer": {
+        "de": "Ja! Bei einem Nettoeinkommen unter 1.240€ steigt der Prozentsatz. Für jeden Euro unter 1.240€ erhöht sich die Rate um 0,1%. Beispiel: Bei 1.000€ Netto = 240€ unter der Grenze = +24% → Sie bekommen 89% statt 65%. Bei unter 340€ Netto erhalten Sie sogar 100%.",
+        "en": "Yes! For net income below €1,240, the percentage increases. For every euro below €1,240, the rate increases by 0.1%. Example: At €1,000 net = €240 below threshold = +24% → You get 89% instead of 65%. Below €340 net, you even get 100%."
+      },
+      "tags": ["geringverdiener", "low income", "erhöhung", "increase", "prozentsatz"]
+    },
+
+    {
+      "id": "work-001",
+      "category": "work",
+      "question": {
+        "de": "Kann ich während des Elterngeldbezugs arbeiten?",
+        "en": "Can I work while receiving Elterngeld?"
+      },
+      "answer": {
+        "de": "Ja, Sie dürfen in Teilzeit arbeiten – maximal 32 Stunden pro Woche. Bei mehr Stunden verlieren Sie den Anspruch auf Elterngeld. Ihr Einkommen während des Bezugs wird angerechnet und reduziert das Elterngeld. Studium oder Ausbildung haben keine Stundengrenze.",
+        "en": "Yes, you can work part-time – maximum 32 hours per week. If you work more, you lose your Elterngeld entitlement. Income during the benefit period is offset and reduces your Elterngeld. Studies or training have no hour limit."
+      },
+      "tags": ["arbeiten", "work", "teilzeit", "part-time", "32 stunden", "32 hours"]
+    },
+    {
+      "id": "work-002",
+      "category": "work",
+      "question": {
+        "de": "Was ist der Partnerschaftsbonus?",
+        "en": "What is the Partnerschaftsbonus (partnership bonus)?"
+      },
+      "answer": {
+        "de": "Der Partnerschaftsbonus sind 2-4 zusätzliche ElterngeldPlus-Monate pro Elternteil, wenn beide gleichzeitig zwischen 24 und 32 Stunden pro Woche arbeiten. Er muss von beiden Eltern gleichzeitig für 2, 3 oder 4 aufeinanderfolgende Monate bezogen werden. Alleinerziehende können ihn auch alleine nutzen.",
+        "en": "The Partnerschaftsbonus is 2-4 additional ElterngeldPlus months per parent when both work between 24 and 32 hours per week simultaneously. It must be taken by both parents at the same time for 2, 3, or 4 consecutive months. Single parents can use it alone."
+      },
+      "tags": ["partnerschaftsbonus", "partnership bonus", "teilzeit", "24-32 stunden"]
+    },
+    {
+      "id": "work-003",
+      "category": "work",
+      "question": {
+        "de": "Wie wird mein Einkommen während des Elterngeldbezugs angerechnet?",
+        "en": "How is my income during Elterngeld offset?"
+      },
+      "answer": {
+        "de": "Ihr Einkommen während des Bezugs reduziert das Elterngeld, aber Sie haben trotzdem mehr Geld insgesamt. Formel: (Einkommen vor Geburt - Einkommen während Bezug) x 65%. Beispiel: 3.000€ vorher, 1.500€ während → (3.000-1.500) x 65% = 975€ Elterngeld + 1.500€ Gehalt = 2.475€ statt nur 1.950€ Elterngeld.",
+        "en": "Your income during the benefit period reduces Elterngeld, but you still have more money overall. Formula: (Income before birth - Income during benefit) x 65%. Example: €3,000 before, €1,500 during → (3,000-1,500) x 65% = €975 Elterngeld + €1,500 salary = €2,475 instead of just €1,950 Elterngeld."
+      },
+      "tags": ["anrechnung", "offset", "einkommen während", "income during", "teilzeit"]
+    },
+    {
+      "id": "work-004",
+      "category": "work",
+      "question": {
+        "de": "Zählt Urlaub zur 32-Stunden-Grenze?",
+        "en": "Does vacation count toward the 32-hour limit?"
+      },
+      "answer": {
+        "de": "Urlaubstage und Krankheitstage verringern Ihre wöchentliche Arbeitszeit nicht – sie werden so berechnet, als hätten Sie gearbeitet. Vorsicht bei bezahltem Urlaub während des Elterngeldbezugs: Das Urlaubsentgelt zählt als Einkommen und wird angerechnet. Es kann sogar dazu führen, dass Sie für diesen Monat kein Elterngeld bekommen.",
+        "en": "Vacation days and sick days don't reduce your weekly working time – they're calculated as if you worked. Caution with paid vacation during Elterngeld: Vacation pay counts as income and is offset. It can even result in receiving no Elterngeld for that month."
+      },
+      "tags": ["urlaub", "vacation", "krankheit", "sick", "32 stunden"]
+    },
+
+    {
+      "id": "application-001",
+      "category": "application",
+      "question": {
+        "de": "Wann sollte ich Elterngeld beantragen?",
+        "en": "When should I apply for Elterngeld?"
+      },
+      "answer": {
+        "de": "Sie sollten den Antrag stellen, sobald Ihr Kind geboren ist. Elterngeld wird maximal 3 Monate rückwirkend gezahlt. Wenn Sie ab Geburt Elterngeld bekommen möchten, sollten Sie den Antrag spätestens stellen, wenn Ihr Kind 3 Monate alt ist. Tipp: Bereiten Sie alles vor der Geburt vor!",
+        "en": "You should apply as soon as your child is born. Elterngeld is paid retroactively for max. 3 months. If you want Elterngeld from birth, apply at the latest when your child is 3 months old. Tip: Prepare everything before the birth!"
+      },
+      "tags": ["antrag", "application", "frist", "deadline", "wann", "when"]
+    },
+    {
+      "id": "application-002",
+      "category": "application",
+      "question": {
+        "de": "Wo stelle ich den Elterngeld-Antrag?",
+        "en": "Where do I apply for Elterngeld?"
+      },
+      "answer": {
+        "de": "Bei der Elterngeldstelle Ihres Bundeslandes. Die zuständige Stelle finden Sie unter www.familienportal.de. In manchen Bundesländern können Sie online beantragen (ElterngeldDigital). Beide Elternteile müssen den Antrag unterschreiben, auch wenn nur einer Elterngeld beantragt.",
+        "en": "At the Elterngeldstelle (parental allowance office) of your federal state. Find your responsible office at www.familienportal.de. In some states you can apply online (ElterngeldDigital). Both parents must sign the application, even if only one applies for Elterngeld."
+      },
+      "tags": ["antrag", "application", "elterngeldstelle", "wo", "where", "online"]
+    },
+    {
+      "id": "application-003",
+      "category": "application",
+      "question": {
+        "de": "Welche Unterlagen brauche ich für den Antrag?",
+        "en": "What documents do I need for the application?"
+      },
+      "answer": {
+        "de": "Wichtige Unterlagen: 1) Geburtsurkunde des Kindes (Original, speziell für Elterngeld), 2) Gehaltsabrechnungen der letzten 12 Monate vor Geburt, 3) Bescheinigung über Mutterschaftsgeld, 4) Arbeitgeberbescheinigung über Zuschuss zum Mutterschaftsgeld, 5) Bei Ausländern: Kopie des Aufenthaltstitels, 6) Bei Selbstständigen: Steuerbescheid.",
+        "en": "Important documents: 1) Child's birth certificate (original, special version for Elterngeld), 2) Pay slips from 12 months before birth, 3) Mutterschaftsgeld certificate, 4) Employer certificate about Mutterschaftsgeld supplement, 5) For foreigners: Copy of residence permit, 6) For self-employed: Tax assessment."
+      },
+      "tags": ["unterlagen", "documents", "nachweise", "geburtsurkunde", "gehaltsabrechnungen"]
+    },
+    {
+      "id": "application-004",
+      "category": "application",
+      "question": {
+        "de": "Muss mein Partner den Antrag auch unterschreiben?",
+        "en": "Does my partner also need to sign the application?"
+      },
+      "answer": {
+        "de": "Ja, beide Elternteile müssen den Antrag unterschreiben – auch wenn nur einer Elterngeld beantragt. Ausnahme: Alleinerziehende, die in Abschnitt 2.a des Antrags einen Grund angekreuzt haben (z.B. anderer Elternteil wohnt nicht mit Kind zusammen und Sie haben Steuerklasse II).",
+        "en": "Yes, both parents must sign the application – even if only one applies for Elterngeld. Exception: Single parents who checked a reason in section 2.a of the application (e.g., other parent doesn't live with the child and you have tax class II)."
+      },
+      "tags": ["unterschrift", "signature", "partner", "beide eltern"]
+    },
+    {
+      "id": "application-005",
+      "category": "application",
+      "question": {
+        "de": "Kann ich meinen Elterngeld-Antrag nachträglich ändern?",
+        "en": "Can I change my Elterngeld application later?"
+      },
+      "answer": {
+        "de": "Ja, Sie können Änderungen beantragen, solange der betreffende Lebensmonat noch nicht abgeschlossen ist. Für bereits abgeschlossene Monate sind Änderungen nur in Ausnahmefällen möglich, z.B. wenn die Änderung zu weniger Elterngeld führen würde oder bei schwerer Krankheit eines Elternteils.",
+        "en": "Yes, you can request changes as long as the relevant life month has not yet ended. For already completed months, changes are only possible in exceptional cases, e.g., if the change would result in less Elterngeld or in case of serious illness of a parent."
+      },
+      "tags": ["änderung", "change", "nachträglich", "anpassung", "later"]
+    },
+    {
+      "id": "application-006",
+      "category": "application",
+      "question": {
+        "de": "Was bedeutet 'vorläufiger Bescheid'?",
+        "en": "What does 'provisional decision' mean?"
+      },
+      "answer": {
+        "de": "Ein vorläufiger Bescheid bedeutet, dass Ihre Angaben noch nicht vollständig geprüft werden konnten (z.B. Steuerbescheid fehlt noch). Sie bekommen trotzdem Elterngeld, aber der Betrag kann sich später ändern. Nach endgültiger Prüfung erhalten Sie einen endgültigen Bescheid – eventuell mit Nachzahlung oder Rückforderung.",
+        "en": "A provisional decision means your information couldn't be fully verified yet (e.g., tax assessment still missing). You still receive Elterngeld, but the amount may change later. After final review, you'll receive a final decision – possibly with additional payment or reclaim."
+      },
+      "tags": ["vorläufig", "provisional", "bescheid", "decision", "endgültig", "final"]
+    },
+    {
+      "id": "application-007",
+      "category": "application",
+      "question": {
+        "de": "Wie lange dauert die Bearbeitung des Antrags?",
+        "en": "How long does application processing take?"
+      },
+      "answer": {
+        "de": "Die Bearbeitungszeit variiert je nach Bundesland und Auslastung, typischerweise 4-8 Wochen. Wenn Unterlagen fehlen, dauert es länger. Tipp: Reichen Sie den Antrag vollständig ein und rufen Sie nach 4 Wochen bei der Elterngeldstelle an, wenn Sie nichts gehört haben. Elterngeld wird rückwirkend gezahlt.",
+        "en": "Processing time varies by state and workload, typically 4-8 weeks. Missing documents cause delays. Tip: Submit a complete application and call the Elterngeldstelle after 4 weeks if you haven't heard back. Elterngeld is paid retroactively."
+      },
+      "tags": ["bearbeitungszeit", "processing time", "dauer", "duration", "warten", "waiting"]
+    },
+
+    {
+      "id": "mutterschaftsgeld-001",
+      "category": "mutterschaftsgeld",
+      "question": {
+        "de": "Wie wirkt sich Mutterschaftsgeld auf das Elterngeld aus?",
+        "en": "How does Mutterschaftsgeld affect Elterngeld?"
+      },
+      "answer": {
+        "de": "Mutterschaftsgeld und der Arbeitgeberzuschuss werden vollständig auf das Elterngeld angerechnet. Die Monate, in denen Sie Mutterschaftsgeld erhalten (meist Monat 1 und 2), gelten automatisch als Basiselterngeld-Monate. In dieser Zeit können Sie kein ElterngeldPlus beantragen. Das Mutterschaftsgeld ist aber meist höher, also kein Nachteil.",
+        "en": "Mutterschaftsgeld and the employer supplement are fully offset against Elterngeld. The months when you receive Mutterschaftsgeld (usually months 1 and 2) automatically count as Basiselterngeld months. You cannot apply for ElterngeldPlus during this time. However, Mutterschaftsgeld is usually higher, so there's no disadvantage."
+      },
+      "tags": ["mutterschaftsgeld", "maternity benefit", "anrechnung", "mutterschutz"]
+    },
+    {
+      "id": "mutterschaftsgeld-002",
+      "category": "mutterschaftsgeld",
+      "question": {
+        "de": "Was ist Mutterschaftsgeld?",
+        "en": "What is Mutterschaftsgeld (maternity benefit)?"
+      },
+      "answer": {
+        "de": "Mutterschaftsgeld ist eine Leistung während des Mutterschutzes (6 Wochen vor bis 8 Wochen nach der Geburt). Gesetzlich Versicherte bekommen max. 13€/Tag von der Krankenkasse + Arbeitgeberzuschuss (Differenz zum Nettogehalt). Privat Versicherte oder nicht Beschäftigte bekommen einmalig max. 210€ vom Bundesamt für Soziale Sicherung.",
+        "en": "Mutterschaftsgeld is a benefit during maternity protection (6 weeks before to 8 weeks after birth). Those with statutory insurance get max. €13/day from health insurance + employer supplement (difference to net salary). Privately insured or non-employed receive a one-time max. €210 from the Federal Office of Social Security."
+      },
+      "tags": ["mutterschaftsgeld", "maternity benefit", "mutterschutz", "maternity protection"]
+    },
+    {
+      "id": "mutterschaftsgeld-003",
+      "category": "mutterschaftsgeld",
+      "question": {
+        "de": "Ich bin privat versichert. Bekomme ich Mutterschaftsgeld?",
+        "en": "I have private insurance. Do I get Mutterschaftsgeld?"
+      },
+      "answer": {
+        "de": "Privat Versicherte bekommen kein Mutterschaftsgeld von der Krankenkasse. Sie können aber einmalig bis zu 210€ vom Bundesamt für Soziale Sicherung beantragen. Wenn Sie angestellt sind, zahlt Ihr Arbeitgeber während des Mutterschutzes Ihr volles Gehalt weiter (das ist dann kein Mutterschaftsgeld, sondern Mutterschutzlohn).",
+        "en": "Privately insured don't receive Mutterschaftsgeld from health insurance. You can apply for a one-time payment of up to €210 from the Federal Office of Social Security. If employed, your employer continues to pay your full salary during maternity protection (this is Mutterschutzlohn, not Mutterschaftsgeld)."
+      },
+      "tags": ["privat versichert", "private insurance", "mutterschaftsgeld", "mutterschutzlohn"]
+    },
+
+    {
+      "id": "elternzeit-001",
+      "category": "elternzeit",
+      "question": {
+        "de": "Was ist der Unterschied zwischen Elterngeld und Elternzeit?",
+        "en": "What's the difference between Elterngeld and Elternzeit?"
+      },
+      "answer": {
+        "de": "Elterngeld ist eine Geldleistung (Einkommensersatz). Elternzeit ist eine unbezahlte Freistellung von der Arbeit mit Rückkehrrecht. Elternzeit können Sie bis zu 3 Jahre nehmen, Elterngeld gibt es nur für max. 14 Monate (Basis) bzw. 28 Monate (Plus). Sie können Elterngeld ohne Elternzeit beziehen (bei Teilzeit ≤32h) oder Elternzeit ohne Elterngeld nehmen.",
+        "en": "Elterngeld is a cash benefit (income replacement). Elternzeit is unpaid leave from work with a right to return. You can take Elternzeit for up to 3 years, but Elterngeld is only available for max. 14 months (basic) or 28 months (Plus). You can receive Elterngeld without Elternzeit (with part-time ≤32h) or take Elternzeit without Elterngeld."
+      },
+      "tags": ["elternzeit", "parental leave", "unterschied", "difference"]
+    },
+    {
+      "id": "elternzeit-002",
+      "category": "elternzeit",
+      "question": {
+        "de": "Wie lange kann ich Elternzeit nehmen?",
+        "en": "How long can I take Elternzeit?"
+      },
+      "answer": {
+        "de": "Jeder Elternteil kann bis zu 3 Jahre Elternzeit nehmen – unabhängig vom anderen Elternteil. Die Elternzeit kann in bis zu 3 Abschnitte aufgeteilt werden. Mindestens 12 Monate müssen vor dem 3. Geburtstag genommen werden, bis zu 24 Monate können zwischen dem 3. und 8. Geburtstag übertragen werden.",
+        "en": "Each parent can take up to 3 years of Elternzeit – independent of the other parent. Elternzeit can be split into up to 3 periods. At least 12 months must be taken before the child's 3rd birthday, up to 24 months can be transferred to the period between the 3rd and 8th birthday."
+      },
+      "tags": ["elternzeit", "parental leave", "dauer", "duration", "3 jahre", "3 years"]
+    },
+    {
+      "id": "elternzeit-003",
+      "category": "elternzeit",
+      "question": {
+        "de": "Wann muss ich Elternzeit anmelden?",
+        "en": "When do I need to register Elternzeit?"
+      },
+      "answer": {
+        "de": "Elternzeit vor dem 3. Geburtstag: mindestens 7 Wochen vor Beginn schriftlich beim Arbeitgeber anmelden. Elternzeit zwischen 3. und 8. Geburtstag: mindestens 13 Wochen vorher. Für Mütter im Mutterschutz: 7 Wochen nach der Geburt. Bei der Anmeldung müssen Sie sich für die ersten 2 Jahre verbindlich festlegen.",
+        "en": "Elternzeit before 3rd birthday: register with employer in writing at least 7 weeks before start. Elternzeit between 3rd and 8th birthday: at least 13 weeks before. For mothers on maternity leave: 7 weeks after birth. When registering, you must commit to the first 2 years."
+      },
+      "tags": ["elternzeit", "anmeldung", "registration", "frist", "deadline", "7 wochen"]
+    },
+    {
+      "id": "elternzeit-004",
+      "category": "elternzeit",
+      "question": {
+        "de": "Habe ich während der Elternzeit Kündigungsschutz?",
+        "en": "Do I have protection against dismissal during Elternzeit?"
+      },
+      "answer": {
+        "de": "Ja, während der Elternzeit gilt besonderer Kündigungsschutz. Er beginnt frühestens 8 Wochen vor Beginn der Elternzeit (vor dem 3. Geburtstag) bzw. 14 Wochen (nach dem 3. Geburtstag). Eine Kündigung durch den Arbeitgeber ist nur in besonderen Ausnahmefällen mit Zustimmung der Behörde möglich.",
+        "en": "Yes, there is special protection against dismissal during Elternzeit. It starts at the earliest 8 weeks before Elternzeit begins (before 3rd birthday) or 14 weeks (after 3rd birthday). Dismissal by the employer is only possible in special exceptional cases with approval from the authorities."
+      },
+      "tags": ["kündigungsschutz", "protection", "dismissal", "entlassung", "kündigung"]
+    },
+    {
+      "id": "elternzeit-005",
+      "category": "elternzeit",
+      "question": {
+        "de": "Kann ich während der Elternzeit in Teilzeit arbeiten?",
+        "en": "Can I work part-time during Elternzeit?"
+      },
+      "answer": {
+        "de": "Ja! Sie können während der Elternzeit bis zu 32 Stunden pro Woche arbeiten. Sie haben sogar einen Rechtsanspruch auf Teilzeit bei Ihrem Arbeitgeber (bei Firmen mit >15 Mitarbeitern, wenn Sie >6 Monate beschäftigt sind). Sie können auch bei einem anderen Arbeitgeber arbeiten, brauchen aber die Zustimmung Ihres Hauptarbeitgebers.",
+        "en": "Yes! You can work up to 32 hours per week during Elternzeit. You even have a legal right to part-time work with your employer (in companies with >15 employees, if employed >6 months). You can also work for another employer but need consent from your main employer."
+      },
+      "tags": ["teilzeit", "part-time", "elternzeit", "32 stunden", "recht auf teilzeit"]
+    },
+
+    {
+      "id": "special-001",
+      "category": "special",
+      "question": {
+        "de": "Gibt es mehr Elterngeld bei Frühgeburten?",
+        "en": "Is there more Elterngeld for premature births?"
+      },
+      "answer": {
+        "de": "Ja, bei Kindern, die mindestens 6 Wochen vor dem errechneten Termin geboren werden, gibt es zusätzliche Basiselterngeld-Monate: 6 Wochen zu früh = 1 extra Monat, 8 Wochen = 2 extra, 12 Wochen = 3 extra, 16 Wochen = 4 extra Monate. Außerdem können beide Eltern bei Frühchen länger gleichzeitig Basiselterngeld beziehen.",
+        "en": "Yes, for children born at least 6 weeks before the due date, there are additional Basiselterngeld months: 6 weeks early = 1 extra month, 8 weeks = 2 extra, 12 weeks = 3 extra, 16 weeks = 4 extra months. Additionally, both parents can receive Basiselterngeld simultaneously longer with premature babies."
+      },
+      "tags": ["frühgeburt", "premature", "frühchen", "zusätzliche monate", "extra months"]
+    },
+    {
+      "id": "special-002",
+      "category": "special",
+      "question": {
+        "de": "Bekomme ich als Alleinerziehende/r mehr Elterngeld?",
+        "en": "Do I get more Elterngeld as a single parent?"
+      },
+      "answer": {
+        "de": "Nicht mehr Geld, aber mehr Monate: Als Alleinerziehende/r können Sie alle 14 Monate Basiselterngeld alleine bekommen (statt 12+2 Partnermonate). Sie können auch den Partnerschaftsbonus alleine nutzen. Als alleinerziehend gelten Sie, wenn der andere Elternteil nicht mit Ihnen und dem Kind zusammenwohnt UND Sie den steuerlichen Entlastungsbetrag erhalten.",
+        "en": "Not more money, but more months: As a single parent, you can receive all 14 months of Basiselterngeld alone (instead of 12+2 partner months). You can also use the Partnerschaftsbonus alone. You qualify as single parent if the other parent doesn't live with you and the child AND you receive the tax relief for single parents."
+      },
+      "tags": ["alleinerziehend", "single parent", "14 monate", "steuerklasse II"]
+    },
+    {
+      "id": "special-003",
+      "category": "special",
+      "question": {
+        "de": "Wie werden Selbstständige beim Elterngeld behandelt?",
+        "en": "How are self-employed treated for Elterngeld?"
+      },
+      "answer": {
+        "de": "Bei Selbstständigen gilt das letzte abgeschlossene Steuerjahr vor der Geburt als Bemessungszeitraum (nicht die 12 Monate vor Geburt). Als Nachweis dient der Steuerbescheid oder eine Einnahmen-Überschuss-Rechnung. Das Einkommen während des Bezugs wird auf Basis einer Prognose berechnet und später mit dem tatsächlichen Einkommen abgeglichen.",
+        "en": "For self-employed, the last completed tax year before birth is the assessment period (not 12 months before birth). The tax assessment or income statement serves as proof. Income during the benefit period is calculated based on a forecast and later reconciled with actual income."
+      },
+      "tags": ["selbstständig", "self-employed", "freiberufler", "steuerbescheid", "gewinn"]
+    },
+    {
+      "id": "special-004",
+      "category": "special",
+      "question": {
+        "de": "Bekomme ich Elterngeld, wenn mein Kind eine Behinderung hat?",
+        "en": "Can I get Elterngeld if my child has a disability?"
+      },
+      "answer": {
+        "de": "Ja, und es gibt Erleichterungen: Bei Kindern mit Behinderung können beide Eltern länger als einen Monat gleichzeitig Basiselterngeld beziehen (wie bei Frühchen und Mehrlingen). Außerdem zählt ein Kind mit Behinderung unter 14 Jahren für den Geschwisterbonus. Sie brauchen eine ärztliche Bescheinigung oder einen Schwerbehindertenausweis.",
+        "en": "Yes, and there are accommodations: For children with disability, both parents can receive Basiselterngeld simultaneously for more than one month (like premature births and multiples). Also, a child with disability under 14 counts for the sibling bonus. You need a medical certificate or disability ID."
+      },
+      "tags": ["behinderung", "disability", "kind mit behinderung", "schwerbehindertenausweis"]
+    },
+
+    {
+      "id": "insurance-001",
+      "category": "insurance",
+      "question": {
+        "de": "Was passiert mit meiner Krankenversicherung während des Elterngeldbezugs?",
+        "en": "What happens to my health insurance during Elterngeld?"
+      },
+      "answer": {
+        "de": "Gesetzlich Pflichtversicherte: beitragsfrei während Elternzeit ohne Einkommen. Freiwillig Versicherte: Mindestbeitrag fällt an, aber Familienversicherung beim Partner oft möglich. Privat Versicherte: Beiträge laufen weiter. Das Elterngeld selbst ist in allen Fällen beitragsfrei (es werden keine Beiträge davon abgezogen).",
+        "en": "Statutory mandatory insured: contribution-free during Elternzeit without income. Voluntarily insured: minimum contribution applies, but family insurance with partner often possible. Privately insured: premiums continue. Elterngeld itself is contribution-free in all cases (no contributions deducted from it)."
+      },
+      "tags": ["krankenversicherung", "health insurance", "beiträge", "contributions"]
+    },
+    {
+      "id": "insurance-002",
+      "category": "insurance",
+      "question": {
+        "de": "Kann mein Baby über mich krankenversichert werden?",
+        "en": "Can my baby be insured through me?"
+      },
+      "answer": {
+        "de": "In der gesetzlichen Krankenversicherung (GKV) ist Ihr Baby automatisch beitragsfrei familienversichert. Bei privater Krankenversicherung (PKV) müssen Sie Ihr Baby separat versichern (ca. 100-200€/Monat). Gemischte Paare (einer GKV, einer PKV): komplizierte Regeln, abhängig von Einkommen – lassen Sie sich beraten!",
+        "en": "In statutory health insurance (GKV), your baby is automatically covered contribution-free through family insurance. With private insurance (PKV), you must insure your baby separately (approx. €100-200/month). Mixed couples (one GKV, one PKV): complicated rules depending on income – get advice!"
+      },
+      "tags": ["baby versichern", "baby insurance", "familienversicherung", "family insurance"]
+    },
+
+    {
+      "id": "tax-001",
+      "category": "tax",
+      "question": {
+        "de": "Muss ich Elterngeld versteuern?",
+        "en": "Do I have to pay tax on Elterngeld?"
+      },
+      "answer": {
+        "de": "Elterngeld ist steuerfrei, unterliegt aber dem Progressionsvorbehalt. Das bedeutet: Es wird zu Ihrem anderen Einkommen hinzugerechnet, um den Steuersatz zu ermitteln. Dadurch kann sich die Steuer auf Ihr übriges Einkommen erhöhen. Machen Sie auf jeden Fall eine Steuererklärung – manchmal gibt es auch Rückerstattungen!",
+        "en": "Elterngeld is tax-free but subject to Progressionsvorbehalt (progression proviso). This means: It's added to your other income to determine the tax rate. This can increase tax on your other income. Definitely file a tax return – sometimes you even get refunds!"
+      },
+      "tags": ["steuern", "taxes", "progressionsvorbehalt", "steuerklasse", "steuererklärung"]
+    },
+    {
+      "id": "tax-002",
+      "category": "tax",
+      "question": {
+        "de": "Brauche ich eine Steuer-ID für den Elterngeld-Antrag?",
+        "en": "Do I need a tax ID for the Elterngeld application?"
+      },
+      "answer": {
+        "de": "Ja, Sie müssen Ihre Steuer-Identifikationsnummer (Steuer-ID) im Antrag angeben. Jede Person in Deutschland bekommt automatisch eine Steuer-ID. Sie finden sie auf Ihrem Einkommensteuerbescheid, Ihrer Lohnsteuerbescheinigung, oder dem Brief 'Zuteilung der Identifikationsnummer' vom Bundeszentralamt für Steuern.",
+        "en": "Yes, you must provide your tax identification number (Steuer-ID) in the application. Everyone in Germany automatically receives a Steuer-ID. You can find it on your income tax assessment, wage tax certificate, or the letter 'Assignment of Identification Number' from the Federal Central Tax Office."
+      },
+      "tags": ["steuer-id", "tax id", "identifikationsnummer", "steuernummer"]
+    },
+
+    {
+      "id": "other-benefits-001",
+      "category": "other_benefits",
+      "question": {
+        "de": "Wie wirkt sich Elterngeld auf Bürgergeld aus?",
+        "en": "How does Elterngeld affect Bürgergeld (welfare)?"
+      },
+      "answer": {
+        "de": "Elterngeld wird grundsätzlich als Einkommen auf das Bürgergeld angerechnet. Ausnahme: Wenn Sie vor der Geburt erwerbstätig waren, bleibt ein Freibetrag von bis zu 300€ anrechnungsfrei (bei ElterngeldPlus 150€). Der Mindestbetrag ist also für Erwerbstätige zusätzlich zum Bürgergeld.",
+        "en": "Elterngeld is generally counted as income against Bürgergeld. Exception: If you were employed before birth, an allowance of up to €300 remains exempt (€150 for ElterngeldPlus). So the minimum amount is additional to Bürgergeld for employed persons."
+      },
+      "tags": ["bürgergeld", "welfare", "anrechnung", "freibetrag", "hartz iv"]
+    },
+    {
+      "id": "other-benefits-002",
+      "category": "other_benefits",
+      "question": {
+        "de": "Bekomme ich Elterngeld, wenn ich Arbeitslosengeld beziehe?",
+        "en": "Can I get Elterngeld while receiving unemployment benefits?"
+      },
+      "answer": {
+        "de": "Ja, aber das Arbeitslosengeld I (ALG I) wird auf das Elterngeld angerechnet. Der Mindestbetrag von 300€ bleibt Ihnen aber zusätzlich. Wichtig: Während Sie Elterngeld beziehen, müssen Sie dem Arbeitsmarkt nicht zur Verfügung stehen. Sie sollten sich aber mit der Arbeitsagentur abstimmen.",
+        "en": "Yes, but unemployment benefit I (ALG I) is offset against Elterngeld. However, the minimum amount of €300 remains additional. Important: While receiving Elterngeld, you don't need to be available for the job market. But you should coordinate with the employment agency."
+      },
+      "tags": ["arbeitslosengeld", "unemployment", "alg", "anrechnung"]
+    },
+
+    {
+      "id": "planning-001",
+      "category": "planning",
+      "question": {
+        "de": "Wie teilen wir die Elterngeld-Monate am besten auf?",
+        "en": "How should we best split the Elterngeld months?"
+      },
+      "answer": {
+        "de": "Die optimale Aufteilung hängt von Ihrer Situation ab. Typische Modelle: 1) Klassisch: Mutter 12 Monate + Vater 2 Monate. 2) Partnerschaftlich: 7+7 Monate. 3) Mit Teilzeit: Basiselterngeld + ElterngeldPlus kombinieren für längeren Bezug. 4) Mit Partnerschaftsbonus: Wenn beide 24-32h arbeiten wollen. Nutzen Sie den Elterngeldrechner auf familienportal.de!",
+        "en": "The optimal split depends on your situation. Typical models: 1) Classic: Mother 12 months + Father 2 months. 2) Partnership: 7+7 months. 3) With part-time: Combine Basiselterngeld + ElterngeldPlus for longer benefit. 4) With Partnerschaftsbonus: If both want to work 24-32h. Use the calculator at familienportal.de!"
+      },
+      "tags": ["aufteilung", "split", "planung", "planning", "modelle", "models"]
+    },
+    {
+      "id": "planning-002",
+      "category": "planning",
+      "question": {
+        "de": "Was ist besser: Basiselterngeld oder ElterngeldPlus?",
+        "en": "What's better: Basiselterngeld or ElterngeldPlus?"
+      },
+      "answer": {
+        "de": "Kommt auf Ihre Pläne an: Basiselterngeld ist besser, wenn Sie nicht arbeiten wollen (volle 65%). ElterngeldPlus lohnt sich, wenn Sie in Teilzeit arbeiten – dann kann das monatliche ElterngeldPlus genauso hoch sein wie Basiselterngeld mit Teilzeit, aber Sie bekommen es doppelt so lange. Bei 50% Teilzeit ist ElterngeldPlus meist vorteilhafter.",
+        "en": "Depends on your plans: Basiselterngeld is better if you don't want to work (full 65%). ElterngeldPlus is worthwhile for part-time work – monthly ElterngeldPlus can equal Basiselterngeld with part-time, but you receive it twice as long. At 50% part-time, ElterngeldPlus is usually more advantageous."
+      },
+      "tags": ["vergleich", "comparison", "basiselterngeld", "elterngeldplus", "was ist besser"]
+    },
+    {
+      "id": "planning-003",
+      "category": "planning",
+      "question": {
+        "de": "Kann ich meine Planung später noch ändern?",
+        "en": "Can I change my planning later?"
+      },
+      "answer": {
+        "de": "Ja, solange der betreffende Lebensmonat noch nicht begonnen hat, können Sie Ihre Planung ändern (z.B. von Basiselterngeld zu ElterngeldPlus wechseln oder Monate verschieben). Für bereits laufende oder abgeschlossene Monate sind Änderungen nur in Ausnahmefällen möglich. Planen Sie daher sorgfältig, aber unter Stress ist Änderung möglich.",
+        "en": "Yes, as long as the relevant life month hasn't started yet, you can change your planning (e.g., switch from Basiselterngeld to ElterngeldPlus or shift months). For ongoing or completed months, changes are only possible in exceptional cases. So plan carefully, but changes are possible if needed."
+      },
+      "tags": ["änderung", "change", "planung", "planning", "flexibilität", "flexibility"]
+    },
+    {
+      "id": "planning-004",
+      "category": "planning",
+      "question": {
+        "de": "Sollte ich Elternzeit und Elterngeld gleich planen?",
+        "en": "Should I plan Elternzeit and Elterngeld together?"
+      },
+      "answer": {
+        "de": "Ja, unbedingt! Wichtig: Planen Sie Ihre Elternzeit nach Lebensmonaten des Kindes, nicht nach Kalendermonaten. Wenn Ihre Elternzeit mitten in einem Lebensmonat endet, bekommen Sie für die Arbeitstage in diesem Monat Einkommen angerechnet und weniger Elterngeld. Stimmen Sie die Zeiträume genau ab!",
+        "en": "Yes, definitely! Important: Plan your Elternzeit according to the child's life months, not calendar months. If your Elternzeit ends mid-life-month, you'll have income from working days in that month offset against your Elterngeld. Align the periods precisely!"
+      },
+      "tags": ["elternzeit", "planung", "planning", "lebensmonate", "abstimmung"]
+    },
+
+    {
+      "id": "practical-001",
+      "category": "practical",
+      "question": {
+        "de": "Wo finde ich den Elterngeldrechner?",
+        "en": "Where can I find the Elterngeld calculator?"
+      },
+      "answer": {
+        "de": "Den offiziellen Elterngeldrechner finden Sie unter www.familienportal.de. Damit können Sie verschiedene Szenarien durchspielen: Basiselterngeld vs. ElterngeldPlus, verschiedene Aufteilungen zwischen den Eltern, Auswirkungen von Teilzeitarbeit. Der Rechner gibt eine unverbindliche Schätzung – der genaue Betrag wird von der Elterngeldstelle berechnet.",
+        "en": "The official Elterngeld calculator is at www.familienportal.de. You can try different scenarios: Basiselterngeld vs. ElterngeldPlus, different splits between parents, effects of part-time work. The calculator gives a non-binding estimate – the exact amount is calculated by the Elterngeldstelle."
+      },
+      "tags": ["rechner", "calculator", "familienportal", "online tool"]
+    },
+    {
+      "id": "practical-002",
+      "category": "practical",
+      "question": {
+        "de": "Was ist ElterngeldDigital?",
+        "en": "What is ElterngeldDigital?"
+      },
+      "answer": {
+        "de": "ElterngeldDigital ist ein Online-Antragsverfahren, das in vielen Bundesländern verfügbar ist (z.B. Bayern, Berlin, Hamburg, Sachsen und mehr). Sie können den Antrag am Computer ausfüllen, Daten werden teilweise automatisch übernommen, und Sie können Dokumente hochladen. Am Ende müssen Sie den Antrag aber ausdrucken, unterschreiben und einschicken.",
+        "en": "ElterngeldDigital is an online application process available in many federal states (e.g., Bavaria, Berlin, Hamburg, Saxony, and more). You can fill out the application on the computer, some data is automatically transferred, and you can upload documents. In the end, you still need to print, sign, and mail the application."
+      },
+      "tags": ["elterngelddigital", "online antrag", "online application", "digital"]
+    },
+    {
+      "id": "practical-003",
+      "category": "practical",
+      "question": {
+        "de": "Was mache ich, wenn sich meine Situation ändert?",
+        "en": "What do I do if my situation changes?"
+      },
+      "answer": {
+        "de": "Sie müssen Ihre Elterngeldstelle sofort informieren bei: Umzug, Kind lebt nicht mehr bei Ihnen, Sie beginnen/beenden eine Arbeit, Ihre Arbeitszeit ändert sich, Ihr Einkommen ändert sich, Ihre Bankverbindung ändert sich. Nicht melden kann zu Rückforderungen und im schlimmsten Fall zu Bußgeldern führen.",
+        "en": "You must inform your Elterngeldstelle immediately if: You move, child no longer lives with you, you start/end a job, your working hours change, your income changes, your bank details change. Failure to report can lead to reclaims and in worst cases fines."
+      },
+      "tags": ["änderung melden", "report changes", "pflicht", "obligation", "umzug", "moving"]
+    },
+    {
+      "id": "practical-004",
+      "category": "practical",
+      "question": {
+        "de": "Wann wird das Elterngeld ausgezahlt?",
+        "en": "When is Elterngeld paid out?"
+      },
+      "answer": {
+        "de": "Elterngeld wird monatlich im Voraus ausgezahlt, normalerweise am Anfang oder Mitte des Monats (je nach Bundesland). Die erste Zahlung erfolgt nach Bewilligung rückwirkend für alle bisherigen Lebensmonate. Ab dann bekommen Sie monatlich automatisch die Zahlung.",
+        "en": "Elterngeld is paid monthly in advance, usually at the beginning or middle of the month (depending on the state). The first payment is made retroactively for all previous life months after approval. After that, you receive automatic monthly payments."
+      },
+      "tags": ["auszahlung", "payment", "wann", "when", "überweisung", "transfer"]
+    }
+  ]
+}

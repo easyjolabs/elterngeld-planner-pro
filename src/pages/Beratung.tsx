@@ -1,9 +1,15 @@
+import { useState } from "react";
+import ElterngeldChat from "@/components/ElterngeldChat";
+
 const Beratung = () => {
+  const [isChatOpen, setIsChatOpen] = useState(true);
+
   return (
-    <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Elterngeld Chat</h1>
-      <p>Coming Soon</p>
-    </div>
+    <ElterngeldChat
+      isOpen={isChatOpen}
+      onClose={() => setIsChatOpen(false)}
+      language="en"
+    />
   );
 };
 
