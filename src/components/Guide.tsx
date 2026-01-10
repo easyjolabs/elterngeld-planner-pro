@@ -1943,13 +1943,37 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
             subtext: "Premature births qualify for extra Elterngeld months.",
             input: "buttons" as const,
             field: "premature",
-        options: [
-          { value: "no", label: "No, born on time", icon: "check" },
-          { value: "6weeks", label: "6+ weeks early", icon: "calendar", accent: "basis" as const, note: "+1 month" },
-          { value: "8weeks", label: "8+ weeks early", icon: "calendar", accent: "basis" as const, note: "+2 months" },
-          { value: "12weeks", label: "12+ weeks early", icon: "calendar", accent: "basis" as const, note: "+3 months" },
-          { value: "16weeks", label: "16+ weeks early", icon: "calendar", accent: "basis" as const, note: "+4 months" },
-        ] as ButtonOption[],
+            options: [
+              { value: "no", label: "No, born on time", icon: "check" },
+              {
+                value: "6weeks",
+                label: "6+ weeks early",
+                icon: "calendar",
+                accent: "basis" as const,
+                note: "+1 month",
+              },
+              {
+                value: "8weeks",
+                label: "8+ weeks early",
+                icon: "calendar",
+                accent: "basis" as const,
+                note: "+2 months",
+              },
+              {
+                value: "12weeks",
+                label: "12+ weeks early",
+                icon: "calendar",
+                accent: "basis" as const,
+                note: "+3 months",
+              },
+              {
+                value: "16weeks",
+                label: "16+ weeks early",
+                icon: "calendar",
+                accent: "basis" as const,
+                note: "+4 months",
+              },
+            ] as ButtonOption[],
           };
           streamMessage(prematureMsg, () => {
             setShowInput(prematureMsg);
@@ -4935,12 +4959,12 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           const hasArrow = opt.label.includes("→");
           const labelText = hasArrow ? opt.label.replace("→", "").trim() : opt.label;
           const shouldCenter = hasArrow && !opt.icon && !opt.note;
-          
+
           return (
             <button
               key={i}
               onClick={() => onSelect(opt.value, opt.label)}
-              className={`w-full px-3.5 py-2.5 rounded-xl transition-all flex items-center hover:border-stone-400 ${shouldCenter ? 'justify-between' : 'justify-between text-left'}`}
+              className={`w-full px-3.5 py-2.5 rounded-xl transition-all flex items-center hover:border-stone-400 ${shouldCenter ? "justify-between" : "justify-between text-left"}`}
               style={{ backgroundColor: colors.white, border: `1.5px solid ${colors.border}` }}
             >
               {shouldCenter ? (
@@ -4949,7 +4973,9 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   <span className="text-[14px] font-medium" style={{ color: colors.textDark }}>
                     {labelText}
                   </span>
-                  <span className="text-[18px]" style={{ color: colors.textDark }}>→</span>
+                  <span className="text-[18px]" style={{ color: colors.textDark }}>
+                    →
+                  </span>
                 </>
               ) : (
                 <>
@@ -4988,7 +5014,9 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                       </span>
                     )}
                     {hasArrow && (
-                      <span className="text-[18px]" style={{ color: colors.textDark }}>→</span>
+                      <span className="text-[18px]" style={{ color: colors.textDark }}>
+                        →
+                      </span>
                     )}
                   </div>
                 </>
