@@ -4,13 +4,13 @@ import Sidebar, { SidebarView } from './Sidebar';
 const routeToView: Record<string, SidebarView> = {
   '/': 'home',
   '/guide': 'guide',
-  '/beratung': 'chat',
+  '/chat': 'chat',
 };
 
 const viewToRoute: Record<SidebarView, string> = {
   'home': '/',
   'guide': '/guide',
-  'chat': '/beratung',
+  'chat': '/chat',
   'pdf': '/',
 };
 
