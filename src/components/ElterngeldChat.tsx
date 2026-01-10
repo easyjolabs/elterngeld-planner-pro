@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 
 // ===========================================
 // TYPES
@@ -15,28 +16,6 @@ interface ElterngeldChatProps {
   language?: "en" | "de";
 }
 
-// ===========================================
-// TEXT FORMATTING
-// ===========================================
-const formatText = (text: string | undefined): React.ReactNode => {
-  if (!text) return null;
-
-  const parts = text.split(/(\*\*.*?\*\*|\[info:.*?\])/);
-
-  return parts.map((part, index) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return (
-        <strong key={index} className="font-semibold text-foreground">
-          {part.slice(2, -2)}
-        </strong>
-      );
-    }
-    if (part.startsWith("[info:") && part.endsWith("]")) {
-      return null;
-    }
-    return <span key={index}>{part}</span>;
-  });
-};
 
 // ===========================================
 // STREAMING CHAT FUNCTION
@@ -400,13 +379,11 @@ const ElterngeldChat: React.FC<ElterngeldChatProps> = ({
                         <p className="text-[15px] leading-relaxed">{msg.content}</p>
                       </div>
                     ) : (
-                      <div className="max-w-[90%]">
-                        <p className="text-[15px] leading-relaxed text-foreground">
-                          {formatText(msg.content)}
-                          {isCurrentlyStreaming && (
-                            <span className="inline-block w-2 h-2 ml-1 rounded-full align-middle bg-muted-foreground animate-pulse" />
-                          )}
-                        </p>
+                      <div className="max-w-[90%] text-[15px] leading-relaxed text-foreground prose prose-sm max-w-none prose-p:my-2 prose-ul:my-2 prose-ul:pl-5 prose-li:my-0.5 prose-strong:text-foreground prose-strong:font-semibold">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                        {isCurrentlyStreaming && (
+                          <span className="inline-block w-2 h-2 ml-1 rounded-full align-middle bg-muted-foreground animate-pulse" />
+                        )}
                       </div>
                     )}
                   </div>
