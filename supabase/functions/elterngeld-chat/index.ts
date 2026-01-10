@@ -40,7 +40,18 @@ serve(async (req) => {
 
     if (searchError) {
       console.error("FAQ search error:", searchError);
-      // Continue without FAQs if search fails
+    }
+
+    // Log found FAQs with their rank scores
+    if (faqs && faqs.length > 0) {
+      console.log("=== RAG Search Results ===");
+      faqs.forEach((faq: any, index: number) => {
+        console.log(`[${index + 1}] Rank: ${faq.rank?.toFixed(4)} | Category: ${faq.category}`);
+        console.log(`    Q_EN: ${faq.question_en?.substring(0, 80)}...`);
+      });
+      console.log("==========================");
+    } else {
+      console.log("No FAQs found for query:", message);
     }
 
     console.log(`Found ${faqs?.length || 0} relevant FAQs`);
