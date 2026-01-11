@@ -71,12 +71,11 @@ const SettingsPage: React.FC = () => {
     // Wait for auth to finish loading
     if (authLoading) return;
 
-    if (!user) {
-      navigate("/guide");
-      return;
+    if (user) {
+      loadUserData();
+    } else {
+      setIsLoading(false);
     }
-
-    loadUserData();
   }, [user, authLoading]);
 
   const loadUserData = async () => {
@@ -203,6 +202,62 @@ const SettingsPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: colors.background }}>
         <div className="w-6 h-6 border-2 border-stone-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Not logged in - show sign in prompt
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: colors.background }}>
+        {/* Header */}
+        <div className="flex-shrink-0" style={{ backgroundColor: colors.background }}>
+          <div className="px-5 py-3">
+            <div className="max-w-2xl mx-auto flex items-center justify-between">
+              <button
+                onClick={handleBack}
+                className="w-8 h-8 flex items-center justify-center transition-all hover:opacity-60"
+                title="Back"
+              >
+                <svg className="w-5 h-5" fill="none" stroke={colors.textDark} strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <h1 className="text-base font-semibold" style={{ color: colors.textDark }}>
+                Settings
+              </h1>
+              <div className="w-8" />
+            </div>
+          </div>
+          <div className="h-px w-full" style={{ backgroundColor: colors.border }}></div>
+        </div>
+
+        {/* Sign in prompt */}
+        <div className="flex-1 flex items-center justify-center p-5">
+          <div className="text-center max-w-sm">
+            <div
+              className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center"
+              style={{ backgroundColor: colors.tile }}
+            >
+              <svg className="w-8 h-8" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold mb-2" style={{ color: colors.textDark }}>
+              Sign in to access settings
+            </h2>
+            <p className="text-sm mb-6" style={{ color: colors.text }}>
+              Create an account or sign in to manage your profile and saved plans.
+            </p>
+            <button
+              onClick={handleBack}
+              className="px-6 py-2.5 rounded-xl text-sm font-semibold"
+              style={{ backgroundColor: colors.buttonDark, color: colors.white }}
+            >
+              Go back
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
