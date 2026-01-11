@@ -23,6 +23,7 @@ interface LoginModalProps {
   onClose: () => void;
   title?: string;
   description?: string;
+  showConsent?: boolean;
 }
 
 // ===========================================
@@ -33,10 +34,12 @@ const LoginModal: React.FC<LoginModalProps> = ({
   onClose,
   title = "Sign in",
   description = "Enter your email to receive a magic link.",
+  showConsent = false,
 }) => {
   const { signInWithEmail } = useAuth();
 
   const [email, setEmail] = useState("");
+  const [emailConsent, setEmailConsent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState("");
@@ -54,7 +57,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     setIsLoading(true);
     setError("");
 
-    const { error: signInError } = await signInWithEmail(email);
+    const { error: signInError } = await signInWithEmail(email, showConsent ? emailConsent : undefined);
 
     if (signInError) {
       setError(signInError.message);
@@ -69,7 +72,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     setIsLoading(true);
     setError("");
 
-    const { error: signInError } = await signInWithEmail(email);
+    const { error: signInError } = await signInWithEmail(email, showConsent ? emailConsent : undefined);
 
     setIsLoading(false);
     if (signInError) {
@@ -80,6 +83,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const handleClose = () => {
     // Reset state when closing
     setEmail("");
+    setEmailConsent(false);
     setEmailSent(false);
     setError("");
     onClose();
@@ -247,6 +251,22 @@ const LoginModal: React.FC<LoginModalProps> = ({
               <p className="text-[12px] mb-3 -mt-2" style={{ color: colors.error }}>
                 {error}
               </p>
+            )}
+
+            {/* Email Consent Checkbox - only shown when showConsent is true */}
+            {showConsent && (
+              <label className="flex items-start gap-2.5 mb-4 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={emailConsent}
+                  onChange={(e) => setEmailConsent(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded"
+                  style={{ accentColor: colors.buttonDark }}
+                />
+                <span className="text-[12px] leading-snug" style={{ color: colors.text }}>
+                  Send me a reminder before my application deadline and helpful tips about Elterngeld.
+                </span>
+              </label>
             )}
 
             {/* Email Button */}
