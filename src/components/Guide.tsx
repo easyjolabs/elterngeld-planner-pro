@@ -1349,10 +1349,10 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     localStorage.setItem(PENDING_PLAN_STORAGE_KEY, JSON.stringify(pendingPlan));
   }, [plannerData, data, selectedState, sliderValue, partnerSliderValue]);
 
-  // Load and save pending plan after login
+  // Load and save pending plan after login - returns plan data for UI restoration
   const loadAndSavePendingPlan = useCallback(async (userId: string) => {
     const stored = localStorage.getItem(PENDING_PLAN_STORAGE_KEY);
-    if (!stored) return false;
+    if (!stored) return null;
 
     try {
       const pendingPlan = JSON.parse(stored);
@@ -1360,7 +1360,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
       // Max 24 hours old
       if (Date.now() - pendingPlan.timestamp > 86400000) {
         localStorage.removeItem(PENDING_PLAN_STORAGE_KEY);
-        return false;
+        return null;
       }
 
       // Save to Supabase
@@ -1372,20 +1372,38 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
       }, { onConflict: 'user_id' });
 
       localStorage.removeItem(PENDING_PLAN_STORAGE_KEY);
-      return true;
+      return pendingPlan; // Return full plan for UI restoration
     } catch (err) {
       console.error('Error loading pending plan:', err);
-      return false;
+      return null;
     }
   }, []);
 
-  // Save pending plan from localStorage after user logs in
+  // Save pending plan from localStorage after user logs in and restore UI state
   useEffect(() => {
     if (!user) return;
 
     // Check for pending plan from localStorage first
-    loadAndSavePendingPlan(user.id).then(saved => {
-      if (saved) {
+    loadAndSavePendingPlan(user.id).then(pendingPlan => {
+      if (pendingPlan) {
+        // Restore UI state from pending plan
+        if (pendingPlan.plannerData) setPlannerData(pendingPlan.plannerData);
+        if (pendingPlan.userData) setData(pendingPlan.userData);
+        if (pendingPlan.selectedState) setSelectedState(pendingPlan.selectedState);
+        if (pendingPlan.sliderValue !== undefined) setSliderValue(pendingPlan.sliderValue);
+        if (pendingPlan.partnerSliderValue !== undefined) setPartnerSliderValue(pendingPlan.partnerSliderValue);
+
+        // Set messages to show the planner - user continues where they left off
+        setMessages([
+          { type: "bot", content: "Welcome back! Your plan has been saved. You can continue editing below." },
+          { type: "component", component: "planner" },
+        ]);
+        messagesLengthRef.current = 2;
+        setIsPaused(true);
+        setShowInput({ type: "bot", pause: true, pauseLabel: "Continue to application →" });
+        setStep(99);
+
+        // Close modal
         setShowPlannerSaveInput(false);
         setPlannerEmailSent(false);
       }
