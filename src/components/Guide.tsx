@@ -11,6 +11,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ElterngeldPlanner, { PlannerMonth } from "@/components/ElterngeldPlanner";
+import LoginModal from "@/components/LoginModal";
 
 // ===========================================
 // TYPES
@@ -1198,13 +1199,8 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   });
   const [showInput, setShowInput] = useState<FlowMessage | null>(null);
 
-  // Planner save email state
+  // Planner save modal state
   const [showPlannerSaveInput, setShowPlannerSaveInput] = useState(false);
-  const [plannerSaveEmail, setPlannerSaveEmail] = useState("");
-  const [plannerEmailSaving, setPlannerEmailSaving] = useState(false);
-  const [plannerEmailSent, setPlannerEmailSent] = useState(false);
-  const [plannerEmailError, setPlannerEmailError] = useState("");
-  const [emailConsent, setEmailConsent] = useState(false);
 
   // CTA Card state (lifted up to prevent re-render reset)
   const [ctaStep, setCtaStep] = useState(1);
@@ -2523,255 +2519,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
     return <div className="py-3">{calculationCardContent}</div>;
   };
 
-  // Save/Sign Up Popup Modal - rendered at top level
-  const SavePlannerModal = () => (
-    <>
-      {showPlannerSaveInput && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.4)" }}
-          onClick={() => {
-            if (!plannerEmailSent) setShowPlannerSaveInput(false);
-          }}
-        >
-          <div
-            className="mx-4 w-full max-w-sm rounded-2xl p-6 relative"
-            style={{ backgroundColor: colors.white }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close X Button - only show before email is sent */}
-            {!plannerEmailSent && (
-              <button
-                onClick={() => {
-                  setShowPlannerSaveInput(false);
-                  setPlannerEmailSent(false);
-                  setPlannerEmailError("");
-                }}
-                className="absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100 transition-colors"
-                style={{ color: colors.text }}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
-
-            {/* Check your email screen */}
-            {plannerEmailSent ? (
-              <div className="text-center">
-                {/* Email Icon */}
-                <div
-                  className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center"
-                  style={{ backgroundColor: colors.tile }}
-                >
-                  <svg
-                    className="w-8 h-8"
-                    style={{ color: colors.textDark }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
-                    />
-                  </svg>
-                </div>
-
-                <p className="text-[20px] font-semibold mb-2" style={{ color: colors.textDark }}>
-                  Check your email
-                </p>
-                <p className="text-[14px] mb-1" style={{ color: colors.text }}>
-                  We sent a login link to
-                </p>
-                <p className="text-[14px] font-medium mb-4" style={{ color: colors.textDark }}>
-                  {plannerSaveEmail}
-                </p>
-                <p className="text-[13px] mb-6" style={{ color: colors.text }}>
-                  Click the link to save your plan. The link expires in 24 hours.
-                </p>
-
-                {/* Resend button */}
-                <button
-                  onClick={async () => {
-                    setPlannerEmailSaving(true);
-                    setPlannerEmailError("");
-                    const { error } = await signInWithEmail(plannerSaveEmail, emailConsent);
-                    setPlannerEmailSaving(false);
-                    if (error) {
-                      setPlannerEmailError(error.message);
-                    }
-                  }}
-                  disabled={plannerEmailSaving}
-                  className="w-full py-3 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2 mb-3"
-                  style={{
-                    backgroundColor: colors.tile,
-                    color: colors.textDark,
-                    opacity: plannerEmailSaving ? 0.7 : 1,
-                  }}
-                >
-                  {plannerEmailSaving ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-stone-600 border-t-transparent rounded-full animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    "Resend email"
-                  )}
-                </button>
-
-                {plannerEmailError && (
-                  <p className="text-[12px] mb-2" style={{ color: colors.error }}>
-                    {plannerEmailError}
-                  </p>
-                )}
-
-                {/* Use different email */}
-                <button
-                  onClick={() => {
-                    setPlannerEmailSent(false);
-                    setPlannerEmailError("");
-                  }}
-                  className="text-[13px] underline"
-                  style={{ color: colors.text }}
-                >
-                  Use a different email
-                </button>
-
-                <p className="text-[12px] mt-4" style={{ color: colors.text }}>
-                  Didn't receive the email? Check your spam folder.
-                </p>
-              </div>
-            ) : (
-              <>
-                {/* Icon */}
-                <div
-                  className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
-                  style={{ backgroundColor: colors.tile }}
-                >
-                  <svg
-                    className="w-6 h-6"
-                    style={{ color: colors.textDark }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
-                    />
-                  </svg>
-                </div>
-
-                {/* Title */}
-                <p className="text-[18px] font-semibold mb-1" style={{ color: colors.textDark }}>
-                  Save your plan
-                </p>
-                <p className="text-[14px] mb-5" style={{ color: colors.text }}>
-                  Create a free account to save your plan and track your progress.
-                </p>
-
-                {/* Email Input */}
-                <input
-                  type="email"
-                  value={plannerSaveEmail}
-                  onChange={(e) => {
-                    setPlannerSaveEmail(e.target.value);
-                    setPlannerEmailError("");
-                  }}
-                  placeholder="your@email.com"
-                  className="w-full px-4 py-3 rounded-xl text-[15px] outline-none mb-3"
-                  style={{
-                    backgroundColor: colors.white,
-                    color: colors.textDark,
-                    border: plannerEmailError ? `1.5px solid ${colors.error}` : `1.5px solid ${colors.border}`,
-                  }}
-                />
-                {plannerEmailError && (
-                  <p className="text-[12px] mb-3 -mt-2" style={{ color: colors.error }}>
-                    {plannerEmailError}
-                  </p>
-                )}
-
-                {/* Email Consent Checkbox */}
-                <label className="flex items-start gap-2.5 mb-4 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={emailConsent}
-                    onChange={(e) => setEmailConsent(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded"
-                    style={{ accentColor: colors.buttonDark }}
-                  />
-                  <span className="text-[12px] leading-snug" style={{ color: colors.text }}>
-                    Send me a reminder before my application deadline and helpful tips about Elterngeld.
-                  </span>
-                </label>
-
-                {/* Email Button */}
-                <button
-                  onClick={async () => {
-                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(plannerSaveEmail)) {
-                      setPlannerEmailError("Please enter a valid email");
-                      return;
-                    }
-                    // 1. Save full session to localStorage FIRST
-                    saveSessionToLocalStorage();
-
-                    // 2. Send magic link
-                    setPlannerEmailSaving(true);
-                    const { error } = await signInWithEmail(plannerSaveEmail, emailConsent);
-
-                    if (error) {
-                      setPlannerEmailError(error.message);
-                      setPlannerEmailSaving(false);
-                    } else {
-                      // 3. Show "Check your email" screen - do NOT close modal
-                      setPlannerEmailSent(true);
-                      setPlannerEmailSaving(false);
-                    }
-                  }}
-                  disabled={plannerEmailSaving}
-                  className="w-full py-3 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2"
-                  style={{
-                    backgroundColor: colors.tile,
-                    color: colors.textDark,
-                    opacity: plannerEmailSaving ? 0.7 : 1,
-                  }}
-                >
-                  {plannerEmailSaving ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-stone-600 border-t-transparent rounded-full animate-spin" />
-                      Sending link...
-                    </>
-                  ) : (
-                    "Continue with Email"
-                  )}
-                </button>
-
-                {/* Terms */}
-                <p className="text-[12px] text-center mt-4" style={{ color: colors.text }}>
-                  By signing up, you agree to our{" "}
-                  <a href="/terms" className="underline">
-                    Terms
-                  </a>{" "}
-                  and{" "}
-                  <a href="/privacy" className="underline">
-                    Privacy Policy
-                  </a>
-                  .
-                </p>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-    </>
-  );
-
   // Memoized static components
   const introChecklistContent = React.useMemo(
     () => (
@@ -3934,7 +3681,10 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 myCalc={myCalc}
                 partnerCalc={partnerCalc}
                 isLoggedIn={!!user}
-                onSaveClick={() => setShowPlannerSaveInput(true)}
+                onSaveClick={() => {
+                  saveSessionToLocalStorage();
+                  setShowPlannerSaveInput(true);
+                }}
                 fullscreen={plannerFullscreen}
                 onFullscreenToggle={() => setPlannerFullscreen(!plannerFullscreen)}
               />
@@ -4215,7 +3965,12 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           display: none;
         }
       `}</style>
-      <SavePlannerModal />
+      <LoginModal
+        isOpen={showPlannerSaveInput}
+        onClose={() => setShowPlannerSaveInput(false)}
+        title="Save your plan"
+        description="Create a free account to save your plan and track your progress."
+      />
       <div className="h-screen flex flex-col overflow-hidden" style={{ backgroundColor: colors.background }}>
         {/* Header */}
         <div className="flex-shrink-0" style={{ backgroundColor: colors.background }}>
