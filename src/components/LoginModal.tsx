@@ -82,7 +82,6 @@ const LoginModal: React.FC<LoginModalProps> = ({
     setEmail("");
     setEmailSent(false);
     setError("");
-    setEmailConsent(false);
     onClose();
   };
 
