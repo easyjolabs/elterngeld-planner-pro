@@ -1276,83 +1276,120 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     messagesLengthRef.current = messages.length;
   }, [messages.length]);
 
-  // LocalStorage key for pending plan
-  const PENDING_PLAN_STORAGE_KEY = 'elterngeld_pending_plan';
+  // LocalStorage key for pending session
+  const PENDING_SESSION_STORAGE_KEY = 'elterngeld_pending_session';
 
-  // Save plan to localStorage before sending magic link
-  const savePlanToLocalStorage = useCallback(() => {
-    const pendingPlan = {
-      plannerData,
-      userData: data,
-      selectedState,
+  // Save full session to localStorage before sending magic link
+  const saveSessionToLocalStorage = useCallback(() => {
+    const pendingSession = {
+      // Chat state
+      step,
+      messages,
+      stepHistory,
+      showInput,
+      isPaused,
+      // User data
+      data,
       sliderValue,
       partnerSliderValue,
+      // Planner state
+      plannerData,
+      plannerMonths,
+      selectedState,
+      // Part-time work state
+      workPartTime,
+      partTimeIncome,
+      partnerPartTimeIncome,
+      // UI state
+      lastUserMessageIndex,
+      ctaStep,
       timestamp: Date.now(),
     };
-    localStorage.setItem(PENDING_PLAN_STORAGE_KEY, JSON.stringify(pendingPlan));
-  }, [plannerData, data, selectedState, sliderValue, partnerSliderValue]);
+    localStorage.setItem(PENDING_SESSION_STORAGE_KEY, JSON.stringify(pendingSession));
+  }, [
+    step, messages, stepHistory, showInput, isPaused,
+    data, sliderValue, partnerSliderValue,
+    plannerData, plannerMonths, selectedState,
+    workPartTime, partTimeIncome, partnerPartTimeIncome,
+    lastUserMessageIndex, ctaStep
+  ]);
 
-  // Load and save pending plan after login - returns plan data for UI restoration
-  const loadAndSavePendingPlan = useCallback(async (userId: string) => {
-    const stored = localStorage.getItem(PENDING_PLAN_STORAGE_KEY);
+  // Load and save pending session after login - returns session data for UI restoration
+  const loadAndSavePendingSession = useCallback(async (userId: string) => {
+    const stored = localStorage.getItem(PENDING_SESSION_STORAGE_KEY);
     if (!stored) return null;
 
     try {
-      const pendingPlan = JSON.parse(stored);
+      const pendingSession = JSON.parse(stored);
 
       // Max 24 hours old
-      if (Date.now() - pendingPlan.timestamp > 86400000) {
-        localStorage.removeItem(PENDING_PLAN_STORAGE_KEY);
+      if (Date.now() - pendingSession.timestamp > 86400000) {
+        localStorage.removeItem(PENDING_SESSION_STORAGE_KEY);
         return null;
       }
 
-      // Save to Supabase
+      // Save to Supabase (only the plan data that needs to persist server-side)
       await supabase.from('user_plans').upsert({
         user_id: userId,
-        plan_data: pendingPlan.plannerData,
-        user_data: pendingPlan.userData,
-        selected_state: pendingPlan.selectedState,
+        plan_data: pendingSession.plannerData,
+        user_data: pendingSession.data,
+        selected_state: pendingSession.selectedState,
       }, { onConflict: 'user_id' });
 
-      localStorage.removeItem(PENDING_PLAN_STORAGE_KEY);
-      return pendingPlan; // Return full plan for UI restoration
+      localStorage.removeItem(PENDING_SESSION_STORAGE_KEY);
+      return pendingSession; // Return full session for UI restoration
     } catch (err) {
-      console.error('Error loading pending plan:', err);
+      console.error('Error loading pending session:', err);
       return null;
     }
   }, []);
 
-  // Save pending plan from localStorage after user logs in and restore UI state
+  // Save pending session from localStorage after user logs in and restore UI state
   useEffect(() => {
     if (!user) return;
 
-    // Check for pending plan from localStorage first
-    loadAndSavePendingPlan(user.id).then(pendingPlan => {
-      if (pendingPlan) {
-        // Restore UI state from pending plan
-        if (pendingPlan.plannerData) setPlannerData(pendingPlan.plannerData);
-        if (pendingPlan.userData) setData(pendingPlan.userData);
-        if (pendingPlan.selectedState) setSelectedState(pendingPlan.selectedState);
-        if (pendingPlan.sliderValue !== undefined) setSliderValue(pendingPlan.sliderValue);
-        if (pendingPlan.partnerSliderValue !== undefined) setPartnerSliderValue(pendingPlan.partnerSliderValue);
+    // Check for pending session from localStorage first
+    loadAndSavePendingSession(user.id).then(pendingSession => {
+      if (pendingSession) {
+        // Restore ALL UI state from pending session
+        // Chat state
+        if (pendingSession.step !== undefined) setStep(pendingSession.step);
+        if (pendingSession.messages) {
+          setMessages(pendingSession.messages);
+          messagesLengthRef.current = pendingSession.messages.length;
+        }
+        if (pendingSession.stepHistory) setStepHistory(pendingSession.stepHistory);
+        if (pendingSession.showInput !== undefined) setShowInput(pendingSession.showInput);
+        if (pendingSession.isPaused !== undefined) setIsPaused(pendingSession.isPaused);
 
-        // Set messages to show the planner - user continues where they left off
-        setMessages([
-          { type: "bot", content: "Welcome back! Your plan has been saved. You can continue editing below." },
-          { type: "component", component: "planner" },
-        ]);
-        messagesLengthRef.current = 2;
-        setIsPaused(true);
+        // User data
+        if (pendingSession.data) setData(pendingSession.data);
+        if (pendingSession.sliderValue !== undefined) setSliderValue(pendingSession.sliderValue);
+        if (pendingSession.partnerSliderValue !== undefined) setPartnerSliderValue(pendingSession.partnerSliderValue);
+
+        // Planner state
+        if (pendingSession.plannerData) setPlannerData(pendingSession.plannerData);
+        if (pendingSession.plannerMonths !== undefined) setPlannerMonths(pendingSession.plannerMonths);
+        if (pendingSession.selectedState) setSelectedState(pendingSession.selectedState);
+
+        // Part-time work state
+        if (pendingSession.workPartTime !== undefined) setWorkPartTime(pendingSession.workPartTime);
+        if (pendingSession.partTimeIncome !== undefined) setPartTimeIncome(pendingSession.partTimeIncome);
+        if (pendingSession.partnerPartTimeIncome !== undefined) setPartnerPartTimeIncome(pendingSession.partnerPartTimeIncome);
+
+        // UI state
+        if (pendingSession.lastUserMessageIndex !== undefined) setLastUserMessageIndex(pendingSession.lastUserMessageIndex);
+        if (pendingSession.ctaStep !== undefined) setCtaStep(pendingSession.ctaStep);
+
+        // Mark as restored session
         setIsRestoredSession(true);
-        setShowInput({ type: "component", component: "continue", pauseLabel: "Continue to application →" });
-        setStep(99);
 
         // Close modal
         setShowPlannerSaveInput(false);
         setPlannerEmailSent(false);
       }
     });
-  }, [user, loadAndSavePendingPlan]);
+  }, [user, loadAndSavePendingSession]);
 
   // Go back to previous question
   const goBack = useCallback(() => {
@@ -3602,8 +3639,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                         setPlannerEmailError("Please enter a valid email");
                         return;
                       }
-                      // 1. Save plan to localStorage FIRST
-                      savePlanToLocalStorage();
+                      // 1. Save full session to localStorage FIRST
+                      saveSessionToLocalStorage();
                       
                       // 2. Send magic link
                       setPlannerEmailSaving(true);
