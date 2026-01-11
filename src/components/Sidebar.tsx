@@ -18,6 +18,7 @@ export type SidebarView = 'home' | 'guide' | 'chat' | 'pdf';
 interface SidebarProps {
   activeView: SidebarView;
   onNavigate: (view: SidebarView) => void;
+  onSignInClick?: () => void;
 }
 
 // Hook to detect mobile (400px breakpoint)
@@ -56,6 +57,7 @@ const Tooltip: React.FC<{ label: string; show: boolean; children: React.ReactNod
 const Sidebar: React.FC<SidebarProps> = ({
   activeView,
   onNavigate,
+  onSignInClick,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -227,17 +229,18 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             ) : (
               <button
+                onClick={() => {
+                  onSignInClick?.();
+                  setMobileOpen(false);
+                }}
                 className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all"
-                style={{ backgroundColor: colors.tile }}
+                style={{ backgroundColor: colors.accent }}
               >
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold"
-                  style={{ backgroundColor: colors.textDark, color: colors.white }}
-                >
-                  U
-                </div>
-                <span className="text-base font-medium" style={{ color: colors.textDark }}>
-                  Guest
+                <svg className="w-5 h-5" fill="none" stroke={colors.white} strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                </svg>
+                <span className="text-base font-medium" style={{ color: colors.white }}>
+                  Sign in
                 </span>
               </button>
             )}
@@ -304,27 +307,48 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Bottom Section */}
       <div className="p-2 border-t" style={{ borderColor: colors.border }}>
-        {/* User Profile - navigates directly to settings */}
-        <Tooltip label="Settings" show={!expanded}>
-          <button
-            onClick={() => navigate('/settings')}
-            className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1"
-          >
-            <div className="w-10 flex items-center justify-center shrink-0">
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
-                style={{ backgroundColor: colors.textDark, color: colors.white }}
-              >
-                {userInitial}
+        {/* User Profile or Sign In */}
+        {user ? (
+          <Tooltip label="Settings" show={!expanded}>
+            <button
+              onClick={() => navigate('/settings')}
+              className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1"
+            >
+              <div className="w-10 flex items-center justify-center shrink-0">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                  style={{ backgroundColor: colors.textDark, color: colors.white }}
+                >
+                  {userInitial}
+                </div>
               </div>
-            </div>
-            {expanded && (
-              <span className="text-sm flex-1 text-left truncate ml-2" style={{ color: colors.textDark }}>
-                {userName}
-              </span>
-            )}
-          </button>
-        </Tooltip>
+              {expanded && (
+                <span className="text-sm flex-1 text-left truncate ml-2" style={{ color: colors.textDark }}>
+                  {userName}
+                </span>
+              )}
+            </button>
+          </Tooltip>
+        ) : (
+          <Tooltip label="Sign in" show={!expanded}>
+            <button
+              onClick={() => onSignInClick?.()}
+              className="w-full h-10 rounded-lg flex items-center transition-all hover:opacity-90 mb-1"
+              style={{ backgroundColor: colors.accent }}
+            >
+              <div className="w-10 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5" fill="none" stroke={colors.white} strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                </svg>
+              </div>
+              {expanded && (
+                <span className="text-sm ml-2" style={{ color: colors.white }}>
+                  Sign in
+                </span>
+              )}
+            </button>
+          </Tooltip>
+        )}
 
         {/* Expand/Collapse Button */}
         <Tooltip label={expanded ? 'Collapse' : 'Expand'} show={!expanded}>
