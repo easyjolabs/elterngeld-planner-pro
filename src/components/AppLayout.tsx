@@ -3,10 +3,11 @@ import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import Sidebar, { SidebarView } from './Sidebar';
 import LoginModal from './LoginModal';
 
-const routeToView: Record<string, SidebarView> = {
+const routeToView: Record<string, SidebarView | 'settings'> = {
   '/': 'home',
   '/guide': 'guide',
   '/chat': 'chat',
+  '/settings': 'settings',
 };
 
 const viewToRoute: Record<SidebarView, string> = {
@@ -21,7 +22,8 @@ export const AppLayout = () => {
   const navigate = useNavigate();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const activeView = routeToView[location.pathname] || 'home';
+  const currentRoute = routeToView[location.pathname];
+  const activeView: SidebarView = currentRoute === 'settings' ? 'home' : (currentRoute || 'home');
 
   const handleNavigate = (view: SidebarView) => {
     navigate(viewToRoute[view]);
