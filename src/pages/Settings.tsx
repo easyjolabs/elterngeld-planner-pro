@@ -24,20 +24,16 @@ const colors = {
 // TYPES
 // ===========================================
 interface UserProfile {
-  first_name: string;
-  last_name: string;
-  language: "en" | "de";
+  email: string | null;
+  email_consent: boolean;
 }
 
-interface PlanData {
+interface UserPlan {
   id: string;
-  due_date: string | null;
-  application_type: "single" | "couple" | null;
-  your_income: number | null;
-  partner_income: number | null;
-  planner_data: Record<string, "basis" | "plus" | "bonus"> | null;
-  total_amount: number | null;
-  updated_at: string;
+  plan_data: unknown;
+  user_data: unknown;
+  selected_state: string | null;
+  updated_at: string | null;
 }
 
 // ===========================================
@@ -47,24 +43,6 @@ const formatDate = (dateString: string | null): string => {
   if (!dateString) return "—";
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-};
-
-const formatCurrency = (amount: number | null): string => {
-  if (!amount) return "—";
-  return `€${amount.toLocaleString("de-DE")}`;
-};
-
-const countMonths = (
-  plannerData: Record<string, "basis" | "plus" | "bonus"> | null,
-  type?: "basis" | "plus" | "bonus",
-  person?: "you" | "partner"
-): number => {
-  if (!plannerData) return 0;
-  return Object.entries(plannerData).filter(([key, value]) => {
-    const matchesType = type ? value === type : true;
-    const matchesPerson = person ? key.startsWith(person) : true;
-    return matchesType && matchesPerson;
-  }).length;
 };
 
 // ===========================================
@@ -82,13 +60,11 @@ const SettingsPage: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Profile State
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [language, setLanguage] = useState<"en" | "de">("en");
-  const [originalProfile, setOriginalProfile] = useState<UserProfile | null>(null);
+  const [emailConsent, setEmailConsent] = useState(false);
+  const [originalEmailConsent, setOriginalEmailConsent] = useState(false);
 
   // Plan State
-  const [plan, setPlan] = useState<PlanData | null>(null);
+  const [plan, setPlan] = useState<UserPlan | null>(null);
 
   // Load user data on mount
   useEffect(() => {
@@ -109,32 +85,26 @@ const SettingsPage: React.FC = () => {
       // Load profile
       const { data: profile } = await supabase
         .from("profiles")
-        .select("first_name, last_name, language")
-        .eq("id", user.id)
+        .select("email, email_consent")
+        .eq("user_id", user.id)
         .single();
 
       if (profile) {
-        setFirstName(profile.first_name || "");
-        setLastName(profile.last_name || "");
-        setLanguage(profile.language || "en");
-        setOriginalProfile({
-          first_name: profile.first_name || "",
-          last_name: profile.last_name || "",
-          language: profile.language || "en",
-        });
+        setEmailConsent(profile.email_consent || false);
+        setOriginalEmailConsent(profile.email_consent || false);
       }
 
       // Load plan
       const { data: planData } = await supabase
         .from("user_plans")
-        .select("*")
+        .select("id, plan_data, user_data, selected_state, updated_at")
         .eq("user_id", user.id)
         .order("updated_at", { ascending: false })
         .limit(1)
         .single();
 
       if (planData) {
-        setPlan(planData as PlanData);
+        setPlan(planData);
       }
     } catch (error) {
       console.error("Error loading user data:", error);
@@ -143,11 +113,7 @@ const SettingsPage: React.FC = () => {
     }
   };
 
-  const hasChanges = originalProfile && (
-    firstName !== originalProfile.first_name ||
-    lastName !== originalProfile.last_name ||
-    language !== originalProfile.language
-  );
+  const hasChanges = emailConsent !== originalEmailConsent;
 
   const handleSave = async () => {
     if (!user || !hasChanges) return;
@@ -157,21 +123,15 @@ const SettingsPage: React.FC = () => {
     try {
       const { error } = await supabase
         .from("profiles")
-        .upsert({
-          id: user.id,
-          first_name: firstName,
-          last_name: lastName,
-          language: language,
+        .update({
+          email_consent: emailConsent,
           updated_at: new Date().toISOString(),
-        });
+        })
+        .eq("user_id", user.id);
 
       if (error) throw error;
 
-      setOriginalProfile({
-        first_name: firstName,
-        last_name: lastName,
-        language: language,
-      });
+      setOriginalEmailConsent(emailConsent);
     } catch (error) {
       console.error("Error saving profile:", error);
     } finally {
@@ -187,7 +147,7 @@ const SettingsPage: React.FC = () => {
     try {
       // Delete user data (profiles and plans will cascade or be deleted by RLS)
       await supabase.from("user_plans").delete().eq("user_id", user.id);
-      await supabase.from("profiles").delete().eq("id", user.id);
+      await supabase.from("profiles").delete().eq("user_id", user.id);
 
       // Sign out
       await signOut();
@@ -205,7 +165,7 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleEditPlan = () => {
-    navigate("/guide?step=plan");
+    navigate("/guide");
   };
 
   const handleStartGuide = () => {
@@ -234,7 +194,7 @@ const SettingsPage: React.FC = () => {
     },
   ];
 
-  const hasPlan = plan && (plan.due_date || plan.planner_data);
+  const hasPlan = plan !== null;
 
   if (isLoading) {
     return (
@@ -362,78 +322,42 @@ const SettingsPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* First Name */}
+                      {/* Email Consent */}
                       <div>
-                        <label className="block text-xs font-medium mb-2" style={{ color: colors.text }}>
-                          First name
+                        <label className="flex items-start gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={emailConsent}
+                            onChange={(e) => setEmailConsent(e.target.checked)}
+                            className="mt-1 w-4 h-4 rounded"
+                            style={{ accentColor: colors.buttonDark }}
+                          />
+                          <div>
+                            <span className="text-sm font-medium" style={{ color: colors.textDark }}>
+                              Email updates
+                            </span>
+                            <p className="text-xs mt-0.5" style={{ color: colors.text }}>
+                              Receive helpful tips about Elterngeld and important reminders.
+                            </p>
+                          </div>
                         </label>
-                        <input
-                          type="text"
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                          style={{
-                            backgroundColor: colors.white,
-                            color: colors.textDark,
-                            border: `1px solid ${colors.border}`,
-                          }}
-                          placeholder="First name"
-                        />
-                      </div>
-
-                      {/* Last Name */}
-                      <div>
-                        <label className="block text-xs font-medium mb-2" style={{ color: colors.text }}>
-                          Last name
-                        </label>
-                        <input
-                          type="text"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                          style={{
-                            backgroundColor: colors.white,
-                            color: colors.textDark,
-                            border: `1px solid ${colors.border}`,
-                          }}
-                          placeholder="Last name"
-                        />
-                      </div>
-
-                      {/* Language (disabled) */}
-                      <div>
-                        <label className="block text-xs font-medium mb-2" style={{ color: colors.text }}>
-                          Language
-                          <span className="ml-2 text-xs font-normal" style={{ color: colors.text, opacity: 0.6 }}>
-                            Coming soon
-                          </span>
-                        </label>
-                        <div className="flex gap-2">
-                          <button
-                            disabled
-                            className="flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-not-allowed opacity-50"
-                            style={{
-                              backgroundColor: language === "en" ? colors.buttonDark : colors.white,
-                              color: language === "en" ? colors.white : colors.textDark,
-                              border: `1px solid ${language === "en" ? colors.buttonDark : colors.border}`,
-                            }}
-                          >
-                            English
-                          </button>
-                          <button
-                            disabled
-                            className="flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-not-allowed opacity-50"
-                            style={{
-                              backgroundColor: language === "de" ? colors.buttonDark : colors.white,
-                              color: language === "de" ? colors.white : colors.textDark,
-                              border: `1px solid ${language === "de" ? colors.buttonDark : colors.border}`,
-                            }}
-                          >
-                            Deutsch
-                          </button>
-                        </div>
                       </div>
                     </div>
+                  </section>
+
+                  {/* Logout Section */}
+                  <section className="pt-6" style={{ borderTop: `1px solid ${colors.border}` }}>
+                    <button
+                      onClick={() => signOut()}
+                      className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                      style={{
+                        backgroundColor: colors.white,
+                        color: colors.textDark,
+                        border: `1px solid ${colors.border}`,
+                      }}
+                    >
+                      Log out
+                    </button>
                   </section>
 
                   {/* Delete Account Section */}
@@ -535,7 +459,7 @@ const SettingsPage: React.FC = () => {
                         style={{ backgroundColor: colors.white, border: `1px solid ${colors.border}` }}
                       >
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="font-medium" style={{ color: colors.textDark }}>Summary</h3>
+                          <h3 className="font-medium" style={{ color: colors.textDark }}>Saved Plan</h3>
                           {plan.updated_at && (
                             <span className="text-xs" style={{ color: colors.text }}>
                               Updated {formatDate(plan.updated_at)}
@@ -543,105 +467,10 @@ const SettingsPage: React.FC = () => {
                           )}
                         </div>
 
-                        <div className="space-y-3">
-                          <div className="flex justify-between">
-                            <span className="text-sm" style={{ color: colors.text }}>Due Date</span>
-                            <span className="text-sm font-medium" style={{ color: colors.textDark }}>
-                              {formatDate(plan.due_date)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm" style={{ color: colors.text }}>Application Type</span>
-                            <span className="text-sm font-medium" style={{ color: colors.textDark }}>
-                              {plan.application_type === "couple" ? "Couple" : "Single Parent"}
-                            </span>
-                          </div>
-                          {plan.your_income && (
-                            <div className="flex justify-between">
-                              <span className="text-sm" style={{ color: colors.text }}>Your Income</span>
-                              <span className="text-sm font-medium" style={{ color: colors.textDark }}>
-                                {formatCurrency(plan.your_income)}/month
-                              </span>
-                            </div>
-                          )}
-                          {plan.application_type === "couple" && plan.partner_income && (
-                            <div className="flex justify-between">
-                              <span className="text-sm" style={{ color: colors.text }}>Partner's Income</span>
-                              <span className="text-sm font-medium" style={{ color: colors.textDark }}>
-                                {formatCurrency(plan.partner_income)}/month
-                              </span>
-                            </div>
-                          )}
-                          {plan.total_amount && (
-                            <div className="flex justify-between pt-3 mt-3" style={{ borderTop: `1px solid ${colors.border}` }}>
-                              <span className="text-sm font-medium" style={{ color: colors.textDark }}>Total Elterngeld</span>
-                              <span className="text-base font-semibold" style={{ color: colors.basis }}>
-                                {formatCurrency(plan.total_amount)}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                        <p className="text-sm" style={{ color: colors.text }}>
+                          You have a saved Elterngeld plan. Continue editing or start a new calculation.
+                        </p>
                       </div>
-
-                      {/* Months Breakdown */}
-                      {plan.planner_data && Object.keys(plan.planner_data).length > 0 && (
-                        <div
-                          className="p-5 rounded-xl"
-                          style={{ backgroundColor: colors.white, border: `1px solid ${colors.border}` }}
-                        >
-                          <h3 className="font-medium mb-4" style={{ color: colors.textDark }}>Months Breakdown</h3>
-
-                          <div className="mb-4">
-                            <p className="text-xs font-medium mb-2" style={{ color: colors.text }}>You</p>
-                            <div className="flex flex-wrap gap-3">
-                              <div className="flex items-center gap-1.5">
-                                <div className="w-3 h-3 rounded" style={{ backgroundColor: colors.basis }} />
-                                <span className="text-xs" style={{ color: colors.textDark }}>
-                                  {countMonths(plan.planner_data, "basis", "you")} Basis
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1.5">
-                                <div className="w-3 h-3 rounded" style={{ backgroundColor: colors.plus }} />
-                                <span className="text-xs" style={{ color: colors.textDark }}>
-                                  {countMonths(plan.planner_data, "plus", "you")} Plus
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1.5">
-                                <div className="w-3 h-3 rounded" style={{ backgroundColor: colors.bonus }} />
-                                <span className="text-xs" style={{ color: colors.textDark }}>
-                                  {countMonths(plan.planner_data, "bonus", "you")} Bonus
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {plan.application_type === "couple" && (
-                            <div>
-                              <p className="text-xs font-medium mb-2" style={{ color: colors.text }}>Partner</p>
-                              <div className="flex flex-wrap gap-3">
-                                <div className="flex items-center gap-1.5">
-                                  <div className="w-3 h-3 rounded" style={{ backgroundColor: colors.basis }} />
-                                  <span className="text-xs" style={{ color: colors.textDark }}>
-                                    {countMonths(plan.planner_data, "basis", "partner")} Basis
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                  <div className="w-3 h-3 rounded" style={{ backgroundColor: colors.plus }} />
-                                  <span className="text-xs" style={{ color: colors.textDark }}>
-                                    {countMonths(plan.planner_data, "plus", "partner")} Plus
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                  <div className="w-3 h-3 rounded" style={{ backgroundColor: colors.bonus }} />
-                                  <span className="text-xs" style={{ color: colors.textDark }}>
-                                    {countMonths(plan.planner_data, "bonus", "partner")} Bonus
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
 
                       {/* Actions */}
                       <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -650,18 +479,7 @@ const SettingsPage: React.FC = () => {
                           className="px-6 py-2.5 rounded-xl text-sm font-semibold"
                           style={{ backgroundColor: colors.buttonDark, color: colors.white }}
                         >
-                          Edit Plan
-                        </button>
-                        <button
-                          onClick={handleStartGuide}
-                          className="px-6 py-2.5 rounded-xl text-sm font-medium"
-                          style={{
-                            backgroundColor: colors.white,
-                            color: colors.textDark,
-                            border: `1px solid ${colors.border}`,
-                          }}
-                        >
-                          Continue to Application
+                          Continue Planning
                         </button>
                       </div>
                     </div>
