@@ -25,18 +25,9 @@ interface TeaserCardProps {
   gradientTo: string;
   icon: React.ReactNode;
   onClick: () => void;
-  accentColor: string;
 }
 
-const TeaserCard: React.FC<TeaserCardProps> = ({
-  title,
-  description,
-  gradientFrom,
-  gradientTo,
-  icon,
-  onClick,
-  accentColor,
-}) => {
+const TeaserCard: React.FC<TeaserCardProps> = ({ title, description, gradientFrom, gradientTo, icon, onClick }) => {
   return (
     <button
       onClick={onClick}
@@ -122,28 +113,25 @@ const HelpPage: React.FC = () => {
     {
       title: "Plan your Elterngeld",
       description: "Calculate your benefit and plan your months with our interactive guide.",
-      gradientFrom: "#C0630B",
-      gradientTo: "#FC631B",
-      accentColor: colors.basis,
-      icon: <Calendar size={28} strokeWidth={1.5} color={colors.basis} />,
+      gradientFrom: "#FC631B",
+      gradientTo: "#FF8A5B",
+      icon: <Calendar size={28} strokeWidth={1.5} color={colors.textDark} />,
       onClick: () => navigate("/guide"),
     },
     {
       title: "Ask the Expert",
       description: "Get instant answers to your Elterngeld questions from our AI assistant.",
-      gradientFrom: "#FFBDF0",
-      gradientTo: "#FFD4F5",
-      accentColor: "#D946A0",
-      icon: <MessageCircle size={28} strokeWidth={1.5} color="#D946A0" />,
+      gradientFrom: "#C9B8A8",
+      gradientTo: "#D8CABA",
+      icon: <MessageCircle size={28} strokeWidth={1.5} color={colors.textDark} />,
       onClick: () => navigate("/chat"),
     },
     {
       title: "Fill your Application",
       description: "Complete the official 23-page form step by step with guidance.",
-      gradientFrom: "#1AB689",
-      gradientTo: "#34D9A8",
-      accentColor: colors.success,
-      icon: <FileText size={28} strokeWidth={1.5} color={colors.success} />,
+      gradientFrom: "#F2F53A",
+      gradientTo: "#F7F871",
+      icon: <FileText size={28} strokeWidth={1.5} color={colors.textDark} />,
       onClick: () => navigate("/application"),
     },
   ];
@@ -204,7 +192,6 @@ const HelpPage: React.FC = () => {
               gradientTo={teaser.gradientTo}
               icon={teaser.icon}
               onClick={teaser.onClick}
-              accentColor={teaser.accentColor}
             />
           ))}
         </div>
