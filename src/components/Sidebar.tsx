@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import UserDropdown from './UserDropdown';
 
 // Colors matching ElterngeldGuide
 const colors = {
@@ -51,13 +54,21 @@ const Tooltip: React.FC<{ label: string; show: boolean; children: React.ReactNod
   </div>
 );
 
-const Sidebar: React.FC<SidebarProps> = ({ 
-  activeView, 
+const Sidebar: React.FC<SidebarProps> = ({
+  activeView,
   onNavigate,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  // Get user display info
+  const userName = user?.email?.split('@')[0] || 'User';
+  const userEmail = user?.email || '';
+  const userInitial = userName.charAt(0).toUpperCase();
 
   const navItems: Array<{ id: SidebarView; label: string; icon: React.ReactNode }> = [
     {
@@ -175,20 +186,63 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Bottom Section */}
           <div className="p-4 border-t" style={{ borderColor: colors.border }}>
-            <button
-              className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all"
-              style={{ backgroundColor: colors.tile }}
-            >
-              <div 
-                className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold"
-                style={{ backgroundColor: colors.textDark, color: colors.white }}
-              >
-                U
+            {user ? (
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    navigate('/settings');
+                    setMobileOpen(false);
+                  }}
+                  className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all"
+                  style={{ backgroundColor: colors.tile }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold"
+                    style={{ backgroundColor: colors.textDark, color: colors.white }}
+                  >
+                    {userInitial}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-base font-medium truncate" style={{ color: colors.textDark }}>
+                      {userName}
+                    </p>
+                    <p className="text-xs truncate" style={{ color: colors.text }}>
+                      {userEmail}
+                    </p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => {
+                    signOut();
+                    setMobileOpen(false);
+                  }}
+                  className="w-full h-12 rounded-xl flex items-center justify-center gap-2 transition-all"
+                  style={{ backgroundColor: 'transparent', border: `1px solid ${colors.border}` }}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                  </svg>
+                  <span className="text-sm font-medium" style={{ color: colors.text }}>
+                    Log out
+                  </span>
+                </button>
               </div>
-              <span className="text-base font-medium" style={{ color: colors.textDark }}>
-                User Profile
-              </span>
-            </button>
+            ) : (
+              <button
+                className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all"
+                style={{ backgroundColor: colors.tile }}
+              >
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold"
+                  style={{ backgroundColor: colors.textDark, color: colors.white }}
+                >
+                  U
+                </div>
+                <span className="text-base font-medium" style={{ color: colors.textDark }}>
+                  Guest
+                </span>
+              </button>
+            )}
           </div>
         </div>
       </>
@@ -253,25 +307,37 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Bottom Section */}
       <div className="p-2 border-t" style={{ borderColor: colors.border }}>
         {/* User Profile */}
-        <Tooltip label="Profile" show={!expanded}>
-          <button
-            className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1"
-          >
-            <div className="w-10 flex items-center justify-center shrink-0">
-              <div 
-                className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
-                style={{ backgroundColor: colors.textDark, color: colors.white }}
-              >
-                U
+        <div className="relative">
+          <Tooltip label="Profile" show={!expanded}>
+            <button
+              onClick={() => user && setUserDropdownOpen(!userDropdownOpen)}
+              className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1"
+            >
+              <div className="w-10 flex items-center justify-center shrink-0">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                  style={{ backgroundColor: colors.textDark, color: colors.white }}
+                >
+                  {userInitial}
+                </div>
               </div>
-            </div>
-            {expanded && (
-              <span className="text-sm flex-1 text-left truncate ml-2" style={{ color: colors.textDark }}>
-                User
-              </span>
-            )}
-          </button>
-        </Tooltip>
+              {expanded && (
+                <span className="text-sm flex-1 text-left truncate ml-2" style={{ color: colors.textDark }}>
+                  {userName}
+                </span>
+              )}
+            </button>
+          </Tooltip>
+          {user && (
+            <UserDropdown
+              isOpen={userDropdownOpen}
+              onClose={() => setUserDropdownOpen(false)}
+              user={{ name: userName, email: userEmail }}
+              onNavigate={(route) => navigate(`/${route}`)}
+              onLogout={signOut}
+            />
+          )}
+        </div>
 
         {/* Expand/Collapse Button */}
         <Tooltip label={expanded ? 'Collapse' : 'Expand'} show={!expanded}>
