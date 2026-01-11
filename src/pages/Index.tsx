@@ -40,30 +40,33 @@ const TeaserCard: React.FC<TeaserCardProps> = ({
   return (
     <button
       onClick={onClick}
-      className="group flex flex-col text-left rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+      className="group flex flex-col text-left rounded-xl overflow-hidden"
       style={{
         backgroundColor: colors.white,
         boxShadow: "0 2px 16px rgba(0, 0, 0, 0.04)",
       }}
     >
       {/* Illustration Placeholder - Gradient Area */}
-      <div
-        className="relative h-36 w-full flex items-center justify-center overflow-hidden"
-        style={{
-          background: `linear-gradient(135deg, ${gradientFrom} 0%, ${gradientTo} 100%)`,
-        }}
-      >
+      <div className="relative h-36 w-full flex items-center justify-center overflow-hidden">
+        {/* Background that scales on hover */}
+        <div
+          className="absolute inset-0 transition-transform duration-300 group-hover:scale-105"
+          style={{
+            background: `linear-gradient(135deg, ${gradientFrom} 0%, ${gradientTo} 100%)`,
+          }}
+        />
+
         {/* Decorative geometric shapes */}
         <div
-          className="absolute top-3 right-3 w-12 h-12 rounded-full opacity-30"
+          className="absolute top-3 right-3 w-12 h-12 rounded-full opacity-30 transition-transform duration-300 group-hover:scale-105"
           style={{ backgroundColor: colors.white }}
         />
         <div
-          className="absolute bottom-6 left-6 w-16 h-16 rounded-lg rotate-12 opacity-20"
+          className="absolute bottom-6 left-6 w-16 h-16 rounded-lg rotate-12 opacity-20 transition-transform duration-300 group-hover:scale-105"
           style={{ backgroundColor: colors.white }}
         />
         <div
-          className="absolute top-8 left-8 w-5 h-5 rounded-sm rotate-45 opacity-40"
+          className="absolute top-8 left-8 w-5 h-5 rounded-sm rotate-45 opacity-40 transition-transform duration-300 group-hover:scale-105"
           style={{ backgroundColor: colors.white }}
         />
 
@@ -85,7 +88,7 @@ const TeaserCard: React.FC<TeaserCardProps> = ({
           <ArrowRight
             size={16}
             className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-            style={{ color: accentColor }}
+            style={{ color: colors.textDark }}
           />
         </div>
         <p className="text-[13px] leading-relaxed" style={{ color: colors.text }}>
@@ -147,7 +150,7 @@ const HelpPage: React.FC = () => {
 
   return (
     <div className="h-screen overflow-y-auto" style={{ backgroundColor: colors.background }}>
-      <div className="max-w-3xl mx-auto px-6 py-12">
+      <div className="max-w-3xl mx-auto px-6 pt-20 pb-12">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-[24px] font-bold mb-2 leading-tight" style={{ color: colors.textDark }}>
@@ -182,7 +185,7 @@ const HelpPage: React.FC = () => {
               type="submit"
               className="absolute right-2.5 w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200"
               style={{
-                backgroundColor: searchQuery.trim() ? colors.basis : colors.tile,
+                backgroundColor: searchQuery.trim() ? colors.buttonDark : colors.tile,
               }}
             >
               <ArrowRight size={16} color={searchQuery.trim() ? colors.white : colors.text} />
