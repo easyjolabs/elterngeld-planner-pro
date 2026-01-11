@@ -1375,7 +1375,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 
         // Close modal
         setShowPlannerSaveInput(false);
-        setPlannerEmailSent(false);
       }
     });
   }, [user, loadAndSavePendingSession]);
