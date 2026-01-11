@@ -1217,7 +1217,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const [showPlannerSaveInput, setShowPlannerSaveInput] = useState(false);
   const [plannerSaveEmail, setPlannerSaveEmail] = useState("");
   const [plannerEmailSaving, setPlannerEmailSaving] = useState(false);
-  const [plannerEmailSaved, setPlannerEmailSaved] = useState(false);
+  const [plannerEmailSent, setPlannerEmailSent] = useState(false);
   const [plannerEmailError, setPlannerEmailError] = useState("");
   const [emailConsent, setEmailConsent] = useState(false);
 
@@ -1333,70 +1333,64 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     messagesLengthRef.current = messages.length;
   }, [messages.length]);
 
-  // Save plan to database when user logs in
-  useEffect(() => {
-    const savePlanToDatabase = async () => {
-      if (!user) return;
-      
-      // Check if we have any plan data to save
-      const hasData = plannerData.some(m => m.you !== "none" || m.partner !== "none");
-      if (!hasData && Object.keys(data).length === 0) return;
+  // LocalStorage key for pending plan
+  const PENDING_PLAN_STORAGE_KEY = 'elterngeld_pending_plan';
 
-      try {
-        // Check if user already has a plan
-        const { data: existingPlans, error: fetchError } = await supabase
-          .from('user_plans')
-          .select('id')
-          .eq('user_id', user.id)
-          .limit(1);
-
-        if (fetchError) {
-          console.error('Error fetching existing plans:', fetchError);
-          return;
-        }
-
-        const planPayload = {
-          user_id: user.id,
-          plan_data: JSON.parse(JSON.stringify(plannerData)),
-          user_data: JSON.parse(JSON.stringify(data)),
-          selected_state: selectedState || null,
-        };
-
-        if (existingPlans && existingPlans.length > 0) {
-          // Update existing plan
-          const { error: updateError } = await supabase
-            .from('user_plans')
-            .update({
-              plan_data: planPayload.plan_data,
-              user_data: planPayload.user_data,
-              selected_state: planPayload.selected_state,
-            })
-            .eq('id', existingPlans[0].id);
-
-          if (updateError) {
-            console.error('Error updating plan:', updateError);
-          }
-        } else {
-          // Insert new plan
-          const { error: insertError } = await supabase
-            .from('user_plans')
-            .insert([planPayload]);
-
-          if (insertError) {
-            console.error('Error inserting plan:', insertError);
-          }
-        }
-
-        // Mark as saved and close modal
-        setPlannerEmailSaved(true);
-        setShowPlannerSaveInput(false);
-      } catch (err) {
-        console.error('Error saving plan:', err);
-      }
+  // Save plan to localStorage before sending magic link
+  const savePlanToLocalStorage = useCallback(() => {
+    const pendingPlan = {
+      plannerData,
+      userData: data,
+      selectedState,
+      sliderValue,
+      partnerSliderValue,
+      timestamp: Date.now(),
     };
+    localStorage.setItem(PENDING_PLAN_STORAGE_KEY, JSON.stringify(pendingPlan));
+  }, [plannerData, data, selectedState, sliderValue, partnerSliderValue]);
 
-    savePlanToDatabase();
-  }, [user, plannerData, data, selectedState]);
+  // Load and save pending plan after login
+  const loadAndSavePendingPlan = useCallback(async (userId: string) => {
+    const stored = localStorage.getItem(PENDING_PLAN_STORAGE_KEY);
+    if (!stored) return false;
+
+    try {
+      const pendingPlan = JSON.parse(stored);
+
+      // Max 24 hours old
+      if (Date.now() - pendingPlan.timestamp > 86400000) {
+        localStorage.removeItem(PENDING_PLAN_STORAGE_KEY);
+        return false;
+      }
+
+      // Save to Supabase
+      await supabase.from('user_plans').upsert({
+        user_id: userId,
+        plan_data: pendingPlan.plannerData,
+        user_data: pendingPlan.userData,
+        selected_state: pendingPlan.selectedState,
+      }, { onConflict: 'user_id' });
+
+      localStorage.removeItem(PENDING_PLAN_STORAGE_KEY);
+      return true;
+    } catch (err) {
+      console.error('Error loading pending plan:', err);
+      return false;
+    }
+  }, []);
+
+  // Save pending plan from localStorage after user logs in
+  useEffect(() => {
+    if (!user) return;
+
+    // Check for pending plan from localStorage first
+    loadAndSavePendingPlan(user.id).then(saved => {
+      if (saved) {
+        setShowPlannerSaveInput(false);
+        setPlannerEmailSent(false);
+      }
+    });
+  }, [user, loadAndSavePendingPlan]);
 
   // Go back to previous question
   const goBack = useCallback(() => {
@@ -3391,8 +3385,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             </button>
           </div>
 
-          {/* Right: Save Button */}
-          {!plannerEmailSaved && (
+          {/* Right: Save Button - only show if NOT logged in */}
+          {!user && (
             <button
               onClick={() => setShowPlannerSaveInput(true)}
               className="px-6 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 flex items-center gap-1.5"
@@ -3409,8 +3403,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             </button>
           )}
 
-          {/* Saved confirmation (inline) */}
-          {plannerEmailSaved && (
+          {/* Saved confirmation (inline) - show when logged in */}
+          {user && (
             <div className="flex items-center gap-1.5">
               <div
                 className="w-4 h-4 rounded-full flex items-center justify-center"
@@ -3435,11 +3429,13 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         </div>
 
         {/* Save/Sign Up Popup */}
-        {showPlannerSaveInput && !plannerEmailSaved && (
+        {showPlannerSaveInput && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center"
             style={{ backgroundColor: "rgba(0, 0, 0, 0.4)" }}
-            onClick={() => setShowPlannerSaveInput(false)}
+            onClick={() => {
+              if (!plannerEmailSent) setShowPlannerSaveInput(false);
+            }}
           >
             <div
               className="mx-4 w-full max-w-sm rounded-2xl p-6 relative"
@@ -3448,7 +3444,11 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             >
               {/* Close X Button */}
               <button
-                onClick={() => setShowPlannerSaveInput(false)}
+                onClick={() => {
+                  setShowPlannerSaveInput(false);
+                  setPlannerEmailSent(false);
+                  setPlannerEmailError("");
+                }}
                 className="absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100 transition-colors"
                 style={{ color: colors.text }}
               >
@@ -3457,119 +3457,216 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 </svg>
               </button>
 
-              {/* Icon */}
-              <div
-                className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
-                style={{ backgroundColor: colors.tile }}
-              >
-                <svg
-                  className="w-6 h-6"
-                  style={{ color: colors.textDark }}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
+              {/* Check your email screen */}
+              {plannerEmailSent ? (
+                <div className="text-center">
+                  {/* Email Icon */}
+                  <div
+                    className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center"
+                    style={{ backgroundColor: colors.tile }}
+                  >
+                    <svg
+                      className="w-8 h-8"
+                      style={{ color: colors.textDark }}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                      />
+                    </svg>
+                  </div>
+
+                  <p className="text-[20px] font-semibold mb-2" style={{ color: colors.textDark }}>
+                    Check your email
+                  </p>
+                  <p className="text-[14px] mb-1" style={{ color: colors.text }}>
+                    We sent a login link to
+                  </p>
+                  <p className="text-[14px] font-medium mb-4" style={{ color: colors.textDark }}>
+                    {plannerSaveEmail}
+                  </p>
+                  <p className="text-[13px] mb-6" style={{ color: colors.text }}>
+                    Click the link to save your plan. The link expires in 24 hours.
+                  </p>
+
+                  {/* Resend button */}
+                  <button
+                    onClick={async () => {
+                      setPlannerEmailSaving(true);
+                      setPlannerEmailError("");
+                      const { error } = await signInWithEmail(plannerSaveEmail, emailConsent);
+                      setPlannerEmailSaving(false);
+                      if (error) {
+                        setPlannerEmailError(error.message);
+                      }
+                    }}
+                    disabled={plannerEmailSaving}
+                    className="w-full py-3 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2 mb-3"
+                    style={{
+                      backgroundColor: colors.tile,
+                      color: colors.textDark,
+                      opacity: plannerEmailSaving ? 0.7 : 1,
+                    }}
+                  >
+                    {plannerEmailSaving ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-stone-600 border-t-transparent rounded-full animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      "Resend email"
+                    )}
+                  </button>
+
+                  {plannerEmailError && (
+                    <p className="text-[12px] mb-2" style={{ color: colors.error }}>
+                      {plannerEmailError}
+                    </p>
+                  )}
+
+                  {/* Use different email */}
+                  <button
+                    onClick={() => {
+                      setPlannerEmailSent(false);
+                      setPlannerEmailError("");
+                    }}
+                    className="text-[13px] underline"
+                    style={{ color: colors.text }}
+                  >
+                    Use a different email
+                  </button>
+
+                  <p className="text-[12px] mt-4" style={{ color: colors.text }}>
+                    Didn't receive the email? Check your spam folder.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Icon */}
+                  <div
+                    className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
+                    style={{ backgroundColor: colors.tile }}
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      style={{ color: colors.textDark }}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
+                      />
+                    </svg>
+                  </div>
+
+                  {/* Title */}
+                  <p className="text-[18px] font-semibold mb-1" style={{ color: colors.textDark }}>
+                    Save your plan
+                  </p>
+                  <p className="text-[14px] mb-5" style={{ color: colors.text }}>
+                    Create a free account to save your plan and track your progress.
+                  </p>
+
+                  {/* Email Input */}
+                  <input
+                    type="email"
+                    value={plannerSaveEmail}
+                    onChange={(e) => {
+                      setPlannerSaveEmail(e.target.value);
+                      setPlannerEmailError("");
+                    }}
+                    placeholder="your@email.com"
+                    className="w-full px-4 py-3 rounded-xl text-[15px] outline-none mb-3"
+                    style={{
+                      backgroundColor: colors.white,
+                      color: colors.textDark,
+                      border: plannerEmailError ? `1.5px solid ${colors.error}` : `1.5px solid ${colors.border}`,
+                    }}
                   />
-                </svg>
-              </div>
+                  {plannerEmailError && (
+                    <p className="text-[12px] mb-3 -mt-2" style={{ color: colors.error }}>
+                      {plannerEmailError}
+                    </p>
+                  )}
 
-              {/* Title */}
-              <p className="text-[18px] font-semibold mb-1" style={{ color: colors.textDark }}>
-                Save your plan
-              </p>
-              <p className="text-[14px] mb-5" style={{ color: colors.text }}>
-                Create a free account to save your plan and track your progress.
-              </p>
+                  {/* Email Consent Checkbox */}
+                  <label className="flex items-start gap-2.5 mb-4 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={emailConsent}
+                      onChange={(e) => setEmailConsent(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded"
+                      style={{ accentColor: colors.buttonDark }}
+                    />
+                    <span className="text-[12px] leading-snug" style={{ color: colors.text }}>
+                      Send me a reminder before my application deadline and helpful tips about Elterngeld.
+                    </span>
+                  </label>
 
-              {/* Email Input */}
-              <input
-                type="email"
-                value={plannerSaveEmail}
-                onChange={(e) => {
-                  setPlannerSaveEmail(e.target.value);
-                  setPlannerEmailError("");
-                }}
-                placeholder="your@email.com"
-                className="w-full px-4 py-3 rounded-xl text-[15px] outline-none mb-3"
-                style={{
-                  backgroundColor: colors.white,
-                  color: colors.textDark,
-                  border: plannerEmailError ? `1.5px solid ${colors.error}` : `1.5px solid ${colors.border}`,
-                }}
-              />
-              {plannerEmailError && (
-                <p className="text-[12px] mb-3 -mt-2" style={{ color: colors.error }}>
-                  {plannerEmailError}
-                </p>
+                  {/* Email Button */}
+                  <button
+                    onClick={async () => {
+                      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(plannerSaveEmail)) {
+                        setPlannerEmailError("Please enter a valid email");
+                        return;
+                      }
+                      // 1. Save plan to localStorage FIRST
+                      savePlanToLocalStorage();
+                      
+                      // 2. Send magic link
+                      setPlannerEmailSaving(true);
+                      const { error } = await signInWithEmail(plannerSaveEmail, emailConsent);
+                      
+                      if (error) {
+                        setPlannerEmailError(error.message);
+                        setPlannerEmailSaving(false);
+                      } else {
+                        // 3. Show "Check your email" screen - do NOT close modal
+                        setPlannerEmailSent(true);
+                        setPlannerEmailSaving(false);
+                      }
+                    }}
+                    disabled={plannerEmailSaving}
+                    className="w-full py-3 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2"
+                    style={{
+                      backgroundColor: colors.tile,
+                      color: colors.textDark,
+                      opacity: plannerEmailSaving ? 0.7 : 1,
+                    }}
+                  >
+                    {plannerEmailSaving ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-stone-600 border-t-transparent rounded-full animate-spin" />
+                        Sending link...
+                      </>
+                    ) : (
+                      "Continue with Email"
+                    )}
+                  </button>
+
+                  {/* Terms */}
+                  <p className="text-[12px] text-center mt-4" style={{ color: colors.text }}>
+                    By signing up, you agree to our{" "}
+                    <a href="/terms" className="underline">
+                      Terms
+                    </a>{" "}
+                    and{" "}
+                    <a href="/privacy" className="underline">
+                      Privacy Policy
+                    </a>
+                    .
+                  </p>
+                </>
               )}
-
-              {/* Email Consent Checkbox */}
-              <label className="flex items-start gap-2.5 mb-4 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={emailConsent}
-                  onChange={(e) => setEmailConsent(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 rounded"
-                  style={{ accentColor: colors.buttonDark }}
-                />
-                <span className="text-[12px] leading-snug" style={{ color: colors.text }}>
-                  Send me a reminder before my application deadline and helpful tips about Elterngeld.
-                </span>
-              </label>
-
-              {/* Email Button */}
-              <button
-                onClick={async () => {
-                  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(plannerSaveEmail)) {
-                    setPlannerEmailError("Please enter a valid email");
-                    return;
-                  }
-                  setPlannerEmailSaving(true);
-                  const { error } = await signInWithEmail(plannerSaveEmail, emailConsent);
-                  if (error) {
-                    setPlannerEmailError(error.message);
-                    setPlannerEmailSaving(false);
-                  } else {
-                    setPlannerEmailSaved(true);
-                    setPlannerEmailSaving(false);
-                    setShowPlannerSaveInput(false);
-                  }
-                }}
-                disabled={plannerEmailSaving}
-                className="w-full py-3 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2"
-                style={{
-                  backgroundColor: colors.tile,
-                  color: colors.textDark,
-                  opacity: plannerEmailSaving ? 0.7 : 1,
-                }}
-              >
-                {plannerEmailSaving ? (
-                  <>
-                    <span className="w-4 h-4 border-2 border-stone-600 border-t-transparent rounded-full animate-spin" />
-                    Sending link...
-                  </>
-                ) : (
-                  "Continue with Email"
-                )}
-              </button>
-
-              {/* Terms */}
-              <p className="text-[12px] text-center mt-4" style={{ color: colors.text }}>
-                By signing up, you agree to our{" "}
-                <a href="/terms" className="underline">
-                  Terms
-                </a>{" "}
-                and{" "}
-                <a href="/privacy" className="underline">
-                  Privacy Policy
-                </a>
-                .
-              </p>
             </div>
           </div>
         )}
