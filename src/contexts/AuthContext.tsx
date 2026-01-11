@@ -6,8 +6,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
-  signInWithGoogle: () => Promise<void>;
-  signInWithEmail: (email: string, emailConsent?: boolean) => Promise<{ error: Error | null }>;
+  signInWithGoogle: (redirectTo?: string) => Promise<void>;
+  signInWithEmail: (email: string, emailConsent?: boolean, redirectTo?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -38,21 +38,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = useCallback(async () => {
+  const signInWithGoogle = useCallback(async (redirectTo?: string) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/guide',
+        redirectTo: window.location.origin + (redirectTo || '/guide'),
       },
     });
     if (error) throw error;
   }, []);
 
-  const signInWithEmail = useCallback(async (email: string, emailConsent: boolean = false) => {
+  const signInWithEmail = useCallback(async (email: string, emailConsent: boolean = false, redirectTo?: string) => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: window.location.origin + '/guide',
+        emailRedirectTo: window.location.origin + (redirectTo || '/guide'),
         data: { email_consent: emailConsent },
       },
     });

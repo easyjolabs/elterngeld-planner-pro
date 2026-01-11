@@ -23,6 +23,7 @@ interface LoginModalProps {
   onClose: () => void;
   title?: string;
   description?: string;
+  redirectTo?: string;
 }
 
 // ===========================================
@@ -33,6 +34,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
   onClose,
   title = "Sign in",
   description = "Enter your email to receive a magic link.",
+  redirectTo,
 }) => {
   const { signInWithEmail } = useAuth();
 
@@ -55,7 +57,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     setIsLoading(true);
     setError("");
 
-    const { error: signInError } = await signInWithEmail(email, emailConsent);
+    const { error: signInError } = await signInWithEmail(email, emailConsent, redirectTo);
 
     if (signInError) {
       setError(signInError.message);
@@ -70,7 +72,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     setIsLoading(true);
     setError("");
 
-    const { error: signInError } = await signInWithEmail(email, emailConsent);
+    const { error: signInError } = await signInWithEmail(email, emailConsent, redirectTo);
 
     setIsLoading(false);
     if (signInError) {
