@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import UserDropdown from "@/components/UserDropdown";
 
 // Colors matching ElterngeldGuide
 const colors = {
@@ -19,7 +18,7 @@ export type SidebarView = "home" | "guide" | "chat" | "pdf";
 interface SidebarProps {
   activeView: SidebarView;
   onNavigate: (view: SidebarView) => void;
-  onSignInClick: () => void;
+  onSignInClick?: () => void;
 }
 
 // Hook to detect mobile (400px breakpoint)
@@ -56,18 +55,16 @@ const Tooltip: React.FC<{ label: string; show: boolean; children: React.ReactNod
 );
 
 const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick }) => {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
-  // Helper for initials
-  const getInitials = () => {
-    if (!user?.email) return "?";
-    return user.email[0].toUpperCase();
-  };
+  // Get user display info
+  const userName = user?.email?.split("@")[0] || "User";
+  const userEmail = user?.email || "";
+  const userInitial = userName.charAt(0).toUpperCase();
 
   const navItems: Array<{ id: SidebarView; label: string; icon: React.ReactNode }> = [
     {
@@ -205,46 +202,69 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
           {/* Bottom Section - Auth Aware */}
           <div className="p-4 border-t" style={{ borderColor: colors.border }}>
             {user ? (
-              <button
-                onClick={() => {
-                  navigate("/settings");
-                  setMobileOpen(false);
-                }}
-                className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all"
-                style={{ backgroundColor: colors.tile }}
-              >
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold"
-                  style={{ backgroundColor: colors.textDark, color: colors.white }}
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    navigate("/settings");
+                    setMobileOpen(false);
+                  }}
+                  className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all"
+                  style={{ backgroundColor: colors.tile }}
                 >
-                  {getInitials()}
-                </div>
-                <div className="flex-1 text-left">
-                  <span className="text-base font-medium block truncate" style={{ color: colors.textDark }}>
-                    {user.email}
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold"
+                    style={{ backgroundColor: colors.textDark, color: colors.white }}
+                  >
+                    {userInitial}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-base font-medium truncate" style={{ color: colors.textDark }}>
+                      {userName}
+                    </p>
+                    <p className="text-xs truncate" style={{ color: colors.text }}>
+                      {userEmail}
+                    </p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => {
+                    signOut();
+                    setMobileOpen(false);
+                  }}
+                  className="w-full h-12 rounded-xl flex items-center justify-center gap-2 transition-all"
+                  style={{ backgroundColor: "transparent", border: `1px solid ${colors.border}` }}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+                    />
+                  </svg>
+                  <span className="text-sm font-medium" style={{ color: colors.text }}>
+                    Log out
                   </span>
-                  <span className="text-sm" style={{ color: colors.text }}>
-                    View settings
-                  </span>
-                </div>
-              </button>
+                </button>
+              </div>
             ) : (
               <button
                 onClick={() => {
-                  onSignInClick();
+                  onSignInClick?.();
                   setMobileOpen(false);
                 }}
-                className="w-full h-14 rounded-xl flex items-center justify-center gap-2 transition-all"
-                style={{ backgroundColor: colors.textDark, color: colors.white }}
+                className="w-full h-14 rounded-xl flex items-center px-4 gap-4 transition-all"
+                style={{ backgroundColor: colors.accent }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke={colors.white} strokeWidth={1.5} viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
                   />
                 </svg>
-                <span className="text-base font-medium">Sign in</span>
+                <span className="text-base font-medium" style={{ color: colors.white }}>
+                  Sign in
+                </span>
               </button>
             )}
           </div>
@@ -313,68 +333,52 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
 
       {/* Bottom Section */}
       <div className="p-2 border-t" style={{ borderColor: colors.border }}>
-        {/* User Profile / Sign In */}
-        <div className="relative">
-          {user ? (
-            <>
-              <Tooltip label="Profile" show={!expanded}>
-                <button
-                  onClick={() => setShowUserDropdown(!showUserDropdown)}
-                  className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1"
+        {/* User Profile or Sign In */}
+        {user ? (
+          <Tooltip label="Settings" show={!expanded}>
+            <button
+              onClick={() => navigate("/settings")}
+              className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1"
+            >
+              <div className="w-10 flex items-center justify-center shrink-0">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                  style={{ backgroundColor: colors.textDark, color: colors.white }}
                 >
-                  <div className="w-10 flex items-center justify-center shrink-0">
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
-                      style={{ backgroundColor: colors.textDark, color: colors.white }}
-                    >
-                      {getInitials()}
-                    </div>
-                  </div>
-                  {expanded && (
-                    <span className="text-sm flex-1 text-left truncate ml-2" style={{ color: colors.textDark }}>
-                      {user.email}
-                    </span>
-                  )}
-                </button>
-              </Tooltip>
-              <UserDropdown
-                isOpen={showUserDropdown}
-                onClose={() => setShowUserDropdown(false)}
-                user={{ name: user.email || "", email: user.email || "" }}
-                onNavigate={(route) => {
-                  navigate(`/${route}`);
-                  setShowUserDropdown(false);
-                }}
-                onLogout={() => {
-                  signOut();
-                  setShowUserDropdown(false);
-                }}
-              />
-            </>
-          ) : (
-            <Tooltip label="Sign in" show={!expanded}>
-              <button
-                onClick={onSignInClick}
-                className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1"
-              >
-                <div className="w-10 flex items-center justify-center shrink-0">
-                  <svg className="w-5 h-5" fill="none" stroke={colors.textDark} strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
-                    />
-                  </svg>
+                  {userInitial}
                 </div>
-                {expanded && (
-                  <span className="text-sm ml-2" style={{ color: colors.textDark }}>
-                    Sign in
-                  </span>
-                )}
-              </button>
-            </Tooltip>
-          )}
-        </div>
+              </div>
+              {expanded && (
+                <span className="text-sm flex-1 text-left truncate ml-2" style={{ color: colors.textDark }}>
+                  {userName}
+                </span>
+              )}
+            </button>
+          </Tooltip>
+        ) : (
+          <Tooltip label="Sign in" show={!expanded}>
+            <button
+              onClick={() => onSignInClick?.()}
+              className="w-full h-10 rounded-lg flex items-center transition-all hover:opacity-90 mb-1"
+              style={{ backgroundColor: colors.accent }}
+            >
+              <div className="w-10 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5" fill="none" stroke={colors.white} strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+                  />
+                </svg>
+              </div>
+              {expanded && (
+                <span className="text-sm ml-2" style={{ color: colors.white }}>
+                  Sign in
+                </span>
+              )}
+            </button>
+          </Tooltip>
+        )}
 
         {/* Expand/Collapse Button */}
         <Tooltip label={expanded ? "Collapse" : "Expand"} show={!expanded}>

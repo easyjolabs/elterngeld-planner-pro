@@ -1546,7 +1546,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
         partner: "none",
       })),
     );
-    setSelectedScenario("");
     setIsPaused(false);
     setShowScrollButton(false);
     setLastUserMessageIndex(-1);
