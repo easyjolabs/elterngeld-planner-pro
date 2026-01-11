@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ArrowRight, Calendar, MessageCircle, FileText } from "lucide-react";
 
-// Color constants from design system
+// Color constants from design system (matching Guide)
 const colors = {
   background: "#F9F8F4",
   tile: "#F0EEE6",
@@ -11,6 +11,7 @@ const colors = {
   textDark: "#000000",
   border: "#E7E5E4",
   white: "#FFFFFF",
+  buttonDark: "#3D3D3A",
   basis: "#C0630B",
   plus: "#FC631B",
   bonus: "#FFBDF0",
@@ -47,28 +48,28 @@ const TeaserCard: React.FC<TeaserCardProps> = ({
     >
       {/* Illustration Placeholder - Gradient Area */}
       <div
-        className="relative h-48 w-full flex items-center justify-center overflow-hidden"
+        className="relative h-36 w-full flex items-center justify-center overflow-hidden"
         style={{
           background: `linear-gradient(135deg, ${gradientFrom} 0%, ${gradientTo} 100%)`,
         }}
       >
         {/* Decorative geometric shapes */}
         <div
-          className="absolute top-4 right-4 w-16 h-16 rounded-full opacity-30"
+          className="absolute top-3 right-3 w-12 h-12 rounded-full opacity-30"
           style={{ backgroundColor: colors.white }}
         />
         <div
-          className="absolute bottom-8 left-8 w-24 h-24 rounded-lg rotate-12 opacity-20"
+          className="absolute bottom-6 left-6 w-16 h-16 rounded-lg rotate-12 opacity-20"
           style={{ backgroundColor: colors.white }}
         />
         <div
-          className="absolute top-12 left-12 w-8 h-8 rounded-sm rotate-45 opacity-40"
+          className="absolute top-8 left-8 w-5 h-5 rounded-sm rotate-45 opacity-40"
           style={{ backgroundColor: colors.white }}
         />
 
         {/* Icon */}
         <div
-          className="relative z-10 w-20 h-20 rounded-2xl flex items-center justify-center"
+          className="relative z-10 w-14 h-14 rounded-xl flex items-center justify-center"
           style={{ backgroundColor: "rgba(255,255,255,0.9)" }}
         >
           {icon}
@@ -76,18 +77,18 @@ const TeaserCard: React.FC<TeaserCardProps> = ({
       </div>
 
       {/* Content Area */}
-      <div className="p-5 flex flex-col gap-2">
+      <div className="p-4 flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <h3 className="text-[18px] font-semibold" style={{ color: colors.textDark }}>
+          <h3 className="text-[15px] font-semibold" style={{ color: colors.textDark }}>
             {title}
           </h3>
           <ArrowRight
-            size={18}
+            size={16}
             className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
             style={{ color: accentColor }}
           />
         </div>
-        <p className="text-[14px] leading-relaxed" style={{ color: colors.text }}>
+        <p className="text-[13px] leading-relaxed" style={{ color: colors.text }}>
           {description}
         </p>
       </div>
@@ -121,7 +122,7 @@ const HelpPage: React.FC = () => {
       gradientFrom: "#C0630B",
       gradientTo: "#FC631B",
       accentColor: colors.basis,
-      icon: <Calendar size={36} strokeWidth={1.5} color={colors.basis} />,
+      icon: <Calendar size={28} strokeWidth={1.5} color={colors.basis} />,
       onClick: () => navigate("/guide"),
     },
     {
@@ -130,7 +131,7 @@ const HelpPage: React.FC = () => {
       gradientFrom: "#FFBDF0",
       gradientTo: "#FFD4F5",
       accentColor: "#D946A0",
-      icon: <MessageCircle size={36} strokeWidth={1.5} color="#D946A0" />,
+      icon: <MessageCircle size={28} strokeWidth={1.5} color="#D946A0" />,
       onClick: () => navigate("/chat"),
     },
     {
@@ -139,42 +140,39 @@ const HelpPage: React.FC = () => {
       gradientFrom: "#1AB689",
       gradientTo: "#34D9A8",
       accentColor: colors.success,
-      icon: <FileText size={36} strokeWidth={1.5} color={colors.success} />,
+      icon: <FileText size={28} strokeWidth={1.5} color={colors.success} />,
       onClick: () => navigate("/application"),
     },
   ];
 
   return (
-    <div className="min-h-screen w-full" style={{ backgroundColor: colors.background }}>
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-6 py-16 md:py-24">
+    <div className="h-screen overflow-y-auto" style={{ backgroundColor: colors.background }}>
+      <div className="max-w-3xl mx-auto px-6 py-12">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-[32px] md:text-[42px] font-bold mb-4 leading-tight" style={{ color: colors.textDark }}>
-            How can we help with your
-            <br />
-            Elterngeld?
+        <div className="text-center mb-8">
+          <h1 className="text-[24px] font-bold mb-2 leading-tight" style={{ color: colors.textDark }}>
+            How can we help with your Elterngeld?
           </h1>
         </div>
 
         {/* Search Input */}
-        <form onSubmit={handleSearchSubmit} className="mb-16">
+        <form onSubmit={handleSearchSubmit} className="mb-10">
           <div
-            className="relative flex items-center rounded-full overflow-hidden transition-shadow duration-200 focus-within:shadow-md"
+            className="relative flex items-center rounded-xl overflow-hidden transition-shadow duration-200 focus-within:shadow-md"
             style={{
               backgroundColor: colors.white,
               boxShadow: "0 2px 16px rgba(0, 0, 0, 0.04)",
-              border: `1px solid ${colors.border}`,
+              border: `1.5px solid ${colors.border}`,
             }}
           >
-            <Search size={20} className="absolute left-5" style={{ color: colors.text }} />
+            <Search size={18} className="absolute left-4" style={{ color: colors.text }} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearchKeyDown}
               placeholder="Ask anything about Elterngeld..."
-              className="w-full py-4 pl-14 pr-14 text-[15px] outline-none"
+              className="w-full py-3 pl-11 pr-12 text-[14px] outline-none"
               style={{
                 backgroundColor: "transparent",
                 color: colors.textDark,
@@ -182,18 +180,18 @@ const HelpPage: React.FC = () => {
             />
             <button
               type="submit"
-              className="absolute right-3 w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200"
+              className="absolute right-2.5 w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200"
               style={{
                 backgroundColor: searchQuery.trim() ? colors.basis : colors.tile,
               }}
             >
-              <ArrowRight size={18} color={searchQuery.trim() ? colors.white : colors.text} />
+              <ArrowRight size={16} color={searchQuery.trim() ? colors.white : colors.text} />
             </button>
           </div>
         </form>
 
         {/* Teaser Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {teasers.map((teaser, index) => (
             <TeaserCard
               key={index}
