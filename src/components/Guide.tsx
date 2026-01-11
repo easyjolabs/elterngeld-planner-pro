@@ -1310,6 +1310,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 
   const [openTooltips, setOpenTooltips] = useState<Set<string>>(new Set());
   const [isPaused, setIsPaused] = useState(false);
+  const [isRestoredSession, setIsRestoredSession] = useState(false);
   const [showPdfFlow, setShowPdfFlow] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [hideScrollbar, setHideScrollbar] = useState(false);
@@ -1400,7 +1401,8 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
         ]);
         messagesLengthRef.current = 2;
         setIsPaused(true);
-        setShowInput({ type: "bot", pause: true, pauseLabel: "Continue to application →" });
+        setIsRestoredSession(true);
+        setShowInput({ type: "component", component: "continue", pauseLabel: "Continue to application →" });
         setStep(99);
 
         // Close modal
@@ -2414,6 +2416,25 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       setLastUserMessageIndex(newIndex);
       setHideScrollbar(true); // Hide scrollbar before scroll starts
       setShouldScrollToUser(true);
+    }
+
+    // Handle restored session - add CTA content directly
+    if (isRestoredSession) {
+      setIsRestoredSession(false);
+      setIsPaused(false);
+      setShowInput(null);
+
+      // Add CTA messages
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          { type: "bot" as const, content: "Ready to apply? We can pre-fill your official application and guide you through the remaining steps." },
+          { type: "component" as const, component: "ctaCard" },
+        ]);
+        messagesLengthRef.current += 2;
+        setShowInput({ type: "end" });
+      }, 300);
+      return;
     }
 
     setIsPaused(false);
@@ -3460,20 +3481,22 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               style={{ backgroundColor: colors.white }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close X Button */}
-              <button
-                onClick={() => {
-                  setShowPlannerSaveInput(false);
-                  setPlannerEmailSent(false);
-                  setPlannerEmailError("");
-                }}
-                className="absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100 transition-colors"
-                style={{ color: colors.text }}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              {/* Close X Button - only show before email is sent */}
+              {!plannerEmailSent && (
+                <button
+                  onClick={() => {
+                    setShowPlannerSaveInput(false);
+                    setPlannerEmailSent(false);
+                    setPlannerEmailError("");
+                  }}
+                  className="absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+                  style={{ color: colors.text }}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
 
               {/* Check your email screen */}
               {plannerEmailSent ? (
