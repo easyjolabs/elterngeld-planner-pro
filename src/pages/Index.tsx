@@ -25,9 +25,111 @@ interface TeaserCardProps {
   gradientTo: string;
   icon: React.ReactNode;
   onClick: () => void;
+  decorationType: "calendar" | "chat" | "document";
 }
 
-const TeaserCard: React.FC<TeaserCardProps> = ({ title, description, gradientFrom, gradientTo, icon, onClick }) => {
+const TeaserCard: React.FC<TeaserCardProps> = ({
+  title,
+  description,
+  gradientFrom,
+  gradientTo,
+  icon,
+  onClick,
+  decorationType,
+}) => {
+  // Themed decorative elements
+  const renderDecorations = () => {
+    switch (decorationType) {
+      case "calendar":
+        // Calendar blocks / month grid
+        return (
+          <>
+            {/* Month blocks grid */}
+            <div className="absolute top-4 right-4 grid grid-cols-3 gap-1 opacity-25">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="w-3 h-3 rounded-sm" style={{ backgroundColor: colors.white }} />
+              ))}
+            </div>
+            {/* Larger block */}
+            <div
+              className="absolute bottom-6 left-6 w-10 h-10 rounded-lg opacity-20"
+              style={{ backgroundColor: colors.white }}
+            />
+            {/* Timeline bar */}
+            <div
+              className="absolute bottom-4 right-8 w-16 h-2 rounded-full opacity-30"
+              style={{ backgroundColor: colors.white }}
+            />
+          </>
+        );
+      case "chat":
+        // Speech bubbles
+        return (
+          <>
+            {/* Large speech bubble */}
+            <div
+              className="absolute top-4 right-4 w-14 h-10 rounded-2xl rounded-br-sm opacity-25"
+              style={{ backgroundColor: colors.white }}
+            />
+            {/* Small speech bubble */}
+            <div
+              className="absolute bottom-8 left-6 w-10 h-7 rounded-2xl rounded-bl-sm opacity-20"
+              style={{ backgroundColor: colors.white }}
+            />
+            {/* Dots (typing indicator style) */}
+            <div className="absolute bottom-4 right-6 flex gap-1 opacity-30">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colors.white }} />
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colors.white }} />
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colors.white }} />
+            </div>
+          </>
+        );
+      case "document":
+        // Document shapes with checkmarks
+        return (
+          <>
+            {/* Document outline */}
+            <div
+              className="absolute top-4 right-4 w-10 h-14 rounded-sm opacity-40"
+              style={{
+                backgroundColor: "transparent",
+                border: `2px solid ${colors.white}`,
+              }}
+            >
+              {/* Lines on document */}
+              <div className="mt-3 mx-1.5 space-y-1">
+                <div className="h-1 rounded-full opacity-80" style={{ backgroundColor: colors.white, width: "80%" }} />
+                <div className="h-1 rounded-full opacity-80" style={{ backgroundColor: colors.white, width: "60%" }} />
+                <div className="h-1 rounded-full opacity-80" style={{ backgroundColor: colors.white, width: "70%" }} />
+              </div>
+            </div>
+            {/* Checkmark circle */}
+            <div
+              className="absolute bottom-6 left-6 w-8 h-8 rounded-full opacity-45 flex items-center justify-center"
+              style={{ backgroundColor: colors.white }}
+            >
+              <svg
+                className="w-4 h-4 opacity-80"
+                fill="none"
+                stroke={gradientFrom}
+                strokeWidth={2.5}
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            {/* Small checkbox */}
+            <div
+              className="absolute top-10 left-8 w-4 h-4 rounded-sm opacity-50"
+              style={{
+                backgroundColor: "transparent",
+                border: `2px solid ${colors.white}`,
+              }}
+            />
+          </>
+        );
+    }
+  };
   return (
     <button
       onClick={onClick}
@@ -47,19 +149,10 @@ const TeaserCard: React.FC<TeaserCardProps> = ({ title, description, gradientFro
           }}
         />
 
-        {/* Decorative geometric shapes */}
-        <div
-          className="absolute top-3 right-3 w-12 h-12 rounded-full opacity-30 transition-transform duration-300 group-hover:scale-105"
-          style={{ backgroundColor: colors.white }}
-        />
-        <div
-          className="absolute bottom-6 left-6 w-16 h-16 rounded-lg rotate-12 opacity-20 transition-transform duration-300 group-hover:scale-105"
-          style={{ backgroundColor: colors.white }}
-        />
-        <div
-          className="absolute top-8 left-8 w-5 h-5 rounded-sm rotate-45 opacity-40 transition-transform duration-300 group-hover:scale-105"
-          style={{ backgroundColor: colors.white }}
-        />
+        {/* Themed decorative elements */}
+        <div className="absolute inset-0 transition-transform duration-300 group-hover:scale-105">
+          {renderDecorations()}
+        </div>
 
         {/* Icon */}
         <div
@@ -117,6 +210,7 @@ const HelpPage: React.FC = () => {
       gradientTo: "#FF8A5B",
       icon: <Calendar size={28} strokeWidth={1.5} color={colors.textDark} />,
       onClick: () => navigate("/guide"),
+      decorationType: "calendar" as const,
     },
     {
       title: "Ask the Expert",
@@ -125,14 +219,16 @@ const HelpPage: React.FC = () => {
       gradientTo: "#D8CABA",
       icon: <MessageCircle size={28} strokeWidth={1.5} color={colors.textDark} />,
       onClick: () => navigate("/chat"),
+      decorationType: "chat" as const,
     },
     {
       title: "Fill your Application",
       description: "Complete the official 23-page form step by step with guidance.",
-      gradientFrom: "#F2F53A",
-      gradientTo: "#F7F871",
+      gradientFrom: "#D9DB2B",
+      gradientTo: "#E8EA5C",
       icon: <FileText size={28} strokeWidth={1.5} color={colors.textDark} />,
       onClick: () => navigate("/application"),
+      decorationType: "document" as const,
     },
   ];
 
@@ -192,6 +288,7 @@ const HelpPage: React.FC = () => {
               gradientTo={teaser.gradientTo}
               icon={teaser.icon}
               onClick={teaser.onClick}
+              decorationType={teaser.decorationType}
             />
           ))}
         </div>
