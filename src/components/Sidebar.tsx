@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import UserDropdown from './UserDropdown';
 
 // Colors matching ElterngeldGuide
 const colors = {
@@ -60,7 +59,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -306,38 +304,27 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Bottom Section */}
       <div className="p-2 border-t" style={{ borderColor: colors.border }}>
-        {/* User Profile */}
-        <div className="relative">
-          <Tooltip label="Profile" show={!expanded}>
-            <button
-              onClick={() => user && setUserDropdownOpen(!userDropdownOpen)}
-              className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1"
-            >
-              <div className="w-10 flex items-center justify-center shrink-0">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
-                  style={{ backgroundColor: colors.textDark, color: colors.white }}
-                >
-                  {userInitial}
-                </div>
+        {/* User Profile - navigates directly to settings */}
+        <Tooltip label="Settings" show={!expanded}>
+          <button
+            onClick={() => navigate('/settings')}
+            className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1"
+          >
+            <div className="w-10 flex items-center justify-center shrink-0">
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                style={{ backgroundColor: colors.textDark, color: colors.white }}
+              >
+                {userInitial}
               </div>
-              {expanded && (
-                <span className="text-sm flex-1 text-left truncate ml-2" style={{ color: colors.textDark }}>
-                  {userName}
-                </span>
-              )}
-            </button>
-          </Tooltip>
-          {user && (
-            <UserDropdown
-              isOpen={userDropdownOpen}
-              onClose={() => setUserDropdownOpen(false)}
-              user={{ name: userName, email: userEmail }}
-              onNavigate={(route) => navigate(`/${route}`)}
-              onLogout={signOut}
-            />
-          )}
-        </div>
+            </div>
+            {expanded && (
+              <span className="text-sm flex-1 text-left truncate ml-2" style={{ color: colors.textDark }}>
+                {userName}
+              </span>
+            )}
+          </button>
+        </Tooltip>
 
         {/* Expand/Collapse Button */}
         <Tooltip label={expanded ? 'Collapse' : 'Expand'} show={!expanded}>
