@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import React, { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 // ===========================================
 // DESIGN TOKENS (matching Guide)
@@ -23,7 +23,6 @@ interface LoginModalProps {
   onClose: () => void;
   title?: string;
   description?: string;
-  redirectTo?: string;
 }
 
 // ===========================================
@@ -34,12 +33,10 @@ const LoginModal: React.FC<LoginModalProps> = ({
   onClose,
   title = "Sign in",
   description = "Enter your email to receive a magic link.",
-  redirectTo,
 }) => {
   const { signInWithEmail } = useAuth();
 
   const [email, setEmail] = useState("");
-  const [emailConsent, setEmailConsent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState("");
@@ -57,7 +54,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     setIsLoading(true);
     setError("");
 
-    const { error: signInError } = await signInWithEmail(email, emailConsent, redirectTo);
+    const { error: signInError } = await signInWithEmail(email);
 
     if (signInError) {
       setError(signInError.message);
@@ -72,7 +69,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     setIsLoading(true);
     setError("");
 
-    const { error: signInError } = await signInWithEmail(email, emailConsent, redirectTo);
+    const { error: signInError } = await signInWithEmail(email);
 
     setIsLoading(false);
     if (signInError) {
@@ -95,23 +92,27 @@ const LoginModal: React.FC<LoginModalProps> = ({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.4)" }}
-      onClick={handleClose}
+      onClick={() => {
+        if (!emailSent) handleClose();
+      }}
     >
       <div
         className="mx-4 w-full max-w-sm rounded-2xl p-6 relative"
         style={{ backgroundColor: colors.white }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close X Button */}
-        <button
-          onClick={handleClose}
-          className="absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100 transition-colors"
-          style={{ color: colors.text }}
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        {/* Close X Button - only show before email is sent */}
+        {!emailSent && (
+          <button
+            onClick={handleClose}
+            className="absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+            style={{ color: colors.text }}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
 
         {/* Check your email screen */}
         {emailSent ? (
@@ -240,7 +241,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                 border: error ? `1.5px solid ${colors.error}` : `1.5px solid ${colors.border}`,
               }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSubmit();
+                if (e.key === "Enter") handleSubmit();
               }}
             />
             {error && (
@@ -248,20 +249,6 @@ const LoginModal: React.FC<LoginModalProps> = ({
                 {error}
               </p>
             )}
-
-            {/* Email Consent Checkbox */}
-            <label className="flex items-start gap-2.5 mb-4 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={emailConsent}
-                onChange={(e) => setEmailConsent(e.target.checked)}
-                className="mt-0.5 w-4 h-4 rounded"
-                style={{ accentColor: colors.buttonDark }}
-              />
-              <span className="text-[12px] leading-snug" style={{ color: colors.text }}>
-                Send me helpful tips about Elterngeld and important reminders.
-              </span>
-            </label>
 
             {/* Email Button */}
             <button
