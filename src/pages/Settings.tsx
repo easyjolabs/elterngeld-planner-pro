@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import LoginModal from "@/components/LoginModal";
 
 // ===========================================
 // DESIGN TOKENS (matching Guide)
@@ -58,6 +59,7 @@ const SettingsPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Profile State
   const [emailConsent, setEmailConsent] = useState(false);
@@ -167,6 +169,49 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleEditPlan = () => {
+    if (plan) {
+      // Extract user data
+      const userData = (plan.user_data || {}) as Record<string, unknown>;
+
+      // Create a session that the Guide can restore from
+      // This puts user directly at the planner step with their saved data
+      const sessionData = {
+        // Chat state - set to show planner
+        step: 99, // High number to prevent auto-advance
+        messages: [
+          { type: "bot", content: "Welcome back! Here's your saved Elterngeld plan." },
+          { type: "component", component: "planner" },
+        ],
+        stepHistory: [],
+        showInput: { type: "component", component: "continue", pauseLabel: "Continue to application →" },
+        isPaused: true,
+        isRestoredSession: true,
+
+        // User data from Supabase
+        data: userData,
+        sliderValue: (userData.income as number) || 3000, // Default if not saved
+        partnerSliderValue: (userData.partnerIncome as number) || 2500,
+
+        // Planner state from Supabase
+        plannerData: plan.plan_data || Array.from({ length: 32 }, () => ({ you: "none", partner: "none" })),
+        plannerMonths: 32,
+        selectedState: plan.selected_state || "",
+
+        // Part-time work state (defaults)
+        workPartTime: false,
+        partTimeIncome: 0,
+        partnerPartTimeIncome: 0,
+
+        // UI state
+        lastUserMessageIndex: -1,
+        ctaStep: 1,
+        timestamp: Date.now(),
+      };
+
+      localStorage.setItem("elterngeld_pending_session", JSON.stringify(sessionData));
+    }
+
+    // Navigate to guide - it will restore from localStorage
     navigate("/guide");
   };
 
@@ -180,7 +225,11 @@ const SettingsPage: React.FC = () => {
       label: "General",
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"
+          />
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
       ),
@@ -190,7 +239,11 @@ const SettingsPage: React.FC = () => {
       label: "My Plan",
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
+          />
         </svg>
       ),
     },
@@ -210,6 +263,9 @@ const SettingsPage: React.FC = () => {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col" style={{ backgroundColor: colors.background }}>
+        {/* Login Modal */}
+        <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+
         {/* Header */}
         <div className="flex-shrink-0" style={{ backgroundColor: colors.background }}>
           <div className="px-5 py-3">
@@ -240,7 +296,11 @@ const SettingsPage: React.FC = () => {
               style={{ backgroundColor: colors.tile }}
             >
               <svg className="w-8 h-8" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                />
               </svg>
             </div>
             <h2 className="text-xl font-semibold mb-2" style={{ color: colors.textDark }}>
@@ -250,11 +310,11 @@ const SettingsPage: React.FC = () => {
               Create an account or sign in to manage your profile and saved plans.
             </p>
             <button
-              onClick={handleBack}
+              onClick={() => setShowLoginModal(true)}
               className="px-6 py-2.5 rounded-xl text-sm font-semibold"
               style={{ backgroundColor: colors.buttonDark, color: colors.white }}
             >
-              Go back
+              Sign in
             </button>
           </div>
         </div>
@@ -492,7 +552,11 @@ const SettingsPage: React.FC = () => {
                         style={{ backgroundColor: colors.tile }}
                       >
                         <svg className="w-7 h-7" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
+                          />
                         </svg>
                       </div>
                       <h3 className="text-base font-semibold mb-2" style={{ color: colors.textDark }}>
@@ -517,7 +581,9 @@ const SettingsPage: React.FC = () => {
                         style={{ backgroundColor: colors.white, border: `1px solid ${colors.border}` }}
                       >
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="font-medium" style={{ color: colors.textDark }}>Saved Plan</h3>
+                          <h3 className="font-medium" style={{ color: colors.textDark }}>
+                            Saved Plan
+                          </h3>
                           {plan.updated_at && (
                             <span className="text-xs" style={{ color: colors.text }}>
                               Updated {formatDate(plan.updated_at)}
