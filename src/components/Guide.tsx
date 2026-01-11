@@ -1201,17 +1201,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     callback: null,
   });
   const [showInput, setShowInput] = useState<FlowMessage | null>(null);
-  const [showChat, setShowChat] = useState(false);
-  const [chatInput, setChatInput] = useState("");
-  const [chatMessages, setChatMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
-  const [isChatStreaming, setIsChatStreaming] = useState(false);
-  const [chatStreamingIndex, setChatStreamingIndex] = useState(-1);
-  const chatStreamingRef = useRef<{ words: string[]; index: number; messageIndex: number }>({
-    words: [],
-    index: 0,
-    messageIndex: -1,
-  });
-  const chatScrollRef = useRef<HTMLDivElement>(null);
 
   // Planner save email state
   const [showPlannerSaveInput, setShowPlannerSaveInput] = useState(false);
@@ -1243,53 +1232,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     }, 8000);
     return () => clearInterval(interval);
   }, [showInput]);
-
-  // Chat streaming function
-  const streamChatMessage = useCallback((text: string, messageIndex: number) => {
-    const tokens = text.split(/(\s+)/).filter((t) => t.length > 0);
-    chatStreamingRef.current = { words: tokens, index: 0, messageIndex };
-    setChatStreamingIndex(messageIndex);
-    setIsChatStreaming(true);
-  }, []);
-
-  // Chat streaming effect
-  useEffect(() => {
-    if (!isChatStreaming) return;
-
-    const { words: tokens, index, messageIndex } = chatStreamingRef.current;
-
-    if (index >= tokens.length) {
-      setIsChatStreaming(false);
-      setChatStreamingIndex(-1);
-      return;
-    }
-
-    const delay = 20 + Math.random() * 15;
-    const timer = setTimeout(() => {
-      setChatMessages((prev) => {
-        const updated = [...prev];
-        if (updated[messageIndex]) {
-          const currentTokens = tokens.slice(0, chatStreamingRef.current.index + 1);
-          updated[messageIndex] = { ...updated[messageIndex], content: currentTokens.join("") };
-        }
-        return updated;
-      });
-      chatStreamingRef.current.index++;
-
-      // Auto-scroll during streaming
-      setTimeout(() => {
-        chatScrollRef.current?.scrollTo({ top: chatScrollRef.current.scrollHeight, behavior: "smooth" });
-      }, 10);
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [isChatStreaming, chatMessages]);
-
-  // Helper to open chat with optional prefill
-  const openChat = useCallback((prefill?: string) => {
-    setChatInput(prefill || "");
-    setShowChat(true);
-  }, []);
   const [sliderValue, setSliderValue] = useState(0);
   const [partnerSliderValue, setPartnerSliderValue] = useState(0);
   const [data, setData] = useState<UserData>({});
@@ -3711,378 +3653,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             </div>
           </div>
         )}
-
-        {/* Fullscreen Modal */}
-        {plannerFullscreen && (
-          <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: colors.background }}>
-            {/* Fullscreen Header */}
-            <div className="flex-shrink-0" style={{ backgroundColor: colors.background }}>
-              <div className="px-5 py-3">
-                <div className="max-w-lg mx-auto flex items-center justify-between">
-                  {/* Budget Counter */}
-                  <div
-                    className="px-3 py-2 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: plannerColors.tipBg }}
-                  >
-                    <span
-                      className="text-xs font-bold"
-                      style={{ color: totalBudget > maxBudget ? plannerColors.errorText : colors.textDark }}
-                    >
-                      {totalBudget % 1 === 0 ? totalBudget : totalBudget.toFixed(1)}/{maxBudget}
-                    </span>
-                  </div>
-
-                  {/* Right Side - Close Button */}
-                  <button
-                    onClick={() => setPlannerFullscreen(false)}
-                    className="w-8 h-8 flex items-center justify-center transition-all hover:opacity-60"
-                    title="Close"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {/* Header Divider */}
-              <div className="h-px w-full" style={{ backgroundColor: colors.border }}></div>
-            </div>
-
-            {/* Fullscreen Content */}
-            <div className="flex-1 overflow-auto px-4 py-4">
-              {/* Status Row */}
-              <div className="mb-3">
-                {isEmpty ? (
-                  <button
-                    onClick={nextTip}
-                    className="w-full p-3 rounded-xl flex items-center gap-2 text-left transition-all active:scale-[0.99]"
-                    style={{ backgroundColor: plannerColors.tipBg }}
-                  >
-                    <svg
-                      className="w-4 h-4 shrink-0"
-                      style={{ color: colors.textDark }}
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                      />
-                    </svg>
-                    <span className="text-xs flex-1" style={{ color: colors.textDark }}>
-                      {tips[currentTip]}
-                    </span>
-                    <svg
-                      className="w-4 h-4 shrink-0"
-                      style={{ color: colors.text }}
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                ) : hasErrors ? (
-                  <div
-                    className="w-full p-3 rounded-xl flex items-center gap-2"
-                    style={{ backgroundColor: plannerColors.errorBg }}
-                  >
-                    <svg
-                      className="w-4 h-4 shrink-0"
-                      style={{ color: plannerColors.errorText }}
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                      />
-                    </svg>
-                    <span className="text-xs flex-1" style={{ color: plannerColors.errorText }}>
-                      {globalErrors[0] || Array.from(rowErrors.values())[0]?.[0]}
-                    </span>
-                  </div>
-                ) : (
-                  <div
-                    className="w-full p-3 rounded-xl flex items-center gap-2"
-                    style={{ backgroundColor: plannerColors.successBg }}
-                  >
-                    <svg
-                      className="w-4 h-4 shrink-0"
-                      style={{ color: plannerColors.successText }}
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span className="text-xs" style={{ color: plannerColors.successText }}>
-                      {totalBudget >= maxBudget
-                        ? "Done! Your plan is ready to submit."
-                        : "Plan looks good — continue to use your budget."}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Column Headers */}
-              <div className="flex items-center mb-2" style={{ gap: 8 }}>
-                <div style={{ width: 24 }}>
-                  <span className="text-xs font-medium" style={{ color: colors.text }}>
-                    #
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <span className="text-xs font-medium" style={{ color: colors.text }}>
-                    You
-                  </span>
-                </div>
-                {isCouple && (
-                  <div className="flex-1">
-                    <span className="text-xs font-medium" style={{ color: colors.text }}>
-                      Partner
-                    </span>
-                  </div>
-                )}
-                <div style={{ width: 72, marginLeft: 12 }}>
-                  <span className="text-xs font-medium" style={{ color: colors.text }}>
-                    Sum
-                  </span>
-                </div>
-              </div>
-
-              {/* All Rows (no scroll limit in fullscreen) */}
-              <div className="space-y-2">
-                {visibleData.map((month, i) => {
-                  const youAmount =
-                    month.you === "basis"
-                      ? myCalc.basis
-                      : month.you === "plus"
-                        ? myCalc.plus
-                        : month.you === "bonus"
-                          ? myCalc.bonus
-                          : 0;
-                  const partnerAmount = isCouple
-                    ? month.partner === "basis"
-                      ? partnerCalc.basis
-                      : month.partner === "plus"
-                        ? partnerCalc.plus
-                        : month.partner === "bonus"
-                          ? partnerCalc.bonus
-                          : 0
-                    : 0;
-                  const rowSum = youAmount + partnerAmount;
-
-                  return (
-                    <div key={i} className="flex items-center" style={{ gap: 8, height: 44 }}>
-                      <div style={{ width: 24 }}>
-                        <span className="text-xs font-medium" style={{ color: colors.text }}>
-                          {i + 1}
-                        </span>
-                      </div>
-
-                      {/* You Cell */}
-                      <button
-                        onClick={(e) => cycleType(i, "you", e)}
-                        className="flex-1 h-full rounded-xl flex items-center justify-center gap-1 transition-all active:scale-[0.98]"
-                        style={getCardStyle(month.you, "you", i)}
-                      >
-                        {month.you === "none" ? (
-                          <span className="text-sm" style={{ color: colors.text }}>
-                            +
-                          </span>
-                        ) : (
-                          <>
-                            <svg
-                              className="w-3 h-3"
-                              style={{ color: colors.textDark }}
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={2}
-                              viewBox="0 0 24 24"
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                            </svg>
-                            <span className="text-xs font-bold" style={{ color: colors.textDark }}>
-                              {getLabel(month.you)}
-                            </span>
-                            <svg
-                              className="w-3 h-3"
-                              style={{ color: colors.textDark }}
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={2}
-                              viewBox="0 0 24 24"
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                            </svg>
-                          </>
-                        )}
-                      </button>
-
-                      {/* Partner Cell */}
-                      {isCouple && (
-                        <button
-                          onClick={(e) => cycleType(i, "partner", e)}
-                          className="flex-1 h-full rounded-xl flex items-center justify-center gap-1 transition-all active:scale-[0.98]"
-                          style={getCardStyle(month.partner, "partner", i)}
-                        >
-                          {month.partner === "none" ? (
-                            <span className="text-sm" style={{ color: colors.text }}>
-                              +
-                            </span>
-                          ) : (
-                            <>
-                              <svg
-                                className="w-3 h-3"
-                                style={{ color: colors.textDark }}
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                                viewBox="0 0 24 24"
-                              >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                              </svg>
-                              <span className="text-xs font-bold" style={{ color: colors.textDark }}>
-                                {getLabel(month.partner)}
-                              </span>
-                              <svg
-                                className="w-3 h-3"
-                                style={{ color: colors.textDark }}
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                                viewBox="0 0 24 24"
-                              >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                              </svg>
-                            </>
-                          )}
-                        </button>
-                      )}
-
-                      {/* Sum */}
-                      <div style={{ width: 72, marginLeft: 12 }} className="flex items-center gap-1">
-                        {rowSum > 0 ? (
-                          <>
-                            <svg
-                              className="w-3 h-3 shrink-0"
-                              style={{ color: colors.text }}
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={1.5}
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                            <span className="text-xs font-medium" style={{ color: colors.textDark }}>
-                              €{rowSum.toLocaleString("de-DE")}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-xs" style={{ color: colors.text }}>
-                            —
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Fullscreen Footer - Presets */}
-            <div className="px-4 py-3 border-t" style={{ backgroundColor: colors.white, borderColor: colors.border }}>
-              <div className="flex justify-between items-center">
-                <div className="flex gap-2">
-                  {isCouple ? (
-                    <>
-                      <button
-                        onClick={() => applyPreset("12+2")}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
-                        style={{
-                          backgroundColor: colors.white,
-                          color: colors.textDark,
-                          border: `1px solid ${colors.border}`,
-                        }}
-                      >
-                        12 + 2
-                      </button>
-                      <button
-                        onClick={() => applyPreset("7+7")}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
-                        style={{
-                          backgroundColor: colors.white,
-                          color: colors.textDark,
-                          border: `1px solid ${colors.border}`,
-                        }}
-                      >
-                        7 + 7
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => applyPreset("12-solo")}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
-                        style={{
-                          backgroundColor: colors.white,
-                          color: colors.textDark,
-                          border: `1px solid ${colors.border}`,
-                        }}
-                      >
-                        12 Basis
-                      </button>
-                      <button
-                        onClick={() => applyPreset("14-solo")}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
-                        style={{
-                          backgroundColor: colors.white,
-                          color: colors.textDark,
-                          border: `1px solid ${colors.border}`,
-                        }}
-                      >
-                        14 Basis
-                      </button>
-                    </>
-                  )}
-                  <button
-                    onClick={() => applyPreset("clear")}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
-                    style={{
-                      backgroundColor: colors.background,
-                      color: colors.text,
-                      border: `1px solid ${colors.border}`,
-                    }}
-                  >
-                    Clear
-                  </button>
-                </div>
-                <button
-                  onClick={() => setPlannerFullscreen(false)}
-                  className="px-4 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 flex items-center gap-2"
-                  style={{ backgroundColor: colors.buttonDark, color: colors.white }}
-                >
-                  <span>Done</span>
-                  <span className="text-[14px]">→</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
   };
@@ -4320,7 +3890,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           </div>
 
           {/* Ask a question */}
-          <button onClick={() => openChat()} className="w-full mt-2 text-[13px]" style={{ color: colors.text }}>
+          <button onClick={() => onOpenChat?.()} className="w-full mt-2 text-[13px]" style={{ color: colors.text }}>
             Have a question? <span style={{ textDecoration: "underline" }}>Ask here</span>
           </button>
         </div>
@@ -4498,7 +4068,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           </div>
 
           {/* Ask a question */}
-          <button onClick={() => openChat()} className="w-full mt-2 text-[13px]" style={{ color: colors.text }}>
+          <button onClick={() => onOpenChat?.()} className="w-full mt-2 text-[13px]" style={{ color: colors.text }}>
             Have a question? <span style={{ textDecoration: "underline" }}>Ask here</span>
           </button>
         </div>
@@ -4660,7 +4230,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           </div>
 
           {/* Ask a question */}
-          <button onClick={() => openChat()} className="w-full mt-2 text-[13px]" style={{ color: colors.text }}>
+          <button onClick={() => onOpenChat?.()} className="w-full mt-2 text-[13px]" style={{ color: colors.text }}>
             Have a question? <span style={{ textDecoration: "underline" }}>Ask here</span>
           </button>
         </div>
@@ -4909,7 +4479,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         {tags.map((tag, i) => (
           <button
             key={i}
-            onClick={() => openChat(tag.prefillQuestion)}
+            onClick={() => onOpenChat?.(tag.prefillQuestion)}
             className="px-3 py-1.5 rounded-full text-[12px] font-medium transition-all hover:opacity-70"
             style={{
               backgroundColor: colors.white,
@@ -5173,7 +4743,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 borderLeft: isQuestion ? "3px solid #C0630B" : "none",
               }}
             >
-              {formatText(msg.content, openChat)}
+              {formatText(msg.content, onOpenChat)}
               {isCurrentlyStreaming && (
                 <span
                   className="inline-block w-2 h-2 ml-1 rounded-full align-middle"
@@ -5191,7 +4761,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               <>
                 {msg.subtext.split("[info:")[0].trim() && (
                   <p className={`mt-2 text-[14px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
-                    {formatText(msg.subtext.split("[info:")[0].trim(), openChat)}
+                    {formatText(msg.subtext.split("[info:")[0].trim(), onOpenChat)}
                   </p>
                 )}
                 {(() => {
@@ -5202,7 +4772,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                     const isLast = idx === blocks.length - 1;
                     return (
                       <div key={idx} className={`${idx === 0 ? "mt-3" : ""} ${isQuestion ? "pl-3" : ""}`}>
-                        <InfoBox title={title} content={content} onOpenChat={openChat} isLast={isLast} />
+                        <InfoBox title={title} content={content} onOpenChat={onOpenChat} isLast={isLast} />
                       </div>
                     );
                   });
@@ -5212,16 +4782,16 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               <>
                 {msg.subtext.split("[info]")[0].trim() && (
                   <p className={`mt-2 text-[14px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
-                    {formatText(msg.subtext.split("[info]")[0].trim(), openChat)}
+                    {formatText(msg.subtext.split("[info]")[0].trim(), onOpenChat)}
                   </p>
                 )}
                 <p className={`mt-2 text-[14px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
-                  {formatText(msg.subtext.split("[info]")[1].trim(), openChat)}
+                  {formatText(msg.subtext.split("[info]")[1].trim(), onOpenChat)}
                 </p>
               </>
             ) : (
               <p className={`mt-2 text-[14px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
-                {formatText(msg.subtext, openChat)}
+                {formatText(msg.subtext, onOpenChat)}
               </p>
             ))}
           {msg.infoTags && msg.infoTags.length > 0 && !isCurrentlyStreaming && (
@@ -5537,7 +5107,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               {/* Right Side Buttons */}
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => openChat()}
+                  onClick={() => onOpenChat?.()}
                   className="w-8 h-8 flex items-center justify-center transition-all hover:opacity-60"
                   title="Chat"
                 >
@@ -5601,382 +5171,35 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           </div>
         </div>
 
-        {/* Input section - hidden when chat is open */}
-        {!showChat && (
-          <div
-            className="flex-shrink-0 px-5 pb-2 pt-3 relative z-10"
-            style={{ backgroundColor: colors.background, borderTop: `1px solid ${colors.border}` }}
-          >
-            {/* Floating scroll to bottom button */}
-            {showScrollButton && (
-              <button
-                onClick={scrollToBottom}
-                className="absolute z-[100] w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110"
-                style={{
-                  backgroundColor: colors.white,
-                  top: "-44px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                }}
-              >
-                <svg className="w-4 h-4" fill="none" stroke={colors.textDark} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
-              </button>
-            )}
-            <div className="max-w-lg mx-auto">{renderInput()}</div>
-            <p className="text-[12px] text-center mt-3 mb-1" style={{ color: colors.text, opacity: 0.6 }}>
-              Quick estimate only – not legal or tax advice.
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Chat Overlay */}
-      {showChat && (
-        <div className="fixed top-0 left-0 right-0 bottom-0 z-[200]" style={{ backgroundColor: colors.background }}>
-          <div className="h-full flex flex-col">
-            {/* Chat Header */}
-            <div className="flex-shrink-0" style={{ backgroundColor: colors.background }}>
-              <div className="px-5 py-3">
-                <div className="max-w-lg mx-auto flex items-center justify-between">
-                  {/* Empty left side for alignment */}
-                  <div style={{ width: 32 }}></div>
-
-                  {/* Right Side Buttons */}
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setShowChat(false)}
-                      className="w-8 h-8 flex items-center justify-center transition-all hover:opacity-60"
-                      title="Back to Guide"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                        />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => setChatMessages([])}
-                      className="w-8 h-8 flex items-center justify-center shrink-0 transition-all hover:opacity-60"
-                      title="Restart chat"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Header Divider */}
-              <div className="h-px w-full" style={{ backgroundColor: colors.border }}></div>
-            </div>
-
-            {/* Chat Messages */}
-            <div ref={chatScrollRef} className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
-              {chatMessages.length === 0 ? (
-                <div className="h-full flex flex-col px-4 pt-8">
-                  <div className="max-w-lg mx-auto w-full">
-                    <h2 className="font-semibold mb-5" style={{ fontSize: "24px", color: colors.textDark }}>
-                      What can I help with?
-                    </h2>
-
-                    <div className="space-y-0">
-                      {[
-                        { icon: "help", question: "What is Elterngeld?" },
-                        { icon: "calculator", question: "How much Elterngeld will I get?" },
-                        { icon: "calendar", question: "How long can I receive Elterngeld?" },
-                        { icon: "couple", question: "How should we split the months?" },
-                        { icon: "briefcase", question: "Can I work while receiving Elterngeld?" },
-                        { icon: "globe", question: "Am I eligible as a foreigner?" },
-                        { icon: "document", question: "What documents do I need to apply?" },
-                        { icon: "clock", question: "When should I submit my application?" },
-                      ].map((item, i) => (
-                        <button
-                          key={i}
-                          onClick={() => {
-                            const demoResponse =
-                              "Thanks for your question! This is a demo response. In the real implementation, this would connect to an AI backend to answer your **Elterngeld** questions with detailed information about eligibility, calculations, and application process.";
-                            setChatMessages((prev) => [...prev, { role: "user", content: item.question }]);
-                            setTimeout(() => {
-                              chatScrollRef.current?.scrollTo({
-                                top: chatScrollRef.current.scrollHeight,
-                                behavior: "smooth",
-                              });
-                            }, 50);
-                            setTimeout(() => {
-                              const newIndex = chatMessages.length + 1;
-                              setChatMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-                              setTimeout(() => {
-                                streamChatMessage(demoResponse, newIndex);
-                              }, 100);
-                            }, 500);
-                          }}
-                          className="w-full flex items-center gap-3 py-1.5 text-left transition-all hover:opacity-70"
-                          style={{ color: colors.textDark }}
-                        >
-                          <span
-                            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                            style={{ backgroundColor: colors.tile }}
-                          >
-                            {item.icon === "help" && (
-                              <svg
-                                className="w-[18px] h-[18px]"
-                                fill="none"
-                                stroke={colors.text}
-                                strokeWidth={1.5}
-                                viewBox="0 0 24 24"
-                              >
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01" />
-                              </svg>
-                            )}
-                            {item.icon === "calculator" && (
-                              <svg
-                                className="w-[18px] h-[18px]"
-                                fill="none"
-                                stroke={colors.text}
-                                strokeWidth={1.5}
-                                viewBox="0 0 24 24"
-                              >
-                                <rect x="4" y="2" width="16" height="20" rx="2" />
-                                <path d="M8 6h8M8 10h2M14 10h2M8 14h2M14 14h2M8 18h2M14 18h2" />
-                              </svg>
-                            )}
-                            {item.icon === "calendar" && (
-                              <svg
-                                className="w-[18px] h-[18px]"
-                                fill="none"
-                                stroke={colors.text}
-                                strokeWidth={1.5}
-                                viewBox="0 0 24 24"
-                              >
-                                <rect x="3" y="4" width="18" height="18" rx="2" />
-                                <path d="M16 2v4M8 2v4M3 10h18" />
-                              </svg>
-                            )}
-                            {item.icon === "couple" && (
-                              <svg
-                                className="w-[18px] h-[18px]"
-                                fill="none"
-                                stroke={colors.text}
-                                strokeWidth={1.5}
-                                viewBox="0 0 24 24"
-                              >
-                                <circle cx="9" cy="7" r="4" />
-                                <circle cx="17" cy="9" r="3" />
-                                <path d="M3 21v-2c0-2.5 3-5 6-5 1.5 0 3 .5 4 1.5M17 21v-2c0-1.5 1-3 3-3" />
-                              </svg>
-                            )}
-                            {item.icon === "briefcase" && (
-                              <svg
-                                className="w-[18px] h-[18px]"
-                                fill="none"
-                                stroke={colors.text}
-                                strokeWidth={1.5}
-                                viewBox="0 0 24 24"
-                              >
-                                <rect x="2" y="7" width="20" height="14" rx="2" />
-                                <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
-                              </svg>
-                            )}
-                            {item.icon === "globe" && (
-                              <svg
-                                className="w-[18px] h-[18px]"
-                                fill="none"
-                                stroke={colors.text}
-                                strokeWidth={1.5}
-                                viewBox="0 0 24 24"
-                              >
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-                              </svg>
-                            )}
-                            {item.icon === "document" && (
-                              <svg
-                                className="w-[18px] h-[18px]"
-                                fill="none"
-                                stroke={colors.text}
-                                strokeWidth={1.5}
-                                viewBox="0 0 24 24"
-                              >
-                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
-                              </svg>
-                            )}
-                            {item.icon === "clock" && (
-                              <svg
-                                className="w-[18px] h-[18px]"
-                                fill="none"
-                                stroke={colors.text}
-                                strokeWidth={1.5}
-                                viewBox="0 0 24 24"
-                              >
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M12 6v6l4 2" />
-                              </svg>
-                            )}
-                          </span>
-                          <span style={{ fontSize: "15px" }}>{item.question}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3 max-w-lg mx-auto">
-                  {chatMessages.map((msg, i) => {
-                    const isCurrentlyStreaming = i === chatStreamingIndex;
-                    return (
-                      <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                        {msg.role === "user" ? (
-                          <div
-                            className="max-w-[85%] rounded-2xl px-4 py-2.5"
-                            style={{
-                              backgroundColor: colors.userBubble,
-                              color: colors.textDark,
-                            }}
-                          >
-                            <p style={{ fontSize: "15px", lineHeight: 1.5 }}>{msg.content}</p>
-                          </div>
-                        ) : (
-                          <div className="max-w-[90%]">
-                            <p className="text-[15px] leading-relaxed" style={{ color: colors.textDark }}>
-                              {formatText(msg.content, openChat)}
-                              {isCurrentlyStreaming && (
-                                <span
-                                  className="inline-block w-2 h-2 ml-1 rounded-full align-middle"
-                                  style={{
-                                    backgroundColor: colors.text,
-                                    animation: "pulse 1.2s ease-in-out infinite",
-                                  }}
-                                />
-                              )}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Chat Input */}
-            <div className="flex-shrink-0 px-4 py-3" style={{ backgroundColor: colors.background }}>
-              <div className="max-w-lg mx-auto">
-                <div
-                  className="rounded-2xl px-4 py-3"
-                  style={{ backgroundColor: colors.white, border: `1.5px solid ${colors.border}` }}
-                >
-                  <textarea
-                    value={chatInput}
-                    onChange={(e) => {
-                      setChatInput(e.target.value);
-                      e.target.style.height = "auto";
-                      e.target.style.height = Math.min(e.target.scrollHeight, 200) + "px";
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey && chatInput.trim() && !isChatStreaming) {
-                        e.preventDefault();
-                        const demoResponse =
-                          "Thanks for your question! This is a demo response. In the real implementation, this would connect to an AI backend to answer your **Elterngeld** questions with detailed information about eligibility, calculations, and application process.";
-                        const currentLength = chatMessages.length;
-                        setChatMessages((prev) => [...prev, { role: "user", content: chatInput.trim() }]);
-                        setChatInput("");
-                        (e.target as HTMLTextAreaElement).style.height = "auto";
-                        setTimeout(() => {
-                          chatScrollRef.current?.scrollTo({
-                            top: chatScrollRef.current.scrollHeight,
-                            behavior: "smooth",
-                          });
-                        }, 50);
-                        setTimeout(() => {
-                          const newIndex = currentLength + 1;
-                          setChatMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-                          setTimeout(() => {
-                            streamChatMessage(demoResponse, newIndex);
-                          }, 100);
-                        }, 500);
-                      }
-                    }}
-                    placeholder="Ask anything..."
-                    className="w-full outline-none bg-transparent mb-2 resize-none overflow-hidden"
-                    style={{ fontSize: "15px", color: colors.textDark, minHeight: "24px", maxHeight: "200px" }}
-                    rows={1}
-                    autoFocus
-                  />
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: colors.tile }}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
-                      </div>
-                      <span style={{ fontSize: "12px", color: colors.text }}>§BEEG</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        if (chatInput.trim() && !isChatStreaming) {
-                          const demoResponse =
-                            "Thanks for your question! This is a demo response. In the real implementation, this would connect to an AI backend to answer your **Elterngeld** questions with detailed information about eligibility, calculations, and application process.";
-                          const currentLength = chatMessages.length;
-                          setChatMessages((prev) => [...prev, { role: "user", content: chatInput.trim() }]);
-                          setChatInput("");
-                          setTimeout(() => {
-                            chatScrollRef.current?.scrollTo({
-                              top: chatScrollRef.current.scrollHeight,
-                              behavior: "smooth",
-                            });
-                          }, 50);
-                          setTimeout(() => {
-                            const newIndex = currentLength + 1;
-                            setChatMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-                            setTimeout(() => {
-                              streamChatMessage(demoResponse, newIndex);
-                            }, 100);
-                          }, 500);
-                        }
-                      }}
-                      className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
-                      style={{
-                        backgroundColor: chatInput.trim() && !isChatStreaming ? "#C45C3E" : colors.tile,
-                        opacity: isChatStreaming ? 0.5 : 1,
-                        cursor: isChatStreaming ? "not-allowed" : "pointer",
-                      }}
-                      disabled={isChatStreaming}
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke={chatInput.trim() && !isChatStreaming ? colors.white : colors.text}
-                        strokeWidth={2}
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <p className="text-center mt-3" style={{ fontSize: "12px", color: colors.text, opacity: 0.6 }}>
-                  Elterngeld AI can make mistakes. Please double-check responses.
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* Input section */}
+        <div
+          className="flex-shrink-0 px-5 pb-2 pt-3 relative z-10"
+          style={{ backgroundColor: colors.background, borderTop: `1px solid ${colors.border}` }}
+        >
+          {/* Floating scroll to bottom button */}
+          {showScrollButton && (
+            <button
+              onClick={scrollToBottom}
+              className="absolute z-[100] w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110"
+              style={{
+                backgroundColor: colors.white,
+                top: "-44px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke={colors.textDark} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </button>
+          )}
+          <div className="max-w-lg mx-auto">{renderInput()}</div>
+          <p className="text-[12px] text-center mt-3 mb-1" style={{ color: colors.text, opacity: 0.6 }}>
+            Quick estimate only – not legal or tax advice.
+          </p>
         </div>
-      )}
+      </div>
     </>
   );
 };
