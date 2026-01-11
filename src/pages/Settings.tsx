@@ -321,7 +321,6 @@ const SettingsPage: React.FC = () => {
         <LoginModal
           isOpen={showLoginModal}
           onClose={() => setShowLoginModal(false)}
-          redirectTo="/settings"
         />
       </div>
     );
