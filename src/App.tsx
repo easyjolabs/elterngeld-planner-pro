@@ -4,6 +4,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Chat from "./pages/Chat";
 import Guide from "./pages/Guide";
+import Settings from "./pages/Settings";
 import ImportFaqs from "./pages/ImportFaqs";
 import { PasswordGate } from "./components/PasswordGate";
 import { usePasswordProtection } from "./hooks/usePasswordProtection";
@@ -34,6 +35,7 @@ function ProtectedApp() {
           <Route path="/" element={<Index />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/guide" element={<Guide />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
         <Route path="/import-faqs" element={<ImportFaqs />} />
         <Route path="*" element={<NotFound />} />
