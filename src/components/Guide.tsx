@@ -1321,7 +1321,11 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
       await supabase.from('user_plans').upsert({
         user_id: userId,
         plan_data: pendingSession.plannerData,
-        user_data: pendingSession.data,
+        user_data: {
+          ...pendingSession.data,
+          income: pendingSession.sliderValue,
+          partnerIncome: pendingSession.partnerSliderValue,
+        },
         selected_state: pendingSession.selectedState,
       }, { onConflict: 'user_id' });
 
