@@ -50,7 +50,7 @@ const formatDate = (dateString: string | null): string => {
 // ===========================================
 const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isLoading: authLoading } = useAuth();
 
   // State
   const [activeTab, setActiveTab] = useState<"general" | "plan">("general");
@@ -68,13 +68,16 @@ const SettingsPage: React.FC = () => {
 
   // Load user data on mount
   useEffect(() => {
+    // Wait for auth to finish loading
+    if (authLoading) return;
+
     if (!user) {
       navigate("/guide");
       return;
     }
 
     loadUserData();
-  }, [user]);
+  }, [user, authLoading]);
 
   const loadUserData = async () => {
     if (!user) return;
@@ -196,7 +199,7 @@ const SettingsPage: React.FC = () => {
 
   const hasPlan = plan !== null;
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: colors.background }}>
         <div className="w-6 h-6 border-2 border-stone-400 border-t-transparent rounded-full animate-spin" />
