@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 
 // ===========================================
@@ -10,10 +11,8 @@ interface ChatMessage {
 }
 
 interface ElterngeldChatProps {
-  initialMessage?: string;
   language?: "en" | "de";
 }
-
 
 // ===========================================
 // STREAMING CHAT FUNCTION
@@ -126,20 +125,15 @@ async function streamChat({
 // ===========================================
 // MAIN COMPONENT
 // ===========================================
-const ElterngeldChat: React.FC<ElterngeldChatProps> = ({
-  initialMessage,
-  language = "en",
-}) => {
-  const [chatInput, setChatInput] = useState(initialMessage || "");
+const ElterngeldChat: React.FC<ElterngeldChatProps> = ({ language = "en" }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialQuestion = searchParams.get("q") || "";
+
+  const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const chatScrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (initialMessage) {
-      setChatInput(initialMessage);
-    }
-  }, [initialMessage]);
+  const hasAutoSent = useRef(false);
 
   const scrollToBottom = useCallback(() => {
     if (chatScrollRef.current) {
@@ -162,7 +156,7 @@ const ElterngeldChat: React.FC<ElterngeldChatProps> = ({
       setTimeout(scrollToBottom, 50);
 
       let assistantContent = "";
-      
+
       // Add empty assistant message
       setChatMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
@@ -198,8 +192,19 @@ const ElterngeldChat: React.FC<ElterngeldChatProps> = ({
         },
       });
     },
-    [isStreaming, language, scrollToBottom]
+    [isStreaming, language, scrollToBottom],
   );
+
+  // Auto-send initial question from URL parameter
+  useEffect(() => {
+    if (initialQuestion && !hasAutoSent.current && chatMessages.length === 0) {
+      hasAutoSent.current = true;
+      // Clear the URL parameter
+      setSearchParams({}, { replace: true });
+      // Send the message
+      sendMessage(initialQuestion);
+    }
+  }, [initialQuestion, chatMessages.length, sendMessage, setSearchParams]);
 
   const suggestedQuestions =
     language === "de"
@@ -304,7 +309,10 @@ const ElterngeldChat: React.FC<ElterngeldChatProps> = ({
           <div className="px-5 py-3">
             <div className="max-w-lg mx-auto flex items-center justify-end">
               <button
-                onClick={() => setChatMessages([])}
+                onClick={() => {
+                  setChatMessages([]);
+                  hasAutoSent.current = false;
+                }}
                 className="w-8 h-8 flex items-center justify-center shrink-0 transition-all hover:opacity-60 text-muted-foreground"
                 title={language === "de" ? "Chat neu starten" : "Restart chat"}
               >
@@ -398,7 +406,13 @@ const ElterngeldChat: React.FC<ElterngeldChatProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted">
-                    <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                    <svg
+                      className="w-4 h-4 text-muted-foreground"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      viewBox="0 0 24 24"
+                    >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                     </svg>
                   </div>
@@ -417,7 +431,11 @@ const ElterngeldChat: React.FC<ElterngeldChatProps> = ({
                   <svg
                     className="w-4 h-4"
                     fill="none"
-                    stroke={chatInput.trim() && !isStreaming ? "hsl(var(--primary-foreground))" : "hsl(var(--muted-foreground))"}
+                    stroke={
+                      chatInput.trim() && !isStreaming
+                        ? "hsl(var(--primary-foreground))"
+                        : "hsl(var(--muted-foreground))"
+                    }
                     strokeWidth={2}
                     viewBox="0 0 24 24"
                   >
