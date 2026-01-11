@@ -318,6 +318,10 @@ const SettingsPage: React.FC = () => {
             </button>
           </div>
         </div>
+        <LoginModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+        />
       </div>
     );
   }
