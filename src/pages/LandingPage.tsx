@@ -748,6 +748,22 @@ const EligibilityChecker = () => {
 
   return (
     <BoxWrapper>
+      {/* Progress Dots */}
+      <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 16 }}>
+        {Array.from({ length: totalSteps }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              backgroundColor: i < step ? colors.black : i === step ? colors.black : "rgba(0,0,0,0.2)",
+              transition: "all 0.3s ease",
+            }}
+          />
+        ))}
+      </div>
+
       {/* Question */}
       <p style={{ ...typography.h3, color: colors.black, marginBottom: 16, textAlign: "center" }}>
         {currentQuestion.question}
