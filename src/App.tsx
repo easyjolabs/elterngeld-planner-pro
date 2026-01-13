@@ -7,6 +7,7 @@ import Guide from "./pages/Guide";
 import Settings from "./pages/Settings";
 import ImportFaqs from "./pages/ImportFaqs";
 import LandingPage from "./pages/LandingPage";
+import { PrivacyPolicy, Disclaimer, Imprint } from "./pages/LegalPages";
 import { PasswordGate } from "./components/PasswordGate";
 import { usePasswordProtection } from "./hooks/usePasswordProtection";
 import { AppLayout } from "./components/AppLayout";
@@ -34,6 +35,11 @@ function ProtectedApp() {
       <Routes>
         {/* Landing Page - eigene Navigation */}
         <Route path="/" element={<LandingPage />} />
+
+        {/* Legal Pages - eigene Navigation */}
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/disclaimer" element={<Disclaimer />} />
+        <Route path="/imprint" element={<Imprint />} />
 
         {/* App Routes - mit AppLayout */}
         <Route element={<AppLayout />}>
