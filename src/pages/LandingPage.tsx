@@ -1021,7 +1021,7 @@ const LandingPage = () => {
           }}
         >
           <a href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
-            <img src="/logo.png" alt="Elterngeld Guide" style={{ height: 36 }} />
+            <img src="/logo.png" alt="Elterngeld Guide" style={{ height: 44 }} />
           </a>
           <a
             href="/guide"
@@ -1698,7 +1698,7 @@ const LandingPage = () => {
           >
             <div className="footer-logo-col">
               <div style={{ marginBottom: 16 }}>
-                <img src="/logo.png" alt="Elterngeld Guide" style={{ height: 28 }} />
+                <img src="/logo.png" alt="Elterngeld Guide" style={{ height: 36 }} />
               </div>
               <p style={{ ...typography.bodySmall, color: colors.textDark, maxWidth: 320, marginBottom: 24 }}>
                 We turn complex Elterngeld rules into simple answers and a smooth application process
