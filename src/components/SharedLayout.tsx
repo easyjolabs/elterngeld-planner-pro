@@ -34,7 +34,13 @@ export const typography = {
   bodyLarge: { fontFamily: fonts.body, fontSize: 20, fontWeight: 400, lineHeight: 1.6 },
   bodySmall: { fontFamily: fonts.body, fontSize: 15, fontWeight: 400, lineHeight: 1.5 },
   caption: { fontFamily: fonts.body, fontSize: 14, fontWeight: 500, lineHeight: 1.4 },
-  label: { fontFamily: fonts.headline, fontSize: 13, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" as const },
+  label: {
+    fontFamily: fonts.headline,
+    fontSize: 13,
+    fontWeight: 600,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase" as const,
+  },
 };
 
 // ===========================================
@@ -64,21 +70,23 @@ export const GlobalStyles: React.FC<{ extraStyles?: string }> = ({ extraStyles =
 // SKIP TO CONTENT (Accessibility)
 // ===========================================
 export const SkipToContent: React.FC = () => (
-  <a 
-    href="#main-content" 
-    style={{ position: "absolute", left: "-9999px", top: "auto", width: "1px", height: "1px", overflow: "hidden" }} 
-    onFocus={(e) => { 
-      e.currentTarget.style.left = "16px"; 
-      e.currentTarget.style.top = "16px"; 
-      e.currentTarget.style.width = "auto"; 
-      e.currentTarget.style.height = "auto"; 
-      e.currentTarget.style.padding = "8px 16px"; 
-      e.currentTarget.style.backgroundColor = colors.black; 
-      e.currentTarget.style.color = colors.white; 
-      e.currentTarget.style.borderRadius = "8px"; 
-      e.currentTarget.style.zIndex = "9999"; 
-    }} 
-    onBlur={(e) => { e.currentTarget.style.left = "-9999px"; }}
+  <a
+    href="#main-content"
+    style={{ position: "absolute", left: "-9999px", top: "auto", width: "1px", height: "1px", overflow: "hidden" }}
+    onFocus={(e) => {
+      e.currentTarget.style.left = "16px";
+      e.currentTarget.style.top = "16px";
+      e.currentTarget.style.width = "auto";
+      e.currentTarget.style.height = "auto";
+      e.currentTarget.style.padding = "8px 16px";
+      e.currentTarget.style.backgroundColor = colors.black;
+      e.currentTarget.style.color = colors.white;
+      e.currentTarget.style.borderRadius = "8px";
+      e.currentTarget.style.zIndex = "9999";
+    }}
+    onBlur={(e) => {
+      e.currentTarget.style.left = "-9999px";
+    }}
   >
     Skip to main content
   </a>
@@ -92,29 +100,39 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ maxWidth = 1100 }) => (
-  <nav aria-label="Main navigation" style={{ 
-    position: "fixed", 
-    top: 0, 
-    left: 0, 
-    right: 0, 
-    zIndex: 50, 
-    padding: "16px 24px", 
-    backgroundColor: "rgba(250, 250, 249, 0.95)", 
-    backdropFilter: "blur(12px)" 
-  }}>
+  <nav
+    aria-label="Main navigation"
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 50,
+      padding: "16px 24px",
+      backgroundColor: "rgba(250, 250, 249, 0.95)",
+      backdropFilter: "blur(12px)",
+    }}
+  >
     <div style={{ maxWidth, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <a href="/" aria-label="Elterngeld Guide - Home" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+      <a
+        href="/"
+        aria-label="Elterngeld Guide - Home"
+        style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
+      >
         <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 47 }} />
       </a>
-      <a href="/guide" style={{ 
-        padding: "10px 20px", 
-        borderRadius: 999, 
-        ...typography.caption, 
-        fontWeight: 700, 
-        backgroundColor: colors.black, 
-        color: colors.white, 
-        textDecoration: "none" 
-      }}>
+      <a
+        href="/guide"
+        style={{
+          padding: "10px 20px",
+          borderRadius: 999,
+          ...typography.caption,
+          fontWeight: 700,
+          backgroundColor: colors.black,
+          color: colors.white,
+          textDecoration: "none",
+        }}
+      >
         Start planning →
       </a>
     </div>
@@ -129,69 +147,75 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ maxWidth = 1100 }) => (
-  <>
-    {/* TRUST BADGES BAR */}
-    <div style={{ padding: "24px 24px", backgroundColor: colors.white }}>
-      <div style={{ maxWidth, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "center", gap: 32, flexWrap: "wrap" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth={1.5}>
-            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-          </svg>
-          <span style={{ ...typography.caption, color: colors.textDark, fontSize: 13 }}>SSL Encrypted</span>
+  <footer role="contentinfo" aria-label="Site footer" style={{ padding: "60px 24px", backgroundColor: "#FAFAF9" }}>
+    <div style={{ maxWidth, margin: "0 auto" }}>
+      <div
+        className="footer-grid"
+        style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 48, marginBottom: 48 }}
+      >
+        <div className="footer-logo-col">
+          <div style={{ marginBottom: 16 }}>
+            <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 47 }} />
+          </div>
+          <p style={{ ...typography.bodySmall, color: colors.textDark, maxWidth: 280 }}>
+            Helping internationals in Germany navigate parental benefits since 2025.
+          </p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth={1.5}>
-            <path d="M12 2L3 7v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V7l-9-5z"/>
-          </svg>
-          <span style={{ ...typography.caption, color: colors.textDark, fontSize: 13 }}>GDPR Compliant</span>
+        <div>
+          <h4 style={{ ...typography.h4, color: colors.textDark, marginBottom: 16 }}>Main Pages</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[
+              ["Guide", "/guide"],
+              ["PDF Application", "/pdf"],
+              ["Chat", "/chat"],
+            ].map(([label, href]) => (
+              <a
+                key={label}
+                href={href}
+                style={{
+                  ...typography.bodySmall,
+                  color: colors.textDark,
+                  textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+              >
+                {label} <span style={{ fontSize: 12 }}>↗</span>
+              </a>
+            ))}
+          </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth={1.5}>
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/>
-          </svg>
-          <span style={{ ...typography.caption, color: colors.textDark, fontSize: 13 }}>Hosted in EU</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth={1.5}>
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-          <span style={{ ...typography.caption, color: colors.textDark, fontSize: 13 }}>Made in Germany</span>
+        <div>
+          <h4 style={{ ...typography.h4, color: colors.textDark, marginBottom: 16 }}>Legal</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[
+              ["Privacy Policy", "/privacy"],
+              ["Disclaimer", "/disclaimer"],
+              ["Imprint", "/imprint"],
+            ].map(([label, href]) => (
+              <a
+                key={label}
+                href={href}
+                style={{
+                  ...typography.bodySmall,
+                  color: colors.textDark,
+                  textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+              >
+                {label} <span style={{ fontSize: 12 }}>↗</span>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
 
-    {/* MAIN FOOTER */}
-    <footer role="contentinfo" aria-label="Site footer" style={{ padding: "60px 24px", backgroundColor: "#FAFAF9" }}>
-      <div style={{ maxWidth, margin: "0 auto" }}>
-        <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 48, marginBottom: 48 }}>
-          <div className="footer-logo-col">
-            <div style={{ marginBottom: 16 }}><img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 47 }} /></div>
-            <p style={{ ...typography.bodySmall, color: colors.textDark, maxWidth: 280 }}>
-              Helping internationals in Germany navigate parental benefits since 2025.
-            </p>
-          </div>
-          <div>
-            <h4 style={{ ...typography.h4, color: colors.textDark, marginBottom: 16 }}>Main Pages</h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {[["Guide", "/guide"], ["PDF Application", "/pdf"], ["Chat", "/chat"]].map(([label, href]) => (
-                <a key={label} href={href} style={{ ...typography.bodySmall, color: colors.textDark, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>{label} <span style={{ fontSize: 12 }}>↗</span></a>
-              ))}
-            </div>
-          </div>
-          <div>
-            <h4 style={{ ...typography.h4, color: colors.textDark, marginBottom: 16 }}>Legal</h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {[["Privacy Policy", "/privacy"], ["Disclaimer", "/disclaimer"], ["Imprint", "/imprint"]].map(([label, href]) => (
-                <a key={label} href={href} style={{ ...typography.bodySmall, color: colors.textDark, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>{label} <span style={{ fontSize: 12 }}>↗</span></a>
-              ))}
-            </div>
-          </div>
-        </div>
-        
-        <p style={{ ...typography.caption, color: colors.textDark }}>© 2025 Elterngeld Guide. All rights reserved.</p>
-      </div>
-    </footer>
-  </>
+      <p style={{ ...typography.caption, color: colors.textDark }}>© 2025 Elterngeld Guide. All rights reserved.</p>
+    </div>
+  </footer>
 );
 
 // ===========================================
@@ -203,17 +227,11 @@ interface PageLayoutProps {
   padding?: string;
 }
 
-export const PageLayout: React.FC<PageLayoutProps> = ({ 
-  children, 
-  maxWidth = 1100,
-  padding = "120px 24px 60px"
-}) => (
+export const PageLayout: React.FC<PageLayoutProps> = ({ children, maxWidth = 1100, padding = "120px 24px 60px" }) => (
   <main style={{ backgroundColor: colors.background, minHeight: "100vh" }}>
     <GlobalStyles />
     <Header maxWidth={maxWidth} />
-    <div style={{ padding, maxWidth, margin: "0 auto" }}>
-      {children}
-    </div>
+    <div style={{ padding, maxWidth, margin: "0 auto" }}>{children}</div>
     <Footer maxWidth={maxWidth} />
   </main>
 );
@@ -226,10 +244,10 @@ export const LegalPageLayout: React.FC<{ title: string; children: React.ReactNod
     <GlobalStyles />
     <Header maxWidth={800} />
     <article style={{ padding: "120px 24px 60px", maxWidth: 800, margin: "0 auto" }}>
-      <h1 style={{ ...typography.h2, color: colors.textDark, marginBottom: 40 }} className="mobile-h2">{title}</h1>
-      <div style={{ ...typography.body, color: colors.text }}>
-        {children}
-      </div>
+      <h1 style={{ ...typography.h2, color: colors.textDark, marginBottom: 40 }} className="mobile-h2">
+        {title}
+      </h1>
+      <div style={{ ...typography.body, color: colors.text }}>{children}</div>
     </article>
     <Footer maxWidth={800} />
   </main>
