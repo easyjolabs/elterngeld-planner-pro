@@ -242,7 +242,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children, maxWidth = 110
 export const LegalPageLayout: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <main style={{ backgroundColor: colors.background, minHeight: "100vh" }}>
     <GlobalStyles />
-    <Header maxWidth={800} />
+    <Header maxWidth={1100} />
     <article style={{ padding: "120px 24px 60px", maxWidth: 800, margin: "0 auto" }}>
       <h1 style={{ ...typography.h2, color: colors.textDark, marginBottom: 40 }} className="mobile-h2">
         {title}
