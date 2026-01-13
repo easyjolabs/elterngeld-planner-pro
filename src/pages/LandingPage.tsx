@@ -1021,7 +1021,7 @@ const LandingPage = () => {
           }}
         >
           <a href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
-            <img src="/logo.png" alt="Elterngeld Guide" style={{ height: 28 }} />
+            <img src="/logo.png" alt="Elterngeld Guide" style={{ height: 36 }} />
           </a>
           <a
             href="/guide"
