@@ -2,140 +2,14 @@
 // LEGAL PAGES - Privacy, Disclaimer, Imprint
 // ===========================================
 import React from "react";
+import { LegalPageLayout, colors, typography } from "../components/SharedLayout";
 
 // ===========================================
-// DESIGN TOKENS (same as Landing Page)
+// HELPER COMPONENTS
 // ===========================================
-const colors = {
-  background: "#F9F8F4",
-  tile: "#F0EEE6",
-  text: "#57534E",
-  textDark: "#000000",
-  border: "#E7E5E4",
-  white: "#FFFFFF",
-  black: "#000000",
-  basis: "#C0630B",
-};
-
-const fonts = {
-  headline: "'Space Grotesk', -apple-system, sans-serif",
-  body: "'Inter', -apple-system, sans-serif",
-};
-
-const typography = {
-  h1: { fontFamily: fonts.headline, fontSize: 42, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.15 },
-  h2: { fontFamily: fonts.headline, fontSize: 28, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.25 },
-  h3: { fontFamily: fonts.headline, fontSize: 20, fontWeight: 600, letterSpacing: "-0.01em", lineHeight: 1.3 },
-  body: { fontFamily: fonts.body, fontSize: 16, fontWeight: 400, lineHeight: 1.7 },
-  caption: { fontFamily: fonts.body, fontSize: 14, fontWeight: 500, lineHeight: 1.5 },
-};
-
-// ===========================================
-// SHARED LAYOUT
-// ===========================================
-const LegalLayout: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => {
-  return (
-    <main style={{ backgroundColor: "#FAFAF9", minHeight: "100vh" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        a:focus-visible, button:focus-visible { outline: 2px solid ${colors.black}; outline-offset: 2px; }
-        a:focus:not(:focus-visible), button:focus:not(:focus-visible) { outline: none; }
-      `}</style>
-
-      {/* NAV */}
-      <nav
-        aria-label="Main navigation"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          padding: "16px 24px",
-          backgroundColor: "rgba(250, 250, 249, 0.95)",
-          backdropFilter: "blur(12px)",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 800,
-            margin: "0 auto",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <a
-            href="/"
-            aria-label="Elterngeld Guide - Home"
-            style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
-          >
-            <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 47 }} />
-          </a>
-          <a
-            href="/guide"
-            style={{
-              padding: "10px 20px",
-              borderRadius: 999,
-              ...typography.caption,
-              fontWeight: 700,
-              backgroundColor: colors.black,
-              color: colors.white,
-              textDecoration: "none",
-            }}
-          >
-            Start planning →
-          </a>
-        </div>
-      </nav>
-
-      {/* CONTENT */}
-      <article style={{ padding: "120px 24px 80px", maxWidth: 800, margin: "0 auto" }}>
-        <h1 style={{ ...typography.h1, color: colors.textDark, marginBottom: 40 }}>{title}</h1>
-        <div style={{ ...typography.body, color: colors.text }}>{children}</div>
-      </article>
-
-      {/* FOOTER */}
-      <footer
-        role="contentinfo"
-        style={{ padding: "40px 24px", backgroundColor: colors.tile, borderTop: `1px solid ${colors.border}` }}
-      >
-        <div
-          style={{
-            maxWidth: 800,
-            margin: "0 auto",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 16,
-          }}
-        >
-          <a href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
-            <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 32 }} />
-          </a>
-          <div style={{ display: "flex", gap: 24 }}>
-            <a href="/privacy" style={{ ...typography.caption, color: colors.textDark, textDecoration: "none" }}>
-              Privacy
-            </a>
-            <a href="/disclaimer" style={{ ...typography.caption, color: colors.textDark, textDecoration: "none" }}>
-              Disclaimer
-            </a>
-            <a href="/imprint" style={{ ...typography.caption, color: colors.textDark, textDecoration: "none" }}>
-              Imprint
-            </a>
-          </div>
-        </div>
-      </footer>
-    </main>
-  );
-};
-
-// Styled Section
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <section style={{ marginBottom: 40 }}>
-    <h2 style={{ ...typography.h2, color: colors.textDark, marginBottom: 16 }}>{title}</h2>
+    <h2 style={{ ...typography.h3, color: colors.textDark, marginBottom: 16 }}>{title}</h2>
     <div style={{ color: colors.text }}>{children}</div>
   </section>
 );
@@ -156,7 +30,7 @@ const List: React.FC<{ items: string[] }> = ({ items }) => (
 // PRIVACY POLICY
 // ===========================================
 export const PrivacyPolicy = () => (
-  <LegalLayout title="Datenschutzerklärung">
+  <LegalPageLayout title="Datenschutzerklärung">
     <Section title="1. Verantwortlicher">
       <P>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</P>
       <P>
@@ -290,14 +164,14 @@ export const PrivacyPolicy = () => (
         <strong>Stand:</strong> Januar 2026
       </P>
     </Section>
-  </LegalLayout>
+  </LegalPageLayout>
 );
 
 // ===========================================
 // DISCLAIMER
 // ===========================================
 export const Disclaimer = () => (
-  <LegalLayout title="Haftungsausschluss">
+  <LegalPageLayout title="Haftungsausschluss">
     <Section title="1. Allgemeine Hinweise">
       <P>
         Elterngeld Guide ist ein digitales Informationsangebot. Die bereitgestellten Inhalte dienen ausschließlich der
@@ -353,14 +227,14 @@ export const Disclaimer = () => (
         genommen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber verantwortlich.
       </P>
     </Section>
-  </LegalLayout>
+  </LegalPageLayout>
 );
 
 // ===========================================
 // IMPRINT
 // ===========================================
 export const Imprint = () => (
-  <LegalLayout title="Impressum">
+  <LegalPageLayout title="Impressum">
     <Section title="Angaben gemäß § 5 TMG">
       <P>
         <strong>Elterngeld Guide</strong>
@@ -407,7 +281,7 @@ export const Imprint = () => (
         .
       </P>
     </Section>
-  </LegalLayout>
+  </LegalPageLayout>
 );
 
 export default { PrivacyPolicy, Disclaimer, Imprint };
