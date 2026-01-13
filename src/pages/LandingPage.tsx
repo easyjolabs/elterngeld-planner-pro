@@ -3,6 +3,7 @@
 // ===========================================
 
 import React, { useState, useEffect, useRef } from "react";
+import { Footer } from "../components/SharedLayout";
 
 // ===========================================
 // SCROLL ANIMATION HOOK
@@ -1695,137 +1696,7 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* FOOTER */}
-      {/* TRUST BADGES BAR */}
-      <div style={{ padding: "24px 24px", backgroundColor: colors.white }}>
-        <div
-          className="trust-badges"
-          style={{
-            maxWidth: 1100,
-            margin: "0 auto",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 32,
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth={1.5}>
-              <rect x="3" y="11" width="18" height="11" rx="2" />
-              <path d="M7 11V7a5 5 0 0110 0v4" />
-            </svg>
-            <span style={{ ...typography.caption, color: colors.textDark, fontSize: 13 }}>SSL Encrypted</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth={1.5}>
-              <path d="M12 2L3 7v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V7l-9-5z" />
-            </svg>
-            <span style={{ ...typography.caption, color: colors.textDark, fontSize: 13 }}>GDPR Compliant</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth={1.5}>
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-              <circle cx="12" cy="9" r="2.5" />
-            </svg>
-            <span style={{ ...typography.caption, color: colors.textDark, fontSize: 13 }}>Made in Hamburg</span>
-          </div>
-        </div>
-      </div>
-
-      <footer role="contentinfo" aria-label="Site footer" style={{ padding: "60px 24px", backgroundColor: "#FAFAF9" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div
-            className="footer-grid"
-            style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 48, marginBottom: 48 }}
-          >
-            <div className="footer-logo-col">
-              <div style={{ marginBottom: 16 }}>
-                <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 47 }} />
-              </div>
-              <p style={{ ...typography.bodySmall, color: colors.textDark, maxWidth: 320, marginBottom: 24 }}>
-                We turn complex Elterngeld rules into simple answers and a smooth application process
-              </p>
-              <div style={{ display: "flex", gap: 12 }}>
-                <a
-                  href="https://facebook.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: colors.black }}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <rect x="2" y="2" width="20" height="20" rx="5" />
-                    <path d="M15.5 8.5h-2a1.5 1.5 0 00-1.5 1.5v10M10 13h5" />
-                  </svg>
-                </a>
-                <a
-                  href="https://instagram.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: colors.black }}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <rect x="2" y="2" width="20" height="20" rx="5" />
-                    <circle cx="12" cy="12" r="4" />
-                    <circle cx="17.5" cy="6.5" r="1.5" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-            <div>
-              <h4 style={{ ...typography.h4, color: colors.textDark, marginBottom: 16 }}>Main Pages</h4>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {[
-                  ["Guide", "/guide"],
-                  ["PDF Application", "/pdf"],
-                  ["Chat", "/chat"],
-                ].map(([label, href]) => (
-                  <a
-                    key={label}
-                    href={href}
-                    style={{
-                      ...typography.bodySmall,
-                      color: colors.textDark,
-                      textDecoration: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    {label} <span style={{ fontSize: 12 }}>↗</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 style={{ ...typography.h4, color: colors.textDark, marginBottom: 16 }}>Legal</h4>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {[
-                  ["Privacy Policy", "/privacy"],
-                  ["Disclaimer", "/disclaimer"],
-                  ["Imprint", "/imprint"],
-                ].map(([label, href]) => (
-                  <a
-                    key={label}
-                    href={href}
-                    style={{
-                      ...typography.bodySmall,
-                      color: colors.textDark,
-                      textDecoration: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    {label} <span style={{ fontSize: 12 }}>↗</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <p style={{ ...typography.caption, color: colors.textDark }}>© 2025 Elterngeld Guide. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
 
       {/* FLOATING CHAT */}
       <div
