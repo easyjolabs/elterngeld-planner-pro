@@ -32,13 +32,17 @@ function ProtectedApp() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Landing Page - eigene Navigation */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* App Routes - mit AppLayout */}
         <Route element={<AppLayout />}>
-          <Route path="/" element={<LandingPage />} />
           <Route path="/planner" element={<Index />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/guide" element={<Guide />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
+
         <Route path="/import-faqs" element={<ImportFaqs />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
