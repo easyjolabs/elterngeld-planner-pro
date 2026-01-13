@@ -7,11 +7,14 @@ import React, { useState, useEffect, useRef } from "react";
 // ===========================================
 // SCROLL ANIMATION HOOK
 // ===========================================
-const useScrollAnimation = (): [React.RefObject<HTMLElement>, boolean] => {
-  const ref = useRef<HTMLElement>(null);
+const useScrollAnimation = () => {
+  const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    const currentRef = ref.current;
+    if (!currentRef) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -22,14 +25,12 @@ const useScrollAnimation = (): [React.RefObject<HTMLElement>, boolean] => {
       { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
+    observer.observe(currentRef);
 
     return () => observer.disconnect();
   }, []);
 
-  return [ref, isVisible];
+  return { ref, isVisible };
 };
 
 // Animated Section Wrapper
@@ -38,15 +39,11 @@ const AnimatedSection: React.FC<{ children: React.ReactNode; className?: string;
   className = "",
   style = {},
 }) => {
-  const [ref, isVisible] = useScrollAnimation();
+  const { ref, isVisible } = useScrollAnimation();
   return (
-    <section
-      ref={ref as React.RefObject<HTMLElement>}
-      className={`fade-section ${isVisible ? "visible" : ""} ${className}`}
-      style={style}
-    >
+    <div ref={ref} className={`fade-section ${isVisible ? "visible" : ""} ${className}`} style={style}>
       {children}
-    </section>
+    </div>
   );
 };
 
@@ -81,14 +78,14 @@ const fonts = {
 };
 
 const typography = {
-  h1: { fontFamily: fonts.headline, fontSize: 48, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1 },
-  h2: { fontFamily: fonts.headline, fontSize: 36, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.15 },
-  h3: { fontFamily: fonts.headline, fontSize: 24, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.25 },
-  h4: { fontFamily: fonts.headline, fontSize: 17, fontWeight: 600, letterSpacing: "-0.01em", lineHeight: 1.3 },
-  body: { fontFamily: fonts.body, fontSize: 16, fontWeight: 400, lineHeight: 1.6 },
-  bodyLarge: { fontFamily: fonts.body, fontSize: 18, fontWeight: 400, lineHeight: 1.6 },
-  bodySmall: { fontFamily: fonts.body, fontSize: 14, fontWeight: 400, lineHeight: 1.5 },
-  caption: { fontFamily: fonts.body, fontSize: 13, fontWeight: 500, lineHeight: 1.4 },
+  h1: { fontFamily: fonts.headline, fontSize: 56, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1 },
+  h2: { fontFamily: fonts.headline, fontSize: 42, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.15 },
+  h3: { fontFamily: fonts.headline, fontSize: 28, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.25 },
+  h4: { fontFamily: fonts.headline, fontSize: 18, fontWeight: 600, letterSpacing: "-0.01em", lineHeight: 1.3 },
+  body: { fontFamily: fonts.body, fontSize: 17, fontWeight: 400, lineHeight: 1.6 },
+  bodyLarge: { fontFamily: fonts.body, fontSize: 20, fontWeight: 400, lineHeight: 1.6 },
+  bodySmall: { fontFamily: fonts.body, fontSize: 15, fontWeight: 400, lineHeight: 1.5 },
+  caption: { fontFamily: fonts.body, fontSize: 14, fontWeight: 500, lineHeight: 1.4 },
   label: {
     fontFamily: fonts.headline,
     fontSize: 13,
