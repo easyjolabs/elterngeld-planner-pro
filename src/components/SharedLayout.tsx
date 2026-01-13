@@ -240,7 +240,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children, maxWidth = 110
 // LEGAL PAGE LAYOUT (narrower)
 // ===========================================
 export const LegalPageLayout: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <main style={{ backgroundColor: colors.background, minHeight: "100vh" }}>
+  <main style={{ backgroundColor: colors.white, minHeight: "100vh" }}>
     <GlobalStyles />
     <Header maxWidth={1100} />
     <article style={{ padding: "120px 24px 60px", maxWidth: 800, margin: "0 auto" }}>
@@ -249,7 +249,7 @@ export const LegalPageLayout: React.FC<{ title: string; children: React.ReactNod
       </h1>
       <div style={{ ...typography.body, color: colors.text }}>{children}</div>
     </article>
-    <Footer maxWidth={800} />
+    <Footer maxWidth={1100} />
   </main>
 );
 
