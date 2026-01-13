@@ -1695,6 +1695,49 @@ const LandingPage = () => {
         </div>
       </AnimatedSection>
 
+      {/* TRUST BADGES BAR */}
+      <div style={{ padding: "24px 24px", backgroundColor: colors.white }}>
+        <div
+          className="trust-badges"
+          style={{
+            maxWidth: 1100,
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 32,
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth={1.5}>
+              <rect x="3" y="11" width="18" height="11" rx="2" />
+              <path d="M7 11V7a5 5 0 0110 0v4" />
+            </svg>
+            <span style={{ ...typography.caption, color: colors.textDark, fontSize: 13 }}>SSL Encrypted</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth={1.5}>
+              <path d="M12 2L3 7v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V7l-9-5z" />
+            </svg>
+            <span style={{ ...typography.caption, color: colors.textDark, fontSize: 13 }}>GDPR Compliant</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth={1.5}>
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+              <circle cx="12" cy="9" r="2.5" />
+            </svg>
+            <span style={{ ...typography.caption, color: colors.textDark, fontSize: 13 }}>Hosted in EU</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth={1.5}>
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            <span style={{ ...typography.caption, color: colors.textDark, fontSize: 13 }}>Made in Germany</span>
+          </div>
+        </div>
+      </div>
+
       {/* FOOTER */}
       <Footer />
 
