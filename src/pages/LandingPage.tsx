@@ -1643,7 +1643,7 @@ const LandingPage = () => {
             </div>
             <div style={{ borderRadius: 20, height: 380, overflow: "hidden" }}>
               <img
-                src="https://images.unsplash.com/photo-1531983412531-1f49a365ffed?w=800&q=80"
+                src="/cta-image.jpg"
                 alt="Expecting parents"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
