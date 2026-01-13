@@ -102,13 +102,18 @@ export const PrivacyPolicy = () => (
       </P>
     </Section>
 
-    <Section title="6. E-Mail-Dienst">
+    <Section title="6. E-Mail-Dienste">
+      <P>Wir nutzen verschiedene Dienste für E-Mail-Kommunikation:</P>
+      <List
+        items={[
+          "Supabase: Authentifizierungs-E-Mails (z.B. Magic-Link-Login)",
+          "Stripe: Zahlungsbezogene E-Mails (Rechnungen, Bestätigungen)",
+          "Loops: Marketing-E-Mails und Newsletter (nur mit Ihrer Einwilligung)",
+        ]}
+      />
       <P>
-        Wir nutzen Loops für transaktionale E-Mails (z.B. Magic-Link-Login, Benachrichtigungen). Ihre E-Mail-Adresse
-        wird zu diesem Zweck verarbeitet.
-      </P>
-      <P>
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung)
+        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung), Art. 6 Abs. 1 lit. a DSGVO
+        (Einwilligung für Marketing)
       </P>
     </Section>
 
