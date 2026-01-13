@@ -6,6 +6,7 @@ import Chat from "./pages/Chat";
 import Guide from "./pages/Guide";
 import Settings from "./pages/Settings";
 import ImportFaqs from "./pages/ImportFaqs";
+import LandingPage from "./pages/LandingPage";
 import { PasswordGate } from "./components/PasswordGate";
 import { usePasswordProtection } from "./hooks/usePasswordProtection";
 import { AppLayout } from "./components/AppLayout";
@@ -32,7 +33,8 @@ function ProtectedApp() {
     <BrowserRouter>
       <Routes>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/planner" element={<Index />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/guide" element={<Guide />} />
           <Route path="/settings" element={<Settings />} />
