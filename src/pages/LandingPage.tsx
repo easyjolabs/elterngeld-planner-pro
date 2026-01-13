@@ -694,7 +694,7 @@ const EligibilityChecker = () => {
           <div
             style={{
               width: 40,
-              height: 40,
+              height: 47,
               borderRadius: "50%",
               backgroundColor: resultBg,
               display: "inline-flex",
@@ -989,7 +989,8 @@ const LandingPage = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        a:focus, button:focus { outline: 2px solid ${colors.basis}; outline-offset: 2px; }
+        a:focus-visible, button:focus-visible { outline: 2px solid ${colors.black}; outline-offset: 2px; }
+        a:focus:not(:focus-visible), button:focus:not(:focus-visible) { outline: none; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
         @keyframes sliderPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,0,0,0.1); } 50% { transform: scale(1.1); box-shadow: 0 0 0 4px rgba(0,0,0,0.08); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
