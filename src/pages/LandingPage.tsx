@@ -785,6 +785,7 @@ const EligibilityChecker = () => {
           <button
             key={option.value}
             onClick={() => handleSelect(option.value)}
+            aria-label={`Select: ${option.label}`}
             style={{
               padding: "0 18px",
               height: 48,
@@ -800,7 +801,9 @@ const EligibilityChecker = () => {
               width: "100%",
             }}
           >
-            <span style={{ color: colors.black, display: "flex" }}>{CheckerIcons[option.icon]}</span>
+            <span style={{ color: colors.black, display: "flex" }} aria-hidden="true">
+              {CheckerIcons[option.icon]}
+            </span>
             <span
               style={{
                 ...typography.caption,
@@ -853,10 +856,13 @@ const FAQ = () => {
 
   const renderFaq = (faq, i, offset) => {
     const idx = offset + i * 2;
+    const isOpen = openIndex === idx;
     return (
       <div key={idx} style={{ borderBottom: `1px solid ${colors.border}` }}>
         <button
-          onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+          onClick={() => setOpenIndex(isOpen ? null : idx)}
+          aria-expanded={isOpen}
+          aria-controls={`faq-answer-${idx}`}
           style={{
             width: "100%",
             padding: "20px 0",
@@ -871,6 +877,7 @@ const FAQ = () => {
         >
           <span style={{ ...typography.body, color: colors.textDark, fontWeight: 500, paddingRight: 16 }}>{faq.q}</span>
           <svg
+            aria-hidden="true"
             width="20"
             height="20"
             viewBox="0 0 24 24"
@@ -878,7 +885,7 @@ const FAQ = () => {
             stroke={colors.textDark}
             strokeWidth="2"
             style={{
-              transform: openIndex === idx ? "rotate(180deg)" : "rotate(0deg)",
+              transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
               transition: "transform 0.3s ease",
               flexShrink: 0,
             }}
@@ -886,7 +893,12 @@ const FAQ = () => {
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        <div style={{ maxHeight: openIndex === idx ? 200 : 0, overflow: "hidden", transition: "max-height 0.3s ease" }}>
+        <div
+          id={`faq-answer-${idx}`}
+          role="region"
+          aria-hidden={!isOpen}
+          style={{ maxHeight: isOpen ? 200 : 0, overflow: "hidden", transition: "max-height 0.3s ease" }}
+        >
           <p style={{ ...typography.bodySmall, color: colors.textDark, paddingBottom: 20, lineHeight: 1.6 }}>{faq.a}</p>
         </div>
       </div>
@@ -951,10 +963,33 @@ const LandingPage = () => {
   const [chatExpanded, setChatExpanded] = useState(false);
 
   return (
-    <div style={{ backgroundColor: "#FAFAF9", minHeight: "100vh" }}>
+    <main style={{ backgroundColor: "#FAFAF9", minHeight: "100vh" }}>
+      {/* Skip to content link for keyboard users */}
+      <a
+        href="#main-content"
+        style={{ position: "absolute", left: "-9999px", top: "auto", width: "1px", height: "1px", overflow: "hidden" }}
+        onFocus={(e) => {
+          e.currentTarget.style.left = "16px";
+          e.currentTarget.style.top = "16px";
+          e.currentTarget.style.width = "auto";
+          e.currentTarget.style.height = "auto";
+          e.currentTarget.style.padding = "8px 16px";
+          e.currentTarget.style.backgroundColor = colors.black;
+          e.currentTarget.style.color = colors.white;
+          e.currentTarget.style.borderRadius = "8px";
+          e.currentTarget.style.zIndex = "9999";
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.left = "-9999px";
+        }}
+      >
+        Skip to main content
+      </a>
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        a:focus, button:focus { outline: 2px solid ${colors.basis}; outline-offset: 2px; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
         @keyframes sliderPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,0,0,0.1); } 50% { transform: scale(1.1); box-shadow: 0 0 0 4px rgba(0,0,0,0.08); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -1000,6 +1035,7 @@ const LandingPage = () => {
 
       {/* NAV */}
       <nav
+        aria-label="Main navigation"
         style={{
           position: "fixed",
           top: 0,
@@ -1020,8 +1056,12 @@ const LandingPage = () => {
             justifyContent: "space-between",
           }}
         >
-          <a href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
-            <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 42 }} />
+          <a
+            href="/"
+            aria-label="Elterngeld Guide - Home"
+            style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
+          >
+            <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 43 }} />
           </a>
           <a
             href="/guide"
@@ -1041,7 +1081,7 @@ const LandingPage = () => {
       </nav>
 
       {/* HERO */}
-      <section style={{ padding: "140px 24px 60px" }}>
+      <section id="main-content" style={{ padding: "140px 24px 60px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div
             style={{ display: "grid", gridTemplateColumns: "1fr 1fr", alignItems: "center" }}
@@ -1644,7 +1684,8 @@ const LandingPage = () => {
             <div style={{ borderRadius: 20, height: 380, overflow: "hidden" }}>
               <img
                 src="/cta-image.jpg"
-                alt="Expecting parents"
+                alt="Parents planning their Elterngeld benefits"
+                loading="lazy"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             </div>
@@ -1690,7 +1731,7 @@ const LandingPage = () => {
         </div>
       </div>
 
-      <footer style={{ padding: "60px 24px", backgroundColor: "#FAFAF9" }}>
+      <footer role="contentinfo" aria-label="Site footer" style={{ padding: "60px 24px", backgroundColor: "#FAFAF9" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div
             className="footer-grid"
@@ -1698,7 +1739,7 @@ const LandingPage = () => {
           >
             <div className="footer-logo-col">
               <div style={{ marginBottom: 16 }}>
-                <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 42 }} />
+                <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 43 }} />
               </div>
               <p style={{ ...typography.bodySmall, color: colors.textDark, maxWidth: 320, marginBottom: 24 }}>
                 We turn complex Elterngeld rules into simple answers and a smooth application process
@@ -1809,6 +1850,7 @@ const LandingPage = () => {
         <input
           type="text"
           placeholder="Ask anything..."
+          aria-label="Ask a question about Elterngeld"
           value={chatInput}
           onChange={(e) => setChatInput(e.target.value)}
           onFocus={() => setChatExpanded(true)}
@@ -1829,6 +1871,7 @@ const LandingPage = () => {
         />
         <a
           href={chatInput.trim() ? `/chat?q=${encodeURIComponent(chatInput.trim())}` : "/chat"}
+          aria-label="Submit question"
           style={{
             width: 28,
             height: 28,
@@ -1842,6 +1885,7 @@ const LandingPage = () => {
           }}
         >
           <svg
+            aria-hidden="true"
             width="12"
             height="12"
             viewBox="0 0 24 24"
@@ -1856,7 +1900,7 @@ const LandingPage = () => {
           </svg>
         </a>
       </div>
-    </div>
+    </main>
   );
 };
 
