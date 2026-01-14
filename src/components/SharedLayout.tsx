@@ -3,6 +3,7 @@
 // Header, Footer, PageLayout
 // ===========================================
 import React from "react";
+import { Header as AppHeader, HEADER_HEIGHT } from "./Header";
 
 // ===========================================
 // DESIGN TOKENS
@@ -93,51 +94,9 @@ export const SkipToContent: React.FC = () => (
 );
 
 // ===========================================
-// HEADER
+// HEADER (re-export from Header component)
 // ===========================================
-interface HeaderProps {
-  maxWidth?: number;
-}
-
-export const Header: React.FC<HeaderProps> = ({ maxWidth = 1100 }) => (
-  <nav
-    aria-label="Main navigation"
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 50,
-      padding: "16px 24px",
-      backgroundColor: "rgba(250, 250, 249, 0.95)",
-      backdropFilter: "blur(12px)",
-    }}
-  >
-    <div style={{ maxWidth, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <a
-        href="/"
-        aria-label="Elterngeld Guide - Home"
-        style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
-      >
-        <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 47 }} />
-      </a>
-      <a
-        href="/guide"
-        style={{
-          padding: "10px 20px",
-          borderRadius: 999,
-          ...typography.caption,
-          fontWeight: 700,
-          backgroundColor: colors.black,
-          color: colors.white,
-          textDecoration: "none",
-        }}
-      >
-        Start planning →
-      </a>
-    </div>
-  </nav>
-);
+export const Header: React.FC = () => <AppHeader variant="landing" />;
 
 // ===========================================
 // FOOTER
@@ -230,7 +189,7 @@ interface PageLayoutProps {
 export const PageLayout: React.FC<PageLayoutProps> = ({ children, maxWidth = 1100, padding = "120px 24px 60px" }) => (
   <main style={{ backgroundColor: colors.background, minHeight: "100vh" }}>
     <GlobalStyles />
-    <Header maxWidth={maxWidth} />
+    <AppHeader variant="landing" />
     <div style={{ padding, maxWidth, margin: "0 auto" }}>{children}</div>
     <Footer maxWidth={maxWidth} />
   </main>
@@ -242,7 +201,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children, maxWidth = 110
 export const LegalPageLayout: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <main style={{ backgroundColor: colors.white, minHeight: "100vh" }}>
     <GlobalStyles />
-    <Header maxWidth={1100} />
+    <AppHeader variant="landing" />
     <article style={{ padding: "120px 24px 60px", maxWidth: 800, margin: "0 auto" }}>
       <h1 style={{ ...typography.h2, color: colors.textDark, marginBottom: 40 }} className="mobile-h2">
         {title}
