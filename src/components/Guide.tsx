@@ -814,10 +814,16 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
       <button
         onClick={() => isComplete && value && onConfirm(formatDateISO(value), formatDateDisplay(value))}
         disabled={!isComplete}
-        className="w-full py-2.5 px-4 rounded-xl text-[14px] font-semibold transition-opacity flex items-center justify-between"
+        className="w-full transition-opacity flex items-center justify-between"
         style={{
           backgroundColor: colors.buttonDark,
           color: colors.white,
+          height: ui.buttonHeight,
+          borderRadius: ui.buttonRadius,
+          padding: "0 20px",
+          fontFamily: fonts.body,
+          fontSize: 15,
+          fontWeight: 600,
           opacity: isComplete ? 1 : 0.4,
           cursor: isComplete ? "pointer" : "not-allowed",
         }}
@@ -868,12 +874,13 @@ const SliderInputComponent: React.FC<SliderInputProps & { label?: string }> = ({
 
   return (
     <div
-      className="rounded-xl p-4"
+      className="p-4"
       style={{
         backgroundColor: "rgba(255, 255, 255, 0.4)",
         backdropFilter: "blur(8px)",
         WebkitBackdropFilter: "blur(8px)",
-        boxShadow: "0 2px 16px rgba(0, 0, 0, 0.04)",
+        boxShadow: ui.cardShadow,
+        borderRadius: ui.cardRadius,
       }}
     >
       {/* Value Display */}
@@ -937,7 +944,7 @@ const SliderInputComponent: React.FC<SliderInputProps & { label?: string }> = ({
         <div
           className="absolute top-1/2 w-5 h-5 rounded-full pointer-events-none -translate-y-1/2"
           style={{
-            backgroundColor: colors.basis,
+            backgroundColor: colors.orange,
             left: `${percent}%`,
             marginLeft: "-10px",
           }}
@@ -956,8 +963,17 @@ const SliderInputComponent: React.FC<SliderInputProps & { label?: string }> = ({
       {/* Button */}
       <button
         onClick={() => onConfirm(value, `€${value.toLocaleString()}`)}
-        className="w-full mt-6 py-3 px-4 rounded-xl text-[14px] font-semibold flex items-center justify-between"
-        style={{ backgroundColor: colors.buttonDark, color: colors.white }}
+        className="w-full mt-6 flex items-center justify-between"
+        style={{
+          backgroundColor: colors.buttonDark,
+          color: colors.white,
+          height: ui.buttonHeight,
+          borderRadius: ui.buttonRadius,
+          padding: "0 20px",
+          fontFamily: fonts.body,
+          fontSize: 15,
+          fontWeight: 600,
+        }}
       >
         <span className="w-[18px]" />
         <span>Continue</span>
@@ -1074,8 +1090,12 @@ const VisaSelectorComponent: React.FC<VisaSelectorProps> = ({ onSelect }) => {
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className="w-full p-3.5 rounded-xl text-left transition-all hover:border-stone-400"
-            style={{ backgroundColor: colors.white, border: `1.5px solid ${colors.border}` }}
+            className="w-full p-3.5 text-left transition-all hover:border-stone-400"
+            style={{
+              backgroundColor: colors.white,
+              border: `1.5px solid ${colors.border}`,
+              borderRadius: ui.buttonRadius,
+            }}
           >
             <span className="text-[14px] font-medium" style={{ color: colors.textDark }}>
               {cat.label}
@@ -1114,8 +1134,12 @@ const VisaSelectorComponent: React.FC<VisaSelectorProps> = ({ onSelect }) => {
           <button
             key={visa.id}
             onClick={() => handleSelectVisa(visa.id)}
-            className="w-full p-3.5 rounded-xl text-left transition-all hover:border-stone-400"
-            style={{ backgroundColor: colors.white, border: `1.5px solid ${colors.border}` }}
+            className="w-full p-3.5 text-left transition-all hover:border-stone-400"
+            style={{
+              backgroundColor: colors.white,
+              border: `1.5px solid ${colors.border}`,
+              borderRadius: ui.buttonRadius,
+            }}
           >
             <span className="text-[14px] font-medium" style={{ color: colors.textDark }}>
               {visa.label}
@@ -2539,12 +2563,13 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
     () => (
       <div className="pt-2 pb-6">
         <div
-          className="rounded-xl p-4 space-y-2.5"
+          className="p-4 space-y-2.5"
           style={{
             backgroundColor: "rgba(255, 255, 255, 0.4)",
             backdropFilter: "blur(8px)",
             WebkitBackdropFilter: "blur(8px)",
-            boxShadow: "0 2px 16px rgba(0, 0, 0, 0.04)",
+            boxShadow: ui.cardShadow,
+            borderRadius: ui.cardRadius,
           }}
         >
           {[
@@ -2555,7 +2580,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             <div key={i} className="flex items-start gap-2.5">
               <svg
                 className="w-4 h-4 mt-0.5 shrink-0"
-                style={{ color: "#C0630B" }}
+                style={{ color: colors.orange }}
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2.5}
@@ -2664,10 +2689,11 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       return (
         <div className="py-4">
           <div
-            className="rounded-xl overflow-hidden"
+            className="overflow-hidden"
             style={{
               backgroundColor: colors.white,
-              boxShadow: "0 2px 16px rgba(0, 0, 0, 0.04)",
+              boxShadow: ui.cardShadow,
+              borderRadius: ui.cardRadius,
             }}
           >
             <div className="p-6">
@@ -3177,12 +3203,13 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
     return (
       <div className="py-2">
         <div
-          className="rounded-xl overflow-hidden"
+          className="overflow-hidden"
           style={{
             backgroundColor: "rgba(255, 255, 255, 0.4)",
             backdropFilter: "blur(8px)",
             WebkitBackdropFilter: "blur(8px)",
-            boxShadow: "0 2px 16px rgba(0, 0, 0, 0.04)",
+            boxShadow: ui.cardShadow,
+            borderRadius: ui.cardRadius,
           }}
         >
           {/* Header - Dark */}
@@ -3479,8 +3506,14 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             <button
               key={i}
               onClick={() => onSelect(opt.value, opt.label)}
-              className={`w-full px-3.5 py-2.5 rounded-xl transition-all flex items-center hover:border-stone-400 ${shouldCenter ? "justify-between" : "justify-between text-left"}`}
-              style={{ backgroundColor: colors.white, border: `1.5px solid ${colors.border}` }}
+              className={`w-full px-4 transition-all flex items-center hover:border-stone-400 ${shouldCenter ? "justify-between" : "justify-between text-left"}`}
+              style={{
+                backgroundColor: colors.white,
+                border: `1.5px solid ${colors.border}`,
+                borderRadius: ui.buttonRadius,
+                minHeight: ui.buttonHeight,
+                padding: "10px 16px",
+              }}
             >
               {shouldCenter ? (
                 <>
