@@ -107,25 +107,41 @@ interface TypeSelectProps {
 // DESIGN TOKENS
 // ===========================================
 const colors = {
-  background: "#F9F8F4",
+  background: "#F4F4ED",
   tile: "#F0EEE6",
   tileHover: "#EAE6DD",
-  text: "#57534E",
+  white: "#FFFFFF",
+  text: "#666666",
   textDark: "#000000",
   userBubble: "#F0EEE6",
-  basis: "#C0630B",
-  plus: "#FC631B",
-  bonus: "#FFBDF0",
-  basisBorder: "#F2F53A",
-  plusBorder: "#FFBDF0",
-  bonusBorder: "#D1B081",
   border: "#E7E5E4",
   borderLight: "#F5F5F4",
+  orange: "#FF8752",
+  tan: "#D1B081",
+  yellow: "#FFE44C",
+  basis: "#C0630B",
+  plus: "#FC631B",
+  bonus: "#FFE44C",
+  basisBorder: "#F2F53A",
+  plusBorder: "#D1B081",
+  bonusBorder: "#D1B081",
+  buttonDark: "#000000",
   error: "#E07B3C",
   success: "#1AB689",
-  white: "#FFFFFF",
-  buttonDark: "#3D3D3A",
   stars: "#facc15",
+};
+
+const fonts = {
+  headline: "'Space Grotesk', -apple-system, sans-serif",
+  body: "'Inter', -apple-system, sans-serif",
+};
+
+const ui = {
+  cardRadius: 20,
+  buttonRadius: 10,
+  inputRadius: 12,
+  buttonHeight: 48,
+  cardShadow: "0 2px 8px rgba(0,0,0,0.04)",
 };
 
 // ===========================================
@@ -293,7 +309,7 @@ const visaCategories = [
 // ===========================================
 const flow: FlowMessage[] = [
   // INTRO
-  { type: "bot", content: "Hi! 👋 Let's figure out your Elterngeld together." },
+  { type: "bot", content: "Hi! Let's figure out your Elterngeld together." },
   {
     type: "bot",
     content:
@@ -992,12 +1008,12 @@ const IncomeStepper: React.FC<StepperProps> = ({ value, label, onChange }) => {
   );
 };
 
-// Type styles for planner dropdowns - neue Farben wie im Prototyp
+// Type styles for planner dropdowns
 const typeStyles = {
   none: { bg: "rgba(0, 0, 0, 0.04)" },
   basis: { bg: "rgba(192, 99, 11, 0.25)" },
   plus: { bg: "rgba(252, 99, 27, 0.25)" },
-  bonus: { bg: "rgba(255, 189, 240, 0.35)" },
+  bonus: { bg: "rgba(255, 228, 76, 0.35)" },
 } as const;
 
 // Type Select Dropdown Component (for Planner) - neues kompaktes Design
@@ -2489,7 +2505,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         {/* Partnership Bonus Hint */}
         <div
           className="flex items-start gap-2 mt-4 p-3 rounded-lg"
-          style={{ backgroundColor: "rgba(255, 189, 240, 0.5)" }}
+          style={{ backgroundColor: colors.yellow }}
         >
           <svg
             className="w-4 h-4 shrink-0 mt-0.5"
@@ -3145,7 +3161,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         {bonus > 0 && (
           <span
             className="px-2 py-0.5 rounded-full text-[11px] font-medium"
-            style={{ backgroundColor: "rgba(255, 189, 240, 0.35)", color: colors.textDark }}
+            style={{ backgroundColor: "rgba(255, 228, 76, 0.35)", color: colors.textDark }}
           >
             {bonus} Bonus
           </span>
