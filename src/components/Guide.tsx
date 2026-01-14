@@ -3539,7 +3539,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               {shouldCenter ? (
                 <>
                   <span className="w-[18px]" />
-                  <span className="text-[14px] font-medium" style={{ color: colors.textDark }}>
+                  <span className="text-[15px] font-medium" style={{ color: colors.textDark }}>
                     {labelText}
                   </span>
                   <span className="text-[18px]" style={{ color: colors.textDark }}>
@@ -3555,7 +3555,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                       </span>
                     )}
                     <div>
-                      <span className="text-[14px] font-medium" style={{ color: colors.textDark }}>
+                      <span className="text-[15px] font-medium" style={{ color: colors.textDark }}>
                         {labelText}
                       </span>
                       {opt.sub && (
@@ -3651,7 +3651,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             className="rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[80%]"
             style={{ backgroundColor: colors.userBubble }}
           >
-            <span className="text-[15px]" style={{ color: colors.textDark }}>
+            <span className="text-[16px]" style={{ color: colors.textDark }}>
               {msg.content}
             </span>
           </div>
@@ -3668,7 +3668,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         <div key={i} className={`${isQuestion ? "py-1.5 mt-4" : "py-1"} ${hasOnlyExpander ? "mb-4" : ""}`}>
           {hasContent && (
             <p
-              className={isQuestion ? "text-[15px] leading-relaxed font-semibold pl-3" : "text-[15px] leading-relaxed"}
+              className={isQuestion ? "text-[17px] leading-relaxed font-semibold pl-3" : "text-[16px] leading-relaxed"}
               style={{
                 color: colors.textDark,
                 borderLeft: isQuestion ? `3px solid ${colors.orange}` : "none",
@@ -3692,7 +3692,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             (msg.subtext.includes("[info:") ? (
               <>
                 {msg.subtext.split("[info:")[0].trim() && (
-                  <p className={`mt-2 text-[14px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
+                  <p className={`mt-2 text-[15px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
                     {formatText(msg.subtext.split("[info:")[0].trim(), onOpenChat)}
                   </p>
                 )}
@@ -3713,16 +3713,16 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             ) : msg.subtext.includes("[info]") ? (
               <>
                 {msg.subtext.split("[info]")[0].trim() && (
-                  <p className={`mt-2 text-[14px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
+                  <p className={`mt-2 text-[15px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
                     {formatText(msg.subtext.split("[info]")[0].trim(), onOpenChat)}
                   </p>
                 )}
-                <p className={`mt-2 text-[14px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
+                <p className={`mt-2 text-[15px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
                   {formatText(msg.subtext.split("[info]")[1].trim(), onOpenChat)}
                 </p>
               </>
             ) : (
-              <p className={`mt-2 text-[14px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
+              <p className={`mt-2 text-[15px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
                 {formatText(msg.subtext, onOpenChat)}
               </p>
             ))}
