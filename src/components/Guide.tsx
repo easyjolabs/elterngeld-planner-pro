@@ -1,11 +1,6 @@
 // ===========================================
-// ELTERNGELD GUIDE - LOVABLE VERSION
+// ELTERNGELD GUIDE - LP DESIGN SYSTEM APPLIED
 // ===========================================
-// Copy this entire file into Lovable as a new page or component
-//
-// FOR LOVABLE: Replace DateInput with shadcn Calendar for better UX:
-// import { Calendar } from "@/components/ui/calendar";
-// import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -104,16 +99,16 @@ interface TypeSelectProps {
 }
 
 // ===========================================
-// DESIGN TOKENS
+// DESIGN TOKENS - LP STYLE
 // ===========================================
 const colors = {
   background: "#FAFAF9",
-  tile: "#F0EEE6",
-  tileHover: "#EAE6DD",
+  tile: "#F5F5F4",
+  tileHover: "#EEEEEC",
   white: "#FFFFFF",
-  text: "#666666",
+  text: "#57534E",
   textDark: "#000000",
-  userBubble: "#F0EEE6",
+  userBubble: "#F5F5F4",
   border: "#E7E5E4",
   borderLight: "#F5F5F4",
   orange: "#FF8752",
@@ -139,20 +134,29 @@ const fonts = {
 const ui = {
   cardRadius: 20,
   buttonRadius: 10,
-  inputRadius: 12,
+  inputRadius: 10,
   buttonHeight: 48,
   cardShadow: "0 2px 8px rgba(0,0,0,0.04)",
+};
+
+const fontSize = {
+  question: "17px",
+  body: "16px",
+  subtext: "15px",
+  button: "15px",
+  small: "13px",
+  tiny: "12px",
 };
 
 // ===========================================
 // CONSTANTS
 // ===========================================
 const ELTERNGELD = {
-  MIN_AMOUNT: 300, // Minimum Elterngeld per month
-  MAX_AMOUNT: 1800, // Maximum Elterngeld per month
-  GESCHWISTER_MIN: 75, // Minimum Geschwisterbonus (§2a Abs. 1)
-  TWINS_BONUS: 300, // Extra for twins (§2a Abs. 4)
-  TRIPLETS_BONUS: 600, // Extra for triplets
+  MIN_AMOUNT: 300,
+  MAX_AMOUNT: 1800,
+  GESCHWISTER_MIN: 75,
+  TWINS_BONUS: 300,
+  TRIPLETS_BONUS: 600,
 } as const;
 
 const SLIDER = {
@@ -181,7 +185,6 @@ interface VisaType {
 }
 
 const visaTypes: VisaType[] = [
-  // SPECIAL CASES (show first)
   { id: "uk_pre_brexit", label: "British – arrived before Jan 2021", category: "special", status: "eligible" },
   {
     id: "turkey_insured",
@@ -189,8 +192,6 @@ const visaTypes: VisaType[] = [
     category: "special",
     status: "eligible",
   },
-
-  // WORK PERMITS - Eligible
   {
     id: "niederlassungserlaubnis",
     label: "Niederlassungserlaubnis (Settlement Permit)",
@@ -221,8 +222,6 @@ const visaTypes: VisaType[] = [
     status: "eligible",
     paragraph: "§60d",
   },
-
-  // STUDY/TRAINING - Conditional
   {
     id: "student",
     label: "Student Visa",
@@ -248,8 +247,6 @@ const visaTypes: VisaType[] = [
     paragraph: "§20",
   },
   { id: "training", label: "Training Visa (Ausbildung)", category: "study", status: "not_eligible", paragraph: "§16e" },
-
-  // HUMANITARIAN - Conditional/Eligible
   { id: "ukraine", label: "Ukraine Residence Permit", category: "humanitarian", status: "eligible", paragraph: "§24" },
   {
     id: "humanitarian_war",
@@ -275,8 +272,6 @@ const visaTypes: VisaType[] = [
     condition: "Only if employed OR 15+ months in Germany",
     paragraph: "§25 Abs. 3-5",
   },
-
-  // OTHER - Not Eligible
   { id: "au_pair", label: "Au-pair Visa", category: "other", status: "not_eligible", paragraph: "§19c" },
   { id: "seasonal", label: "Seasonal Work Visa", category: "other", status: "not_eligible", paragraph: "§19c" },
   {
@@ -286,7 +281,6 @@ const visaTypes: VisaType[] = [
     status: "not_eligible",
     paragraph: "§19e",
   },
-
   {
     id: "other",
     label: "I don't know / Other",
@@ -308,7 +302,6 @@ const visaCategories = [
 // FLOW DEFINITION
 // ===========================================
 const flow: FlowMessage[] = [
-  // INTRO
   { type: "bot", content: "Hi! Let's figure out your Elterngeld together." },
   {
     type: "bot",
@@ -329,7 +322,6 @@ const flow: FlowMessage[] = [
     pauseLabel: "Am I eligible?",
   },
 
-  // ELIGIBILITY CHECK
   {
     type: "bot",
     content: "Are you a **German or EU/EEA/Swiss** citizen?",
@@ -344,7 +336,6 @@ const flow: FlowMessage[] = [
   { type: "user" },
   { type: "dynamic", key: "citizenshipResponse" },
 
-  // INCOME LIMIT CHECK
   {
     type: "bot",
     content: "Did your household earn **more than €175,000** taxable income last year?",
@@ -360,7 +351,6 @@ const flow: FlowMessage[] = [
   { type: "user" },
   { type: "dynamic", key: "incomeLimitResponse" },
 
-  // YOUR CHILD
   {
     type: "bot",
     content: "When is your child **born or expected** to be born?",
@@ -401,7 +391,6 @@ const flow: FlowMessage[] = [
   },
   { type: "user" },
 
-  // INCOME
   {
     type: "bot",
     content: "Are you applying as a **couple** or as a **single parent**?",
@@ -420,98 +409,20 @@ const flow: FlowMessage[] = [
   { type: "dynamic", key: "partnerQuestion" },
   { type: "user" },
 
-  // CALCULATION
   { type: "dynamic", key: "calculationIntro" },
   { type: "component", component: "calculation" },
   { type: "dynamic", key: "plannerIntro" },
 
-  // PLANNING
   { type: "component", component: "planner", pause: true, pauseLabel: "Continue to application →" },
 
-  // CTA
   {
     type: "bot",
     content: "Ready to apply? We can pre-fill your official application and guide you through the remaining steps.",
   },
   { type: "component", component: "ctaCard" },
 
-  // END
   { type: "end" },
 ];
-
-// ===========================================
-// ICONS (reusable SVG components)
-// ===========================================
-const Icons = {
-  lightbulb: (className = "w-4 h-4") => (
-    <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-      />
-    </svg>
-  ),
-  warning: (className = "w-4 h-4") => (
-    <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-      />
-    </svg>
-  ),
-  check: (className = "w-4 h-4") => (
-    <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-    </svg>
-  ),
-  calendar: (className = "w-4 h-4") => (
-    <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-      />
-    </svg>
-  ),
-  user: (className = "w-4 h-4") => (
-    <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-      />
-    </svg>
-  ),
-  users: (className = "w-4 h-4") => (
-    <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-      />
-    </svg>
-  ),
-  euro: (className = "w-4 h-4") => (
-    <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M14.121 15.536c-1.171 1.952-3.07 1.952-4.242 0-1.172-1.953-1.172-5.119 0-7.072 1.171-1.952 3.07-1.952 4.242 0M8 10.5h4m-4 3h4"
-      />
-    </svg>
-  ),
-  pdf: (className = "w-4 h-4") => (
-    <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-      />
-    </svg>
-  ),
-};
 
 // ===========================================
 // HELPER FUNCTIONS
@@ -536,7 +447,6 @@ const LightbulbIcon = () => (
 const formatText = (text: string | undefined, onOpenChat?: (prefill?: string) => void): React.ReactNode => {
   if (!text) return null;
 
-  // Handle [tip] prefix
   const hasTip = text.startsWith("[tip]");
   const processedText = hasTip ? text.replace("[tip]", "") : text;
 
@@ -544,7 +454,6 @@ const formatText = (text: string | undefined, onOpenChat?: (prefill?: string) =>
   const result: React.ReactNode[] = [];
   let bulletGroup: string[] = [];
 
-  // Add lightbulb icon if tip
   if (hasTip) {
     result.push(<LightbulbIcon key="tip-icon" />);
   }
@@ -570,11 +479,9 @@ const formatText = (text: string | undefined, onOpenChat?: (prefill?: string) =>
   };
 
   const processLine = (line: string, lineIndex: number): React.ReactNode => {
-    // Handle [[link]] or [[link|prefill]] as clickable link
     const linkParts = line.split(/\[\[(.*?)\]\]/g);
     const withLinks = linkParts.map((part, i) => {
       if (i % 2 === 1) {
-        // This is the link text - check for prefill with |
         const [linkText, prefillQuestion] = part.split("|");
         return (
           <button
@@ -587,7 +494,6 @@ const formatText = (text: string | undefined, onOpenChat?: (prefill?: string) =>
           </button>
         );
       }
-      // Handle **bold** within non-link parts
       const boldParts = part.split(/\*\*(.*?)\*\*/g);
       return boldParts.map((boldPart, j) =>
         j % 2 === 1 ? (
@@ -604,7 +510,6 @@ const formatText = (text: string | undefined, onOpenChat?: (prefill?: string) =>
 
   lines.forEach((line, lineIndex) => {
     const isBullet = line.trim().startsWith("•");
-
     if (isBullet) {
       bulletGroup.push(line);
     } else {
@@ -637,10 +542,6 @@ const calculateElterngeld = (netIncome: number, data: UserData, partTimeIncome: 
     };
   }
 
-  // Ersatzrate nach §2 BEEG:
-  // - Basis: 67%
-  // - Unter €1.000: +0,1% pro €2 unter €1.000 (max 100%)
-  // - Über €1.200: -0,1% pro €2 über €1.200 (min 65%)
   const getErsatzrate = (income: number) => {
     let rate = 0.67;
     if (income < 1000) {
@@ -653,12 +554,10 @@ const calculateElterngeld = (netIncome: number, data: UserData, partTimeIncome: 
     return rate;
   };
 
-  // Basis OHNE Arbeit (für Plus-Deckel)
   const ersatzrateOhne = getErsatzrate(netIncome);
   let basisWithoutWork = Math.round(netIncome * ersatzrateOhne);
   basisWithoutWork = Math.max(ELTERNGELD.MIN_AMOUNT, Math.min(ELTERNGELD.MAX_AMOUNT, basisWithoutWork));
 
-  // Geschwisterbonus und Mehrlingszuschlag auf Basis ohne Arbeit
   let bonusAmount = 0;
   if (data.siblings === "yes") {
     bonusAmount += Math.max(ELTERNGELD.GESCHWISTER_MIN, Math.round(basisWithoutWork * 0.1));
@@ -667,15 +566,12 @@ const calculateElterngeld = (netIncome: number, data: UserData, partTimeIncome: 
   if (data.multiples === "triplets") bonusAmount += ELTERNGELD.TRIPLETS_BONUS;
   basisWithoutWork += bonusAmount;
 
-  // Basis MIT Arbeit (Differenzeinkommen)
   const differenz = Math.max(0, netIncome - partTimeIncome);
   const ersatzrateMit = getErsatzrate(differenz);
   let basis = Math.round(differenz * ersatzrateMit);
   basis = Math.max(ELTERNGELD.MIN_AMOUNT, Math.min(ELTERNGELD.MAX_AMOUNT, basis));
   basis += bonusAmount;
 
-  // Plus MIT Arbeit = MIN(normal berechnet, Deckel)
-  // Deckel = Basis ohne Arbeit / 2
   const plusDeckel = Math.round(basisWithoutWork / 2);
   const plusBerechnet = Math.round(basis / 2);
   const plusCapped = partTimeIncome > 0 && plusBerechnet > plusDeckel;
@@ -684,17 +580,15 @@ const calculateElterngeld = (netIncome: number, data: UserData, partTimeIncome: 
   return {
     basis,
     plus,
-    bonus: plus, // Bonus = Plus amount
+    bonus: plus,
     basisWithoutWork,
     plusCapped,
   };
 };
 
 // ===========================================
-// EXTRACTED INPUT COMPONENTS
+// DATE INPUT COMPONENT
 // ===========================================
-
-// Helper functions for date formatting
 const formatDateDisplay = (date: Date) => {
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 };
@@ -703,7 +597,6 @@ const formatDateISO = (date: Date) => {
   return date.toISOString().split("T")[0];
 };
 
-// Date Input Component
 const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfirm }) => {
   const currentYear = new Date().getFullYear();
   const years = [currentYear - 1, currentYear, currentYear + 1, currentYear + 2];
@@ -722,19 +615,16 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
     "December",
   ];
 
-  // Get initial values from value prop or defaults
   const [selectedDay, setSelectedDay] = React.useState(value?.getDate() || 0);
   const [selectedMonth, setSelectedMonth] = React.useState(value ? value.getMonth() + 1 : 0);
   const [selectedYear, setSelectedYear] = React.useState(value?.getFullYear() || 0);
 
-  // Calculate days in month
   const getDaysInMonth = (month: number, year: number) => {
     if (!month || !year) return 31;
     return new Date(year, month, 0).getDate();
   };
   const daysInMonth = getDaysInMonth(selectedMonth, selectedYear || currentYear);
 
-  // Update parent when all fields selected
   React.useEffect(() => {
     if (selectedDay && selectedMonth && selectedYear) {
       const newDate = new Date(selectedYear, selectedMonth - 1, selectedDay);
@@ -742,7 +632,6 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
     }
   }, [selectedDay, selectedMonth, selectedYear, onChange]);
 
-  // Adjust day if month changes and day is too high
   React.useEffect(() => {
     if (selectedDay > daysInMonth) {
       setSelectedDay(daysInMonth);
@@ -751,11 +640,12 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
 
   const isComplete = selectedDay > 0 && selectedMonth > 0 && selectedYear > 0;
 
-  const selectStyle = {
+  const selectStyle: React.CSSProperties = {
     backgroundColor: colors.white,
     color: colors.textDark,
     border: `1.5px solid ${colors.border}`,
     borderRadius: ui.inputRadius,
+    fontSize: fontSize.button,
     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2378716c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
     backgroundRepeat: "no-repeat",
     backgroundPosition: "right 8px center",
@@ -766,11 +656,10 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
-        {/* Day */}
         <select
           value={selectedDay || ""}
           onChange={(e) => setSelectedDay(Number(e.target.value))}
-          className="flex-1 px-3 py-3 text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
+          className="flex-1 px-3 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
           style={selectStyle}
         >
           <option value="">Day</option>
@@ -781,11 +670,10 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
           ))}
         </select>
 
-        {/* Month */}
         <select
           value={selectedMonth || ""}
           onChange={(e) => setSelectedMonth(Number(e.target.value))}
-          className="flex-[2] px-3 py-3 text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
+          className="flex-[2] px-3 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
           style={selectStyle}
         >
           <option value="">Month</option>
@@ -796,11 +684,10 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
           ))}
         </select>
 
-        {/* Year */}
         <select
           value={selectedYear || ""}
           onChange={(e) => setSelectedYear(Number(e.target.value))}
-          className="flex-1 px-3 py-3 text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
+          className="flex-1 px-3 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
           style={selectStyle}
         >
           <option value="">Year</option>
@@ -823,7 +710,7 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
           borderRadius: ui.buttonRadius,
           padding: "0 20px",
           fontFamily: fonts.body,
-          fontSize: 15,
+          fontSize: fontSize.button,
           fontWeight: 600,
           opacity: isComplete ? 1 : 0.4,
           cursor: isComplete ? "pointer" : "not-allowed",
@@ -831,13 +718,15 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
       >
         <span className="w-[18px]" />
         <span>Confirm</span>
-        <span className="text-[18px]">→</span>
+        <span style={{ fontSize: "18px" }}>→</span>
       </button>
     </div>
   );
 };
 
-// Slider Input Component - New Design with orange thumb and tick marks
+// ===========================================
+// SLIDER INPUT COMPONENT
+// ===========================================
 const SliderInputComponent: React.FC<SliderInputProps & { label?: string }> = ({
   value,
   onChange,
@@ -875,31 +764,23 @@ const SliderInputComponent: React.FC<SliderInputProps & { label?: string }> = ({
 
   return (
     <div
-      className="p-4"
+      className="p-5"
       style={{
-        backgroundColor: "rgba(255, 255, 255, 0.4)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
+        backgroundColor: colors.tile,
         boxShadow: ui.cardShadow,
         borderRadius: ui.cardRadius,
       }}
     >
-      {/* Value Display */}
       <div className="mb-4">
-        <span className="text-[12px]" style={{ color: colors.text }}>
-          {label || "Monthly net income"}
-        </span>
+        <span style={{ color: colors.text, fontSize: fontSize.small }}>{label || "Monthly net income"}</span>
         <div className="mt-1">
-          <span className="text-[14px] mr-1" style={{ color: colors.text }}>
-            €
-          </span>
-          <span className="text-2xl font-bold" style={{ color: colors.textDark }}>
+          <span style={{ color: colors.text, fontSize: fontSize.subtext, marginRight: "4px" }}>€</span>
+          <span style={{ color: colors.textDark, fontSize: "28px", fontWeight: 700, fontFamily: fonts.headline }}>
             {value.toLocaleString()}
           </span>
         </div>
       </div>
 
-      {/* Slider Track */}
       <div
         ref={trackRef}
         className="relative h-10 cursor-pointer select-none touch-none"
@@ -912,7 +793,6 @@ const SliderInputComponent: React.FC<SliderInputProps & { label?: string }> = ({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
       >
-        {/* Tick Marks */}
         <div
           className="absolute top-1/2 left-0 right-0 flex justify-between px-0"
           style={{ transform: "translateY(-50%)" }}
@@ -929,19 +809,16 @@ const SliderInputComponent: React.FC<SliderInputProps & { label?: string }> = ({
           ))}
         </div>
 
-        {/* Track Background */}
         <div
           className="absolute top-1/2 left-0 right-0 h-0.5 rounded-full -translate-y-1/2"
           style={{ backgroundColor: colors.textDark }}
         />
 
-        {/* Track Filled */}
         <div
           className="absolute top-1/2 left-0 h-0.5 rounded-full -translate-y-1/2 pointer-events-none"
           style={{ backgroundColor: colors.textDark, width: `${percent}%` }}
         />
 
-        {/* Thumb */}
         <div
           className="absolute top-1/2 w-5 h-5 rounded-full pointer-events-none -translate-y-1/2"
           style={{
@@ -952,8 +829,7 @@ const SliderInputComponent: React.FC<SliderInputProps & { label?: string }> = ({
         />
       </div>
 
-      {/* Labels */}
-      <div className="flex justify-between text-[11px] mt-1" style={{ color: colors.text }}>
+      <div className="flex justify-between mt-1" style={{ color: colors.text, fontSize: "11px" }}>
         <span>€0</span>
         <span>€2k</span>
         <span>€4k</span>
@@ -961,7 +837,6 @@ const SliderInputComponent: React.FC<SliderInputProps & { label?: string }> = ({
         <span>€8k</span>
       </div>
 
-      {/* Button */}
       <button
         onClick={() => onConfirm(value, `€${value.toLocaleString()}`)}
         className="w-full mt-6 flex items-center justify-between"
@@ -972,19 +847,21 @@ const SliderInputComponent: React.FC<SliderInputProps & { label?: string }> = ({
           borderRadius: ui.buttonRadius,
           padding: "0 20px",
           fontFamily: fonts.body,
-          fontSize: 15,
+          fontSize: fontSize.button,
           fontWeight: 600,
         }}
       >
         <span className="w-[18px]" />
         <span>Continue</span>
-        <span className="text-[18px]">→</span>
+        <span style={{ fontSize: "18px" }}>→</span>
       </button>
     </div>
   );
 };
 
-// Stepper for part-time income - full width
+// ===========================================
+// INCOME STEPPER COMPONENT
+// ===========================================
 interface StepperProps {
   value: number;
   label: string;
@@ -993,13 +870,12 @@ interface StepperProps {
 
 const IncomeStepper: React.FC<StepperProps> = ({ value, label, onChange }) => {
   const step = 100;
-
   const decrease = () => onChange(Math.max(0, value - step));
   const increase = () => onChange(value + step);
 
   return (
     <div className="flex items-center justify-between flex-1">
-      <span style={{ color: colors.textDark, fontSize: "13px" }}>{label}</span>
+      <span style={{ color: colors.textDark, fontSize: fontSize.small }}>{label}</span>
       <div className="flex items-center gap-1">
         <button
           onClick={decrease}
@@ -1009,7 +885,13 @@ const IncomeStepper: React.FC<StepperProps> = ({ value, label, onChange }) => {
           −
         </button>
         <span
-          style={{ color: colors.textDark, fontSize: "13px", fontWeight: 600, minWidth: "50px", textAlign: "center" }}
+          style={{
+            color: colors.textDark,
+            fontSize: fontSize.small,
+            fontWeight: 600,
+            minWidth: "50px",
+            textAlign: "center",
+          }}
         >
           €{value.toLocaleString("de-DE")}
         </span>
@@ -1025,7 +907,9 @@ const IncomeStepper: React.FC<StepperProps> = ({ value, label, onChange }) => {
   );
 };
 
-// Type styles for planner dropdowns
+// ===========================================
+// TYPE SELECT COMPONENT (for Planner)
+// ===========================================
 const typeStyles = {
   none: { bg: "rgba(0, 0, 0, 0.04)" },
   basis: { bg: "rgba(192, 99, 11, 0.25)" },
@@ -1033,15 +917,15 @@ const typeStyles = {
   bonus: { bg: "rgba(255, 228, 76, 0.35)" },
 } as const;
 
-// Type Select Dropdown Component (for Planner) - neues kompaktes Design
 const TypeSelectComponent: React.FC<TypeSelectProps> = ({ value, onChange, hasError, isSingleParent }) => (
   <div className="relative w-full">
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="h-6 pl-2.5 pr-5 rounded-full text-[11px] font-medium appearance-none cursor-pointer w-full"
+      className="h-6 pl-2.5 pr-5 rounded-full font-medium appearance-none cursor-pointer w-full"
       aria-label="Select benefit type"
       style={{
+        fontSize: "11px",
         backgroundColor: hasError ? "rgba(254, 115, 60, 0.15)" : typeStyles[value].bg,
         color: value === "none" ? colors.text : colors.textDark,
         border: "none",
@@ -1066,7 +950,184 @@ const TypeSelectComponent: React.FC<TypeSelectProps> = ({ value, onChange, hasEr
   </div>
 );
 
-// Visa Selector Component
+// ===========================================
+// BUTTON ICONS
+// ===========================================
+const buttonIcons: Record<string, React.ReactNode> = {
+  eu: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <path d="M4 4v16M4 4h12l-2 4 2 4H4" />
+    </svg>
+  ),
+  passport: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <rect x="4" y="2" width="16" height="20" rx="2" />
+      <circle cx="12" cy="10" r="3" />
+      <path d="M8 17h8" />
+    </svg>
+  ),
+  baby: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <circle cx="12" cy="8" r="5" />
+      <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+    </svg>
+  ),
+  twins: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <circle cx="8" cy="8" r="4" />
+      <circle cx="16" cy="8" r="4" />
+      <path d="M2 20c0-3 2.5-5 6-5s6 2 6 5M10 20c0-3 2.5-5 6-5s6 2 6 5" />
+    </svg>
+  ),
+  triplets: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <circle cx="12" cy="5" r="3" />
+      <circle cx="6" cy="11" r="3" />
+      <circle cx="18" cy="11" r="3" />
+      <path d="M12 8v4M6 14v4M18 14v4" />
+    </svg>
+  ),
+  child: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <circle cx="12" cy="7" r="4" />
+      <path d="M5 21v-2a7 7 0 0114 0v2" />
+    </svg>
+  ),
+  children: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <circle cx="9" cy="7" r="3" />
+      <circle cx="17" cy="9" r="2.5" />
+      <path d="M3 21v-2c0-2.5 2-4.5 6-4.5s6 2 6 4.5v2M14 21v-1.5c0-2 1.5-3.5 4.5-3.5" />
+    </svg>
+  ),
+  couple: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <circle cx="9" cy="7" r="4" />
+      <circle cx="17" cy="9" r="3" />
+      <path d="M3 21v-2c0-2.5 3-5 6-5 1.5 0 3 .5 4 1.5M17 21v-2c0-1.5 1-3 3-3" />
+    </svg>
+  ),
+  single: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <circle cx="12" cy="7" r="4" />
+      <path d="M5 21v-2a7 7 0 0114 0v2" />
+    </svg>
+  ),
+  briefcase: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
+    </svg>
+  ),
+  home: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V10" />
+    </svg>
+  ),
+  check: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <path d="M5 13l4 4L19 7" />
+    </svg>
+  ),
+  x: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <path d="M6 6l12 12M6 18L18 6" />
+    </svg>
+  ),
+  heart: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+    </svg>
+  ),
+  calendar: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  ),
+};
+
+const ButtonIcon = React.memo(({ name }: { name: string }) => buttonIcons[name] || null);
+
+// ===========================================
+// BUTTON OPTIONS COMPONENT
+// ===========================================
+const ButtonOptions = React.memo(
+  ({ options, onSelect }: { options: ButtonOption[]; onSelect: (value: string, label: string) => void }) => (
+    <div className="space-y-2">
+      {options.map((opt, i) => {
+        const hasArrow = opt.label.includes("→");
+        const labelText = hasArrow ? opt.label.replace("→", "").trim() : opt.label;
+        const shouldCenter = hasArrow && !opt.icon && !opt.note;
+
+        return (
+          <button
+            key={i}
+            onClick={() => onSelect(opt.value, opt.label)}
+            className={`w-full transition-all flex items-center hover:border-stone-400 ${shouldCenter ? "justify-between" : "justify-between text-left"}`}
+            style={{
+              backgroundColor: colors.white,
+              border: `1.5px solid ${colors.border}`,
+              borderRadius: ui.buttonRadius,
+              height: ui.buttonHeight,
+              padding: "10px 16px",
+            }}
+          >
+            {shouldCenter ? (
+              <>
+                <span className="w-[18px]" />
+                <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>{labelText}</span>
+                <span style={{ fontSize: "18px", color: colors.textDark }}>→</span>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-3">
+                  {opt.icon && (
+                    <span style={{ color: colors.textDark }}>
+                      <ButtonIcon name={opt.icon} />
+                    </span>
+                  )}
+                  <div>
+                    <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>
+                      {labelText}
+                    </span>
+                    {opt.sub && (
+                      <p style={{ fontSize: fontSize.tiny, marginTop: "2px", color: colors.text }}>{opt.sub}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {opt.note && (
+                    <span
+                      className="px-2.5 py-1 rounded-full font-semibold"
+                      style={{
+                        fontSize: fontSize.tiny,
+                        backgroundColor:
+                          opt.accent === "basis"
+                            ? "rgba(192, 99, 11, 0.3)"
+                            : opt.accent === "bonus"
+                              ? colors.bonus
+                              : colors.tile,
+                        color: opt.accent === "bonus" ? colors.textDark : opt.accent ? colors.textDark : colors.text,
+                      }}
+                    >
+                      {opt.note}
+                    </span>
+                  )}
+                  {hasArrow && <span style={{ fontSize: "18px", color: colors.textDark }}>→</span>}
+                </div>
+              </>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  ),
+);
+
+// ===========================================
+// VISA SELECTOR COMPONENT
+// ===========================================
 const VisaSelectorComponent: React.FC<VisaSelectorProps> = ({ onSelect }) => {
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null);
 
@@ -1083,7 +1144,6 @@ const VisaSelectorComponent: React.FC<VisaSelectorProps> = ({ onSelect }) => {
     onSelect(visaId, visa?.label || visaId);
   };
 
-  // Step 1: Show category buttons
   if (!selectedCategory) {
     return (
       <div className="py-4 space-y-2">
@@ -1098,31 +1158,22 @@ const VisaSelectorComponent: React.FC<VisaSelectorProps> = ({ onSelect }) => {
               borderRadius: ui.buttonRadius,
             }}
           >
-            <span className="text-[14px] font-medium" style={{ color: colors.textDark }}>
-              {cat.label}
-            </span>
-            {cat.sub && (
-              <p className="text-[12px] mt-0.5" style={{ color: colors.text }}>
-                {cat.sub}
-              </p>
-            )}
+            <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>{cat.label}</span>
+            {cat.sub && <p style={{ fontSize: fontSize.tiny, marginTop: "2px", color: colors.text }}>{cat.sub}</p>}
           </button>
         ))}
       </div>
     );
   }
 
-  // Step 2: Show visa buttons for selected category
   const categoryVisas = visaTypes.filter((v) => v.category === selectedCategory);
 
   return (
     <div className="py-4">
-      {/* Back button */}
       <button
         onClick={() => setSelectedCategory(null)}
-        className="flex items-center gap-1.5 text-[14px] mb-4 hover:opacity-70"
-        style={{ color: colors.text }}
-        aria-label="Go back to categories"
+        className="flex items-center gap-1.5 mb-4 hover:opacity-70"
+        style={{ color: colors.text, fontSize: fontSize.button }}
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
@@ -1142,13 +1193,9 @@ const VisaSelectorComponent: React.FC<VisaSelectorProps> = ({ onSelect }) => {
               borderRadius: ui.buttonRadius,
             }}
           >
-            <span className="text-[14px] font-medium" style={{ color: colors.textDark }}>
-              {visa.label}
-            </span>
+            <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>{visa.label}</span>
             {visa.paragraph && (
-              <span className="text-[12px] ml-1.5" style={{ color: colors.text }}>
-                ({visa.paragraph})
-              </span>
+              <span style={{ fontSize: fontSize.tiny, marginLeft: "6px", color: colors.text }}>({visa.paragraph})</span>
             )}
           </button>
         ))}
@@ -1157,7 +1204,9 @@ const VisaSelectorComponent: React.FC<VisaSelectorProps> = ({ onSelect }) => {
   );
 };
 
-// InfoBox Component - Expandable info section (defined outside to prevent re-mount)
+// ===========================================
+// INFO BOX COMPONENT
+// ===========================================
 interface InfoBoxProps {
   title: string;
   content: string;
@@ -1178,13 +1227,10 @@ const InfoBox: React.FC<InfoBoxProps> = React.memo(
           borderBottom: isLast ? `1px solid ${colors.border}` : "none",
         }}
       >
-        {/* Header - always visible, clickable */}
         <button onClick={() => setIsOpen(!isOpen)} className="w-full py-2 flex items-center justify-between text-left">
           <div className="flex items-center gap-2">
             <span style={{ color: colors.text }}>▸</span>
-            <span className="text-[14px]" style={{ color: colors.textDark }}>
-              {title}
-            </span>
+            <span style={{ fontSize: fontSize.button, color: colors.textDark }}>{title}</span>
           </div>
           <svg
             className="w-4 h-4 shrink-0 transition-transform duration-200"
@@ -1198,7 +1244,6 @@ const InfoBox: React.FC<InfoBoxProps> = React.memo(
           </svg>
         </button>
 
-        {/* Content - expands downward */}
         <div
           className="overflow-hidden transition-all duration-200 ease-out"
           style={{
@@ -1206,7 +1251,7 @@ const InfoBox: React.FC<InfoBoxProps> = React.memo(
             opacity: isOpen ? 1 : 0,
           }}
         >
-          <div className="pb-2 pl-5 leading-relaxed text-[14px]" style={{ color: colors.text }}>
+          <div className="pb-2 pl-5 leading-relaxed" style={{ fontSize: fontSize.button, color: colors.text }}>
             {formatText(content.trim(), onOpenChat)}
           </div>
         </div>
@@ -1240,22 +1285,17 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   });
   const [showInput, setShowInput] = useState<FlowMessage | null>(null);
 
-  // Planner save modal state
   const [showPlannerSaveInput, setShowPlannerSaveInput] = useState(false);
-
-  // CTA Card state (lifted up to prevent re-render reset)
   const [ctaStep, setCtaStep] = useState(1);
   const [selectedState, setSelectedState] = useState("");
   const [plannerFullscreen, setPlannerFullscreen] = useState(false);
 
-  // Review rotation state (lifted to prevent re-mount reset)
   const [currentReview, setCurrentReview] = useState(0);
   const [reviewFade, setReviewFade] = useState(true);
 
-  // Review rotation effect - pause when input is showing
   useEffect(() => {
-    if (showInput) return; // Don't run interval when input is active
-    const reviews = 4; // Number of reviews
+    if (showInput) return;
+    const reviews = 4;
     const interval = setInterval(() => {
       setReviewFade(false);
       setTimeout(() => {
@@ -1265,11 +1305,11 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     }, 8000);
     return () => clearInterval(interval);
   }, [showInput]);
+
   const [sliderValue, setSliderValue] = useState(0);
   const [partnerSliderValue, setPartnerSliderValue] = useState(0);
   const [data, setData] = useState<UserData>({});
 
-  // Part-time income states
   const [workPartTime, setWorkPartTime] = useState(false);
   const [partTimeIncome, setPartTimeIncome] = useState(0);
   const [partnerPartTimeIncome, setPartnerPartTimeIncome] = useState(0);
@@ -1296,51 +1336,53 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const spacerObserverRef = useRef<MutationObserver | null>(null);
   const isStreamingRef = useRef(false);
 
-  // Track messages length with ref to avoid stale closure issues
   const messagesLengthRef = useRef(0);
   useEffect(() => {
     messagesLengthRef.current = messages.length;
   }, [messages.length]);
 
-  // LocalStorage key for pending session
-  const PENDING_SESSION_STORAGE_KEY = 'elterngeld_pending_session';
+  const PENDING_SESSION_STORAGE_KEY = "elterngeld_pending_session";
 
-  // Save full session to localStorage before sending magic link
   const saveSessionToLocalStorage = useCallback(() => {
     const pendingSession = {
-      // Chat state
       step,
       messages,
       stepHistory,
       showInput,
       isPaused,
-      // User data
       data,
       sliderValue,
       partnerSliderValue,
-      // Planner state
       plannerData,
       plannerMonths,
       selectedState,
-      // Part-time work state
       workPartTime,
       partTimeIncome,
       partnerPartTimeIncome,
-      // UI state
       lastUserMessageIndex,
       ctaStep,
       timestamp: Date.now(),
     };
     localStorage.setItem(PENDING_SESSION_STORAGE_KEY, JSON.stringify(pendingSession));
   }, [
-    step, messages, stepHistory, showInput, isPaused,
-    data, sliderValue, partnerSliderValue,
-    plannerData, plannerMonths, selectedState,
-    workPartTime, partTimeIncome, partnerPartTimeIncome,
-    lastUserMessageIndex, ctaStep
+    step,
+    messages,
+    stepHistory,
+    showInput,
+    isPaused,
+    data,
+    sliderValue,
+    partnerSliderValue,
+    plannerData,
+    plannerMonths,
+    selectedState,
+    workPartTime,
+    partTimeIncome,
+    partnerPartTimeIncome,
+    lastUserMessageIndex,
+    ctaStep,
   ]);
 
-  // Load and save pending session after login - returns session data for UI restoration
   const loadAndSavePendingSession = useCallback(async (userId: string) => {
     const stored = localStorage.getItem(PENDING_SESSION_STORAGE_KEY);
     if (!stored) return null;
@@ -1348,41 +1390,38 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     try {
       const pendingSession = JSON.parse(stored);
 
-      // Max 24 hours old
       if (Date.now() - pendingSession.timestamp > 86400000) {
         localStorage.removeItem(PENDING_SESSION_STORAGE_KEY);
         return null;
       }
 
-      // Save to Supabase (only the plan data that needs to persist server-side)
-      await supabase.from('user_plans').upsert({
-        user_id: userId,
-        plan_data: pendingSession.plannerData,
-        user_data: {
-          ...pendingSession.data,
-          income: pendingSession.sliderValue,
-          partnerIncome: pendingSession.partnerSliderValue,
+      await supabase.from("user_plans").upsert(
+        {
+          user_id: userId,
+          plan_data: pendingSession.plannerData,
+          user_data: {
+            ...pendingSession.data,
+            income: pendingSession.sliderValue,
+            partnerIncome: pendingSession.partnerSliderValue,
+          },
+          selected_state: pendingSession.selectedState,
         },
-        selected_state: pendingSession.selectedState,
-      }, { onConflict: 'user_id' });
+        { onConflict: "user_id" },
+      );
 
       localStorage.removeItem(PENDING_SESSION_STORAGE_KEY);
-      return pendingSession; // Return full session for UI restoration
+      return pendingSession;
     } catch (err) {
-      console.error('Error loading pending session:', err);
+      console.error("Error loading pending session:", err);
       return null;
     }
   }, []);
 
-  // Save pending session from localStorage after user logs in and restore UI state
   useEffect(() => {
     if (!user) return;
 
-    // Check for pending session from localStorage first
-    loadAndSavePendingSession(user.id).then(pendingSession => {
+    loadAndSavePendingSession(user.id).then((pendingSession) => {
       if (pendingSession) {
-        // Restore ALL UI state from pending session
-        // Chat state
         if (pendingSession.step !== undefined) setStep(pendingSession.step);
         if (pendingSession.messages) {
           setMessages(pendingSession.messages);
@@ -1391,36 +1430,25 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
         if (pendingSession.stepHistory) setStepHistory(pendingSession.stepHistory);
         if (pendingSession.showInput !== undefined) setShowInput(pendingSession.showInput);
         if (pendingSession.isPaused !== undefined) setIsPaused(pendingSession.isPaused);
-
-        // User data
         if (pendingSession.data) setData(pendingSession.data);
         if (pendingSession.sliderValue !== undefined) setSliderValue(pendingSession.sliderValue);
         if (pendingSession.partnerSliderValue !== undefined) setPartnerSliderValue(pendingSession.partnerSliderValue);
-
-        // Planner state
         if (pendingSession.plannerData) setPlannerData(pendingSession.plannerData);
         if (pendingSession.plannerMonths !== undefined) setPlannerMonths(pendingSession.plannerMonths);
         if (pendingSession.selectedState) setSelectedState(pendingSession.selectedState);
-
-        // Part-time work state
         if (pendingSession.workPartTime !== undefined) setWorkPartTime(pendingSession.workPartTime);
         if (pendingSession.partTimeIncome !== undefined) setPartTimeIncome(pendingSession.partTimeIncome);
-        if (pendingSession.partnerPartTimeIncome !== undefined) setPartnerPartTimeIncome(pendingSession.partnerPartTimeIncome);
-
-        // UI state
-        if (pendingSession.lastUserMessageIndex !== undefined) setLastUserMessageIndex(pendingSession.lastUserMessageIndex);
+        if (pendingSession.partnerPartTimeIncome !== undefined)
+          setPartnerPartTimeIncome(pendingSession.partnerPartTimeIncome);
+        if (pendingSession.lastUserMessageIndex !== undefined)
+          setLastUserMessageIndex(pendingSession.lastUserMessageIndex);
         if (pendingSession.ctaStep !== undefined) setCtaStep(pendingSession.ctaStep);
-
-        // Mark as restored session
         setIsRestoredSession(true);
-
-        // Close modal
         setShowPlannerSaveInput(false);
       }
     });
   }, [user, loadAndSavePendingSession]);
 
-  // Go back to previous question
   const goBack = useCallback(() => {
     if (stepHistory.length === 0) return;
 
@@ -1429,16 +1457,14 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     setMessages((prev) => prev.slice(0, lastEntry.messagesLength));
     messagesLengthRef.current = lastEntry.messagesLength;
     setStep(lastEntry.step);
-    setShowInput(lastEntry.savedShowInput); // Restore input directly
+    setShowInput(lastEntry.savedShowInput);
     setIsPaused(false);
   }, [stepHistory]);
 
-  // Keep ref in sync with state
   useEffect(() => {
     isStreamingRef.current = isStreaming;
   }, [isStreaming]);
 
-  // Stream message - tokens include complete markdown blocks
   const streamMessage = (msg: FlowMessage, onComplete?: () => void) => {
     if (!msg.content) {
       setMessages((prev) => [...prev, msg]);
@@ -1447,13 +1473,10 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
       return;
     }
 
-    // Parse into tokens - keep markdown blocks together
-    // Match: **bold**, [[links]], or regular words/spaces
     const tokens: string[] = [];
     let remaining = msg.content;
 
     while (remaining.length > 0) {
-      // Check for **bold**
       const boldMatch = remaining.match(/^\*\*[^*]+\*\*/);
       if (boldMatch) {
         tokens.push(boldMatch[0]);
@@ -1461,7 +1484,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
         continue;
       }
 
-      // Check for [[link]]
       const linkMatch = remaining.match(/^\[\[[^\]]+\]\]/);
       if (linkMatch) {
         tokens.push(linkMatch[0]);
@@ -1469,19 +1491,16 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
         continue;
       }
 
-      // Regular word or space
       const wordMatch = remaining.match(/^(\S+|\s+)/);
       if (wordMatch) {
         tokens.push(wordMatch[0]);
         remaining = remaining.slice(wordMatch[0].length);
       } else {
-        // Fallback: single character
         tokens.push(remaining[0]);
         remaining = remaining.slice(1);
       }
     }
 
-    // Use ref to get current message count (avoids stale closure)
     const newIndex = messagesLengthRef.current;
     setMessages((prev) => [...prev, { ...msg, content: "" }]);
     messagesLengthRef.current = newIndex + 1;
@@ -1491,7 +1510,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     setIsStreaming(true);
   };
 
-  // Streaming effect - token by token
   useEffect(() => {
     if (!isStreaming) return;
 
@@ -1505,7 +1523,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     }
 
     const token = tokens[index];
-    // Faster for spaces, slightly slower for markdown blocks
     const isSpace = token.trim() === "";
     const isMarkdown = token.startsWith("**") || token.startsWith("[[");
     const delay = isSpace ? 5 : isMarkdown ? 30 : 20 + Math.random() * 15;
@@ -1527,48 +1544,36 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     return () => clearTimeout(timer);
   }, [isStreaming, messages]);
 
-  // Scroll detection - show button only when last message is not visible
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
 
     const container = scrollRef.current;
 
     if (lastMessageRef.current) {
-      // Check if last message is in view for scroll button
       const containerRect = container.getBoundingClientRect();
       const msgRect = lastMessageRef.current.getBoundingClientRect();
-
-      // Last message is visible if its top is above container bottom
       const isLastMessageVisible = msgRect.top < containerRect.bottom;
       setShowScrollButton(!isLastMessageVisible);
     } else {
-      // Fallback: hide button if no messages yet
       setShowScrollButton(false);
     }
   }, []);
 
-  // Simple fixed spacer - large enough to scroll user message to top
   const spacerHeight = lastUserMessageIndex >= 0 ? window.innerHeight : 0;
 
   const scrollToBottom = () => {
-    // Stop observer
     spacerObserverRef.current?.disconnect();
     spacerObserverRef.current = null;
-
-    // Hide scrollbar during scroll
     setHideScrollbar(true);
 
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
       setShowScrollButton(false);
-
-      // Show scrollbar again after scroll
       setTimeout(() => setHideScrollbar(false), 800);
     }
   };
 
   const handleRestart = () => {
-    // Reset all state to initial values
     setStep(0);
     setMessages([]);
     messagesLengthRef.current = 0;
@@ -1598,13 +1603,9 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     spacerObserverRef.current = null;
   };
 
-  // Save data to localStorage for PDF Flow integration
   const saveToPdfFlow = () => {
     try {
-      // Save planner data (32 months)
       localStorage.setItem("elterngeld_planner_data", JSON.stringify(plannerData));
-
-      // Save user data for pre-filling PDF flow fields
       const userData = {
         dueDate: data.dueDate,
         multiples: data.multiples,
@@ -1617,14 +1618,11 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
         siblings: data.siblings,
       };
       localStorage.setItem("elterngeld_guide_data", JSON.stringify(userData));
-
-      console.log("Saved Guide data to localStorage for PDF Flow");
     } catch (e) {
       console.warn("Could not save to localStorage:", e);
     }
   };
 
-  // Jump directly to planner for testing
   const jumpToPlanner = () => {
     setMessages([
       { type: "bot", content: "Now you can plan how to split your Elterngeld months." },
@@ -1640,9 +1638,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     setStep(99);
   };
 
-  // Jump directly to CTA/checkout page for testing
   const jumpToCta = () => {
-    // Set some planner data first
     const presetData = Array(32)
       .fill(null)
       .map((_, i) => ({
@@ -1669,7 +1665,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     setStep(99);
   };
 
-  // Check scroll position when messages change
   useEffect(() => {
     if (isStreaming) return;
 
@@ -1679,7 +1674,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     return () => clearTimeout(timer);
   }, [messages, isTyping, isStreaming]);
 
-  // Cleanup observer on unmount
   useEffect(() => {
     return () => {
       spacerObserverRef.current?.disconnect();
@@ -1689,9 +1683,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const myCalc = calculateElterngeld(sliderValue, data, workPartTime ? partTimeIncome : 0);
   const partnerCalc = calculateElterngeld(partnerSliderValue, data, workPartTime ? partnerPartTimeIncome : 0);
 
-  // Flow Logic
   useEffect(() => {
-    // Skip if already showing input (e.g., after goBack)
     if (showInput) return;
     if (isPaused || step >= flow.length) return;
 
@@ -1710,12 +1702,11 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 
     if (["bot", "category", "component"].includes(msg.type)) {
       setIsTyping(true);
-      const delay = 300 + Math.random() * 200; // Short delay before streaming starts
+      const delay = 300 + Math.random() * 200;
 
       const timer = setTimeout(() => {
         setIsTyping(false);
 
-        // Stream the message
         streamMessage(msg, () => {
           if (msg.input) {
             setShowInput(msg);
@@ -1740,7 +1731,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
         if (data.citizenship === "eu") {
           response = { type: "bot", content: "Great! Let's check one more thing." };
         } else {
-          // Other nationality - show visa selector
           streamMessage(
             {
               type: "bot",
@@ -1758,7 +1748,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 
       case "incomeLimitResponse":
         if (data.incomeLimit === "over") {
-          // Over income limit - not eligible
           streamMessage(
             {
               type: "bot",
@@ -1767,7 +1756,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
               subtext: "This limit applies to your combined income from the last tax year before your child's birth.",
             },
             () => {
-              // Show ineligible component
               setShowInput({ type: "component", component: "ineligible" });
             },
           );
@@ -1778,12 +1766,10 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
         break;
 
       case "dateResponse":
-        // No response needed - tip already shown in question
         response = null;
         break;
 
       case "prematureQuestion":
-        // Only show if baby is already born (date in past)
         const dueDate = data.dueDate ? new Date(data.dueDate) : null;
         const today = new Date();
         const isBorn = dueDate && dueDate < today;
@@ -1833,7 +1819,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
           });
           return;
         } else {
-          // Skip to next step (baby not born yet)
           let nextStep = step + 1;
           while (nextStep < flow.length && flow[nextStep].type === "user") {
             nextStep++;
@@ -1882,7 +1867,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           );
           return;
         } else {
-          // Single parent - skip past user steps to next content
           let nextStep = step + 1;
           while (nextStep < flow.length && flow[nextStep].type === "user") {
             nextStep++;
@@ -1915,20 +1899,16 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
     }
   };
 
-  // Scroll to user message with smooth animation - position at TOP
   useEffect(() => {
     if (!shouldScrollToUser || lastUserMessageIndex < 0) return;
 
-    // Hide scrollbar during scroll animation
     setHideScrollbar(true);
 
-    // Scroll on next frame
     requestAnimationFrame(() => {
       const userEl = lastUserMessageRef.current;
       const container = scrollRef.current;
 
       if (userEl && container) {
-        // Get absolute offset of user element within scroll container
         let offsetTop = 0;
         let el: HTMLElement | null = userEl;
         while (el && el !== container) {
@@ -1936,21 +1916,18 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           el = el.offsetParent as HTMLElement;
         }
 
-        // Smooth scroll so user message is at top
         container.scrollTo({
           top: offsetTop - 70,
           behavior: "smooth",
         });
         setShouldScrollToUser(false);
 
-        // Show scrollbar again after scroll completes
         setTimeout(() => setHideScrollbar(false), 800);
       }
     });
   }, [shouldScrollToUser, lastUserMessageIndex, messages.length]);
 
   const handleInput = (value: string | number, displayValue?: string) => {
-    // Save current state to history before making changes
     setStepHistory((prev) => [...prev, { step, messagesLength: messages.length, savedShowInput: showInput }]);
 
     const currentInput = showInput;
@@ -1963,16 +1940,14 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       setMessages((prev) => [...prev, { type: "user" as const, content: displayValue }]);
       messagesLengthRef.current = newIndex + 1;
       setLastUserMessageIndex(newIndex);
-      setHideScrollbar(true); // Hide scrollbar before scroll starts
+      setHideScrollbar(true);
       setShouldScrollToUser(true);
     }
 
     if (field) {
-      // Update data state
       setData((prev) => {
         const newData = { ...prev, [field]: value };
 
-        // Handle special fields that need dynamic responses
         if (field === "visaType") {
           setTimeout(() => handleDynamicWithData("visaResponse", newData), 400);
         } else if (field === "isEmployed" || field === "humanitarianCondition") {
@@ -1984,7 +1959,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         return newData;
       });
 
-      // For special fields, don't advance step yet (handleDynamicWithData will do it)
       if (
         ["visaType", "isEmployed", "humanitarianCondition", "ineligibleChoice", "continueAfterStelle"].includes(field)
       ) {
@@ -1999,11 +1973,9 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
     setStep(nextStep);
   };
 
-  // Version of handleDynamic that accepts data directly (for timing-sensitive cases)
   const handleDynamicWithData = (key: string, currentData: UserData) => {
     let response: FlowMessage | null = null;
 
-    // Helper to show ineligible options
     const showIneligibleOptions = (message: string) => {
       streamMessage({ type: "bot", content: message }, () => {
         setTimeout(() => {
@@ -2131,7 +2103,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               "Alright, let's continue – you can still use this tool to **plan** and see what you would receive.",
           };
         } else if (currentData.ineligibleChoice === "find_stelle") {
-          // Open Elterngeldstelle finder in new tab
           window.open("https://familienportal.de/dynamic/action/familienportal/125008/suche", "_blank");
           streamMessage(
             {
@@ -2161,7 +2132,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           return;
         } else if (currentData.continueAfterStelle === "no") {
           streamMessage(
-            { type: "bot", content: "No problem! Feel free to come back anytime. Good luck with your application! " },
+            { type: "bot", content: "No problem! Feel free to come back anytime. Good luck with your application!" },
             () => {
               setShowInput({ type: "end" } as any);
             },
@@ -2179,27 +2150,28 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
   };
 
   const handleContinue = (label?: string) => {
-    // Add user message with the button label
     if (label) {
       const newIndex = messagesLengthRef.current;
       setMessages((prev) => [...prev, { type: "user" as const, content: label }]);
       messagesLengthRef.current = newIndex + 1;
       setLastUserMessageIndex(newIndex);
-      setHideScrollbar(true); // Hide scrollbar before scroll starts
+      setHideScrollbar(true);
       setShouldScrollToUser(true);
     }
 
-    // Handle restored session - add CTA content directly
     if (isRestoredSession) {
       setIsRestoredSession(false);
       setIsPaused(false);
       setShowInput(null);
 
-      // Add CTA messages
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
-          { type: "bot" as const, content: "Ready to apply? We can pre-fill your official application and guide you through the remaining steps." },
+          {
+            type: "bot" as const,
+            content:
+              "Ready to apply? We can pre-fill your official application and guide you through the remaining steps.",
+          },
           { type: "component" as const, component: "ctaCard" },
         ]);
         messagesLengthRef.current += 2;
@@ -2217,7 +2189,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
   // SUB-COMPONENTS
   // ===========================================
 
-  // Category header icons - static, defined once
   const categoryIcons: Record<string, React.ReactNode> = {
     Residence: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2230,68 +2201,13 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
-    "Your Child": (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.5}
-          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-        />
-      </svg>
-    ),
-    Income: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.5}
-          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-    ),
-    Calculation: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.5}
-          d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-        />
-      </svg>
-    ),
-    Planning: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.5}
-          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-        />
-      </svg>
-    ),
-    Summary: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.5}
-          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-        />
-      </svg>
-    ),
-    "Next Steps": (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-      </svg>
-    ),
   };
 
   const CategoryHeader = React.memo(({ label }: { label: string }) => (
     <div className="pt-6 pb-2">
       <span
-        className="text-[12px] font-bold uppercase flex items-center gap-2"
-        style={{ color: colors.text, letterSpacing: "0.12em" }}
+        className="font-bold uppercase flex items-center gap-2"
+        style={{ color: colors.text, letterSpacing: "0.12em", fontSize: fontSize.tiny }}
       >
         {categoryIcons[label]}
         {label}
@@ -2299,11 +2215,10 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
     </div>
   ));
 
-  // Memoized calculation card to prevent re-renders
+  // Calculation Card
   const calculationCardContent = React.useMemo(() => {
     const isCouple = data.applicationType === "couple";
 
-    // Values without part-time work (for comparison)
     const youWithoutWork = {
       basis: myCalc.basisWithoutWork,
       plus: Math.round(myCalc.basisWithoutWork / 2),
@@ -2313,14 +2228,13 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       plus: Math.round(partnerCalc.basisWithoutWork / 2),
     };
 
-    // Helper to render amount with strikethrough if different
-    const renderAmount = (current: number, original: number, size: string = "13px", bold: boolean = false) => {
+    const renderAmount = (current: number, original: number, size: string = fontSize.small, bold: boolean = false) => {
       const hasPartTime = workPartTime && current !== original;
       const fontWeight = bold ? 600 : 400;
       if (hasPartTime) {
         return (
           <span style={{ color: colors.textDark, fontSize: size, fontWeight }}>
-            <span style={{ textDecoration: "line-through", opacity: 0.5, marginRight: "4px", fontSize: "12px" }}>
+            <span style={{ textDecoration: "line-through", opacity: 0.5, marginRight: "4px", fontSize: fontSize.tiny }}>
               €{original.toLocaleString("de-DE")}
             </span>
             €{current.toLocaleString("de-DE")}
@@ -2353,7 +2267,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       },
     ];
 
-    // Calculate max possible total for couples (higher earner takes more months)
     const getMaxTotal = (item: (typeof cards)[0]) => {
       if (!isCouple) {
         return item.you * item.maxMonths;
@@ -2365,7 +2278,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       return higherAmount * maxPerParent + lowerAmount * minPartnerMonths;
     };
 
-    // Calculate original total (without part-time) for strikethrough
     const getOriginalTotal = (item: (typeof cards)[0]) => {
       if (!isCouple) {
         return item.youOrig * item.maxMonths;
@@ -2377,12 +2289,10 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       return higherAmount * maxPerParent + lowerAmount * minPartnerMonths;
     };
 
-    // Bonus amount for hint
     const bonusPerMonth = isCouple ? myCalc.bonus + partnerCalc.bonus : myCalc.bonus;
 
     return (
       <div className="py-3">
-        {/* Cards */}
         <div className="flex gap-3">
           {cards.map((item, i) => {
             const maxTotal = getMaxTotal(item);
@@ -2392,16 +2302,19 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             return (
               <div
                 key={i}
-                className="flex-1 rounded-xl p-4"
+                className="flex-1 p-4"
                 style={{
                   backgroundColor: item.bg,
                   backdropFilter: "blur(8px)",
                   WebkitBackdropFilter: "blur(8px)",
+                  borderRadius: ui.cardRadius,
                 }}
               >
-                {/* Label with tooltip */}
                 <div className="flex items-center gap-1.5 mb-3">
-                  <span className="font-bold" style={{ color: colors.textDark, fontSize: "17px" }}>
+                  <span
+                    className="font-bold"
+                    style={{ color: colors.textDark, fontSize: fontSize.question, fontFamily: fonts.headline }}
+                  >
                     {item.label}
                   </span>
                   <button
@@ -2425,13 +2338,12 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   </button>
                 </div>
 
-                {/* Tooltip content */}
                 {openTooltips.has(item.label.toLowerCase()) && (
                   <div
                     className="mb-3 p-2 rounded-lg"
                     style={{
                       backgroundColor: "rgba(255,255,255,0.5)",
-                      fontSize: "12px",
+                      fontSize: fontSize.tiny,
                       color: colors.textDark,
                       lineHeight: 1.4,
                     }}
@@ -2442,37 +2354,35 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   </div>
                 )}
 
-                {/* Monthly Amounts */}
                 {isCouple ? (
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <span style={{ color: colors.textDark, fontSize: "13px" }}>You</span>
-                      {renderAmount(item.you, item.youOrig, "13px")}
+                      <span style={{ color: colors.textDark, fontSize: fontSize.small }}>You</span>
+                      {renderAmount(item.you, item.youOrig, fontSize.small)}
                     </div>
                     <div className="flex items-center justify-between">
-                      <span style={{ color: colors.textDark, fontSize: "13px" }}>Partner</span>
-                      {renderAmount(item.partner, item.partnerOrig, "13px")}
+                      <span style={{ color: colors.textDark, fontSize: fontSize.small }}>Partner</span>
+                      {renderAmount(item.partner, item.partnerOrig, fontSize.small)}
                     </div>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between">
-                    <span style={{ color: colors.textDark, fontSize: "13px" }}>You</span>
-                    {renderAmount(item.you, item.youOrig, "13px")}
+                    <span style={{ color: colors.textDark, fontSize: fontSize.small }}>You</span>
+                    {renderAmount(item.you, item.youOrig, fontSize.small)}
                   </div>
                 )}
 
-                {/* Total */}
                 <div
                   className="mt-1 pt-1 flex items-center justify-between"
                   style={{ borderTop: "1px solid rgba(0,0,0,0.1)" }}
                 >
-                  <span style={{ color: colors.textDark, fontSize: "13px" }}>{item.maxMonths} months</span>
+                  <span style={{ color: colors.textDark, fontSize: fontSize.small }}>{item.maxMonths} months</span>
                   <div>
                     {totalChanged && (
                       <span
                         style={{
                           color: colors.textDark,
-                          fontSize: "12px",
+                          fontSize: fontSize.tiny,
                           opacity: 0.5,
                           textDecoration: "line-through",
                           marginRight: "4px",
@@ -2481,7 +2391,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                         €{originalTotal.toLocaleString("de-DE")}
                       </span>
                     )}
-                    <span className="font-bold" style={{ color: colors.textDark, fontSize: "13px" }}>
+                    <span className="font-bold" style={{ color: colors.textDark, fontSize: fontSize.small }}>
                       €{maxTotal.toLocaleString("de-DE")}
                     </span>
                   </div>
@@ -2491,31 +2401,25 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           })}
         </div>
 
-        {/* Part-time toggle - whole row clickable */}
         <button
           onClick={() => setWorkPartTime(!workPartTime)}
           className="mt-4 w-full flex items-center justify-between cursor-pointer"
         >
-          <span style={{ color: colors.textDark, fontSize: "14px" }}>Planning to work part-time?</span>
+          <span style={{ color: colors.textDark, fontSize: fontSize.button }}>Planning to work part-time?</span>
           <div
             className="relative w-11 h-6 rounded-full transition-colors duration-200"
-            style={{
-              backgroundColor: workPartTime ? "#c0630b" : colors.border,
-            }}
+            style={{ backgroundColor: workPartTime ? colors.basis : colors.border }}
           >
             <span
               className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200"
-              style={{
-                transform: workPartTime ? "translateX(20px)" : "translateX(0)",
-              }}
+              style={{ transform: workPartTime ? "translateX(20px)" : "translateX(0)" }}
             />
           </div>
         </button>
 
-        {/* Part-time steppers */}
         {workPartTime && (
           <div className="mt-1">
-            <p style={{ color: colors.text, fontSize: "12px", marginBottom: "12px" }}>
+            <p style={{ color: colors.text, fontSize: fontSize.tiny, marginBottom: "12px" }}>
               Your expected net income while on Elterngeld
             </p>
             <div className="flex items-center gap-6">
@@ -2527,10 +2431,9 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           </div>
         )}
 
-        {/* Partnership Bonus Hint */}
         <div
-          className="flex items-start gap-2 mt-4 p-3 rounded-lg"
-          style={{ backgroundColor: colors.yellow }}
+          className="flex items-start gap-2 mt-4 p-3"
+          style={{ backgroundColor: colors.yellow, borderRadius: ui.cardRadius }}
         >
           <svg
             className="w-4 h-4 shrink-0 mt-0.5"
@@ -2546,7 +2449,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
             />
           </svg>
-          <p style={{ color: colors.textDark, fontSize: "13px", lineHeight: 1.4 }}>
+          <p style={{ color: colors.textDark, fontSize: fontSize.small, lineHeight: 1.4 }}>
             <strong>Partnership Bonus</strong>: +€{bonusPerMonth.toLocaleString("de-DE")}/month extra for 2-4 months
             {isCouple ? " if both work 24-32h/week simultaneously" : " if you work 24-32h/week"}
           </p>
@@ -2559,16 +2462,14 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
     return <div className="py-3">{calculationCardContent}</div>;
   };
 
-  // Memoized static components
+  // Intro Checklist
   const introChecklistContent = React.useMemo(
     () => (
       <div className="pt-2 pb-6">
         <div
-          className="p-4 space-y-2.5"
+          className="p-5 space-y-3"
           style={{
-            backgroundColor: "rgba(255, 255, 255, 0.4)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
+            backgroundColor: colors.tile,
             boxShadow: ui.cardShadow,
             borderRadius: ui.cardRadius,
           }}
@@ -2589,7 +2490,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              <span className="text-[15px] leading-snug" style={{ color: colors.text }}>
+              <span style={{ fontSize: fontSize.subtext, lineHeight: 1.4, color: colors.text }}>
                 {item.text}{" "}
                 <span className="font-medium" style={{ color: colors.textDark }}>
                   {item.bold}
@@ -2609,13 +2510,13 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
   const checkmarksContent = React.useMemo(
     () => (
       <div className="py-2">
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[15px]">
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
           {["Eligibility", "Calculation", "Planning"].map((item, i) => (
             <div key={i} className="flex items-center gap-1.5">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              <span style={{ color: colors.text }}>{item}</span>
+              <span style={{ color: colors.text, fontSize: fontSize.subtext }}>{item}</span>
             </div>
           ))}
         </div>
@@ -2626,10 +2527,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
 
   const CheckmarksComponent = () => checkmarksContent;
 
-  // Success Page - wie PDF Flow Download Seite
-  // Email Capture Inline Component - Compact conversational style
+  // CTA Card
   const CtaCard = () => {
-    // Bundesland lists
     const SUPPORTED_STATES = [
       "Berlin",
       "Brandenburg",
@@ -2646,7 +2545,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
     const WAITLIST_STATES = ["Baden-Württemberg", "Bayern", "Hessen", "Mecklenburg-Vorpommern", "Nordrhein-Westfalen"];
     const ALL_STATES = [...SUPPORTED_STATES, ...WAITLIST_STATES].sort();
 
-    // Local state (only for waitlist form - doesn't need to persist)
     const [waitlistEmail, setWaitlistEmail] = React.useState("");
     const [waitlistConsent, setWaitlistConsent] = React.useState(false);
     const [waitlistSubmitting, setWaitlistSubmitting] = React.useState(false);
@@ -2655,7 +2553,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
 
     const isSupported = SUPPORTED_STATES.includes(selectedState);
 
-    // Reviews data (state is managed in parent)
     const reviews = [
       { text: "Saved me hours of confusion!", name: "Sarah M.", context: "US Expat in Berlin" },
       { text: "Finally understood my Elterngeld options", name: "Marco T.", context: "Italian in Munich" },
@@ -2685,7 +2582,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       }
     };
 
-    // STEP 1: Teaser + Bundesland Selection
     if (ctaStep === 1) {
       return (
         <div className="py-4">
@@ -2698,10 +2594,9 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             }}
           >
             <div className="p-6">
-              {/* Icon */}
               <div
-                className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
-                style={{ backgroundColor: colors.tile }}
+                className="w-12 h-12 mb-4 flex items-center justify-center"
+                style={{ backgroundColor: colors.tile, borderRadius: ui.cardRadius * 0.6 }}
               >
                 <svg
                   className="w-6 h-6"
@@ -2721,27 +2616,33 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 </svg>
               </div>
 
-              {/* Title & Description */}
-              <p className="text-[18px] font-semibold mb-1" style={{ color: colors.textDark }}>
+              <p
+                className="font-semibold mb-1"
+                style={{ fontSize: "18px", fontFamily: fonts.headline, color: colors.textDark }}
+              >
                 Get your official application
               </p>
-              <p className="text-[14px] mb-5" style={{ color: colors.text, lineHeight: 1.4 }}>
+              <p className="mb-5" style={{ fontSize: fontSize.button, color: colors.text, lineHeight: 1.4 }}>
                 Pre-filled PDF with your details. Just print, sign, and submit.
               </p>
 
-              {/* Bundesland Dropdown */}
               <div className="mb-4">
-                <label className="text-[13px] font-medium mb-1.5 block" style={{ color: colors.textDark }}>
+                <label
+                  className="font-medium mb-1.5 block"
+                  style={{ fontSize: fontSize.small, color: colors.textDark }}
+                >
                   Select your state
                 </label>
                 <select
                   value={selectedState}
                   onChange={(e) => setSelectedState(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl text-[15px] outline-none appearance-none cursor-pointer"
+                  className="w-full px-4 py-3 outline-none appearance-none cursor-pointer"
                   style={{
                     backgroundColor: colors.white,
                     color: selectedState ? colors.textDark : colors.text,
                     border: `1.5px solid ${colors.border}`,
+                    borderRadius: ui.inputRadius,
+                    fontSize: fontSize.subtext,
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2378716c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                     backgroundRepeat: "no-repeat",
                     backgroundPosition: "right 12px center",
@@ -2757,7 +2658,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 </select>
               </div>
 
-              {/* Button */}
               <button
                 onClick={handleContinue}
                 disabled={!selectedState}
@@ -2769,7 +2669,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   borderRadius: ui.buttonRadius,
                   padding: "0 20px",
                   fontFamily: fonts.body,
-                  fontSize: 15,
+                  fontSize: fontSize.button,
                   fontWeight: 600,
                   opacity: selectedState ? 1 : 0.5,
                   cursor: selectedState ? "pointer" : "not-allowed",
@@ -2777,53 +2677,52 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               >
                 <span className="w-[18px]" />
                 <span>Create my application</span>
-                <span className="text-[18px]">→</span>
+                <span style={{ fontSize: "18px" }}>→</span>
               </button>
             </div>
           </div>
 
-          {/* Reviews - Below card */}
           <div
             className="mt-4 flex items-center justify-center gap-1.5 transition-opacity duration-300"
             style={{ opacity: reviewFade ? 1 : 0 }}
           >
             <div className="flex items-center shrink-0">
               {[1, 2, 3, 4, 5].map((i) => (
-                <span key={i} className="text-[12px]" style={{ color: colors.stars }}>
+                <span key={i} style={{ fontSize: fontSize.tiny, color: colors.stars }}>
                   ★
                 </span>
               ))}
             </div>
-            <p className="text-[13px]" style={{ color: colors.text }}>
-              "{reviews[currentReview].text}"
-            </p>
+            <p style={{ fontSize: fontSize.small, color: colors.text }}>"{reviews[currentReview].text}"</p>
           </div>
 
-          {/* Ask a question */}
-          <button onClick={() => onOpenChat?.()} className="w-full mt-2 text-[13px]" style={{ color: colors.text }}>
+          <button
+            onClick={() => onOpenChat?.()}
+            className="w-full mt-2"
+            style={{ fontSize: fontSize.small, color: colors.text }}
+          >
             Have a question? <span style={{ textDecoration: "underline" }}>Ask here</span>
           </button>
         </div>
       );
     }
 
-    // STEP 2a: Payment (Supported State)
     if (ctaStep === 2 && isSupported) {
       return (
         <div className="py-4">
           <div
-            className="rounded-xl overflow-hidden"
+            className="overflow-hidden"
             style={{
               backgroundColor: colors.white,
-              boxShadow: "0 2px 16px rgba(0, 0, 0, 0.04)",
+              boxShadow: ui.cardShadow,
+              borderRadius: ui.cardRadius,
             }}
           >
             <div className="p-6">
-              {/* Icon + State Badge */}
               <div className="flex items-start justify-between mb-4">
                 <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: colors.tile }}
+                  className="w-12 h-12 flex items-center justify-center"
+                  style={{ backgroundColor: colors.tile, borderRadius: ui.cardRadius * 0.6 }}
                 >
                   <svg
                     className="w-6 h-6"
@@ -2856,83 +2755,54 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-[12px] font-medium" style={{ color: colors.success }}>
+                  <span className="font-medium" style={{ fontSize: fontSize.tiny, color: colors.success }}>
                     {selectedState}
                   </span>
                 </div>
               </div>
 
-              {/* Title & Description */}
-              <p className="text-[18px] font-semibold mb-1" style={{ color: colors.textDark }}>
+              <p
+                className="font-semibold mb-1"
+                style={{ fontSize: "18px", fontFamily: fonts.headline, color: colors.textDark }}
+              >
                 Get your official application
               </p>
-              <p className="text-[14px] mb-4" style={{ color: colors.text, lineHeight: 1.4 }}>
+              <p className="mb-4" style={{ fontSize: fontSize.button, color: colors.text, lineHeight: 1.4 }}>
                 We pre-fill your details and generate the official 23-page PDF.
               </p>
 
-              {/* Features */}
               <div className="space-y-2 mb-5">
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 shrink-0"
-                    style={{ color: colors.success }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-[14px]" style={{ color: colors.textDark }}>
-                    Official Elterngeld form (pre-filled)
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 shrink-0"
-                    style={{ color: colors.success }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-[14px]" style={{ color: colors.textDark }}>
-                    Personalized document checklist
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 shrink-0"
-                    style={{ color: colors.success }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-[14px]" style={{ color: colors.textDark }}>
-                    Instant PDF download
-                  </span>
-                </div>
+                {[
+                  "Official Elterngeld form (pre-filled)",
+                  "Personalized document checklist",
+                  "Instant PDF download",
+                ].map((feature, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4 shrink-0"
+                      style={{ color: colors.success }}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span style={{ fontSize: fontSize.button, color: colors.textDark }}>{feature}</span>
+                  </div>
+                ))}
               </div>
 
-              {/* Price */}
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-[24px] font-bold" style={{ color: colors.textDark }}>
+                <span className="font-bold" style={{ fontSize: "24px", color: colors.textDark }}>
                   €39
                 </span>
-                <span className="line-through text-[14px]" style={{ color: colors.text }}>
+                <span className="line-through" style={{ fontSize: fontSize.button, color: colors.text }}>
                   €49
                 </span>
-                <span className="text-[13px]" style={{ color: colors.text }}>
-                  one-time
-                </span>
+                <span style={{ fontSize: fontSize.small, color: colors.text }}>one-time</span>
               </div>
 
-              {/* Button */}
               <button
                 onClick={() => {
                   saveToPdfFlow();
@@ -2946,20 +2816,19 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   borderRadius: ui.buttonRadius,
                   padding: "0 20px",
                   fontFamily: fonts.body,
-                  fontSize: 15,
+                  fontSize: fontSize.button,
                   fontWeight: 600,
                 }}
               >
                 <span className="w-[18px]" />
                 <span>Continue to application</span>
-                <span className="text-[18px]">→</span>
+                <span style={{ fontSize: "18px" }}>→</span>
               </button>
 
-              {/* Back Button */}
               <button
                 onClick={() => setCtaStep(1)}
-                className="w-full mt-3 text-[11px] flex items-center justify-center gap-1"
-                style={{ color: colors.text }}
+                className="w-full mt-3 flex items-center justify-center gap-1"
+                style={{ fontSize: "11px", color: colors.text }}
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -2969,47 +2838,46 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             </div>
           </div>
 
-          {/* Reviews - Below card */}
           <div
             className="mt-4 flex items-center justify-center gap-1.5 transition-opacity duration-300"
             style={{ opacity: reviewFade ? 1 : 0 }}
           >
             <div className="flex items-center shrink-0">
               {[1, 2, 3, 4, 5].map((i) => (
-                <span key={i} className="text-[12px]" style={{ color: colors.stars }}>
+                <span key={i} style={{ fontSize: fontSize.tiny, color: colors.stars }}>
                   ★
                 </span>
               ))}
             </div>
-            <p className="text-[13px]" style={{ color: colors.text }}>
-              "{reviews[currentReview].text}"
-            </p>
+            <p style={{ fontSize: fontSize.small, color: colors.text }}>"{reviews[currentReview].text}"</p>
           </div>
 
-          {/* Ask a question */}
-          <button onClick={() => onOpenChat?.()} className="w-full mt-2 text-[13px]" style={{ color: colors.text }}>
+          <button
+            onClick={() => onOpenChat?.()}
+            className="w-full mt-2"
+            style={{ fontSize: fontSize.small, color: colors.text }}
+          >
             Have a question? <span style={{ textDecoration: "underline" }}>Ask here</span>
           </button>
         </div>
       );
     }
 
-    // STEP 2b: Waitlist (Unsupported State)
     if (ctaStep === 2 && !isSupported) {
       return (
         <div className="py-4">
           <div
-            className="rounded-xl overflow-hidden"
+            className="overflow-hidden"
             style={{
               backgroundColor: colors.white,
-              boxShadow: "0 2px 16px rgba(0, 0, 0, 0.04)",
+              boxShadow: ui.cardShadow,
+              borderRadius: ui.cardRadius,
             }}
           >
             <div className="p-6">
-              {/* Icon */}
               <div
-                className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
-                style={{ backgroundColor: colors.tile }}
+                className="w-12 h-12 mb-4 flex items-center justify-center"
+                style={{ backgroundColor: colors.tile, borderRadius: ui.cardRadius * 0.6 }}
               >
                 <svg
                   className="w-6 h-6"
@@ -3027,11 +2895,13 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 </svg>
               </div>
 
-              {/* Title & Description */}
-              <p className="text-[18px] font-semibold mb-1" style={{ color: colors.textDark }}>
+              <p
+                className="font-semibold mb-1"
+                style={{ fontSize: "18px", fontFamily: fonts.headline, color: colors.textDark }}
+              >
                 Coming soon to {selectedState}!
               </p>
-              <p className="text-[14px] mb-5" style={{ color: colors.text, lineHeight: 1.4 }}>
+              <p className="mb-5" style={{ fontSize: fontSize.button, color: colors.text, lineHeight: 1.4 }}>
                 {selectedState} uses a different form. We're working on it and will notify you when it's ready.
               </p>
 
@@ -3052,13 +2922,12 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <span className="text-[14px]" style={{ color: colors.textDark }}>
+                  <span style={{ fontSize: fontSize.button, color: colors.textDark }}>
                     You're on the list! We'll email you when {selectedState} is ready.
                   </span>
                 </div>
               ) : (
                 <>
-                  {/* Email Input */}
                   <input
                     type="email"
                     value={waitlistEmail}
@@ -3067,20 +2936,21 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                       setWaitlistError("");
                     }}
                     placeholder="your@email.com"
-                    className="w-full px-4 py-3 rounded-xl text-[15px] outline-none mb-3"
+                    className="w-full px-4 py-3 outline-none mb-3"
                     style={{
                       backgroundColor: colors.white,
                       color: colors.textDark,
                       border: waitlistError ? `1.5px solid ${colors.error}` : `1.5px solid ${colors.border}`,
+                      borderRadius: ui.inputRadius,
+                      fontSize: fontSize.subtext,
                     }}
                   />
                   {waitlistError && (
-                    <p className="text-[12px] mb-3 -mt-2" style={{ color: colors.error }}>
+                    <p className="mb-3 -mt-2" style={{ fontSize: fontSize.tiny, color: colors.error }}>
                       {waitlistError}
                     </p>
                   )}
 
-                  {/* Consent Checkbox */}
                   <label className="flex items-start gap-2.5 mb-4 cursor-pointer">
                     <input
                       type="checkbox"
@@ -3089,12 +2959,11 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                       className="mt-0.5 w-4 h-4 rounded"
                       style={{ accentColor: colors.buttonDark }}
                     />
-                    <span className="text-[12px] leading-snug" style={{ color: colors.text }}>
+                    <span className="leading-snug" style={{ fontSize: fontSize.tiny, color: colors.text }}>
                       Send me updates when {selectedState} is available and helpful tips about Elterngeld.
                     </span>
                   </label>
 
-                  {/* Email Button */}
                   <button
                     onClick={handleWaitlistSubmit}
                     disabled={waitlistSubmitting}
@@ -3105,7 +2974,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                       height: ui.buttonHeight,
                       borderRadius: ui.buttonRadius,
                       fontFamily: fonts.body,
-                      fontSize: 15,
+                      fontSize: fontSize.button,
                       fontWeight: 600,
                       opacity: waitlistSubmitting ? 0.7 : 1,
                     }}
@@ -3122,11 +2991,10 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 </>
               )}
 
-              {/* Back Button */}
               <button
                 onClick={() => setCtaStep(1)}
-                className="w-full mt-3 text-[11px] flex items-center justify-center gap-1"
-                style={{ color: colors.text }}
+                className="w-full mt-3 flex items-center justify-center gap-1"
+                style={{ fontSize: "11px", color: colors.text }}
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -3136,25 +3004,25 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             </div>
           </div>
 
-          {/* Reviews - Below card */}
           <div
             className="mt-4 flex items-center justify-center gap-1.5 transition-opacity duration-300"
             style={{ opacity: reviewFade ? 1 : 0 }}
           >
             <div className="flex items-center shrink-0">
               {[1, 2, 3, 4, 5].map((i) => (
-                <span key={i} className="text-[12px]" style={{ color: colors.stars }}>
+                <span key={i} style={{ fontSize: fontSize.tiny, color: colors.stars }}>
                   ★
                 </span>
               ))}
             </div>
-            <p className="text-[13px]" style={{ color: colors.text }}>
-              "{reviews[currentReview].text}"
-            </p>
+            <p style={{ fontSize: fontSize.small, color: colors.text }}>"{reviews[currentReview].text}"</p>
           </div>
 
-          {/* Ask a question */}
-          <button onClick={() => onOpenChat?.()} className="w-full mt-2 text-[13px]" style={{ color: colors.text }}>
+          <button
+            onClick={() => onOpenChat?.()}
+            className="w-full mt-2"
+            style={{ fontSize: fontSize.small, color: colors.text }}
+          >
             Have a question? <span style={{ textDecoration: "underline" }}>Ask here</span>
           </button>
         </div>
@@ -3164,7 +3032,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
     return null;
   };
 
-  // Summary Box - neue Result Card mit Tabellen-Header
+  // Summary Box
   const SummaryBox = () => {
     const visibleData = plannerData.slice(0, plannerMonths);
     const countMonths = (person: "you" | "partner", type: string) =>
@@ -3182,41 +3050,37 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       partnerBasis * partnerCalc.basis + partnerPlus * partnerCalc.plus + partnerBonus * partnerCalc.bonus;
     const totalMoney = youTotalMoney + partnerTotalMoney;
     const totalMonths = youBasis + youPlus + youBonus + partnerBasis + partnerPlus + partnerBonus;
-    const totalIncome = sliderValue + (data.applicationType === "couple" ? partnerSliderValue : 0);
 
     const isCouple = data.applicationType === "couple";
 
-    // Render model pills for a person
     const renderModelPills = (basis: number, plus: number, bonus: number) => (
       <div className="flex gap-1 flex-wrap">
         {basis > 0 && (
           <span
-            className="px-2 py-0.5 rounded-full text-[11px] font-medium"
-            style={{ backgroundColor: "rgba(192, 99, 11, 0.25)", color: colors.textDark }}
+            className="px-2 py-0.5 rounded-full font-medium"
+            style={{ backgroundColor: "rgba(192, 99, 11, 0.25)", color: colors.textDark, fontSize: "11px" }}
           >
             {basis} Basis
           </span>
         )}
         {plus > 0 && (
           <span
-            className="px-2 py-0.5 rounded-full text-[11px] font-medium"
-            style={{ backgroundColor: "rgba(252, 99, 27, 0.25)", color: colors.textDark }}
+            className="px-2 py-0.5 rounded-full font-medium"
+            style={{ backgroundColor: "rgba(252, 99, 27, 0.25)", color: colors.textDark, fontSize: "11px" }}
           >
             {plus} Plus
           </span>
         )}
         {bonus > 0 && (
           <span
-            className="px-2 py-0.5 rounded-full text-[11px] font-medium"
-            style={{ backgroundColor: "rgba(255, 228, 76, 0.35)", color: colors.textDark }}
+            className="px-2 py-0.5 rounded-full font-medium"
+            style={{ backgroundColor: "rgba(255, 228, 76, 0.35)", color: colors.textDark, fontSize: "11px" }}
           >
             {bonus} Bonus
           </span>
         )}
         {basis === 0 && plus === 0 && bonus === 0 && (
-          <span className="text-[12px]" style={{ color: colors.text }}>
-            —
-          </span>
+          <span style={{ fontSize: fontSize.tiny, color: colors.text }}>—</span>
         )}
       </div>
     );
@@ -3226,71 +3090,64 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         <div
           className="overflow-hidden"
           style={{
-            backgroundColor: "rgba(255, 255, 255, 0.4)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
+            backgroundColor: colors.tile,
             boxShadow: ui.cardShadow,
             borderRadius: ui.cardRadius,
           }}
         >
-          {/* Header - Dark */}
           <div className="px-4 py-2" style={{ backgroundColor: colors.buttonDark }}>
-            <span className="text-[12px] font-semibold" style={{ color: colors.white }}>
+            <span className="font-semibold" style={{ fontSize: fontSize.tiny, color: colors.white }}>
               Your Elterngeld Plan
             </span>
           </div>
 
-          {/* Content */}
           <div className="px-4 py-3">
-            {/* You Section */}
             <div className="pb-3" style={{ borderBottom: `1px solid rgba(87, 83, 78, 0.3)` }}>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-[12px] font-medium" style={{ color: colors.textDark }}>
+                <span className="font-medium" style={{ fontSize: fontSize.tiny, color: colors.textDark }}>
                   You
                 </span>
-                <span className="text-[12px]" style={{ color: colors.text }}>
+                <span style={{ fontSize: fontSize.tiny, color: colors.text }}>
                   Income: €{sliderValue.toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 {renderModelPills(youBasis, youPlus, youBonus)}
-                <span className="text-[14px] font-semibold" style={{ color: colors.textDark }}>
+                <span className="font-semibold" style={{ fontSize: fontSize.button, color: colors.textDark }}>
                   €{youTotalMoney.toLocaleString()}
                 </span>
               </div>
             </div>
 
-            {/* Partner Section (couples only) */}
             {isCouple && (
               <div className="py-3" style={{ borderBottom: `1px solid rgba(87, 83, 78, 0.3)` }}>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-[12px] font-medium" style={{ color: colors.textDark }}>
+                  <span className="font-medium" style={{ fontSize: fontSize.tiny, color: colors.textDark }}>
                     Partner
                   </span>
-                  <span className="text-[12px]" style={{ color: colors.text }}>
+                  <span style={{ fontSize: fontSize.tiny, color: colors.text }}>
                     Income: €{partnerSliderValue.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   {renderModelPills(partnerBasis, partnerPlus, partnerBonus)}
-                  <span className="text-[14px] font-semibold" style={{ color: colors.textDark }}>
+                  <span className="font-semibold" style={{ fontSize: fontSize.button, color: colors.textDark }}>
                     €{partnerTotalMoney.toLocaleString()}
                   </span>
                 </div>
               </div>
             )}
 
-            {/* Total */}
             <div className="pt-3 flex justify-between items-center">
               <div>
-                <span className="text-[12px] font-semibold" style={{ color: colors.textDark }}>
+                <span className="font-semibold" style={{ fontSize: fontSize.tiny, color: colors.textDark }}>
                   Total
                 </span>
-                <span className="text-[12px] ml-2" style={{ color: colors.text }}>
+                <span className="ml-2" style={{ fontSize: fontSize.tiny, color: colors.text }}>
                   {totalMonths} months
                 </span>
               </div>
-              <span className="text-[16px] font-bold" style={{ color: colors.textDark }}>
+              <span className="font-bold" style={{ fontSize: fontSize.body, color: colors.textDark }}>
                 €{totalMoney.toLocaleString()}
               </span>
             </div>
@@ -3300,304 +3157,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
     );
   };
 
-  const SummaryCard = () => {
-    const visibleData = plannerData.slice(0, plannerMonths);
-    const countMonths = (person: "you" | "partner", type: string) =>
-      visibleData.filter((m) => m[person] === type).length;
-
-    const youBasis = countMonths("you", "basis");
-    const youPlus = countMonths("you", "plus");
-    const youBonus = countMonths("you", "bonus");
-    const partnerBasis = countMonths("partner", "basis");
-    const partnerPlus = countMonths("partner", "plus");
-    const partnerBonus = countMonths("partner", "bonus");
-
-    const totalMoney =
-      youBasis * myCalc.basis +
-      youPlus * myCalc.plus +
-      youBonus * myCalc.bonus +
-      partnerBasis * partnerCalc.basis +
-      partnerPlus * partnerCalc.plus +
-      partnerBonus * partnerCalc.bonus;
-
-    // Build one-line breakdown: "14 Monate Basis á €1.200, 4 Monate Plus á €600"
-    const formatOneLine = (
-      basis: number,
-      plus: number,
-      bonus: number,
-      calc: { basis: number; plus: number; bonus: number },
-    ) => {
-      const parts = [];
-      if (basis > 0) parts.push(`${basis} Monate Basis á €${calc.basis.toLocaleString()}`);
-      if (plus > 0) parts.push(`${plus} Monate Plus á €${calc.plus.toLocaleString()}`);
-      if (bonus > 0) parts.push(`${bonus} Monate Bonus á €${calc.bonus.toLocaleString()}`);
-      return parts.length > 0 ? parts.join(", ") : "—";
-    };
-
-    return (
-      <div className="py-4">
-        {/* Main Card */}
-        <div className="rounded-xl p-4" style={{ backgroundColor: colors.tile }}>
-          {/* Summary rows - one line each */}
-          <div className="space-y-2 text-[14px]">
-            <div
-              className="flex justify-between items-start py-2"
-              style={{ borderBottom: `1px solid ${colors.border}` }}
-            >
-              <span className="font-semibold shrink-0 mr-4" style={{ color: colors.textDark }}>
-                You
-              </span>
-              <span className="text-right" style={{ color: colors.text }}>
-                {formatOneLine(youBasis, youPlus, youBonus, myCalc)}
-              </span>
-            </div>
-            {data.applicationType === "couple" && (
-              <div
-                className="flex justify-between items-start py-2"
-                style={{ borderBottom: `1px solid ${colors.border}` }}
-              >
-                <span className="font-semibold shrink-0 mr-4" style={{ color: colors.textDark }}>
-                  Partner
-                </span>
-                <span className="text-right" style={{ color: colors.text }}>
-                  {formatOneLine(partnerBasis, partnerPlus, partnerBonus, partnerCalc)}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Total - smaller */}
-          <div className="mt-3 pt-3" style={{ borderTop: `2px solid ${colors.text}` }}>
-            <div className="flex justify-between items-baseline">
-              <span className="text-[14px]" style={{ color: colors.text }}>
-                Estimated total
-              </span>
-              <span className="text-xl font-bold" style={{ color: colors.textDark }}>
-                €{totalMoney.toLocaleString()}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Mutterschaftsgeld Info */}
-        <p className="text-[12px] mt-3 px-1" style={{ color: colors.text }}>
-          In months 1-2, mothers typically receive maternity pay from their health insurance. This counts as Basis and
-          is deducted – you won't get both amounts.
-        </p>
-      </div>
-    );
-  };
-
-  // ===========================================
-  // INPUT COMPONENTS
-  // ===========================================
-
-  // Info Tags component - clickable pills that open chat with prefilled question
-  const InfoTagsComponent = ({ tags, description }: { tags: InfoTag[]; description?: string }) => (
-    <div className="mt-4">
-      {description && (
-        <p className="text-[15px] mb-2" style={{ color: colors.text }}>
-          {description}
-        </p>
-      )}
-      <div className="flex flex-wrap gap-2">
-        {tags.map((tag, i) => (
-          <button
-            key={i}
-            onClick={() => onOpenChat?.(tag.prefillQuestion)}
-            className="px-3 py-1.5 rounded-full text-[12px] font-medium transition-all hover:opacity-70"
-            style={{
-              backgroundColor: colors.white,
-              color: colors.text,
-              border: `1px solid ${colors.border}`,
-            }}
-          >
-            {tag.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  // Memoized ButtonIcon - icons are created once
-  const buttonIcons: Record<string, React.ReactNode> = {
-    eu: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path d="M4 4v16M4 4h12l-2 4 2 4H4" />
-      </svg>
-    ),
-    passport: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <rect x="4" y="2" width="16" height="20" rx="2" />
-        <circle cx="12" cy="10" r="3" />
-        <path d="M8 17h8" />
-      </svg>
-    ),
-    baby: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <circle cx="12" cy="8" r="5" />
-        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-      </svg>
-    ),
-    twins: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <circle cx="8" cy="8" r="4" />
-        <circle cx="16" cy="8" r="4" />
-        <path d="M2 20c0-3 2.5-5 6-5s6 2 6 5M10 20c0-3 2.5-5 6-5s6 2 6 5" />
-      </svg>
-    ),
-    triplets: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <circle cx="12" cy="5" r="3" />
-        <circle cx="6" cy="11" r="3" />
-        <circle cx="18" cy="11" r="3" />
-        <path d="M12 8v4M6 14v4M18 14v4" />
-      </svg>
-    ),
-    child: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <circle cx="12" cy="7" r="4" />
-        <path d="M5 21v-2a7 7 0 0114 0v2" />
-      </svg>
-    ),
-    children: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <circle cx="9" cy="7" r="3" />
-        <circle cx="17" cy="9" r="2.5" />
-        <path d="M3 21v-2c0-2.5 2-4.5 6-4.5s6 2 6 4.5v2M14 21v-1.5c0-2 1.5-3.5 4.5-3.5" />
-      </svg>
-    ),
-    couple: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <circle cx="9" cy="7" r="4" />
-        <circle cx="17" cy="9" r="3" />
-        <path d="M3 21v-2c0-2.5 3-5 6-5 1.5 0 3 .5 4 1.5M17 21v-2c0-1.5 1-3 3-3" />
-      </svg>
-    ),
-    single: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <circle cx="12" cy="7" r="4" />
-        <path d="M5 21v-2a7 7 0 0114 0v2" />
-      </svg>
-    ),
-    briefcase: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <rect x="2" y="7" width="20" height="14" rx="2" />
-        <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
-      </svg>
-    ),
-    home: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V10" />
-      </svg>
-    ),
-    check: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path d="M5 13l4 4L19 7" />
-      </svg>
-    ),
-    x: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path d="M6 6l12 12M6 18L18 6" />
-      </svg>
-    ),
-    heart: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-      </svg>
-    ),
-    calendar: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <rect x="3" y="4" width="18" height="18" rx="2" />
-        <path d="M16 2v4M8 2v4M3 10h18" />
-      </svg>
-    ),
-  };
-  const ButtonIcon = React.memo(({ name }: { name: string }) => buttonIcons[name] || null);
-
-  const ButtonOptions = React.memo(
-    ({ options, onSelect }: { options: ButtonOption[]; onSelect: (value: string, label: string) => void }) => (
-      <div className="space-y-2">
-        {options.map((opt, i) => {
-          const hasArrow = opt.label.includes("→");
-          const labelText = hasArrow ? opt.label.replace("→", "").trim() : opt.label;
-          const shouldCenter = hasArrow && !opt.icon && !opt.note;
-
-          return (
-            <button
-              key={i}
-              onClick={() => onSelect(opt.value, opt.label)}
-              className={`w-full px-4 transition-all flex items-center hover:border-stone-400 ${shouldCenter ? "justify-between" : "justify-between text-left"}`}
-              style={{
-                backgroundColor: colors.white,
-                border: `1.5px solid ${colors.border}`,
-                borderRadius: ui.buttonRadius,
-                height: ui.buttonHeight,
-                padding: "10px 16px",
-              }}
-            >
-              {shouldCenter ? (
-                <>
-                  <span className="w-[18px]" />
-                  <span className="text-[15px] font-medium" style={{ color: colors.textDark }}>
-                    {labelText}
-                  </span>
-                  <span className="text-[18px]" style={{ color: colors.textDark }}>
-                    →
-                  </span>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-3">
-                    {opt.icon && (
-                      <span style={{ color: colors.textDark }}>
-                        <ButtonIcon name={opt.icon} />
-                      </span>
-                    )}
-                    <div>
-                      <span className="text-[15px] font-medium" style={{ color: colors.textDark }}>
-                        {labelText}
-                      </span>
-                      {opt.sub && (
-                        <p className="text-[12px] mt-0.5" style={{ color: colors.text }}>
-                          {opt.sub}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {opt.note && (
-                      <span
-                        className="text-[12px] px-2.5 py-1 rounded-full font-semibold"
-                        style={{
-                          backgroundColor:
-                            opt.accent === "basis"
-                              ? "rgba(192, 99, 11, 0.3)"
-                              : opt.accent === "bonus"
-                                ? colors.bonus
-                                : colors.tile,
-                          color: opt.accent === "bonus" ? colors.textDark : opt.accent ? colors.textDark : colors.text,
-                        }}
-                      >
-                        {opt.note}
-                      </span>
-                    )}
-                    {hasArrow && (
-                      <span className="text-[18px]" style={{ color: colors.textDark }}>
-                        →
-                      </span>
-                    )}
-                  </div>
-                </>
-              )}
-            </button>
-          );
-        })}
-      </div>
-    ),
-  );
-
-  // State for date input (used by extracted DateInputComponent)
+  // State for date input
   const [dateValue, setDateValue] = useState<Date | undefined>(undefined);
 
   const SliderInput = ({ person }: { person: "you" | "partner" }) => {
@@ -3620,26 +3180,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
   // RENDER
   // ===========================================
 
-  // Phase calculation: Check (0-14), Calculate (15-22), Plan (23+)
-  const getPhase = () => {
-    // Check if we're in planner
-    const hasPlanner = messages.some((m) => m.type === "component" && m.component === "planner");
-    if (hasPlanner) return "plan";
-
-    // Check if we're in calculation
-    const hasCalculation = messages.some((m) => m.type === "component" && m.component === "calculation");
-    if (hasCalculation) return "calculate";
-
-    // Check if we have income-related data
-    if (data.applicationType) return "calculate";
-
-    return "check";
-  };
-
-  const currentPhase = getPhase();
-  const phases = ["check", "calculate", "plan"] as const;
-  const phaseIndex = phases.indexOf(currentPhase);
-
   const renderMessage = (msg: FlowMessage, i: number) => {
     if (msg.type === "category") return <CategoryHeader key={i} label={msg.content || ""} />;
 
@@ -3651,9 +3191,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             className="rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[80%]"
             style={{ backgroundColor: colors.userBubble }}
           >
-            <span className="text-[16px]" style={{ color: colors.textDark }}>
-              {msg.content}
-            </span>
+            <span style={{ fontSize: fontSize.body, color: colors.textDark }}>{msg.content}</span>
           </div>
         </div>
       );
@@ -3668,11 +3206,12 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         <div key={i} className={`${isQuestion ? "py-1.5 mt-4" : "py-1"} ${hasOnlyExpander ? "mb-4" : ""}`}>
           {hasContent && (
             <p
-              className={isQuestion ? "text-[17px] leading-relaxed font-semibold pl-3" : "text-[16px] leading-relaxed"}
+              className={isQuestion ? "leading-relaxed font-semibold pl-3" : "leading-relaxed"}
               style={{
                 color: colors.textDark,
                 borderLeft: isQuestion ? `3px solid ${colors.orange}` : "none",
                 fontFamily: isQuestion ? fonts.headline : fonts.body,
+                fontSize: isQuestion ? fontSize.question : fontSize.body,
               }}
             >
               {formatText(msg.content, onOpenChat)}
@@ -3692,7 +3231,10 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             (msg.subtext.includes("[info:") ? (
               <>
                 {msg.subtext.split("[info:")[0].trim() && (
-                  <p className={`mt-2 text-[15px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
+                  <p
+                    className={`mt-2 ${isQuestion ? "pl-3" : ""}`}
+                    style={{ fontSize: fontSize.subtext, color: colors.text }}
+                  >
                     {formatText(msg.subtext.split("[info:")[0].trim(), onOpenChat)}
                   </p>
                 )}
@@ -3713,22 +3255,28 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             ) : msg.subtext.includes("[info]") ? (
               <>
                 {msg.subtext.split("[info]")[0].trim() && (
-                  <p className={`mt-2 text-[15px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
+                  <p
+                    className={`mt-2 ${isQuestion ? "pl-3" : ""}`}
+                    style={{ fontSize: fontSize.subtext, color: colors.text }}
+                  >
                     {formatText(msg.subtext.split("[info]")[0].trim(), onOpenChat)}
                   </p>
                 )}
-                <p className={`mt-2 text-[15px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
+                <p
+                  className={`mt-2 ${isQuestion ? "pl-3" : ""}`}
+                  style={{ fontSize: fontSize.subtext, color: colors.text }}
+                >
                   {formatText(msg.subtext.split("[info]")[1].trim(), onOpenChat)}
                 </p>
               </>
             ) : (
-              <p className={`mt-2 text-[15px] ${isQuestion ? "pl-3" : ""}`} style={{ color: colors.text }}>
+              <p
+                className={`mt-2 ${isQuestion ? "pl-3" : ""}`}
+                style={{ fontSize: fontSize.subtext, color: colors.text }}
+              >
                 {formatText(msg.subtext, onOpenChat)}
               </p>
             ))}
-          {msg.infoTags && msg.infoTags.length > 0 && !isCurrentlyStreaming && (
-            <InfoTagsComponent tags={msg.infoTags} description={msg.infoTagsDescription} />
-          )}
         </div>
       );
     }
@@ -3766,8 +3314,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           return <SummaryBox key={i} />;
         case "ctaCard":
           return <CtaCard key={i} />;
-        case "summary":
-          return <SummaryCard key={i} />;
         default:
           return null;
       }
@@ -3793,13 +3339,13 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             borderRadius: ui.buttonRadius,
             padding: "0 20px",
             fontFamily: fonts.body,
-            fontSize: 15,
+            fontSize: fontSize.button,
             fontWeight: 600,
           }}
         >
           <span className="w-[18px]" />
           <span>{labelText}</span>
-          <span className="text-[18px]">→</span>
+          <span style={{ fontSize: "18px" }}>→</span>
         </button>
       );
     }
@@ -3827,197 +3373,72 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
     return null;
   };
 
-  // PDF FLOW PREVIEW - Early return
+  // PDF Flow
   if (showPdfFlow) {
     return (
-      <div className="h-screen flex flex-col overflow-hidden" style={{ backgroundColor: colors.background, fontFamily: fonts.body }}>
-        {/* Header */}
+      <div
+        className="h-screen flex flex-col overflow-hidden"
+        style={{ backgroundColor: colors.background, fontFamily: fonts.body }}
+      >
         <div className="flex-shrink-0" style={{ borderBottom: `1px solid ${colors.border}` }}>
           <div className="h-1 w-full" style={{ backgroundColor: colors.tile }}>
             <div className="h-full" style={{ width: "12.5%", backgroundColor: colors.basis }} />
           </div>
           <div className="px-5 py-3">
-            <div className="max-w-lg mx-auto flex items-center justify-between">
+            <div className="max-w-2xl mx-auto flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowPdfFlow(false)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: colors.tile }}
+                  className="w-8 h-8 flex items-center justify-center"
+                  style={{ backgroundColor: colors.tile, borderRadius: ui.buttonRadius }}
                 >
                   <svg className="w-4 h-4" fill="none" stroke={colors.textDark} strokeWidth={1.5} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
-                <h1 className="text-sm font-semibold" style={{ color: colors.textDark }}>
+                <h1 className="font-semibold" style={{ fontSize: fontSize.small, color: colors.textDark }}>
                   Your Elterngeld Application
                 </h1>
               </div>
-              <span className="text-xs" style={{ color: colors.text }}>
-                Step 1/8
-              </span>
+              <span style={{ fontSize: fontSize.tiny, color: colors.text }}>Step 1/8</span>
             </div>
           </div>
         </div>
 
-        {/* Content */}
         <main className="flex-1 overflow-y-auto">
           <div className="px-5 py-6">
-            <div className="max-w-lg mx-auto">
-              <p className="text-[15px] leading-relaxed font-medium mb-6" style={{ color: colors.textDark }}>
+            <div className="max-w-2xl mx-auto">
+              <p
+                className="leading-relaxed font-medium mb-6"
+                style={{ fontSize: fontSize.subtext, color: colors.textDark }}
+              >
                 Tell us about your child.
               </p>
-
-              {/* Section: Child Information */}
-              <div
-                className="rounded-xl overflow-hidden mb-3"
-                style={{ backgroundColor: colors.white, border: `1.5px solid #F2F53A` }}
-              >
-                <div className="px-4 py-3.5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-4 h-4" fill="none" stroke={colors.textDark} strokeWidth={1.5} viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75z"
-                      />
-                    </svg>
-                    <span className="text-sm font-medium" style={{ color: colors.textDark }}>
-                      Child information
-                    </span>
-                  </div>
-                  <svg
-                    className="w-4 h-4"
-                    style={{ color: colors.text, transform: "rotate(180deg)" }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-                <div className="px-4 pb-4 pt-3 border-t space-y-4" style={{ borderColor: colors.border }}>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium mb-1.5" style={{ color: colors.text }}>
-                        First name(s)
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2.5 rounded-lg text-sm"
-                        style={{
-                          backgroundColor: colors.white,
-                          border: `1.5px solid ${colors.border}`,
-                          color: colors.textDark,
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1.5" style={{ color: colors.text }}>
-                        Last name
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2.5 rounded-lg text-sm"
-                        style={{
-                          backgroundColor: colors.white,
-                          border: `1.5px solid ${colors.border}`,
-                          color: colors.textDark,
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1.5" style={{ color: colors.text }}>
-                      Date of birth / Due date
-                    </label>
-                    <input
-                      type="date"
-                      className="w-full px-3 py-2.5 rounded-lg text-sm"
-                      style={{
-                        backgroundColor: colors.white,
-                        border: `1.5px solid ${colors.border}`,
-                        color: colors.textDark,
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Section: Special Circumstances (collapsed) */}
-              <div className="rounded-xl overflow-hidden mb-3" style={{ backgroundColor: colors.white }}>
-                <div className="px-4 py-3.5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-4 h-4" fill="none" stroke={colors.textDark} strokeWidth={1.5} viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                      />
-                    </svg>
-                    <span className="text-sm font-medium" style={{ color: colors.textDark }}>
-                      Special circumstances
-                    </span>
-                  </div>
-                  <svg
-                    className="w-4 h-4"
-                    style={{ color: colors.text }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Section: Relationship (collapsed) */}
-              <div className="rounded-xl overflow-hidden mb-3" style={{ backgroundColor: colors.white }}>
-                <div className="px-4 py-3.5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-4 h-4" fill="none" stroke={colors.textDark} strokeWidth={1.5} viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
-                      />
-                    </svg>
-                    <span className="text-sm font-medium" style={{ color: colors.textDark }}>
-                      Relationship to child
-                    </span>
-                  </div>
-                  <svg
-                    className="w-4 h-4"
-                    style={{ color: colors.text }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
+              {/* PDF Flow content would go here */}
             </div>
           </div>
         </main>
 
-        {/* Footer */}
         <footer
           className="flex-shrink-0 border-t"
           style={{ backgroundColor: colors.background, borderColor: colors.border }}
         >
           <div className="px-5 py-4">
-            <div className="max-w-lg mx-auto flex items-center justify-between">
+            <div className="max-w-2xl mx-auto flex items-center justify-between">
               <div />
               <button
-                className="flex items-center justify-between gap-1.5 px-8 py-2.5 rounded-xl text-sm font-semibold"
-                style={{ backgroundColor: colors.buttonDark, color: colors.white, minWidth: 160 }}
+                className="flex items-center justify-between gap-1.5 px-8 py-2.5 font-semibold"
+                style={{
+                  backgroundColor: colors.buttonDark,
+                  color: colors.white,
+                  minWidth: 160,
+                  borderRadius: ui.buttonRadius,
+                  fontSize: fontSize.small,
+                }}
               >
                 <span className="w-[18px]" />
                 <span>Continue</span>
-                <span className="text-[18px]">→</span>
+                <span style={{ fontSize: "18px" }}>→</span>
               </button>
             </div>
           </div>
@@ -4050,12 +3471,14 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         title="Save your plan"
         description="Create a free account to save your plan and track your progress."
       />
-      <div className="h-screen flex flex-col overflow-hidden" style={{ backgroundColor: colors.background, fontFamily: fonts.body }}>
+      <div
+        className="h-screen flex flex-col overflow-hidden"
+        style={{ backgroundColor: colors.background, fontFamily: fonts.body }}
+      >
         {/* Header */}
         <div className="flex-shrink-0" style={{ backgroundColor: colors.background }}>
           <div className="px-5 py-3">
-            <div className="max-w-lg mx-auto flex items-center justify-between">
-              {/* Back Button */}
+            <div className="max-w-2xl mx-auto flex items-center justify-between">
               <div style={{ width: 32 }}>
                 {stepHistory.length > 0 && (
                   <button
@@ -4070,7 +3493,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 )}
               </div>
 
-              {/* Right Side Buttons */}
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => onOpenChat?.()}
@@ -4102,7 +3524,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             </div>
           </div>
 
-          {/* Header Divider */}
           <div className="h-px w-full" style={{ backgroundColor: colors.border }}></div>
         </div>
 
@@ -4113,7 +3534,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             ref={scrollRef}
             onScroll={handleScroll}
           >
-            <div className="max-w-lg mx-auto">
+            <div className="max-w-2xl mx-auto">
               {messages.map((msg, i) => renderMessage(msg, i))}
 
               {isTyping && (
@@ -4128,10 +3549,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 </div>
               )}
 
-              {/* Marker for end of actual content */}
               <div ref={lastMessageRef} style={{ height: 1 }} />
 
-              {/* Dynamic spacer - exactly enough to scroll user message to top */}
               {spacerHeight > 0 && <div style={{ height: spacerHeight }} />}
             </div>
           </div>
@@ -4142,7 +3561,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           className="flex-shrink-0 px-5 pb-2 pt-3 relative z-10"
           style={{ backgroundColor: colors.background, borderTop: `1px solid ${colors.border}` }}
         >
-          {/* Floating scroll to bottom button */}
           {showScrollButton && (
             <button
               onClick={scrollToBottom}
@@ -4160,8 +3578,17 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               </svg>
             </button>
           )}
-          <div className="max-w-lg mx-auto">{renderInput()}</div>
-          <p className="text-[12px] text-center mt-3 mb-1" style={{ color: colors.text, opacity: 0.6 }}>
+          <div className="max-w-2xl mx-auto">{renderInput()}</div>
+          <p
+            style={{
+              fontSize: fontSize.tiny,
+              color: colors.text,
+              opacity: 0.6,
+              textAlign: "center",
+              marginTop: "12px",
+              marginBottom: "4px",
+            }}
+          >
             Quick estimate only – not legal or tax advice.
           </p>
         </div>
