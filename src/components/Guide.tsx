@@ -755,6 +755,7 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
     backgroundColor: colors.white,
     color: colors.textDark,
     border: `1.5px solid ${colors.border}`,
+    borderRadius: ui.inputRadius,
     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2378716c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
     backgroundRepeat: "no-repeat",
     backgroundPosition: "right 8px center",
@@ -769,7 +770,7 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
         <select
           value={selectedDay || ""}
           onChange={(e) => setSelectedDay(Number(e.target.value))}
-          className="flex-1 px-3 py-3 rounded-xl text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
+          className="flex-1 px-3 py-3 text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
           style={selectStyle}
         >
           <option value="">Day</option>
@@ -784,7 +785,7 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
         <select
           value={selectedMonth || ""}
           onChange={(e) => setSelectedMonth(Number(e.target.value))}
-          className="flex-[2] px-3 py-3 rounded-xl text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
+          className="flex-[2] px-3 py-3 text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
           style={selectStyle}
         >
           <option value="">Month</option>
@@ -799,7 +800,7 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
         <select
           value={selectedYear || ""}
           onChange={(e) => setSelectedYear(Number(e.target.value))}
-          className="flex-1 px-3 py-3 rounded-xl text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
+          className="flex-1 px-3 py-3 text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
           style={selectStyle}
         >
           <option value="">Year</option>
@@ -3670,7 +3671,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               className={isQuestion ? "text-[15px] leading-relaxed font-semibold pl-3" : "text-[15px] leading-relaxed"}
               style={{
                 color: colors.textDark,
-                borderLeft: isQuestion ? "3px solid #C0630B" : "none",
+                borderLeft: isQuestion ? `3px solid ${colors.orange}` : "none",
+                fontFamily: isQuestion ? fonts.headline : fonts.body,
               }}
             >
               {formatText(msg.content, onOpenChat)}
@@ -3783,8 +3785,17 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       return (
         <button
           onClick={() => handleContinue(label)}
-          className="w-full py-2.5 px-4 rounded-xl text-[14px] font-semibold flex items-center justify-between"
-          style={{ backgroundColor: colors.buttonDark, color: colors.white }}
+          className="w-full flex items-center justify-between"
+          style={{
+            backgroundColor: colors.buttonDark,
+            color: colors.white,
+            height: ui.buttonHeight,
+            borderRadius: ui.buttonRadius,
+            padding: "0 20px",
+            fontFamily: fonts.body,
+            fontSize: 15,
+            fontWeight: 600,
+          }}
         >
           <span className="w-[18px]" />
           <span>{labelText}</span>
@@ -3819,7 +3830,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
   // PDF FLOW PREVIEW - Early return
   if (showPdfFlow) {
     return (
-      <div className="h-screen flex flex-col overflow-hidden" style={{ backgroundColor: colors.background }}>
+      <div className="h-screen flex flex-col overflow-hidden" style={{ backgroundColor: colors.background, fontFamily: fonts.body }}>
         {/* Header */}
         <div className="flex-shrink-0" style={{ borderBottom: `1px solid ${colors.border}` }}>
           <div className="h-1 w-full" style={{ backgroundColor: colors.tile }}>
@@ -4039,7 +4050,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         title="Save your plan"
         description="Create a free account to save your plan and track your progress."
       />
-      <div className="h-screen flex flex-col overflow-hidden" style={{ backgroundColor: colors.background }}>
+      <div className="h-screen flex flex-col overflow-hidden" style={{ backgroundColor: colors.background, fontFamily: fonts.body }}>
         {/* Header */}
         <div className="flex-shrink-0" style={{ backgroundColor: colors.background }}>
           <div className="px-5 py-3">
