@@ -26,11 +26,13 @@ export const AppLayout = () => {
   const currentRoute = routeToView[location.pathname];
   const activeView: SidebarView = currentRoute === "settings" ? "planner" : currentRoute || "planner";
 
+  // Guide has its own header with Back/Restart functionality
+  const isGuidePage = location.pathname === "/guide" || location.pathname === "/planner";
+
   // Determine header variant based on current route
   const getHeaderVariant = () => {
     if (location.pathname === "/chat") return "chat";
-    if (location.pathname === "/guide" || location.pathname === "/planner") return "guide";
-    return "guide"; // default for app pages
+    return "guide";
   };
 
   const handleNavigate = (view: SidebarView) => {
@@ -39,12 +41,10 @@ export const AppLayout = () => {
 
   return (
     <div className="min-h-screen w-full" style={{ backgroundColor: "#FAFAF9" }}>
-      {/* Header - fixed at top */}
-      <Header
-        variant={getHeaderVariant()}
-        onOpenChat={activeView !== "chat" ? () => navigate("/chat") : undefined}
-        // Note: onBack and onRestart will be passed from individual pages
-      />
+      {/* Header - fixed at top (hidden for guide page which has its own) */}
+      {!isGuidePage && (
+        <Header variant={getHeaderVariant()} onOpenChat={activeView !== "chat" ? () => navigate("/chat") : undefined} />
+      )}
 
       {/* Sidebar - fixed, below header */}
       <Sidebar
@@ -58,7 +58,7 @@ export const AppLayout = () => {
       <main
         style={{
           marginLeft: 56, // collapsed sidebar width
-          paddingTop: HEADER_HEIGHT,
+          paddingTop: isGuidePage ? 0 : HEADER_HEIGHT,
           minHeight: "100vh",
         }}
       >
