@@ -1270,6 +1270,7 @@ interface ElterngeldGuideProps {
 
 const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const { user, signInWithGoogle, signInWithEmail } = useAuth();
+  const { setCanGoBack, setGoBackHandler, setRestartHandler, setOpenChatHandler } = useGuide();
   const [step, setStep] = useState(0);
   const [stepHistory, setStepHistory] = useState<
     Array<{ step: number; messagesLength: number; savedShowInput: FlowMessage | null }>
@@ -1604,6 +1605,18 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     spacerObserverRef.current = null;
   };
 
+  // Register handlers with GuideContext for Sidebar access
+  useEffect(() => {
+    setGoBackHandler(goBack);
+    setRestartHandler(handleRestart);
+    setOpenChatHandler(onOpenChat || (() => {}));
+  }, [goBack, handleRestart, onOpenChat, setGoBackHandler, setRestartHandler, setOpenChatHandler]);
+
+  useEffect(() => {
+    setCanGoBack(stepHistory.length > 0);
+  }, [stepHistory.length, setCanGoBack]);
+
+  // Save data to localStorage for PDF Flow integration
   const saveToPdfFlow = () => {
     try {
       localStorage.setItem("elterngeld_planner_data", JSON.stringify(plannerData));
