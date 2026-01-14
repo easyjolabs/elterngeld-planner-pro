@@ -3532,7 +3532,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 backgroundColor: colors.white,
                 border: `1.5px solid ${colors.border}`,
                 borderRadius: ui.buttonRadius,
-                minHeight: ui.buttonHeight,
+                height: ui.buttonHeight,
                 padding: "10px 16px",
               }}
             >
