@@ -2760,10 +2760,16 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               <button
                 onClick={handleContinue}
                 disabled={!selectedState}
-                className="w-full py-3 px-4 rounded-xl text-[14px] font-semibold flex items-center justify-between transition-opacity"
+                className="w-full flex items-center justify-between transition-opacity"
                 style={{
                   backgroundColor: colors.buttonDark,
                   color: colors.white,
+                  height: ui.buttonHeight,
+                  borderRadius: ui.buttonRadius,
+                  padding: "0 20px",
+                  fontFamily: fonts.body,
+                  fontSize: 15,
+                  fontWeight: 600,
                   opacity: selectedState ? 1 : 0.5,
                   cursor: selectedState ? "pointer" : "not-allowed",
                 }}
@@ -2931,8 +2937,17 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   saveToPdfFlow();
                   setShowPdfFlow(true);
                 }}
-                className="w-full py-3 px-4 rounded-xl text-[14px] font-semibold flex items-center justify-between"
-                style={{ backgroundColor: colors.buttonDark, color: colors.white }}
+                className="w-full flex items-center justify-between"
+                style={{
+                  backgroundColor: colors.buttonDark,
+                  color: colors.white,
+                  height: ui.buttonHeight,
+                  borderRadius: ui.buttonRadius,
+                  padding: "0 20px",
+                  fontFamily: fonts.body,
+                  fontSize: 15,
+                  fontWeight: 600,
+                }}
               >
                 <span className="w-[18px]" />
                 <span>Continue to application</span>
@@ -3082,10 +3097,15 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   <button
                     onClick={handleWaitlistSubmit}
                     disabled={waitlistSubmitting}
-                    className="w-full py-3 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2"
+                    className="w-full flex items-center justify-center gap-2"
                     style={{
                       backgroundColor: colors.tile,
                       color: colors.textDark,
+                      height: ui.buttonHeight,
+                      borderRadius: ui.buttonRadius,
+                      fontFamily: fonts.body,
+                      fontSize: 15,
+                      fontWeight: 600,
                       opacity: waitlistSubmitting ? 0.7 : 1,
                     }}
                   >
