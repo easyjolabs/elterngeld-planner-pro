@@ -189,32 +189,36 @@ export const Disclaimer = () => (
       </P>
     </Section>
 
-    <Section title="2. Nutzung des KI-Chatbots">
-      <P>
-        Das zentrale Produkt von Elterngeld Guide ist ein KI-gestützter Chatbot, der Nutzerinnen und Nutzer bei
-        allgemeinen Fragen rund um das Thema Elterngeld unterstützt.
-      </P>
-      <P>Die durch den Chatbot bereitgestellten Antworten:</P>
+    <Section title="2. Nutzung der Dienste">
+      <P>Elterngeld Guide bietet verschiedene Dienste zur Unterstützung bei der Elterngeld-Planung und -Beantragung:</P>
       <List
         items={[
-          "basieren auf automatisierter Verarbeitung und Wahrscheinlichkeiten",
-          "stellen keine individuelle Beratung dar",
+          "Geführter Guide: Ein interaktiver Leitfaden zur Ermittlung Ihrer Berechtigung und Planung Ihres Elterngeldbezugs",
+          "PDF-Erstellung: Unterstützung beim Ausfüllen des Elterngeld-Antragsformulars",
+          "KI-Chat: Ein Chatbot für allgemeine Fragen rund um das Thema Elterngeld",
+        ]}
+      />
+      <P>Die durch diese Dienste bereitgestellten Informationen und Ergebnisse:</P>
+      <List
+        items={[
+          "basieren auf den von Ihnen eingegebenen Daten und allgemeinen Regeln",
+          "stellen keine individuelle Rechts- oder Steuerberatung dar",
           "ersetzen keine verbindliche Auskunft durch Behörden oder qualifizierte Fachstellen",
         ]}
       />
       <P>
-        Der Chatbot kann Fehler enthalten oder unvollständige bzw. verallgemeinerte Informationen liefern. Für
-        Entscheidungen mit rechtlicher oder finanzieller Tragweite wird empfohlen, die Informationen zu prüfen und sich
-        an die zuständige Elterngeldstelle oder eine qualifizierte Beratungsstelle zu wenden.
+        Insbesondere der KI-Chat kann Fehler enthalten oder unvollständige bzw. verallgemeinerte Informationen liefern.
+        Für Entscheidungen mit rechtlicher oder finanzieller Tragweite wird empfohlen, die Informationen zu prüfen und
+        sich an die zuständige Elterngeldstelle oder eine qualifizierte Beratungsstelle zu wenden.
       </P>
     </Section>
 
     <Section title="3. Keine Haftung für Entscheidungen der Nutzer">
       <P>
-        Die Nutzung der bereitgestellten Informationen, einschließlich der durch den KI-Chatbot generierten Inhalte,
-        erfolgt auf eigene Verantwortung. Der Betreiber übernimmt keine Haftung für Schäden materieller oder
-        immaterieller Art, die aus der Nutzung oder Nichtnutzung der angebotenen Informationen entstehen, sofern kein
-        vorsätzliches oder grob fahrlässiges Verhalten vorliegt.
+        Die Nutzung der bereitgestellten Informationen, einschließlich der Ergebnisse des Guides, der erstellten
+        PDF-Dokumente und der durch den KI-Chat generierten Inhalte, erfolgt auf eigene Verantwortung. Der Betreiber
+        übernimmt keine Haftung für Schäden materieller oder immaterieller Art, die aus der Nutzung oder Nichtnutzung
+        der angebotenen Informationen entstehen, sofern kein vorsätzliches oder grob fahrlässiges Verhalten vorliegt.
       </P>
     </Section>
 
