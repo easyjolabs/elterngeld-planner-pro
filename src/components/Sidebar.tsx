@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 // Colors matching ElterngeldGuide
 const colors = {
-  background: "#FAF9F7",
+  background: "#F4F4ED",
   white: "#FFFFFF",
   tile: "#F0EFED",
   border: "#E8E6E3",
