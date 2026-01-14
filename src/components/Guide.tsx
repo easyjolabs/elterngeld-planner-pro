@@ -3494,7 +3494,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         style={{
           backgroundColor: colors.background,
           fontFamily: fonts.body,
-          height: `calc(100vh - ${HEADER_HEIGHT}px)`,
+          height: "100%",
         }}
       >
         {/* Header */}
