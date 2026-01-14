@@ -52,7 +52,7 @@ const AnimatedSection: React.FC<{ children: React.ReactNode; className?: string;
 // DESIGN TOKENS
 // ===========================================
 const colors = {
-  background: "#F4F4ED",
+  background: "#FAFAF9",
   tile: "#F0EEE6",
   white: "#FFFFFF",
   black: "#000000",

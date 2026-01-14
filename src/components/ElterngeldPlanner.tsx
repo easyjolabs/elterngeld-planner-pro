@@ -35,7 +35,7 @@ export interface ElterngeldPlannerProps {
 // DESIGN TOKENS
 // ===========================================
 const colors = {
-  background: "#F4F4ED",
+  background: "#FAFAF9",
   tile: "#F0EEE6",
   tileHover: "#EAE6DD",
   text: "#57534E",

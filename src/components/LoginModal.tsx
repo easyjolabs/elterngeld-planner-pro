@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 // DESIGN TOKENS (matching Guide)
 // ===========================================
 const colors = {
-  background: "#F4F4ED",
+  background: "#FAFAF9",
   tile: "#F0EEE6",
   text: "#57534E",
   textDark: "#000000",
