@@ -1051,8 +1051,6 @@ const LandingPage = () => {
       >
         <div
           style={{
-            maxWidth: 1100,
-            margin: "0 auto",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
