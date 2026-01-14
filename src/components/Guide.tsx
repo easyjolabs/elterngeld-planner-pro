@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ElterngeldPlanner, { PlannerMonth } from "@/components/ElterngeldPlanner";
 import LoginModal from "@/components/LoginModal";
+import { useGuide } from "@/components/GuideContext";
 
 // ===========================================
 // TYPES
@@ -1269,6 +1270,7 @@ interface ElterngeldGuideProps {
 
 const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const { user, signInWithGoogle, signInWithEmail } = useAuth();
+  const { setCanGoBack, setGoBackHandler, setRestartHandler, setOpenChatHandler } = useGuide();
   const [step, setStep] = useState(0);
   const [stepHistory, setStepHistory] = useState<
     Array<{ step: number; messagesLength: number; savedShowInput: FlowMessage | null }>
@@ -1603,6 +1605,18 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     spacerObserverRef.current = null;
   };
 
+  // Register handlers with GuideContext for Sidebar access
+  useEffect(() => {
+    setGoBackHandler(goBack);
+    setRestartHandler(handleRestart);
+    setOpenChatHandler(onOpenChat || (() => {}));
+  }, [goBack, handleRestart, onOpenChat, setGoBackHandler, setRestartHandler, setOpenChatHandler]);
+
+  useEffect(() => {
+    setCanGoBack(stepHistory.length > 0);
+  }, [stepHistory.length, setCanGoBack]);
+
+  // Save data to localStorage for PDF Flow integration
   const saveToPdfFlow = () => {
     try {
       localStorage.setItem("elterngeld_planner_data", JSON.stringify(plannerData));
@@ -3471,68 +3485,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         title="Save your plan"
         description="Create a free account to save your plan and track your progress."
       />
-      <div
-        className="h-screen flex flex-col overflow-hidden"
-        style={{ backgroundColor: colors.background, fontFamily: fonts.body }}
-      >
-        {/* Header */}
-        <div className="flex-shrink-0" style={{ backgroundColor: colors.background }}>
-          <div style={{ padding: "12px 24px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              {/* Left: Back + Logo */}
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                {stepHistory.length > 0 && (
-                  <button
-                    onClick={goBack}
-                    className="w-8 h-8 flex items-center justify-center transition-all hover:opacity-60"
-                    title="Back"
-                    style={{ background: "none", border: "none", cursor: "pointer" }}
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke={colors.textDark} strokeWidth={1.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                )}
-                <a href="/" style={{ display: "flex", alignItems: "center" }}>
-                  <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 47 }} />
-                </a>
-              </div>
-
-              {/* Right: Chat + Restart */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => onOpenChat?.()}
-                  className="w-8 h-8 flex items-center justify-center transition-all hover:opacity-60"
-                  title="Chat"
-                  style={{ background: "none", border: "none", cursor: "pointer" }}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={handleRestart}
-                  className="w-8 h-8 flex items-center justify-center shrink-0 transition-all hover:opacity-60"
-                  title="Restart"
-                  style={{ background: "none", border: "none", cursor: "pointer" }}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div className="h-screen flex flex-col overflow-hidden" style={{ backgroundColor: colors.background, fontFamily: fonts.body }}>
         {/* Messages */}
         <div className="flex-1 min-h-0 overflow-hidden">
           <div
