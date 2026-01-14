@@ -1,20 +1,20 @@
-import { useState } from 'react';
+aimport { useState } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import Sidebar, { SidebarView } from './Sidebar';
 import LoginModal from './LoginModal';
 
 const routeToView: Record<string, SidebarView | 'settings'> = {
-  '/': 'home',
-  '/guide': 'guide',
+  '/guide': 'planner',
+  '/planner': 'planner',
   '/chat': 'chat',
+  '/application': 'application',
   '/settings': 'settings',
 };
 
 const viewToRoute: Record<SidebarView, string> = {
-  'home': '/',
-  'guide': '/guide',
+  'planner': '/guide',
+  'application': '/application',
   'chat': '/chat',
-  'pdf': '/',
 };
 
 export const AppLayout = () => {
@@ -23,7 +23,7 @@ export const AppLayout = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const currentRoute = routeToView[location.pathname];
-  const activeView: SidebarView = currentRoute === 'settings' ? 'home' : (currentRoute || 'home');
+  const activeView: SidebarView = currentRoute === 'settings' ? 'planner' : (currentRoute || 'planner');
 
   const handleNavigate = (view: SidebarView) => {
     navigate(viewToRoute[view]);
