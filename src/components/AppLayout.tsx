@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
-import Sidebar, { SidebarView } from "./Sidebar";
+import { GuideProvider } from "./GuideContext";
 import Header, { HEADER_HEIGHT } from "./Header";
+import Sidebar, { SidebarView, SIDEBAR_WIDTH_COLLAPSED } from "./Sidebar";
 import LoginModal from "./LoginModal";
 
 const routeToView: Record<string, SidebarView | "settings"> = {
@@ -26,46 +27,32 @@ export const AppLayout = () => {
   const currentRoute = routeToView[location.pathname];
   const activeView: SidebarView = currentRoute === "settings" ? "planner" : currentRoute || "planner";
 
-  // Guide has its own header with Back/Restart functionality
-  const isGuidePage = location.pathname === "/guide" || location.pathname === "/planner";
-
-  // Determine header variant based on current route
-  const getHeaderVariant = () => {
-    if (location.pathname === "/chat") return "chat";
-    return "guide";
-  };
-
   const handleNavigate = (view: SidebarView) => {
     navigate(viewToRoute[view]);
   };
 
   return (
-    <div className="min-h-screen w-full" style={{ backgroundColor: "#FAFAF9" }}>
-      {/* Header - fixed at top (hidden for guide page which has its own) */}
-      {!isGuidePage && (
-        <Header variant={getHeaderVariant()} onOpenChat={activeView !== "chat" ? () => navigate("/chat") : undefined} />
-      )}
+    <GuideProvider>
+      <div className="min-h-screen w-full" style={{ backgroundColor: "#FAFAF9" }}>
+        {/* Header - fixed at top, full width */}
+        <Header variant="app" />
 
-      {/* Sidebar - fixed, below header */}
-      <Sidebar
-        activeView={activeView}
-        onNavigate={handleNavigate}
-        onSignInClick={() => setShowLoginModal(true)}
-        headerHeight={HEADER_HEIGHT}
-      />
+        {/* Sidebar - fixed, below header */}
+        <Sidebar activeView={activeView} onNavigate={handleNavigate} onSignInClick={() => setShowLoginModal(true)} />
 
-      {/* Main content - offset for header and sidebar */}
-      <main
-        style={{
-          marginLeft: 56, // collapsed sidebar width
-          paddingTop: isGuidePage ? 0 : HEADER_HEIGHT,
-          minHeight: "100vh",
-        }}
-      >
-        <Outlet />
-      </main>
+        {/* Main content - offset for header and sidebar */}
+        <main
+          style={{
+            marginLeft: SIDEBAR_WIDTH_COLLAPSED,
+            paddingTop: HEADER_HEIGHT,
+            minHeight: "100vh",
+          }}
+        >
+          <Outlet />
+        </main>
 
-      <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
-    </div>
+        <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      </div>
+    </GuideProvider>
   );
 };
