@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ElterngeldPlanner, { PlannerMonth } from "@/components/ElterngeldPlanner";
 import LoginModal from "@/components/LoginModal";
+import { HEADER_HEIGHT } from "./Header";
 
 // ===========================================
 // TYPES
@@ -3377,8 +3378,12 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
   if (showPdfFlow) {
     return (
       <div
-        className="h-screen flex flex-col overflow-hidden"
-        style={{ backgroundColor: colors.background, fontFamily: fonts.body }}
+        className="flex flex-col overflow-hidden"
+        style={{
+          backgroundColor: colors.background,
+          fontFamily: fonts.body,
+          height: `calc(100vh - ${HEADER_HEIGHT}px)`,
+        }}
       >
         <div className="flex-shrink-0" style={{ borderBottom: `1px solid ${colors.border}` }}>
           <div className="h-1 w-full" style={{ backgroundColor: colors.tile }}>
@@ -3472,8 +3477,12 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         description="Create a free account to save your plan and track your progress."
       />
       <div
-        className="h-screen flex flex-col overflow-hidden"
-        style={{ backgroundColor: colors.background, fontFamily: fonts.body }}
+        className="flex flex-col overflow-hidden"
+        style={{
+          backgroundColor: colors.background,
+          fontFamily: fonts.body,
+          height: `calc(100vh - ${HEADER_HEIGHT}px)`,
+        }}
       >
         {/* Header */}
         <div className="flex-shrink-0" style={{ backgroundColor: colors.background }}>
