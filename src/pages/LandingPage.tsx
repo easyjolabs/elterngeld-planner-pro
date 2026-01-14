@@ -1417,7 +1417,7 @@ const LandingPage = () => {
                 See how much you'd get
               </h2>
               <p style={{ ...typography.body, color: colors.text, lineHeight: 1.7, marginBottom: 24 }}>
-                Germany offers 3 benefit types: <strong>Basiselterngeld</strong> (full amount, max 12 months),{" "}
+                Germany offers 3 benefit types: <strong>Basiselterngeld</strong> (full amount, max 14 months),{" "}
                 <strong>ElterngeldPlus</strong> (half amount, double duration), and <strong>Partnerschaftsbonus</strong>{" "}
                 (extra months when both parents work part-time).
               </p>
