@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Footer } from "../components/SharedLayout";
+import { Header } from "@/components/Header";
 
 // ===========================================
 // SCROLL ANIMATION HOOK
@@ -1035,50 +1036,7 @@ const LandingPage = () => {
         }
       `}</style>
 
-      {/* NAV */}
-      <nav
-        aria-label="Main navigation"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          padding: "16px 24px",
-          backgroundColor: "rgba(250, 250, 249, 0.95)",
-          backdropFilter: "blur(12px)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <a
-            href="/"
-            aria-label="Elterngeld Guide - Home"
-            style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
-          >
-            <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 47 }} />
-          </a>
-          <a
-            href="/guide"
-            style={{
-              padding: "10px 20px",
-              borderRadius: 999,
-              ...typography.caption,
-              fontWeight: 700,
-              backgroundColor: colors.buttonDark,
-              color: colors.white,
-              textDecoration: "none",
-            }}
-          >
-            Start planning →
-          </a>
-        </div>
-      </nav>
+      <Header variant="landing" />
 
       {/* HERO */}
       <section id="main-content" style={{ padding: "140px 24px 60px", backgroundColor: "#FFFFFF" }}>
