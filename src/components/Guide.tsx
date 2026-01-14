@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ElterngeldPlanner, { PlannerMonth } from "@/components/ElterngeldPlanner";
 import LoginModal from "@/components/LoginModal";
 import { HEADER_HEIGHT } from "./Header";
+import { useGuide } from "@/components/GuideContext";
 
 // ===========================================
 // TYPES
