@@ -1,9 +1,8 @@
 // ===========================================
 // SHARED LAYOUT COMPONENTS
-// Header, Footer, PageLayout
 // ===========================================
 import React from "react";
-import { Header as AppHeader, HEADER_HEIGHT } from "./Header";
+import Header, { HEADER_HEIGHT } from "./Header";
 
 // ===========================================
 // DESIGN TOKENS
@@ -94,11 +93,6 @@ export const SkipToContent: React.FC = () => (
 );
 
 // ===========================================
-// HEADER (re-export from Header component)
-// ===========================================
-export const Header: React.FC = () => <AppHeader variant="landing" />;
-
-// ===========================================
 // FOOTER
 // ===========================================
 interface FooterProps {
@@ -178,7 +172,7 @@ export const Footer: React.FC<FooterProps> = ({ maxWidth = 1100 }) => (
 );
 
 // ===========================================
-// PAGE LAYOUT
+// PAGE LAYOUT (for Landing Page)
 // ===========================================
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -189,7 +183,7 @@ interface PageLayoutProps {
 export const PageLayout: React.FC<PageLayoutProps> = ({ children, maxWidth = 1100, padding = "120px 24px 60px" }) => (
   <main style={{ backgroundColor: colors.background, minHeight: "100vh" }}>
     <GlobalStyles />
-    <AppHeader variant="landing" />
+    <Header variant="landing" />
     <div style={{ padding, maxWidth, margin: "0 auto" }}>{children}</div>
     <Footer maxWidth={maxWidth} />
   </main>
@@ -201,8 +195,8 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children, maxWidth = 110
 export const LegalPageLayout: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <main style={{ backgroundColor: colors.white, minHeight: "100vh" }}>
     <GlobalStyles />
-    <AppHeader variant="landing" />
-    <article style={{ padding: "120px 24px 60px", maxWidth: 800, margin: "0 auto" }}>
+    <Header variant="landing" />
+    <article style={{ padding: `${HEADER_HEIGHT + 48}px 24px 60px`, maxWidth: 800, margin: "0 auto" }}>
       <h1 style={{ ...typography.h2, color: colors.textDark, marginBottom: 40 }} className="mobile-h2">
         {title}
       </h1>
@@ -212,4 +206,4 @@ export const LegalPageLayout: React.FC<{ title: string; children: React.ReactNod
   </main>
 );
 
-export default { Header, Footer, PageLayout, LegalPageLayout, GlobalStyles, colors, typography };
+export default { Footer, PageLayout, LegalPageLayout, GlobalStyles, colors, typography };
