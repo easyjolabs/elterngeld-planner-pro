@@ -4,7 +4,7 @@ import { Search, ArrowRight, Calendar, MessageCircle, FileText } from "lucide-re
 
 // Color constants from design system (matching Guide)
 const colors = {
-  background: "#F4F4ED",
+  background: "#FAFAF9",
   tile: "#F0EEE6",
   tileHover: "#EAE6DD",
   text: "#57534E",
