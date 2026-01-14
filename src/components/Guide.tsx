@@ -3531,8 +3531,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               </div>
             </div>
           </div>
-
-          <div className="h-px w-full" style={{ backgroundColor: colors.border }}></div>
         </div>
 
         {/* Messages */}
