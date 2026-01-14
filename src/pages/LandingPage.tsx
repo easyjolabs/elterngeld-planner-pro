@@ -1081,7 +1081,7 @@ const LandingPage = () => {
       </nav>
 
       {/* HERO */}
-      <section id="main-content" style={{ padding: "140px 24px 60px" }}>
+      <section id="main-content" style={{ padding: "140px 24px 60px", backgroundColor: "#FFFFFF" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div
             style={{ display: "grid", gridTemplateColumns: "1fr 1fr", alignItems: "center" }}
