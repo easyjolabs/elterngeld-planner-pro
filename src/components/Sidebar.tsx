@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { HEADER_HEIGHT } from "./Header";
 
-// Colors matching ElterngeldGuide
+// ===========================================
+// DESIGN TOKENS
+// ===========================================
 const colors = {
   background: "#FAFAF9",
   white: "#FFFFFF",
@@ -10,24 +13,33 @@ const colors = {
   border: "#E8E6E3",
   text: "#78716c",
   textDark: "#1C1917",
-  accent: "#C0630B",
 };
 
+// ===========================================
+// TYPES
+// ===========================================
 export type SidebarView = "planner" | "application" | "chat";
 
 interface SidebarProps {
   activeView: SidebarView;
   onNavigate: (view: SidebarView) => void;
   onSignInClick?: () => void;
-  headerHeight?: number; // Height of header in pixels
 }
 
-// Hook to detect mobile (400px breakpoint)
+// ===========================================
+// SIDEBAR WIDTH (exported for layout)
+// ===========================================
+export const SIDEBAR_WIDTH_COLLAPSED = 56;
+export const SIDEBAR_WIDTH_EXPANDED = 200;
+
+// ===========================================
+// HOOKS
+// ===========================================
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 400);
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
@@ -36,7 +48,9 @@ const useIsMobile = () => {
   return isMobile;
 };
 
-// Tooltip wrapper component
+// ===========================================
+// TOOLTIP COMPONENT
+// ===========================================
 const Tooltip: React.FC<{ label: string; show: boolean; children: React.ReactNode }> = ({ label, show, children }) => (
   <div className="relative group">
     {children}
@@ -55,16 +69,17 @@ const Tooltip: React.FC<{ label: string; show: boolean; children: React.ReactNod
   </div>
 );
 
-const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick, headerHeight = 64 }) => {
+// ===========================================
+// SIDEBAR COMPONENT
+// ===========================================
+const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick }) => {
   const [expanded, setExpanded] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
-  // Get user display info
   const userName = user?.email?.split("@")[0] || "User";
-  const userEmail = user?.email || "";
   const userInitial = userName.charAt(0).toUpperCase();
 
   const navItems: Array<{ id: SidebarView; label: string; icon: React.ReactNode }> = [
@@ -109,12 +124,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
     },
   ];
 
-  const handleMobileNavigate = (view: SidebarView) => {
-    onNavigate(view);
-    setMobileOpen(false);
-  };
-
-  // Person icon component
   const PersonIcon = ({ color = colors.white, size = "w-4 h-4" }: { color?: string; size?: string }) => (
     <svg className={size} fill="none" stroke={color} strokeWidth={1.5} viewBox="0 0 24 24">
       <path
@@ -125,130 +134,90 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
     </svg>
   );
 
-  // Mobile Layout - Bottom Sheet Style
+  // Mobile: Bottom navigation or hamburger menu
   if (isMobile) {
     return (
       <>
-        {/* Mobile: Hamburger Button in Header area */}
+        {/* Mobile hamburger button */}
         <button
           onClick={() => setMobileOpen(true)}
-          className="fixed top-3 left-3 z-40 w-10 h-10 rounded-lg flex items-center justify-center transition-all"
-          style={{ backgroundColor: colors.tile, color: colors.textDark }}
+          className="fixed z-40 w-10 h-10 rounded-lg flex items-center justify-center"
+          style={{
+            top: HEADER_HEIGHT + 12,
+            left: 12,
+            backgroundColor: colors.tile,
+          }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke={colors.textDark} strokeWidth={1.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
         </button>
 
-        {/* Mobile: Overlay */}
-        {mobileOpen && (
-          <div className="fixed inset-0 z-40 bg-black/20 transition-opacity" onClick={() => setMobileOpen(false)} />
-        )}
+        {/* Mobile overlay */}
+        {mobileOpen && <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setMobileOpen(false)} />}
 
-        {/* Mobile: Slide-in Menu */}
+        {/* Mobile slide-in menu */}
         <div
           className={`fixed top-0 left-0 z-50 h-full flex flex-col transition-transform duration-300 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
-          style={{ backgroundColor: colors.background, width: 280 }}
+          style={{ backgroundColor: colors.background, width: 280, paddingTop: HEADER_HEIGHT }}
         >
-          {/* Header with Close */}
-          <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: colors.border }}>
-            <span className="text-sm font-medium" style={{ color: colors.textDark }}>
-              Menu
-            </span>
-            <button
-              onClick={() => setMobileOpen(false)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-              style={{ backgroundColor: colors.tile, color: colors.textDark }}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Navigation Items */}
           <nav className="flex-1 p-3">
             <div className="space-y-1">
-              {navItems.map((item) => {
-                const isActive = activeView === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => handleMobileNavigate(item.id)}
-                    className="w-full h-12 rounded-xl flex items-center px-3 gap-3 transition-all"
-                    style={{
-                      backgroundColor: isActive ? colors.tile : "transparent",
-                      color: colors.textDark,
-                    }}
-                  >
-                    <span style={{ color: colors.textDark }}>{item.icon}</span>
-                    <span className="text-sm font-medium" style={{ color: colors.textDark }}>
-                      {item.label}
-                    </span>
-                  </button>
-                );
-              })}
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    onNavigate(item.id);
+                    setMobileOpen(false);
+                  }}
+                  className="w-full h-12 rounded-xl flex items-center px-3 gap-3"
+                  style={{
+                    backgroundColor: activeView === item.id ? colors.tile : "transparent",
+                    color: colors.textDark,
+                  }}
+                >
+                  {item.icon}
+                  <span className="text-sm font-medium">{item.label}</span>
+                </button>
+              ))}
             </div>
           </nav>
 
-          {/* Bottom Section - Auth Aware */}
+          {/* Bottom: Auth */}
           <div className="p-3 border-t" style={{ borderColor: colors.border }}>
             {user ? (
-              <div className="space-y-1">
-                <button
-                  onClick={() => {
-                    navigate("/settings");
-                    setMobileOpen(false);
-                  }}
-                  className="w-full h-12 rounded-xl flex items-center px-3 gap-3 transition-all"
-                  style={{ backgroundColor: colors.tile }}
+              <button
+                onClick={() => {
+                  navigate("/settings");
+                  setMobileOpen(false);
+                }}
+                className="w-full h-12 rounded-xl flex items-center px-3 gap-3"
+                style={{ backgroundColor: colors.tile }}
+              >
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                  style={{ backgroundColor: colors.textDark, color: colors.white }}
                 >
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
-                    style={{ backgroundColor: colors.textDark, color: colors.white }}
-                  >
-                    {userInitial}
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="text-sm font-medium truncate" style={{ color: colors.textDark }}>
-                      {userName}
-                    </p>
-                  </div>
-                </button>
-                <button
-                  onClick={() => {
-                    signOut();
-                    setMobileOpen(false);
-                  }}
-                  className="w-full h-10 rounded-xl flex items-center justify-center gap-2 transition-all"
-                  style={{ backgroundColor: "transparent", border: `1px solid ${colors.border}` }}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
-                    />
-                  </svg>
-                  <span className="text-sm" style={{ color: colors.text }}>
-                    Log out
-                  </span>
-                </button>
-              </div>
+                  {userInitial}
+                </div>
+                <span className="text-sm font-medium" style={{ color: colors.textDark }}>
+                  {userName}
+                </span>
+              </button>
             ) : (
               <button
                 onClick={() => {
                   onSignInClick?.();
                   setMobileOpen(false);
                 }}
-                className="w-full h-12 rounded-xl flex items-center px-3 gap-3 transition-all"
+                className="w-full h-12 rounded-xl flex items-center px-3 gap-3"
                 style={{ backgroundColor: colors.tile }}
               >
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center"
                   style={{ backgroundColor: colors.textDark }}
                 >
-                  <PersonIcon color={colors.white} size="w-4 h-4" />
+                  <PersonIcon />
                 </div>
                 <span className="text-sm font-medium" style={{ color: colors.textDark }}>
                   Sign in
@@ -261,51 +230,45 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
     );
   }
 
-  // Desktop Layout - Below Header
+  // Desktop: Fixed sidebar
   return (
     <div
       className="fixed left-0 flex flex-col border-r transition-all duration-200"
       style={{
-        top: headerHeight,
-        height: `calc(100vh - ${headerHeight}px)`,
-        width: expanded ? 200 : 56,
+        top: HEADER_HEIGHT,
+        height: `calc(100vh - ${HEADER_HEIGHT}px)`,
+        width: expanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED,
         backgroundColor: colors.background,
         borderColor: colors.border,
       }}
     >
-      {/* Navigation Items */}
+      {/* Navigation */}
       <nav className="flex-1 px-2 pt-3">
         <div className="space-y-1">
-          {navItems.map((item) => {
-            const isActive = activeView === item.id;
-            return (
-              <Tooltip key={item.id} label={item.label} show={!expanded}>
-                <button
-                  onClick={() => onNavigate(item.id)}
-                  className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100"
-                  style={{
-                    backgroundColor: isActive ? colors.tile : "transparent",
-                    color: colors.textDark,
-                  }}
-                >
-                  <div className="w-10 flex items-center justify-center shrink-0">
-                    <span style={{ color: colors.textDark }}>{item.icon}</span>
-                  </div>
-                  {expanded && (
-                    <span className="text-sm" style={{ color: colors.textDark }}>
-                      {item.label}
-                    </span>
-                  )}
-                </button>
-              </Tooltip>
-            );
-          })}
+          {navItems.map((item) => (
+            <Tooltip key={item.id} label={item.label} show={!expanded}>
+              <button
+                onClick={() => onNavigate(item.id)}
+                className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100"
+                style={{
+                  backgroundColor: activeView === item.id ? colors.tile : "transparent",
+                  color: colors.textDark,
+                }}
+              >
+                <div className="w-10 flex items-center justify-center shrink-0">{item.icon}</div>
+                {expanded && (
+                  <span className="text-sm" style={{ color: colors.textDark }}>
+                    {item.label}
+                  </span>
+                )}
+              </button>
+            </Tooltip>
+          ))}
         </div>
       </nav>
 
-      {/* Bottom Section */}
+      {/* Bottom: User + Expand */}
       <div className="p-2 border-t" style={{ borderColor: colors.border }}>
-        {/* User Profile or Sign In */}
         {user ? (
           <Tooltip label="Settings" show={!expanded}>
             <button
@@ -330,7 +293,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
         ) : (
           <Tooltip label="Sign in" show={!expanded}>
             <button
-              onClick={() => onSignInClick?.()}
+              onClick={onSignInClick}
               className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-1"
             >
               <div className="w-10 flex items-center justify-center shrink-0">
@@ -338,7 +301,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
                   className="w-8 h-8 rounded-full flex items-center justify-center"
                   style={{ backgroundColor: colors.textDark }}
                 >
-                  <PersonIcon color={colors.white} size="w-4 h-4" />
+                  <PersonIcon />
                 </div>
               </div>
               {expanded && (
@@ -350,7 +313,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
           </Tooltip>
         )}
 
-        {/* Expand/Collapse Button */}
+        {/* Expand/Collapse */}
         <Tooltip label={expanded ? "Collapse" : "Expand"} show={!expanded}>
           <button
             onClick={() => setExpanded(!expanded)}
