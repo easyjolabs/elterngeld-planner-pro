@@ -3529,7 +3529,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
 
         {/* Input section */}
         <div
-          className="flex-shrink-0 px-5 pb-2 pt-3 relative z-10"
+          className="flex-shrink-0 px-5 pb-1 pt-3 relative z-10"
           style={{ backgroundColor: colors.background, borderTop: `1px solid ${colors.border}` }}
         >
           {showScrollButton && (
@@ -3556,7 +3556,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                padding: "2px 0",
               }}
             >
               {/* Back Button */}
