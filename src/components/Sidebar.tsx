@@ -296,8 +296,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
         </div>
       </nav>
 
-      {/* Bottom: User + Expand */}
-      <div className="p-2 border-t" style={{ borderColor: colors.border }}>
+      {/* Bottom: User */}
+      <div className="p-2">
         {user ? (
           <Tooltip label="Settings" show={!expanded}>
             <button
