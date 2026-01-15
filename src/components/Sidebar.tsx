@@ -91,7 +91,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
+            d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"
           />
         </svg>
       ),
@@ -244,6 +244,31 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
     >
       {/* Navigation */}
       <nav className="flex-1 px-2 pt-3">
+        {/* Expand/Collapse Toggle */}
+        <Tooltip label={expanded ? "Collapse" : "Expand"} show={!expanded}>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100 mb-4"
+            style={{ color: colors.text, opacity: 0.5 }}
+          >
+            <div className="w-10 flex items-center justify-center shrink-0">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d={expanded ? "M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" : "M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"}
+                />
+              </svg>
+            </div>
+          </button>
+        </Tooltip>
+
         <div className="space-y-1">
           {navItems.map((item) => (
             <Tooltip key={item.id} label={item.label} show={!expanded}>
@@ -312,28 +337,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
             </button>
           </Tooltip>
         )}
-
-        {/* Expand/Collapse */}
-        <Tooltip label={expanded ? "Collapse" : "Expand"} show={!expanded}>
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="w-full h-10 rounded-lg flex items-center transition-all hover:bg-stone-100"
-            style={{ color: colors.text }}
-          >
-            <div className="w-10 flex items-center justify-center shrink-0">
-              <svg
-                className="w-5 h-5 transition-transform duration-200"
-                style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </div>
-          </button>
-        </Tooltip>
       </div>
     </div>
   );
