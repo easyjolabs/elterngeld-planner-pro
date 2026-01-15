@@ -1563,7 +1563,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     }
   };
 
-  const handleRestart = () => {
+  const handleRestart = useCallback(() => {
     setShowStartScreen(true);
     setStep(0);
     setMessages([]);
@@ -1592,7 +1592,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     setPartnerPartTimeIncome(0);
     spacerObserverRef.current?.disconnect();
     spacerObserverRef.current = null;
-  };
+  }, []);
 
   // Register handlers with GuideContext for Sidebar access
   useEffect(() => {
