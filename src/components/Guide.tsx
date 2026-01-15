@@ -3556,7 +3556,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                padding: "4px 0",
+                padding: "2px 0",
               }}
             >
               {/* Back Button */}
