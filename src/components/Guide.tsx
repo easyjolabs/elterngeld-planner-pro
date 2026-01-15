@@ -105,12 +105,12 @@ interface TypeSelectProps {
 // ===========================================
 const colors = {
   background: "#FAFAF9",
-  tile: "#F5F5F4",
-  tileHover: "#EEEEEC",
+  tile: "#F0EEE6",
+  tileHover: "#E8E6DE",
   white: "#FFFFFF",
-  text: "#57534E",
+  text: "#666666",
   textDark: "#000000",
-  userBubble: "#F5F5F4",
+  userBubble: "#E7E5E4",
   border: "#E7E5E4",
   borderLight: "#F5F5F4",
   orange: "#FF8752",
