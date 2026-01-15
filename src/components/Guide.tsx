@@ -9,6 +9,7 @@ import ElterngeldPlanner, { PlannerMonth } from "@/components/ElterngeldPlanner"
 import LoginModal from "@/components/LoginModal";
 import { HEADER_HEIGHT } from "./Header";
 import { useGuide } from "@/components/GuideContext";
+import { Calendar } from "@/components/ui/calendar";
 
 // ===========================================
 // TYPES
@@ -571,109 +572,24 @@ const formatDateISO = (date: Date) => {
 
 const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfirm }) => {
   const currentYear = new Date().getFullYear();
-  const years = [currentYear - 1, currentYear, currentYear + 1, currentYear + 2];
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
-  const [selectedDay, setSelectedDay] = React.useState(value?.getDate() || 0);
-  const [selectedMonth, setSelectedMonth] = React.useState(value ? value.getMonth() + 1 : 0);
-  const [selectedYear, setSelectedYear] = React.useState(value?.getFullYear() || 0);
-
-  const getDaysInMonth = (month: number, year: number) => {
-    if (!month || !year) return 31;
-    return new Date(year, month, 0).getDate();
-  };
-  const daysInMonth = getDaysInMonth(selectedMonth, selectedYear || currentYear);
-
-  React.useEffect(() => {
-    if (selectedDay && selectedMonth && selectedYear) {
-      const newDate = new Date(selectedYear, selectedMonth - 1, selectedDay);
-      onChange(newDate);
-    }
-  }, [selectedDay, selectedMonth, selectedYear, onChange]);
-
-  React.useEffect(() => {
-    if (selectedDay > daysInMonth) {
-      setSelectedDay(daysInMonth);
-    }
-  }, [daysInMonth, selectedDay]);
-
-  const isComplete = selectedDay > 0 && selectedMonth > 0 && selectedYear > 0;
-
-  const selectStyle: React.CSSProperties = {
-    backgroundColor: colors.white,
-    color: colors.textDark,
-    border: `1.5px solid ${colors.border}`,
-    borderRadius: ui.inputRadius,
-    fontSize: fontSize.button,
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2378716c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "right 8px center",
-    backgroundSize: "16px",
-    paddingRight: "32px",
-  };
+  const minDate = new Date(currentYear - 1, 0, 1);
+  const maxDate = new Date(currentYear + 2, 11, 31);
 
   return (
     <div className="space-y-3">
-      <div className="flex gap-2">
-        <select
-          value={selectedDay || ""}
-          onChange={(e) => setSelectedDay(Number(e.target.value))}
-          className="flex-1 px-3 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
-          style={selectStyle}
-        >
-          <option value="">Day</option>
-          {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => (
-            <option key={day} value={day}>
-              {day}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={selectedMonth || ""}
-          onChange={(e) => setSelectedMonth(Number(e.target.value))}
-          className="flex-[2] px-3 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
-          style={selectStyle}
-        >
-          <option value="">Month</option>
-          {months.map((month, i) => (
-            <option key={month} value={i + 1}>
-              {month}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={selectedYear || ""}
-          onChange={(e) => setSelectedYear(Number(e.target.value))}
-          className="flex-1 px-3 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-stone-300 appearance-none cursor-pointer"
-          style={selectStyle}
-        >
-          <option value="">Year</option>
-          {years.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Calendar
+        mode="single"
+        selected={value}
+        onSelect={(date) => date && onChange(date)}
+        disabled={(date) => date < minDate || date > maxDate}
+        defaultMonth={value || new Date()}
+        className="rounded-xl border border-stone-200 bg-white p-3 pointer-events-auto"
+        initialFocus
+      />
 
       <button
-        onClick={() => isComplete && value && onConfirm(formatDateISO(value), formatDateDisplay(value))}
-        disabled={!isComplete}
+        onClick={() => value && onConfirm(formatDateISO(value), formatDateDisplay(value))}
+        disabled={!value}
         className="w-full transition-opacity flex items-center justify-between"
         style={{
           backgroundColor: colors.buttonDark,
@@ -684,8 +600,8 @@ const DateInputComponent: React.FC<DateInputProps> = ({ value, onChange, onConfi
           fontFamily: fonts.body,
           fontSize: fontSize.button,
           fontWeight: 600,
-          opacity: isComplete ? 1 : 0.4,
-          cursor: isComplete ? "pointer" : "not-allowed",
+          opacity: value ? 1 : 0.4,
+          cursor: value ? "pointer" : "not-allowed",
         }}
       >
         <span className="w-[18px]" />
