@@ -304,18 +304,8 @@ const visaCategories = [
 // FLOW DEFINITION
 // ===========================================
 const flow: FlowMessage[] = [
-  {
-    type: "bot",
-    content: "Are you a **German or EU/EEA/Swiss** citizen?",
-    isQuestion: true,
-    input: "buttons",
-    field: "citizenship",
-    options: [
-      { value: "eu", label: "Yes, German or EU/EEA/Swiss", icon: "eu" },
-      { value: "other", label: "No, other nationality", icon: "passport" },
-    ],
-  },
-  { type: "user" },
+  // Citizenship question is now on the Start Screen
+  // Flow starts with citizenshipResponse (handled dynamically based on Start Screen answer)
   { type: "dynamic", key: "citizenshipResponse" },
 
   {
@@ -2655,27 +2645,50 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 >
                   Select your state
                 </label>
-                <select
-                  value={selectedState}
-                  onChange={(e) => setSelectedState(e.target.value)}
-                  onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  className="w-full px-4 py-3 outline-none cursor-pointer"
-                  style={{
-                    backgroundColor: colors.white,
-                    color: selectedState ? colors.textDark : colors.text,
-                    border: "none",
-                    borderRadius: ui.inputRadius,
-                    fontSize: fontSize.subtext,
-                  }}
-                >
-                  <option value="">Choose Bundesland...</option>
-                  {ALL_STATES.map((state) => (
-                    <option key={state} value={state}>
-                      {state}
-                    </option>
-                  ))}
-                </select>
+                <div style={{ position: "relative" }}>
+                  <select
+                    value={selectedState}
+                    onChange={(e) => setSelectedState(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    className="w-full outline-none cursor-pointer"
+                    style={{
+                      backgroundColor: colors.white,
+                      color: selectedState ? colors.textDark : colors.text,
+                      border: "none",
+                      borderRadius: ui.inputRadius,
+                      fontSize: fontSize.subtext,
+                      padding: "14px 48px 14px 16px",
+                      appearance: "none",
+                      WebkitAppearance: "none",
+                      MozAppearance: "none",
+                    }}
+                  >
+                    <option value="">Choose Bundesland...</option>
+                    {ALL_STATES.map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
+                  <svg
+                    style={{
+                      position: "absolute",
+                      right: "16px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      pointerEvents: "none",
+                    }}
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#78716c"
+                    strokeWidth={2}
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </div>
               </div>
 
               <button
@@ -3636,8 +3649,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                         setMessages([{ type: "user", content: "Yes, German or EU/EEA/Swiss" }]);
                         messagesLengthRef.current = 1;
                         setLastUserMessageIndex(0);
-                        setStepHistory([{ step: 0, messagesLength: 0, savedShowInput: null }]);
-                        setStep(2); // Skip to step after user placeholder
+                        setStepHistory([]);
+                        setStep(0); // Start at citizenshipResponse dynamic step
                       }}
                       style={{
                         display: "flex",
@@ -3669,8 +3682,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                         setMessages([{ type: "user", content: "No, other nationality" }]);
                         messagesLengthRef.current = 1;
                         setLastUserMessageIndex(0);
-                        setStepHistory([{ step: 0, messagesLength: 0, savedShowInput: null }]);
-                        setStep(2); // Skip to step after user placeholder
+                        setStepHistory([]);
+                        setStep(0); // Start at citizenshipResponse dynamic step
                       }}
                       style={{
                         display: "flex",
