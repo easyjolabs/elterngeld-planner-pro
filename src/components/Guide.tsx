@@ -3550,18 +3550,69 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             </button>
           )}
           <div className="max-w-2xl mx-auto">{renderInput()}</div>
-          <p
-            style={{
-              fontSize: fontSize.tiny,
-              color: colors.text,
-              opacity: 0.6,
-              textAlign: "center",
-              marginTop: "12px",
-              marginBottom: "4px",
-            }}
-          >
-            Quick estimate only – not legal or tax advice.
-          </p>
+          <div className="max-w-2xl mx-auto">
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "12px 0",
+                borderTop: `1px solid ${colors.border}`,
+                marginTop: "12px",
+              }}
+            >
+              {/* Back Button */}
+              <button
+                onClick={goBack}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 8,
+                  background: "none",
+                  border: "none",
+                  borderRadius: 8,
+                  cursor: stepHistory.length > 0 ? "pointer" : "default",
+                  opacity: stepHistory.length > 0 ? 1 : 0.3,
+                  color: colors.text,
+                }}
+                disabled={stepHistory.length === 0}
+              >
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              {/* Disclaimer */}
+              <span style={{ fontSize: fontSize.tiny, color: colors.text, opacity: 0.6 }}>
+                Quick estimate only – not legal or tax advice.
+              </span>
+
+              {/* Restart Button */}
+              <button
+                onClick={handleRestart}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 8,
+                  background: "none",
+                  border: "none",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  color: colors.text,
+                }}
+              >
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </>

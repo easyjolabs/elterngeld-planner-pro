@@ -34,7 +34,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ variant = "landing" }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { canGoBack, goBack, restart, openChat } = useGuide();
+  const { openChat } = useGuide();
 
   const isGuidePage = location.pathname === "/guide" || location.pathname === "/planner";
   const isChatPage = location.pathname === "/chat";
@@ -79,54 +79,6 @@ export const Header: React.FC<HeaderProps> = ({ variant = "landing" }) => {
         </button>
       </div>
 
-      {/* Middle: Back button aligned with centered content (max-w-2xl = 672px) */}
-      {variant === "app" && (
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            display: "flex",
-            justifyContent: "center",
-            pointerEvents: "none",
-          }}
-        >
-          <div
-            style={{
-              width: "100%",
-              maxWidth: 672,
-              paddingLeft: 20,
-              paddingRight: 20,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {canGoBack && (
-              <button
-                onClick={goBack}
-                style={{
-                  width: 36,
-                  height: 36,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  borderRadius: 8,
-                  pointerEvents: "auto",
-                }}
-                title="Back"
-              >
-                <svg width="20" height="20" fill="none" stroke={colors.textDark} strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Right: Actions */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, zIndex: 1 }}>
         {variant === "landing" && (
@@ -170,33 +122,6 @@ export const Header: React.FC<HeaderProps> = ({ variant = "landing" }) => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
-                </svg>
-              </button>
-            )}
-
-            {/* Restart button - show on guide and chat pages */}
-            {(isGuidePage || isChatPage) && (
-              <button
-                onClick={restart}
-                style={{
-                  width: 36,
-                  height: 36,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  borderRadius: 8,
-                }}
-                title="Restart"
-              >
-                <svg width="20" height="20" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                   />
                 </svg>
               </button>
