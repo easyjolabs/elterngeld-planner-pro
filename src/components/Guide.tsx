@@ -1689,6 +1689,8 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const partnerCalc = calculateElterngeld(partnerSliderValue, data, workPartTime ? partnerPartTimeIncome : 0);
 
   useEffect(() => {
+    // Don't process steps while Start Screen is shown
+    if (showStartScreen) return;
     if (showInput) return;
     if (isPaused || step >= flow.length) return;
 
@@ -1726,7 +1728,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 
       return () => clearTimeout(timer);
     }
-  }, [step, isPaused]);
+  }, [step, isPaused, showStartScreen]);
 
   const handleDynamic = (key: string) => {
     let response: FlowMessage | null = null;
