@@ -141,11 +141,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
         {/* Mobile hamburger button */}
         <button
           onClick={() => setMobileOpen(true)}
-          className="fixed z-40 w-10 h-10 rounded-lg flex items-center justify-center"
+          className="fixed w-10 h-10 rounded-lg flex items-center justify-center"
           style={{
-            top: 16,
-            right: 16,
-            left: "auto",
+            top: 20,
+            right: 20,
+            zIndex: 50,
             backgroundColor: colors.tile,
           }}
         >
