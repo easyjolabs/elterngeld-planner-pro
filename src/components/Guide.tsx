@@ -304,26 +304,6 @@ const visaCategories = [
 // FLOW DEFINITION
 // ===========================================
 const flow: FlowMessage[] = [
-  { type: "bot", content: "Hi! Let's figure out your Elterngeld together." },
-  {
-    type: "bot",
-    content:
-      "Elterngeld replaces part of your income while you care for your newborn. The rules can get tricky, though.",
-  },
-  {
-    type: "bot",
-    content:
-      "This **free guide** walks you through everything. And if you'd like, we can **prepare your official application** so you don't have to deal with the 23-page form.",
-  },
-  { type: "bot", content: "Here's what you'll learn:" },
-  { type: "component", component: "introChecklist" },
-  {
-    type: "bot",
-    content: "Let's start by checking your eligibility. It depends on your **citizenship and residence permit**.",
-    pause: true,
-    pauseLabel: "Am I eligible?",
-  },
-
   {
     type: "bot",
     content: "Are you a **German or EU/EEA/Swiss** citizen?",
