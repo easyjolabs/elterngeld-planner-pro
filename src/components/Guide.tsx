@@ -1273,6 +1273,7 @@ interface ElterngeldGuideProps {
 const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const { user, signInWithGoogle, signInWithEmail } = useAuth();
   const { setCanGoBack, setGoBackHandler, setRestartHandler, setOpenChatHandler } = useGuide();
+  const [showStartScreen, setShowStartScreen] = useState(true);
   const [step, setStep] = useState(0);
   const [stepHistory, setStepHistory] = useState<
     Array<{ step: number; messagesLength: number; savedShowInput: FlowMessage | null }>
@@ -1447,6 +1448,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
         if (pendingSession.lastUserMessageIndex !== undefined)
           setLastUserMessageIndex(pendingSession.lastUserMessageIndex);
         if (pendingSession.ctaStep !== undefined) setCtaStep(pendingSession.ctaStep);
+        if (pendingSession.messages && pendingSession.messages.length > 0) setShowStartScreen(false);
         setIsRestoredSession(true);
         setShowPlannerSaveInput(false);
       }
@@ -1578,6 +1580,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   };
 
   const handleRestart = () => {
+    setShowStartScreen(true);
     setStep(0);
     setMessages([]);
     messagesLengthRef.current = 0;
@@ -2403,59 +2406,66 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           })}
         </div>
 
-        <button
-          onClick={() => setWorkPartTime(!workPartTime)}
-          className="w-full flex items-center justify-between cursor-pointer"
+        <div
           style={{
             backgroundColor: "#F0EEE6",
             borderRadius: "12px",
-            padding: "14px 16px",
             marginTop: "12px",
             marginBottom: "12px",
           }}
         >
-          <div className="flex items-center" style={{ gap: "10px" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth={1.5}>
-              <rect x="2" y="7" width="20" height="14" rx="2" />
-              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-            </svg>
-            <span style={{ color: "#000", fontSize: "15px", fontWeight: 600 }}>Planning to work part-time?</span>
-          </div>
-          <div
-            className="relative rounded-full transition-colors duration-200"
+          <button
+            onClick={() => setWorkPartTime(!workPartTime)}
+            className="w-full flex items-center justify-between cursor-pointer"
             style={{
-              width: "44px",
-              height: "24px",
-              backgroundColor: workPartTime ? colors.basis : "#E7E5E4",
+              padding: "14px 16px",
+              background: "none",
+              border: "none",
             }}
           >
-            <span
-              className="absolute rounded-full bg-white transition-transform duration-200"
-              style={{
-                width: "20px",
-                height: "20px",
-                top: "2px",
-                left: "2px",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-                transform: workPartTime ? "translateX(20px)" : "translateX(0)",
-              }}
-            />
-          </div>
-        </button>
-
-        {workPartTime && (
-          <div className="mt-1">
-            <p style={{ color: colors.text, fontSize: fontSize.tiny, marginBottom: "12px" }}>
-              Your expected net income while on Elterngeld
-            </p>
-            <div className="flex items-center gap-6">
-              <IncomeStepper value={partTimeIncome} label="You" onChange={setPartTimeIncome} />
-              {isCouple && (
-                <IncomeStepper value={partnerPartTimeIncome} label="Partner" onChange={setPartnerPartTimeIncome} />
-              )}
+            <div className="flex items-center" style={{ gap: "10px" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth={1.5}>
+                <rect x="2" y="7" width="20" height="14" rx="2" />
+                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+              </svg>
+              <span style={{ color: "#000", fontSize: "15px", fontWeight: 600 }}>Planning to work part-time?</span>
             </div>
-          </div>
-        )}
+            <div
+              className="relative rounded-full transition-colors duration-200"
+              style={{
+                width: "44px",
+                height: "24px",
+                backgroundColor: workPartTime ? colors.basis : "#E7E5E4",
+              }}
+            >
+              <span
+                className="absolute rounded-full bg-white transition-transform duration-200"
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  top: "2px",
+                  left: "2px",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                  transform: workPartTime ? "translateX(20px)" : "translateX(0)",
+                }}
+              />
+            </div>
+          </button>
+
+          {workPartTime && (
+            <div style={{ padding: "0 16px 16px 16px" }}>
+              <p style={{ color: "rgba(0,0,0,0.6)", fontSize: fontSize.tiny, marginBottom: "12px" }}>
+                Your expected net income while on Elterngeld
+              </p>
+              <div className="flex items-center gap-6">
+                <IncomeStepper value={partTimeIncome} label="You" onChange={setPartTimeIncome} />
+                {isCouple && (
+                  <IncomeStepper value={partnerPartTimeIncome} label="Partner" onChange={setPartnerPartTimeIncome} />
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <div
           className="flex items-center"
@@ -2625,14 +2635,13 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             <div className="p-6">
               <div
                 className="w-12 h-12 mb-4 flex items-center justify-center"
-                style={{ backgroundColor: "rgba(255,255,255,0.5)", borderRadius: ui.cardRadius * 0.6 }}
+                style={{ backgroundColor: "#000", borderRadius: 12 }}
               >
                 <svg
                   className="w-6 h-6"
-                  style={{ color: colors.textDark }}
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="currentColor"
+                  stroke="#fff"
                   strokeWidth={1.5}
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -2688,24 +2697,29 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               </div>
 
               <button
-                onClick={handleContinue}
-                disabled={!selectedState}
-                className="w-full flex items-center justify-between transition-opacity"
+                onClick={() => {
+                  if (!selectedState) {
+                    alert("Please select your Bundesland first");
+                    return;
+                  }
+                  handleContinue();
+                }}
+                className="w-full flex items-center justify-between"
                 style={{
-                  backgroundColor: colors.buttonDark,
-                  color: colors.white,
+                  backgroundColor: "#000",
+                  color: "#fff",
                   height: ui.buttonHeight,
                   borderRadius: ui.buttonRadius,
                   padding: "0 20px",
                   fontFamily: fonts.body,
                   fontSize: fontSize.button,
                   fontWeight: 600,
-                  opacity: selectedState ? 1 : 0.5,
-                  cursor: selectedState ? "pointer" : "not-allowed",
+                  cursor: "pointer",
+                  border: "none",
                 }}
               >
                 <span className="w-[18px]" />
-                <span>Create my application</span>
+                <span>{selectedState ? "Create my application" : "Choose a state"}</span>
                 <span style={{ fontSize: "18px" }}>→</span>
               </button>
             </div>
@@ -2750,14 +2764,13 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               <div className="flex items-start justify-between mb-4">
                 <div
                   className="w-12 h-12 flex items-center justify-center"
-                  style={{ backgroundColor: "rgba(255,255,255,0.5)", borderRadius: ui.cardRadius * 0.6 }}
+                  style={{ backgroundColor: "#000", borderRadius: 12 }}
                 >
                   <svg
                     className="w-6 h-6"
-                    style={{ color: colors.textDark }}
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="currentColor"
+                    stroke="#fff"
                     strokeWidth={1.5}
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -2904,13 +2917,12 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             <div className="p-6">
               <div
                 className="w-12 h-12 mb-4 flex items-center justify-center"
-                style={{ backgroundColor: "rgba(255,255,255,0.5)", borderRadius: ui.cardRadius * 0.6 }}
+                style={{ backgroundColor: "#000", borderRadius: 12 }}
               >
                 <svg
                   className="w-6 h-6"
-                  style={{ color: colors.textDark }}
                   fill="none"
-                  stroke="currentColor"
+                  stroke="#fff"
                   strokeWidth={1.5}
                   viewBox="0 0 24 24"
                 >
@@ -3518,33 +3530,181 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             onScroll={handleScroll}
           >
             <div className="max-w-2xl mx-auto">
-              {messages.map((msg, i) => renderMessage(msg, i))}
-
-              {isTyping && (
-                <div className="py-2">
-                  <span
-                    className="inline-block w-2 h-2 rounded-full"
+              {showStartScreen ? (
+                <div style={{ padding: "20px 0" }}>
+                  {/* Headline */}
+                  <h1
                     style={{
-                      backgroundColor: colors.text,
-                      animation: "pulse 1.2s ease-in-out infinite",
+                      fontFamily: fonts.headline,
+                      fontSize: "32px",
+                      fontWeight: 700,
+                      color: "#000",
+                      lineHeight: 1.2,
+                      letterSpacing: "-0.02em",
+                      marginBottom: "12px",
                     }}
-                  />
+                  >
+                    Alright, let's do this.
+                  </h1>
+
+                  {/* Subtext */}
+                  <p
+                    style={{
+                      fontSize: "17px",
+                      color: "#666",
+                      lineHeight: 1.5,
+                      marginBottom: "32px",
+                    }}
+                  >
+                    A few quick questions and you'll know exactly what Elterngeld you can get.
+                  </p>
+
+                  {/* Step Pills */}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      marginBottom: "32px",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        padding: "10px 14px",
+                        borderRadius: "10px",
+                        fontSize: "13px",
+                        fontWeight: 500,
+                        color: "#000",
+                        background: "#FF8752",
+                      }}
+                    >
+                      <span style={{ fontSize: "11px", fontWeight: 600, opacity: 0.5 }}>1</span>
+                      Eligibility
+                    </span>
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        padding: "10px 14px",
+                        borderRadius: "10px",
+                        fontSize: "13px",
+                        fontWeight: 500,
+                        color: "#000",
+                        background: "#FFE44C",
+                      }}
+                    >
+                      <span style={{ fontSize: "11px", fontWeight: 600, opacity: 0.5 }}>2</span>
+                      Calculate
+                    </span>
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        padding: "10px 14px",
+                        borderRadius: "10px",
+                        fontSize: "13px",
+                        fontWeight: 500,
+                        color: "#000",
+                        background: "#D1B081",
+                      }}
+                    >
+                      <span style={{ fontSize: "11px", fontWeight: 600, opacity: 0.5 }}>3</span>
+                      Plan
+                    </span>
+                  </div>
+
+                  {/* CTA Button */}
+                  <button
+                    onClick={() => setShowStartScreen(false)}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "10px",
+                      padding: "18px 36px",
+                      borderRadius: "12px",
+                      border: "none",
+                      background: "#000",
+                      color: "#fff",
+                      fontFamily: fonts.body,
+                      fontSize: "17px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      marginBottom: "24px",
+                    }}
+                  >
+                    Let's go
+                    <span>→</span>
+                  </button>
+
+                  {/* Trust Line */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "16px",
+                      fontSize: "13px",
+                      color: "#666",
+                    }}
+                  >
+                    <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v6l4 2" />
+                      </svg>
+                      5 minutes
+                    </span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      </svg>
+                      Free
+                    </span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                        <path d="M5 13l4 4L19 7" />
+                      </svg>
+                      No signup
+                    </span>
+                  </div>
                 </div>
+              ) : (
+                <>
+                  {messages.map((msg, i) => renderMessage(msg, i))}
+
+                  {isTyping && (
+                    <div className="py-2">
+                      <span
+                        className="inline-block w-2 h-2 rounded-full"
+                        style={{
+                          backgroundColor: colors.text,
+                          animation: "pulse 1.2s ease-in-out infinite",
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  <div ref={lastMessageRef} style={{ height: 1 }} />
+
+                  {spacerHeight > 0 && <div style={{ height: spacerHeight }} />}
+                </>
               )}
-
-              <div ref={lastMessageRef} style={{ height: 1 }} />
-
-              {spacerHeight > 0 && <div style={{ height: spacerHeight }} />}
             </div>
           </div>
         </div>
 
         {/* Input section */}
-        <div
-          className="flex-shrink-0 px-5 pb-1 pt-3 relative z-10"
-          style={{ backgroundColor: colors.background, borderTop: `1px solid ${colors.border}` }}
-        >
-          {showScrollButton && (
+        {!showStartScreen && (
+          <div
+            className="flex-shrink-0 px-5 pb-1 pt-3 relative z-10"
+            style={{ backgroundColor: colors.background, borderTop: `1px solid ${colors.border}` }}
+          >
+            {showScrollButton && (
             <button
               onClick={scrollToBottom}
               className="absolute z-[100] w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110"
@@ -3622,7 +3782,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               </button>
             </div>
           </div>
-        </div>
+          </div>
+        )}
       </div>
     </>
   );
