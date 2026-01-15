@@ -1,6 +1,5 @@
 import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useGuide } from "./GuideContext";
+import { useNavigate } from "react-router-dom";
 
 // ===========================================
 // DESIGN TOKENS
@@ -33,11 +32,6 @@ interface HeaderProps {
 // ===========================================
 export const Header: React.FC<HeaderProps> = ({ variant = "landing" }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { openChat } = useGuide();
-
-  const isGuidePage = location.pathname === "/guide" || location.pathname === "/planner";
-  const isChatPage = location.pathname === "/chat";
 
   const handleLogoClick = () => {
     navigate("/");
@@ -98,36 +92,6 @@ export const Header: React.FC<HeaderProps> = ({ variant = "landing" }) => {
           </a>
         )}
 
-        {variant === "app" && (
-          <>
-            {/* Chat button - show on guide page, not on chat page */}
-            {isGuidePage && !isChatPage && (
-              <button
-                onClick={() => openChat()}
-                style={{
-                  width: 36,
-                  height: 36,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  borderRadius: 8,
-                }}
-                title="Chat"
-              >
-                <svg width="20" height="20" fill="none" stroke={colors.text} strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
-                </svg>
-              </button>
-            )}
-          </>
-        )}
       </div>
     </header>
   );
