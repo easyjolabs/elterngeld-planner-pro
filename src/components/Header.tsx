@@ -58,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({ variant = "landing" }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        borderBottom: "1px solid #E7E5E4",
+        borderBottom: variant === "app" ? "1px solid #E7E5E4" : "none",
       }}
     >
       {/* Left: Logo */}
