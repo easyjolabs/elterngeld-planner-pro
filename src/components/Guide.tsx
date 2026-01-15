@@ -110,7 +110,7 @@ const colors = {
   white: "#FFFFFF",
   text: "#666666",
   textDark: "#000000",
-  userBubble: "#F0EEE6",
+  userBubble: "#FFFFFF",
   border: "#E7E5E4",
   borderLight: "#F5F5F4",
   orange: "#FF8752",
@@ -2658,17 +2658,15 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 <select
                   value={selectedState}
                   onChange={(e) => setSelectedState(e.target.value)}
-                  className="w-full px-4 py-3 outline-none appearance-none cursor-pointer"
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  className="w-full px-4 py-3 outline-none cursor-pointer"
                   style={{
                     backgroundColor: colors.white,
                     color: selectedState ? colors.textDark : colors.text,
                     border: "none",
                     borderRadius: ui.inputRadius,
                     fontSize: fontSize.subtext,
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2378716c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 12px center",
-                    backgroundSize: "20px",
                   }}
                 >
                   <option value="">Choose Bundesland...</option>
@@ -3515,7 +3513,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           >
             <div className="max-w-2xl mx-auto">
               {showStartScreen ? (
-                <div style={{ padding: "20px 0" }}>
+                <div style={{ padding: "60px 0 20px 0" }}>
                   {/* Headline */}
                   <h1
                     style={{
@@ -3537,124 +3535,166 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                       fontSize: "17px",
                       color: "#666",
                       lineHeight: 1.5,
-                      marginBottom: "32px",
+                      marginBottom: "20px",
                     }}
                   >
                     A few quick questions and you'll know exactly what Elterngeld you can get.
                   </p>
 
-                  {/* Step Pills */}
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "8px",
-                      marginBottom: "32px",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <span
+                  {/* Progress Bar + Trust Line */}
+                  <div style={{ marginBottom: "56px" }}>
+                    <div
+                      style={{
+                        height: "6px",
+                        background: "#E7E5E4",
+                        borderRadius: "3px",
+                        overflow: "hidden",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "100%",
+                          width: "8%",
+                          background: "#000",
+                          borderRadius: "3px",
+                        }}
+                      />
+                    </div>
+                    <div
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "6px",
-                        padding: "10px 14px",
-                        borderRadius: "10px",
+                        gap: "16px",
                         fontSize: "13px",
-                        fontWeight: 500,
-                        color: "#000",
-                        background: "#FF8752",
+                        color: "#666",
                       }}
                     >
-                      <span style={{ fontSize: "11px", fontWeight: 600, opacity: 0.5 }}>1</span>
-                      Eligibility
-                    </span>
-                    <span
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "10px 14px",
-                        borderRadius: "10px",
-                        fontSize: "13px",
-                        fontWeight: 500,
-                        color: "#000",
-                        background: "#FFE44C",
-                      }}
-                    >
-                      <span style={{ fontSize: "11px", fontWeight: 600, opacity: 0.5 }}>2</span>
-                      Calculate
-                    </span>
-                    <span
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "10px 14px",
-                        borderRadius: "10px",
-                        fontSize: "13px",
-                        fontWeight: 500,
-                        color: "#000",
-                        background: "#D1B081",
-                      }}
-                    >
-                      <span style={{ fontSize: "11px", fontWeight: 600, opacity: 0.5 }}>3</span>
-                      Plan
-                    </span>
+                      <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                          <circle cx="12" cy="12" r="10" />
+                          <path d="M12 6v6l4 2" />
+                        </svg>
+                        5 minutes
+                      </span>
+                      <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                        Free
+                      </span>
+                      <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                          <path d="M5 13l4 4L19 7" />
+                        </svg>
+                        No signup
+                      </span>
+                    </div>
                   </div>
 
-                  {/* CTA Button */}
-                  <button
-                    onClick={() => setShowStartScreen(false)}
+                  {/* Question with orange accent */}
+                  <p
                     style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "10px",
-                      padding: "18px 36px",
-                      borderRadius: "12px",
-                      border: "none",
-                      background: "#000",
-                      color: "#fff",
-                      fontFamily: fonts.body,
-                      fontSize: "17px",
+                      fontFamily: fonts.headline,
+                      fontSize: "20px",
                       fontWeight: 600,
-                      cursor: "pointer",
-                      marginBottom: "24px",
+                      color: "#000",
+                      lineHeight: 1.3,
+                      marginBottom: "8px",
+                      paddingLeft: "16px",
+                      borderLeft: "3px solid #FF8752",
                     }}
                   >
-                    Let's go
-                    <span>→</span>
-                  </button>
+                    Are you a German or EU/EEA/Swiss citizen?
+                  </p>
 
-                  {/* Trust Line */}
+                  {/* Question description */}
+                  <p
+                    style={{
+                      fontSize: "15px",
+                      color: "#666",
+                      lineHeight: 1.5,
+                      marginBottom: "20px",
+                      paddingLeft: "16px",
+                    }}
+                  >
+                    Your eligibility depends on your citizenship and residence permit.
+                  </p>
+
+                  {/* Answer options */}
                   <div
                     style={{
                       display: "flex",
-                      alignItems: "center",
-                      gap: "16px",
-                      fontSize: "13px",
-                      color: "#666",
+                      flexDirection: "column",
+                      gap: "12px",
                     }}
                   >
-                    <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <button
+                      onClick={() => {
+                        setShowStartScreen(false);
+                        setData((prev) => ({ ...prev, citizenship: "eu" }));
+                        setMessages([{ type: "user", content: "Yes, German or EU/EEA/Swiss" }]);
+                        messagesLengthRef.current = 1;
+                        setLastUserMessageIndex(0);
+                        setStepHistory([{ step: 0, messagesLength: 0, savedShowInput: null }]);
+                        setStep(2); // Skip to step after user placeholder
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        padding: "16px 20px",
+                        background: "#FFFFFF",
+                        border: "1px solid #E7E5E4",
+                        borderRadius: "12px",
+                        fontFamily: fonts.body,
+                        fontSize: "15px",
+                        fontWeight: 500,
+                        color: "#000",
+                        cursor: "pointer",
+                        textAlign: "left",
+                      }}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                        <circle cx="12" cy="8" r="5" />
+                        <path d="M20 21a8 8 0 0 0-16 0" />
+                        <path d="M16 11l2 2 4-4" />
+                      </svg>
+                      Yes, German or EU/EEA/Swiss
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowStartScreen(false);
+                        setData((prev) => ({ ...prev, citizenship: "other" }));
+                        setMessages([{ type: "user", content: "No, other nationality" }]);
+                        messagesLengthRef.current = 1;
+                        setLastUserMessageIndex(0);
+                        setStepHistory([{ step: 0, messagesLength: 0, savedShowInput: null }]);
+                        setStep(2); // Skip to step after user placeholder
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        padding: "16px 20px",
+                        background: "#FFFFFF",
+                        border: "1px solid #E7E5E4",
+                        borderRadius: "12px",
+                        fontFamily: fonts.body,
+                        fontSize: "15px",
+                        fontWeight: 500,
+                        color: "#000",
+                        cursor: "pointer",
+                        textAlign: "left",
+                      }}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
                         <circle cx="12" cy="12" r="10" />
-                        <path d="M12 6v6l4 2" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                       </svg>
-                      5 minutes
-                    </span>
-                    <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                      </svg>
-                      Free
-                    </span>
-                    <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                        <path d="M5 13l4 4L19 7" />
-                      </svg>
-                      No signup
-                    </span>
+                      No, other nationality
+                    </button>
                   </div>
                 </div>
               ) : (
