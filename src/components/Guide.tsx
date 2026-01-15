@@ -304,18 +304,8 @@ const visaCategories = [
 // FLOW DEFINITION
 // ===========================================
 const flow: FlowMessage[] = [
-  {
-    type: "bot",
-    content: "Are you a **German or EU/EEA/Swiss** citizen?",
-    isQuestion: true,
-    input: "buttons",
-    field: "citizenship",
-    options: [
-      { value: "eu", label: "Yes, German or EU/EEA/Swiss", icon: "eu" },
-      { value: "other", label: "No, other nationality", icon: "passport" },
-    ],
-  },
-  { type: "user" },
+  // Citizenship question is now on the Start Screen
+  // Flow starts with citizenshipResponse (handled dynamically based on Start Screen answer)
   { type: "dynamic", key: "citizenshipResponse" },
 
   {
@@ -3636,8 +3626,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                         setMessages([{ type: "user", content: "Yes, German or EU/EEA/Swiss" }]);
                         messagesLengthRef.current = 1;
                         setLastUserMessageIndex(0);
-                        setStepHistory([{ step: 0, messagesLength: 0, savedShowInput: null }]);
-                        setStep(2); // Skip to step after user placeholder
+                        setStepHistory([]);
+                        setStep(0); // Start at citizenshipResponse dynamic step
                       }}
                       style={{
                         display: "flex",
@@ -3669,8 +3659,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                         setMessages([{ type: "user", content: "No, other nationality" }]);
                         messagesLengthRef.current = 1;
                         setLastUserMessageIndex(0);
-                        setStepHistory([{ step: 0, messagesLength: 0, savedShowInput: null }]);
-                        setStep(2); // Skip to step after user placeholder
+                        setStepHistory([]);
+                        setStep(0); // Start at citizenshipResponse dynamic step
                       }}
                       style={{
                         display: "flex",
