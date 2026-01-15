@@ -142,7 +142,7 @@ const ui = {
 };
 
 const fontSize = {
-  question: "17px",
+  question: "19px",
   body: "16px",
   subtext: "15px",
   button: "15px",
