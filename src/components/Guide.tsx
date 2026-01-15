@@ -3496,7 +3496,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           backgroundColor: colors.background,
           fontFamily: fonts.body,
           height: "calc(100vh - 72px)",
-          borderTop: "1px solid #E7E5E4",
         }}
       >
         {/* Messages */}
