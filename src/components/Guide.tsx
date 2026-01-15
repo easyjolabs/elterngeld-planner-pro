@@ -1055,27 +1055,34 @@ const ButtonIcon = React.memo(({ name }: { name: string }) => buttonIcons[name] 
 // ===========================================
 // BUTTON OPTIONS COMPONENT
 // ===========================================
-const ButtonOptions = React.memo(
-  ({ options, onSelect }: { options: ButtonOption[]; onSelect: (value: string, label: string) => void }) => (
-    <div className="space-y-2">
-      {options.map((opt, i) => {
-        const hasArrow = opt.label.includes("→");
-        const labelText = hasArrow ? opt.label.replace("→", "").trim() : opt.label;
-        const shouldCenter = hasArrow && !opt.icon && !opt.note;
+const tagColors = ["#FF8752", "#FFE44C", "#D1B081"];
 
-        return (
-          <button
-            key={i}
-            onClick={() => onSelect(opt.value, opt.label)}
-            className={`w-full transition-all flex items-center hover:border-stone-400 ${shouldCenter ? "justify-between" : "justify-between text-left"}`}
-            style={{
-              backgroundColor: colors.white,
-              border: `1.5px solid ${colors.border}`,
-              borderRadius: ui.buttonRadius,
-              height: ui.buttonHeight,
-              padding: "10px 16px",
-            }}
-          >
+const ButtonOptions = React.memo(
+  ({ options, onSelect }: { options: ButtonOption[]; onSelect: (value: string, label: string) => void }) => {
+    // Track note index for color rotation
+    let noteIndex = 0;
+
+    return (
+      <div className="space-y-2">
+        {options.map((opt, i) => {
+          const hasArrow = opt.label.includes("→");
+          const labelText = hasArrow ? opt.label.replace("→", "").trim() : opt.label;
+          const shouldCenter = hasArrow && !opt.icon && !opt.note;
+          const currentNoteIndex = opt.note ? noteIndex++ : -1;
+
+          return (
+            <button
+              key={i}
+              onClick={() => onSelect(opt.value, opt.label)}
+              className={`w-full transition-all flex items-center hover:border-stone-400 ${shouldCenter ? "justify-between" : "justify-between text-left"}`}
+              style={{
+                backgroundColor: colors.white,
+                border: `1.5px solid ${colors.border}`,
+                borderRadius: ui.buttonRadius,
+                height: ui.buttonHeight,
+                padding: "10px 16px",
+              }}
+            >
             {shouldCenter ? (
               <>
                 <span className="w-[18px]" />
@@ -1102,16 +1109,12 @@ const ButtonOptions = React.memo(
                 <div className="flex items-center gap-2">
                   {opt.note && (
                     <span
-                      className="px-2.5 py-1 rounded-full font-semibold"
+                      className="px-2.5 py-1 rounded-full"
                       style={{
                         fontSize: fontSize.tiny,
-                        backgroundColor:
-                          opt.accent === "basis"
-                            ? "rgba(192, 99, 11, 0.3)"
-                            : opt.accent === "bonus"
-                              ? colors.bonus
-                              : colors.tile,
-                        color: opt.accent === "bonus" ? colors.textDark : opt.accent ? colors.textDark : colors.text,
+                        fontWeight: 500,
+                        backgroundColor: tagColors[currentNoteIndex % 3],
+                        color: "#000",
                       }}
                     >
                       {opt.note}
@@ -1125,7 +1128,8 @@ const ButtonOptions = React.memo(
         );
       })}
     </div>
-  ),
+    );
+  },
 );
 
 // ===========================================
