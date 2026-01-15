@@ -3557,7 +3557,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "12px 0",
-                borderTop: `1px solid ${colors.border}`,
                 marginTop: "12px",
               }}
             >
