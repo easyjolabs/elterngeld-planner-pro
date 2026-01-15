@@ -1158,6 +1158,18 @@ const VisaSelectorComponent: React.FC<VisaSelectorProps> = ({ onSelect }) => {
         Back
       </button>
 
+      {/* Question for specific visa type */}
+      <p
+        style={{
+          fontSize: fontSize.question,
+          fontWeight: 500,
+          color: colors.textDark,
+          marginBottom: "12px",
+        }}
+      >
+        Which <strong>{categoryOptions.find((c) => c.id === selectedCategory)?.label.toLowerCase()}</strong> do you have?
+      </p>
+
       <div className="space-y-2">
         {categoryVisas.map((visa) => (
           <button
