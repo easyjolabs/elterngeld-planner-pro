@@ -1158,6 +1158,18 @@ const VisaSelectorComponent: React.FC<VisaSelectorProps> = ({ onSelect }) => {
         Back
       </button>
 
+      {/* Question for specific visa type */}
+      <p
+        style={{
+          fontSize: fontSize.question,
+          fontWeight: 500,
+          color: colors.textDark,
+          marginBottom: "12px",
+        }}
+      >
+        Which <strong>{categoryOptions.find((c) => c.id === selectedCategory)?.label.toLowerCase()}</strong> do you have?
+      </p>
+
       <div className="space-y-2">
         {categoryVisas.map((visa) => (
           <button
@@ -3650,7 +3662,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                         messagesLengthRef.current = 1;
                         setLastUserMessageIndex(0);
                         setStepHistory([]);
-                        setStep(0); // Start at citizenshipResponse dynamic step
+                        // EU citizens skip citizenshipResponse dynamic, go directly to income question
+                        setStep(1);
                       }}
                       style={{
                         display: "flex",
