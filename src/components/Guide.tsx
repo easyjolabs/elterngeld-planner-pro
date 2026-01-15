@@ -2599,20 +2599,20 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       }
     };
 
+    // ===== STEP 1: Select State =====
     if (ctaStep === 1) {
       return (
         <div className="py-4">
           <div
             style={{
-              backgroundColor: colors.white,
-              boxShadow: ui.cardShadow,
+              backgroundColor: colors.yellow,
               borderRadius: ui.cardRadius,
             }}
           >
             <div className="p-6">
               <div
                 className="w-12 h-12 mb-4 flex items-center justify-center"
-                style={{ backgroundColor: colors.tile, borderRadius: ui.cardRadius * 0.6 }}
+                style={{ backgroundColor: "rgba(255,255,255,0.5)", borderRadius: ui.cardRadius * 0.6 }}
               >
                 <svg
                   className="w-6 h-6"
@@ -2638,7 +2638,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               >
                 Get your official application
               </p>
-              <p className="mb-5" style={{ fontSize: fontSize.button, color: colors.text, lineHeight: 1.4 }}>
+              <p className="mb-5" style={{ fontSize: fontSize.button, color: "rgba(0,0,0,0.7)", lineHeight: 1.4 }}>
                 Pre-filled PDF with your details. Just print, sign, and submit.
               </p>
 
@@ -2656,7 +2656,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   style={{
                     backgroundColor: colors.white,
                     color: selectedState ? colors.textDark : colors.text,
-                    border: `1.5px solid ${colors.border}`,
+                    border: "none",
                     borderRadius: ui.inputRadius,
                     fontSize: fontSize.subtext,
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2378716c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
@@ -2723,13 +2723,13 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       );
     }
 
+    // ===== STEP 2: Supported State =====
     if (ctaStep === 2 && isSupported) {
       return (
         <div className="py-4">
           <div
             style={{
-              backgroundColor: colors.white,
-              boxShadow: ui.cardShadow,
+              backgroundColor: colors.yellow,
               borderRadius: ui.cardRadius,
             }}
           >
@@ -2737,7 +2737,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               <div className="flex items-start justify-between mb-4">
                 <div
                   className="w-12 h-12 flex items-center justify-center"
-                  style={{ backgroundColor: colors.tile, borderRadius: ui.cardRadius * 0.6 }}
+                  style={{ backgroundColor: "rgba(255,255,255,0.5)", borderRadius: ui.cardRadius * 0.6 }}
                 >
                   <svg
                     className="w-6 h-6"
@@ -2758,7 +2758,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 </div>
                 <div
                   className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
-                  style={{ backgroundColor: "rgba(26, 182, 137, 0.1)" }}
+                  style={{ backgroundColor: "rgba(255,255,255,0.5)" }}
                 >
                   <svg
                     className="w-3.5 h-3.5"
@@ -2770,7 +2770,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="font-medium" style={{ fontSize: fontSize.tiny, color: colors.success }}>
+                  <span className="font-medium" style={{ fontSize: fontSize.tiny, color: colors.textDark }}>
                     {selectedState}
                   </span>
                 </div>
@@ -2782,7 +2782,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               >
                 Get your official application
               </p>
-              <p className="mb-4" style={{ fontSize: fontSize.button, color: colors.text, lineHeight: 1.4 }}>
+              <p className="mb-4" style={{ fontSize: fontSize.button, color: "rgba(0,0,0,0.7)", lineHeight: 1.4 }}>
                 We pre-fill your details and generate the official 23-page PDF.
               </p>
 
@@ -2795,7 +2795,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   <div key={i} className="flex items-center gap-2">
                     <svg
                       className="w-4 h-4 shrink-0"
-                      style={{ color: colors.success }}
+                      style={{ color: colors.textDark }}
                       fill="none"
                       stroke="currentColor"
                       strokeWidth={2}
@@ -2812,10 +2812,10 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 <span className="font-bold" style={{ fontSize: "24px", color: colors.textDark }}>
                   €39
                 </span>
-                <span className="line-through" style={{ fontSize: fontSize.button, color: colors.text }}>
+                <span className="line-through" style={{ fontSize: fontSize.button, color: "rgba(0,0,0,0.5)" }}>
                   €49
                 </span>
-                <span style={{ fontSize: fontSize.small, color: colors.text }}>one-time</span>
+                <span style={{ fontSize: fontSize.small, color: "rgba(0,0,0,0.7)" }}>one-time</span>
               </div>
 
               <button
@@ -2843,7 +2843,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               <button
                 onClick={() => setCtaStep(1)}
                 className="w-full mt-3 flex items-center justify-center gap-1"
-                style={{ fontSize: "11px", color: colors.text }}
+                style={{ fontSize: "11px", color: "rgba(0,0,0,0.6)" }}
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -2878,20 +2878,20 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       );
     }
 
+    // ===== STEP 2: Waitlist State =====
     if (ctaStep === 2 && !isSupported) {
       return (
         <div className="py-4">
           <div
             style={{
-              backgroundColor: colors.white,
-              boxShadow: ui.cardShadow,
+              backgroundColor: colors.yellow,
               borderRadius: ui.cardRadius,
             }}
           >
             <div className="p-6">
               <div
                 className="w-12 h-12 mb-4 flex items-center justify-center"
-                style={{ backgroundColor: colors.tile, borderRadius: ui.cardRadius * 0.6 }}
+                style={{ backgroundColor: "rgba(255,255,255,0.5)", borderRadius: ui.cardRadius * 0.6 }}
               >
                 <svg
                   className="w-6 h-6"
@@ -2915,7 +2915,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               >
                 Coming soon to {selectedState}!
               </p>
-              <p className="mb-5" style={{ fontSize: fontSize.button, color: colors.text, lineHeight: 1.4 }}>
+              <p className="mb-5" style={{ fontSize: fontSize.button, color: "rgba(0,0,0,0.7)", lineHeight: 1.4 }}>
                 {selectedState} uses a different form. We're working on it and will notify you when it's ready.
               </p>
 
@@ -2954,7 +2954,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                     style={{
                       backgroundColor: colors.white,
                       color: colors.textDark,
-                      border: waitlistError ? `1.5px solid ${colors.error}` : `1.5px solid ${colors.border}`,
+                      border: waitlistError ? `1.5px solid ${colors.error}` : "none",
                       borderRadius: ui.inputRadius,
                       fontSize: fontSize.subtext,
                     }}
@@ -2973,7 +2973,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                       className="mt-0.5 w-4 h-4 rounded"
                       style={{ accentColor: colors.buttonDark }}
                     />
-                    <span className="leading-snug" style={{ fontSize: fontSize.tiny, color: colors.text }}>
+                    <span className="leading-snug" style={{ fontSize: fontSize.tiny, color: "rgba(0,0,0,0.7)" }}>
                       Send me updates when {selectedState} is available and helpful tips about Elterngeld.
                     </span>
                   </label>
@@ -2983,8 +2983,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                     disabled={waitlistSubmitting}
                     className="w-full flex items-center justify-center gap-2"
                     style={{
-                      backgroundColor: colors.tile,
-                      color: colors.textDark,
+                      backgroundColor: colors.buttonDark,
+                      color: colors.white,
                       height: ui.buttonHeight,
                       borderRadius: ui.buttonRadius,
                       fontFamily: fonts.body,
@@ -2995,7 +2995,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                   >
                     {waitlistSubmitting ? (
                       <>
-                        <span className="w-4 h-4 border-2 border-stone-600 border-t-transparent rounded-full animate-spin" />
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         Joining...
                       </>
                     ) : (
@@ -3008,7 +3008,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
               <button
                 onClick={() => setCtaStep(1)}
                 className="w-full mt-3 flex items-center justify-center gap-1"
-                style={{ fontSize: "11px", color: colors.text }}
+                style={{ fontSize: "11px", color: "rgba(0,0,0,0.6)" }}
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
