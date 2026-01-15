@@ -143,8 +143,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onSignInClick
           onClick={() => setMobileOpen(true)}
           className="fixed z-40 w-10 h-10 rounded-lg flex items-center justify-center"
           style={{
-            top: HEADER_HEIGHT + 12,
-            left: 12,
+            top: 16,
+            right: 16,
+            left: "auto",
             backgroundColor: colors.tile,
           }}
         >
