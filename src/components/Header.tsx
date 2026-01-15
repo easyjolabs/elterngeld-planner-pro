@@ -60,29 +60,8 @@ export const Header: React.FC<HeaderProps> = ({ variant = "landing" }) => {
         justifyContent: "space-between",
       }}
     >
-      {/* Left: Back (optional) + Logo */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        {variant === "app" && canGoBack && (
-          <button
-            onClick={goBack}
-            style={{
-              width: 36,
-              height: 36,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              borderRadius: 8,
-            }}
-            title="Back"
-          >
-            <svg width="20" height="20" fill="none" stroke={colors.textDark} strokeWidth={1.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-        )}
+      {/* Left: Logo */}
+      <div style={{ display: "flex", alignItems: "center", zIndex: 1 }}>
         <button
           onClick={handleLogoClick}
           aria-label="Elterngeld Guide - Home"
@@ -99,8 +78,56 @@ export const Header: React.FC<HeaderProps> = ({ variant = "landing" }) => {
         </button>
       </div>
 
+      {/* Middle: Back button aligned with centered content (max-w-2xl = 672px) */}
+      {variant === "app" && (
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            display: "flex",
+            justifyContent: "center",
+            pointerEvents: "none",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 672,
+              paddingLeft: 20,
+              paddingRight: 20,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            {canGoBack && (
+              <button
+                onClick={goBack}
+                style={{
+                  width: 36,
+                  height: 36,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  borderRadius: 8,
+                  pointerEvents: "auto",
+                }}
+                title="Back"
+              >
+                <svg width="20" height="20" fill="none" stroke={colors.textDark} strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Right: Actions */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, zIndex: 1 }}>
         {variant === "landing" && (
           <a
             href="/guide"
