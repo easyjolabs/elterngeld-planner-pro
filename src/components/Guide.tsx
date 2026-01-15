@@ -2270,7 +2270,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         partner: partnerCalc.basis,
         partnerOrig: partnerWithoutWork.basis,
         maxMonths: isCouple ? 14 : 12,
-        bg: "rgba(192, 99, 11, 0.85)",
+        bg: "#FF8752",
+        info: "65-67% of net income. Max 12 months per parent, 14 total.",
       },
       {
         label: "PLUS",
@@ -2279,7 +2280,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         partner: partnerCalc.plus,
         partnerOrig: partnerWithoutWork.plus,
         maxMonths: isCouple ? 28 : 24,
-        bg: "rgba(252, 99, 27, 0.85)",
+        bg: "#FFE44C",
+        info: "Half the amount, twice as long. 1 Basis = 2 Plus months.",
       },
     ];
 
@@ -2318,99 +2320,83 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             return (
               <div
                 key={i}
-                className="flex-1 p-4"
+                className="flex-1"
                 style={{
                   backgroundColor: item.bg,
-                  backdropFilter: "blur(8px)",
-                  WebkitBackdropFilter: "blur(8px)",
-                  borderRadius: ui.cardRadius,
+                  borderRadius: "16px",
+                  padding: "20px",
                 }}
               >
-                <div className="flex items-center gap-1.5 mb-3">
+                <div style={{ marginBottom: "16px" }}>
                   <span
-                    className="font-bold"
-                    style={{ color: colors.textDark, fontSize: fontSize.question, fontFamily: fonts.headline }}
+                    style={{
+                      color: "#000",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      fontFamily: fonts.headline,
+                      letterSpacing: "-0.01em",
+                    }}
                   >
                     {item.label}
                   </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const key = item.label.toLowerCase();
-                      setOpenTooltips((prev) => {
-                        const newSet = new Set(prev);
-                        if (newSet.has(key)) {
-                          newSet.delete(key);
-                        } else {
-                          newSet.add(key);
-                        }
-                        return newSet;
-                      });
-                    }}
-                    className="w-4 h-4 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: "rgba(0,0,0,0.1)" }}
-                  >
-                    <span style={{ color: colors.textDark, fontSize: "10px", fontWeight: 600 }}>i</span>
-                  </button>
-                </div>
-
-                {openTooltips.has(item.label.toLowerCase()) && (
                   <div
-                    className="mb-3 p-2 rounded-lg"
                     style={{
                       backgroundColor: "rgba(255,255,255,0.5)",
-                      fontSize: fontSize.tiny,
-                      color: colors.textDark,
+                      borderRadius: "10px",
+                      padding: "10px 12px",
+                      marginTop: "10px",
+                      fontSize: "12px",
                       lineHeight: 1.4,
+                      color: "rgba(0,0,0,0.75)",
                     }}
                   >
-                    {item.label === "BASIS"
-                      ? "65-67% of your net income (higher rate for lower incomes). Max 12 months per parent, 14 total."
-                      : "Half the amount, twice as long. Ideal when working part-time. 1 Basis = 2 Plus months."}
+                    {item.info}
                   </div>
-                )}
+                </div>
 
                 {isCouple ? (
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span style={{ color: colors.textDark, fontSize: fontSize.small }}>You</span>
-                      {renderAmount(item.you, item.youOrig, fontSize.small)}
+                  <div>
+                    <div className="flex items-center justify-between" style={{ padding: "6px 0" }}>
+                      <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "14px" }}>You</span>
+                      <span style={{ color: "#000", fontSize: "14px", fontWeight: 500 }}>
+                        €{item.you.toLocaleString("de-DE")}
+                      </span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span style={{ color: colors.textDark, fontSize: fontSize.small }}>Partner</span>
-                      {renderAmount(item.partner, item.partnerOrig, fontSize.small)}
+                    <div className="flex items-center justify-between" style={{ padding: "6px 0" }}>
+                      <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "14px" }}>Partner</span>
+                      <span style={{ color: "#000", fontSize: "14px", fontWeight: 500 }}>
+                        €{item.partner.toLocaleString("de-DE")}
+                      </span>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between">
-                    <span style={{ color: colors.textDark, fontSize: fontSize.small }}>You</span>
-                    {renderAmount(item.you, item.youOrig, fontSize.small)}
+                  <div className="flex items-center justify-between" style={{ padding: "6px 0" }}>
+                    <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "14px" }}>You</span>
+                    <span style={{ color: "#000", fontSize: "14px", fontWeight: 500 }}>
+                      €{item.you.toLocaleString("de-DE")}
+                    </span>
                   </div>
                 )}
 
                 <div
-                  className="mt-1 pt-1 flex items-center justify-between"
-                  style={{ borderTop: "1px solid rgba(0,0,0,0.1)" }}
+                  className="flex items-center justify-between"
+                  style={{
+                    borderTop: "1px solid rgba(0,0,0,0.15)",
+                    marginTop: "8px",
+                    paddingTop: "12px",
+                  }}
                 >
-                  <span style={{ color: colors.textDark, fontSize: fontSize.small }}>{item.maxMonths} months</span>
-                  <div>
-                    {totalChanged && (
-                      <span
-                        style={{
-                          color: colors.textDark,
-                          fontSize: fontSize.tiny,
-                          opacity: 0.5,
-                          textDecoration: "line-through",
-                          marginRight: "4px",
-                        }}
-                      >
-                        €{originalTotal.toLocaleString("de-DE")}
-                      </span>
-                    )}
-                    <span className="font-bold" style={{ color: colors.textDark, fontSize: fontSize.small }}>
-                      €{maxTotal.toLocaleString("de-DE")}
-                    </span>
-                  </div>
+                  <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "14px" }}>{item.maxMonths} months</span>
+                  <span
+                    style={{
+                      color: "#000",
+                      fontSize: "20px",
+                      fontWeight: 700,
+                      fontFamily: fonts.headline,
+                    }}
+                  >
+                    €{maxTotal.toLocaleString("de-DE")}
+                  </span>
                 </div>
               </div>
             );
@@ -2419,16 +2405,40 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
 
         <button
           onClick={() => setWorkPartTime(!workPartTime)}
-          className="mt-4 w-full flex items-center justify-between cursor-pointer"
+          className="w-full flex items-center justify-between cursor-pointer"
+          style={{
+            backgroundColor: "#F0EEE6",
+            borderRadius: "12px",
+            padding: "14px 16px",
+            marginTop: "12px",
+            marginBottom: "12px",
+          }}
         >
-          <span style={{ color: colors.textDark, fontSize: fontSize.button }}>Planning to work part-time?</span>
+          <div className="flex items-center" style={{ gap: "10px" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth={1.5}>
+              <rect x="2" y="7" width="20" height="14" rx="2" />
+              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+            </svg>
+            <span style={{ color: "#000", fontSize: "15px", fontWeight: 600 }}>Planning to work part-time?</span>
+          </div>
           <div
-            className="relative w-11 h-6 rounded-full transition-colors duration-200"
-            style={{ backgroundColor: workPartTime ? colors.basis : colors.border }}
+            className="relative rounded-full transition-colors duration-200"
+            style={{
+              width: "44px",
+              height: "24px",
+              backgroundColor: workPartTime ? colors.basis : "#E7E5E4",
+            }}
           >
             <span
-              className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200"
-              style={{ transform: workPartTime ? "translateX(20px)" : "translateX(0)" }}
+              className="absolute rounded-full bg-white transition-transform duration-200"
+              style={{
+                width: "20px",
+                height: "20px",
+                top: "2px",
+                left: "2px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                transform: workPartTime ? "translateX(20px)" : "translateX(0)",
+              }}
             />
           </div>
         </button>
@@ -2448,31 +2458,34 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         )}
 
         <div
-          className="flex items-start gap-2 mt-4 p-3"
-          style={{ backgroundColor: colors.yellow, borderRadius: ui.cardRadius }}
+          className="flex items-center"
+          style={{
+            backgroundColor: "#D1B081",
+            borderRadius: "12px",
+            padding: "14px 16px",
+            gap: "10px",
+          }}
         >
           <svg
-            className="w-4 h-4 shrink-0 mt-0.5"
-            style={{ color: colors.textDark }}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
+            width="18"
+            height="18"
             viewBox="0 0 24 24"
+            fill="none"
+            stroke="#000"
+            strokeWidth={1.5}
+            className="shrink-0"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-            />
+            <path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z" />
           </svg>
-          <p style={{ color: colors.textDark, fontSize: fontSize.small, lineHeight: 1.4 }}>
-            <strong>Partnership Bonus</strong>: +€{bonusPerMonth.toLocaleString("de-DE")}/month extra for 2-4 months
-            {isCouple ? " if both work 24-32h/week simultaneously" : " if you work 24-32h/week"}
+          <p style={{ color: "#000", fontSize: "13px", lineHeight: 1.4 }}>
+            <strong style={{ fontWeight: 600 }}>Partnership Bonus</strong>: +€{bonusPerMonth.toLocaleString("de-DE")}
+            /month extra for 2-4 months
+            {isCouple ? " if both work 24-32h/week" : " if you work 24-32h/week"}
           </p>
         </div>
       </div>
     );
-  }, [myCalc, partnerCalc, data.applicationType, workPartTime, partTimeIncome, partnerPartTimeIncome, openTooltips]);
+  }, [myCalc, partnerCalc, data.applicationType, workPartTime, partTimeIncome, partnerPartTimeIncome]);
 
   const CalculationCard = () => {
     return <div className="py-3">{calculationCardContent}</div>;
