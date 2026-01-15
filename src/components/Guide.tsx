@@ -3496,6 +3496,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           backgroundColor: colors.background,
           fontFamily: fonts.body,
           height: "calc(100vh - 72px)",
+          borderTop: "1px solid #E7E5E4",
         }}
       >
         {/* Messages */}
@@ -3506,12 +3507,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
             onScroll={handleScroll}
           >
             <div className="max-w-2xl mx-auto">
-              <div
-                style={{
-                  borderTop: "1px solid #E7E5E4",
-                  marginBottom: 24,
-                }}
-              />
               {messages.map((msg, i) => renderMessage(msg, i))}
 
               {isTyping && (
