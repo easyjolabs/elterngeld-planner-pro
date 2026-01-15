@@ -3650,7 +3650,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                         messagesLengthRef.current = 1;
                         setLastUserMessageIndex(0);
                         setStepHistory([]);
-                        setStep(0); // Start at citizenshipResponse dynamic step
+                        // EU citizens skip citizenshipResponse dynamic, go directly to income question
+                        setStep(1);
                       }}
                       style={{
                         display: "flex",
