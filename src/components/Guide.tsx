@@ -768,9 +768,10 @@ const SliderInputComponent: React.FC<SliderInputProps & { label?: string }> = ({
     <div
       className="p-5"
       style={{
-        backgroundColor: colors.tile,
+        backgroundColor: colors.white,
         boxShadow: ui.cardShadow,
         borderRadius: ui.cardRadius,
+        border: `1px solid ${colors.border}`,
       }}
     >
       <div className="mb-4">
@@ -2484,9 +2485,10 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         <div
           className="p-5 space-y-3"
           style={{
-            backgroundColor: colors.tile,
+            backgroundColor: colors.white,
             boxShadow: ui.cardShadow,
             borderRadius: ui.cardRadius,
+            border: `1px solid ${colors.border}`,
           }}
         >
           {[
@@ -2601,7 +2603,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       return (
         <div className="py-4">
           <div
-            className="overflow-hidden"
             style={{
               backgroundColor: colors.white,
               boxShadow: ui.cardShadow,
@@ -2658,6 +2659,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                     border: `1.5px solid ${colors.border}`,
                     borderRadius: ui.inputRadius,
                     fontSize: fontSize.subtext,
+                    position: "relative",
+                    zIndex: 50,
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2378716c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                     backgroundRepeat: "no-repeat",
                     backgroundPosition: "right 12px center",
@@ -2726,7 +2729,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       return (
         <div className="py-4">
           <div
-            className="overflow-hidden"
             style={{
               backgroundColor: colors.white,
               boxShadow: ui.cardShadow,
@@ -2882,7 +2884,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       return (
         <div className="py-4">
           <div
-            className="overflow-hidden"
             style={{
               backgroundColor: colors.white,
               boxShadow: ui.cardShadow,
