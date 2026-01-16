@@ -632,7 +632,7 @@ const DateInputComponent: React.FC<DateInputProps> = ({
           <CalendarIcon className="h-4 w-4 opacity-50" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-[320px] p-0 bg-white" align="start">
+      <PopoverContent className="w-auto p-0 bg-white" align="start">
         <Calendar
           mode="single"
           selected={value}
