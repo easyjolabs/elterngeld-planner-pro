@@ -1068,7 +1068,7 @@ const HorizontalTimeline: React.FC<HorizontalTimelineProps> = ({
           )}
           <div className="h-6" />
           <div className="h-5 flex items-center justify-center">
-            <span className="text-xs" style={{ color: colors.textDark }}>
+            <span className="text-base font-medium" style={{ color: colors.textDark }}>
               €
             </span>
           </div>
@@ -1146,7 +1146,7 @@ const HorizontalTimeline: React.FC<HorizontalTimelineProps> = ({
                       </>
                     )}
                     <div className="h-6" />
-                    <span className="text-xs h-5" style={{ color: total > 0 ? colors.textDark : "#ccc" }}>
+                    <span className="text-xs h-5" style={{ color: colors.textDark }}>
                       {total > 0 ? total.toLocaleString("de-DE") : "—"}
                     </span>
                   </div>
@@ -1350,30 +1350,11 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
             />
           )}
 
-          {/* Tips Bar / Error Bar */}
-          <div className="pt-6 pb-3">
+          {/* Info Bar - Two rows */}
+          <div className="pt-6 pb-3 space-y-2">
+            {/* Row 1: Hints or Budget Status */}
             <div className="flex items-center gap-3">
-              {hasErrors ? (
-                <div className="flex-1 flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 shrink-0"
-                    style={{ color: colors.error }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                    />
-                  </svg>
-                  <span className="text-sm" style={{ color: colors.error }}>
-                    {globalErrors[0] || Array.from(rowErrors.values())[0]?.[0]}
-                  </span>
-                </div>
-              ) : (
+              {totalBudget === 0 ? (
                 <button onClick={nextTip} className="flex-1 flex items-center gap-2 text-left">
                   <svg
                     className="w-5 h-5 shrink-0"
@@ -1403,6 +1384,69 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
+              ) : totalBudget > maxBudget ? (
+                <div className="flex-1 flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5 shrink-0"
+                    style={{ color: colors.error }}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                  <span className="text-sm" style={{ color: colors.error }}>
+                    Budget exceeded by{" "}
+                    {(totalBudget - maxBudget) % 1 === 0
+                      ? totalBudget - maxBudget
+                      : (totalBudget - maxBudget).toFixed(1)}{" "}
+                    months
+                  </span>
+                </div>
+              ) : totalBudget === maxBudget ? (
+                <div className="flex-1 flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5 shrink-0"
+                    style={{ color: colors.success }}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-sm" style={{ color: colors.success }}>
+                    Budget fully used
+                  </span>
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5 shrink-0"
+                    style={{ color: colors.orange }}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <span className="text-sm" style={{ color: colors.textDark }}>
+                    {(maxBudget - totalBudget) % 1 === 0
+                      ? maxBudget - totalBudget
+                      : (maxBudget - totalBudget).toFixed(1)}{" "}
+                    months remaining
+                  </span>
+                </div>
               )}
               <div className="flex items-center gap-2 shrink-0">
                 <span
@@ -1431,13 +1475,36 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                 )}
                 {isLoggedIn && (
                   <div className="p-1.5">
-                    <svg className="w-4 h-4" style={{ color: colors.success }} fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" style={{ color: colors.textDark }} fill="currentColor" viewBox="0 0 24 24">
                       <path d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
                     </svg>
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Row 2: Errors (if any) */}
+            {hasErrors && (
+              <div className="flex items-center gap-2 px-1">
+                <svg
+                  className="w-4 h-4 shrink-0"
+                  style={{ color: colors.error }}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+                <span className="text-xs" style={{ color: colors.error }}>
+                  {globalErrors[0] || Array.from(rowErrors.values())[0]?.[0]}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Horizontal Timeline */}
@@ -1453,8 +1520,27 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
           />
 
           {/* Legend */}
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="mt-4 flex items-center justify-end gap-4">
+            <div className="flex items-center gap-1.5">
+              <svg
+                className="w-4 h-4"
+                style={{ color: colors.textDark }}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                />
+              </svg>
+              <span className="text-xs" style={{ color: colors.text }}>
+                You
+              </span>
+            </div>
+            {isCouple && (
               <div className="flex items-center gap-1.5">
                 <svg
                   className="w-4 h-4"
@@ -1471,76 +1557,31 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                   />
                 </svg>
                 <span className="text-xs" style={{ color: colors.text }}>
-                  You
+                  Partner
                 </span>
               </div>
-              {isCouple && (
-                <div className="flex items-center gap-1.5">
-                  <svg
-                    className="w-4 h-4"
-                    style={{ color: colors.textDark }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                    />
-                  </svg>
-                  <span className="text-xs" style={{ color: colors.text }}>
-                    Partner
-                  </span>
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded" style={{ background: colors.orange }} />
-                <span className="text-xs" style={{ color: colors.text }}>
-                  Basis
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded" style={{ background: colors.yellow }} />
-                <span className="text-xs" style={{ color: colors.text }}>
-                  Plus
-                </span>
-              </div>
-              {isCouple && (
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded" style={{ background: colors.tan }} />
-                  <span className="text-xs" style={{ color: colors.text }}>
-                    Bonus
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Status - Success only */}
-          {!hasErrors && !isEmpty && totalBudget >= maxBudget && (
-            <div
-              className="mt-4 px-3 py-2 rounded-xl flex items-center gap-2"
-              style={{ backgroundColor: colors.successBg }}
-            >
-              <svg
-                className="w-4 h-4 shrink-0"
-                style={{ color: colors.success }}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-xs" style={{ color: colors.success }}>
-                Done! Your plan is ready.
+            )}
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded" style={{ background: colors.orange }} />
+              <span className="text-xs" style={{ color: colors.text }}>
+                Basis
               </span>
             </div>
-          )}
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded" style={{ background: colors.yellow }} />
+              <span className="text-xs" style={{ color: colors.text }}>
+                Plus
+              </span>
+            </div>
+            {isCouple && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded" style={{ background: colors.tan }} />
+                <span className="text-xs" style={{ color: colors.text }}>
+                  Bonus
+                </span>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
