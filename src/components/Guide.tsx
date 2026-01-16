@@ -10,6 +10,9 @@ import LoginModal from "@/components/LoginModal";
 import { HEADER_HEIGHT } from "./Header";
 import { useGuide } from "@/components/GuideContext";
 import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 
 // ===========================================
 // TYPES
@@ -600,28 +603,48 @@ const DateInputComponent: React.FC<DateInputProps> = ({
   const currentYear = new Date().getFullYear();
   const minDate = new Date(currentYear - 1, 0, 1);
   const maxDate = new Date(currentYear + 2, 11, 31);
-  return <div className="space-y-3">
-      <Calendar mode="single" selected={value} onSelect={date => date && onChange(date)} disabled={date => date < minDate || date > maxDate} defaultMonth={value || new Date()} className="rounded-xl border border-stone-200 bg-white p-3 pointer-events-auto" initialFocus />
 
-      <button onClick={() => value && onConfirm(formatDateISO(value), formatDateDisplay(value))} disabled={!value} className="w-full transition-opacity flex items-center justify-between" style={{
-      backgroundColor: colors.buttonDark,
-      color: colors.white,
-      height: ui.buttonHeight,
-      borderRadius: ui.buttonRadius,
-      padding: "0 20px",
-      fontFamily: fonts.body,
-      fontSize: fontSize.button,
-      fontWeight: 600,
-      opacity: value ? 1 : 0.4,
-      cursor: value ? "pointer" : "not-allowed"
-    }}>
-        <span className="w-[18px]" />
-        <span>Confirm</span>
-        <span style={{
-        fontSize: "18px"
-      }}>→</span>
-      </button>
-    </div>;
+  const handleSelect = (date: Date | undefined) => {
+    if (date) {
+      onChange(date);
+      onConfirm(formatDateISO(date), formatDateDisplay(date));
+    }
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className="w-full flex items-center justify-between transition-all"
+          style={{
+            backgroundColor: colors.white,
+            color: value ? colors.textDark : colors.text,
+            height: ui.buttonHeight,
+            borderRadius: ui.buttonRadius,
+            padding: "0 16px",
+            fontFamily: fonts.body,
+            fontSize: fontSize.button,
+            fontWeight: 500,
+            border: `1px solid ${colors.border}`,
+          }}
+        >
+          <span>{value ? format(value, "d. MMMM yyyy") : "Select date"}</span>
+          <CalendarIcon className="h-4 w-4 opacity-50" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0 bg-white" align="start">
+        <Calendar
+          mode="single"
+          selected={value}
+          onSelect={handleSelect}
+          disabled={(date) => date < minDate || date > maxDate}
+          defaultMonth={value || new Date()}
+          className="pointer-events-auto"
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  );
 };
 
 // ===========================================
