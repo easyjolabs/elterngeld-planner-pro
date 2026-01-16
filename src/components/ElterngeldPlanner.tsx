@@ -1269,7 +1269,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
       errorMonths.includes(monthIndex) && lastEditedCell?.month === monthIndex && lastEditedCell?.person === person;
     const base = { transition: "all 0.15s ease" };
 
-    if (type === "none") return { ...base, backgroundColor: colors.white, border: `1px solid #E5E0D8` };
+    if (type === "none") return { ...base, backgroundColor: colors.white };
     if (type === "basis")
       return {
         ...base,
@@ -1319,7 +1319,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
         />
       )}
 
-      <div className="rounded-2xl p-4" style={{ backgroundColor: colors.tile, border: `1px solid ${colors.border}` }}>
+      <div className="rounded-2xl p-4" style={{ backgroundColor: colors.tile }}>
         {/* Status Bar */}
         <div className="mb-3 flex items-stretch gap-2" style={{ minHeight: 52 }}>
           {isEmpty ? (
@@ -1537,7 +1537,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                         style={{ height: rowHeight, ...getCardStyle(month.you, "you", i) }}
                       >
                         {month.you === "none" ? (
-                          <span className="text-xl font-light" style={{ color: "#C4B5A3" }}>
+                          <span className="text-xl font-light" style={{ color: colors.textDark }}>
                             +
                           </span>
                         ) : (
@@ -1566,7 +1566,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                           style={{ height: rowHeight, ...getCardStyle(month.partner, "partner", i) }}
                         >
                           {month.partner === "none" ? (
-                            <span className="text-xl font-light" style={{ color: "#C4B5A3" }}>
+                            <span className="text-xl font-light" style={{ color: colors.textDark }}>
                               +
                             </span>
                           ) : (
