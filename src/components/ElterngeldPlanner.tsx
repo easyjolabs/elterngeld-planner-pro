@@ -378,7 +378,7 @@ function convertPlanToPlannerData(plan: CalculatedPlan, applicationType: "couple
 }
 
 // ===========================================
-// PLANNER ONBOARDING (Wizard)
+// PLANNER ONBOARDING (Wizard) - Full Replacement
 // ===========================================
 interface PlannerOnboardingProps {
   isOpen: boolean;
@@ -388,7 +388,7 @@ interface PlannerOnboardingProps {
 }
 
 const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, onComplete, applicationType }) => {
-  const [currentStep, setCurrentStep] = useState<number | "result">(1);
+  const [currentStep, setCurrentStep] = useState<number | "result" | "howto">(1);
   const [state, setState] = useState<WizardState>({
     youMonths: 12,
     mutterschaftsgeld: null,
@@ -422,7 +422,8 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
 
   const goTo = (step: number) => setCurrentStep(step);
   const goBack = () => {
-    if (currentStep === "result") goTo(isCouple ? 5 : 3);
+    if (currentStep === "howto") setCurrentStep("result");
+    else if (currentStep === "result") goTo(isCouple ? 5 : 3);
     else if (typeof currentStep === "number" && currentStep > 1) goTo(currentStep - 1);
   };
   const selectMutterschaftsgeld = (value: "yes" | "no") => {
@@ -438,6 +439,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
     setState((s) => ({ ...s, partnerWork: value }));
     setTimeout(() => showResult(), 180);
   };
+  const showHowTo = () => setCurrentStep("howto");
   const usePlan = () => {
     if (calculatedPlan) {
       onComplete(convertPlanToPlannerData(calculatedPlan, applicationType), calculatedPlan);
@@ -449,78 +451,70 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
 
   if (!isOpen) return null;
 
+  const showProgress = typeof currentStep === "number";
+  const progressIndex = typeof currentStep === "number" ? currentStep : totalSteps;
+
   return (
-    <div
-      className="absolute inset-0 flex items-center justify-center z-50 rounded-2xl overflow-hidden"
-      style={{ background: "rgba(255, 255, 255, 0.95)" }}
-    >
-      <div
-        className="w-full mx-3 rounded-2xl flex flex-col overflow-hidden"
-        style={{
-          maxWidth: 360,
-          background: colors.white,
-          minHeight: currentStep === "result" ? 480 : 340,
-          boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
-        }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 shrink-0">
-          <button
-            onClick={goBack}
-            className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-white/50"
-            style={{ opacity: currentStep === 1 ? 0.3 : 1 }}
-            disabled={currentStep === 1}
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth="2">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
+    <div className="flex flex-col h-full min-h-[400px]">
+      {/* Header */}
+      <div className="flex items-center justify-between px-2 py-3 shrink-0">
+        <button
+          onClick={goBack}
+          className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-black/5"
+          style={{ opacity: currentStep === 1 ? 0.3 : 1 }}
+          disabled={currentStep === 1}
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth="2">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+
+        {showProgress && (
           <div className="flex gap-2">
             {Array.from({ length: totalSteps }).map((_, i) => (
               <div
                 key={i}
                 className="w-2 h-2 rounded-full transition-colors"
-                style={{
-                  background:
-                    currentStep === "result" || (typeof currentStep === "number" && i < currentStep)
-                      ? colors.textDark
-                      : "rgba(0,0,0,0.15)",
-                }}
+                style={{ background: i < progressIndex ? colors.textDark : "rgba(0,0,0,0.15)" }}
               />
             ))}
           </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-white/50"
-            style={{ opacity: 0.6 }}
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+        )}
 
-        {/* Step 1: Your Duration */}
+        <button
+          onClick={onClose}
+          className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-black/5"
+          style={{ opacity: 0.6 }}
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 flex flex-col px-4 pb-4">
+        {/* Step 1: How many months for you */}
         {currentStep === 1 && (
-          <div className="flex flex-col flex-1 px-7 pb-7">
+          <div className="flex flex-col flex-1">
             <div className="flex-1 flex flex-col justify-center">
               <h2
-                className="text-center mb-7"
+                className="text-center mb-8"
                 style={{
                   fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: 19,
+                  fontSize: 20,
                   fontWeight: 600,
                   color: colors.textDark,
-                  lineHeight: 1.4,
+                  lineHeight: 1.3,
                 }}
               >
                 How many months would <span style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>you</span>{" "}
                 like to stay home?
               </h2>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-5">
                 <div className="flex-1">
-                  <div className="relative h-6 flex items-center">
-                    <div className="absolute inset-x-0 h-1.5 rounded-full" style={{ background: "#E8E4DC" }}>
+                  <div className="relative h-8 flex items-center">
+                    <div className="absolute inset-x-0 h-2 rounded-full" style={{ background: "#E0DCD4" }}>
                       <div
                         className="h-full rounded-full transition-all"
                         style={{ background: colors.textDark, width: getYouFill() }}
@@ -532,19 +526,19 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                       max="28"
                       value={state.youMonths}
                       onChange={(e) => setState((s) => ({ ...s, youMonths: parseInt(e.target.value) }))}
-                      className="absolute inset-x-0 w-full h-6 opacity-0 cursor-pointer"
+                      className="absolute inset-x-0 w-full h-8 opacity-0 cursor-pointer"
                     />
                   </div>
-                  <div className="flex justify-between mt-1.5 text-xs" style={{ color: colors.text }}>
+                  <div className="flex justify-between mt-2 text-sm" style={{ color: colors.text }}>
                     <span>2</span>
                     <span>28</span>
                   </div>
                 </div>
-                <div className="text-center px-4 py-3 rounded-xl" style={{ background: "#E8E4DC", minWidth: 72 }}>
-                  <div className="text-2xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <div className="text-center px-5 py-4 rounded-xl" style={{ background: colors.white, minWidth: 80 }}>
+                  <div className="text-3xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {state.youMonths}
                   </div>
-                  <div className="text-xs" style={{ color: colors.text }}>
+                  <div className="text-sm" style={{ color: colors.text }}>
                     months
                   </div>
                 </div>
@@ -569,20 +563,20 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
 
         {/* Step 2: Mutterschaftsgeld */}
         {currentStep === 2 && (
-          <div className="flex flex-col flex-1 px-7 pb-7">
+          <div className="flex flex-col flex-1">
             <div className="flex-1 flex flex-col justify-center">
               <h2
                 className="text-center mb-2"
                 style={{
                   fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: 19,
+                  fontSize: 20,
                   fontWeight: 600,
                   color: colors.textDark,
                 }}
               >
                 Will you receive Mutterschaftsgeld?
               </h2>
-              <p className="text-center mb-6 text-sm" style={{ color: colors.text }}>
+              <p className="text-center mb-8 text-sm" style={{ color: colors.text }}>
                 Maternity pay from health insurance (usually first 2 months)
               </p>
               <div className="flex gap-3">
@@ -592,7 +586,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                     onClick={() => selectMutterschaftsgeld(val)}
                     className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                     style={{
-                      background: "#E8E4DC",
+                      background: colors.white,
                       borderColor: state.mutterschaftsgeld === val ? colors.textDark : "transparent",
                     }}
                   >
@@ -606,26 +600,25 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
 
         {/* Step 3: Your Work */}
         {currentStep === 3 && (
-          <div className="flex flex-col flex-1 px-7 pb-7">
+          <div className="flex flex-col flex-1">
             <div className="flex-1 flex flex-col justify-center">
               <h2
-                className="text-center mb-7"
+                className="text-center mb-8"
                 style={{
                   fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: 19,
+                  fontSize: 20,
                   fontWeight: 600,
                   color: colors.textDark,
                 }}
               >
-                Will you <span style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>work part-time</span>{" "}
-                during leave?
+                Will <span style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>you</span> work part-time?
               </h2>
               <div className="flex gap-3">
                 <button
                   onClick={() => selectYouWork("no")}
                   className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                   style={{
-                    background: "#E8E4DC",
+                    background: colors.white,
                     borderColor: state.youWork === "no" ? colors.textDark : "transparent",
                   }}
                 >
@@ -635,7 +628,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                   onClick={() => selectYouWork("yes")}
                   className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                   style={{
-                    background: "#E8E4DC",
+                    background: colors.white,
                     borderColor: state.youWork === "yes" ? colors.textDark : "transparent",
                   }}
                 >
@@ -646,26 +639,27 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
           </div>
         )}
 
-        {/* Step 4: Partner Duration */}
+        {/* Step 4: Partner months (couples only) */}
         {currentStep === 4 && isCouple && (
-          <div className="flex flex-col flex-1 px-7 pb-7">
+          <div className="flex flex-col flex-1">
             <div className="flex-1 flex flex-col justify-center">
               <h2
-                className="text-center mb-7"
+                className="text-center mb-8"
                 style={{
                   fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: 19,
+                  fontSize: 20,
                   fontWeight: 600,
                   color: colors.textDark,
+                  lineHeight: 1.3,
                 }}
               >
                 How many months for your{" "}
                 <span style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>partner</span>?
               </h2>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-5">
                 <div className="flex-1">
-                  <div className="relative h-6 flex items-center">
-                    <div className="absolute inset-x-0 h-1.5 rounded-full" style={{ background: "#E8E4DC" }}>
+                  <div className="relative h-8 flex items-center">
+                    <div className="absolute inset-x-0 h-2 rounded-full" style={{ background: "#E0DCD4" }}>
                       <div
                         className="h-full rounded-full transition-all"
                         style={{ background: colors.textDark, width: getPartnerFill() }}
@@ -677,19 +671,19 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                       max="28"
                       value={state.partnerMonths}
                       onChange={(e) => setState((s) => ({ ...s, partnerMonths: parseInt(e.target.value) }))}
-                      className="absolute inset-x-0 w-full h-6 opacity-0 cursor-pointer"
+                      className="absolute inset-x-0 w-full h-8 opacity-0 cursor-pointer"
                     />
                   </div>
-                  <div className="flex justify-between mt-1.5 text-xs" style={{ color: colors.text }}>
+                  <div className="flex justify-between mt-2 text-sm" style={{ color: colors.text }}>
                     <span>0</span>
                     <span>28</span>
                   </div>
                 </div>
-                <div className="text-center px-4 py-3 rounded-xl" style={{ background: "#E8E4DC", minWidth: 72 }}>
-                  <div className="text-2xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <div className="text-center px-5 py-4 rounded-xl" style={{ background: colors.white, minWidth: 80 }}>
+                  <div className="text-3xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {state.partnerMonths}
                   </div>
-                  <div className="text-xs" style={{ color: colors.text }}>
+                  <div className="text-sm" style={{ color: colors.text }}>
                     months
                   </div>
                 </div>
@@ -707,26 +701,26 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
 
         {/* Step 5: Partner Work */}
         {currentStep === 5 && isCouple && (
-          <div className="flex flex-col flex-1 px-7 pb-7">
+          <div className="flex flex-col flex-1">
             <div className="flex-1 flex flex-col justify-center">
               <h2
-                className="text-center mb-7"
+                className="text-center mb-8"
                 style={{
                   fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: 19,
+                  fontSize: 20,
                   fontWeight: 600,
                   color: colors.textDark,
                 }}
               >
-                Will <span style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>partner work part-time</span>
-                ?
+                Will <span style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>partner</span> work
+                part-time?
               </h2>
               <div className="flex gap-3">
                 <button
                   onClick={() => selectPartnerWork("no")}
                   className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                   style={{
-                    background: "#E8E4DC",
+                    background: colors.white,
                     borderColor: state.partnerWork === "no" ? colors.textDark : "transparent",
                   }}
                 >
@@ -736,7 +730,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                   onClick={() => selectPartnerWork("yes")}
                   className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                   style={{
-                    background: "#E8E4DC",
+                    background: colors.white,
                     borderColor: state.partnerWork === "yes" ? colors.textDark : "transparent",
                   }}
                 >
@@ -749,13 +743,13 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
 
         {/* Result */}
         {currentStep === "result" && calculatedPlan && (
-          <div className="flex flex-col flex-1 px-7 pb-7">
+          <div className="flex flex-col flex-1">
             <div className="flex-1 flex flex-col justify-center">
               <h2
                 className="text-center mb-2"
                 style={{
                   fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: 19,
+                  fontSize: 20,
                   fontWeight: 600,
                   color: colors.textDark,
                 }}
@@ -766,13 +760,13 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                 You can adjust everything next
               </p>
               <div className="space-y-2">
-                <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: "#E8E4DC" }}>
+                <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: colors.white }}>
                   <span className="font-semibold text-sm">You</span>
                   <div className="flex flex-wrap gap-1.5">
                     {calculatedPlan.you.basis > 0 && (
                       <span
                         className="px-2.5 py-1 rounded-full text-xs font-medium"
-                        style={{ background: colors.basisBg }}
+                        style={{ background: colors.orange }}
                       >
                         {calculatedPlan.you.basis}× Basis
                       </span>
@@ -780,29 +774,26 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                     {calculatedPlan.you.plus > 0 && (
                       <span
                         className="px-2.5 py-1 rounded-full text-xs font-medium"
-                        style={{ background: colors.plusBg }}
+                        style={{ background: colors.yellow }}
                       >
                         {calculatedPlan.you.plus}× Plus
                       </span>
                     )}
                     {calculatedPlan.you.bonus > 0 && (
-                      <span
-                        className="px-2.5 py-1 rounded-full text-xs font-medium"
-                        style={{ background: colors.bonusBg }}
-                      >
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: "#D0B080" }}>
                         {calculatedPlan.you.bonus}× Bonus
                       </span>
                     )}
                   </div>
                 </div>
                 {isCouple && calculatedPlan.partner.total > 0 && (
-                  <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: "#E8E4DC" }}>
+                  <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: colors.white }}>
                     <span className="font-semibold text-sm">Partner</span>
                     <div className="flex flex-wrap gap-1.5">
                       {calculatedPlan.partner.basis > 0 && (
                         <span
                           className="px-2.5 py-1 rounded-full text-xs font-medium"
-                          style={{ background: colors.basisBg }}
+                          style={{ background: colors.orange }}
                         >
                           {calculatedPlan.partner.basis}× Basis
                         </span>
@@ -810,7 +801,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                       {calculatedPlan.partner.plus > 0 && (
                         <span
                           className="px-2.5 py-1 rounded-full text-xs font-medium"
-                          style={{ background: colors.plusBg }}
+                          style={{ background: colors.yellow }}
                         >
                           {calculatedPlan.partner.plus}× Plus
                         </span>
@@ -818,7 +809,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                       {calculatedPlan.partner.bonus > 0 && (
                         <span
                           className="px-2.5 py-1 rounded-full text-xs font-medium"
-                          style={{ background: colors.bonusBg }}
+                          style={{ background: "#D0B080" }}
                         >
                           {calculatedPlan.partner.bonus}× Bonus
                         </span>
@@ -829,17 +820,126 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
               </div>
               <div
                 className="mt-4 p-4 rounded-xl text-sm leading-relaxed"
-                style={{ background: "#E8E4DC", color: colors.text }}
+                style={{ background: colors.white, color: colors.text }}
               >
                 {calculatedPlan.explanation}
               </div>
             </div>
             <button
+              onClick={showHowTo}
+              className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
+              style={{ background: colors.textDark, color: colors.white }}
+            >
+              Continue
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {/* How To Edit */}
+        {currentStep === "howto" && (
+          <div className="flex flex-col flex-1">
+            <div className="flex-1 flex flex-col justify-center">
+              <div className="text-center mb-6">
+                <div
+                  className="inline-flex items-center justify-center w-14 h-14 rounded-full mb-4"
+                  style={{ background: colors.white }}
+                >
+                  <svg
+                    className="w-7 h-7"
+                    style={{ color: colors.textDark }}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
+                    />
+                  </svg>
+                </div>
+                <h2
+                  style={{
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: 20,
+                    fontWeight: 600,
+                    color: colors.textDark,
+                  }}
+                >
+                  Now adjust your plan
+                </h2>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-4 rounded-xl" style={{ background: colors.white }}>
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: colors.orange }}
+                  >
+                    <span className="text-sm font-bold" style={{ color: colors.textDark }}>
+                      1
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm" style={{ color: colors.textDark }}>
+                      Tap any cell to assign
+                    </p>
+                    <p className="text-sm" style={{ color: colors.text }}>
+                      Basis, Plus, or Bonus
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 rounded-xl" style={{ background: colors.white }}>
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: colors.yellow }}
+                  >
+                    <span className="text-sm font-bold" style={{ color: colors.textDark }}>
+                      2
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm" style={{ color: colors.textDark }}>
+                      Tap again to cycle
+                    </p>
+                    <p className="text-sm" style={{ color: colors.text }}>
+                      Basis → Plus → Bonus → None
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 rounded-xl" style={{ background: colors.white }}>
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: "#D0B080" }}
+                  >
+                    <span className="text-sm font-bold" style={{ color: colors.textDark }}>
+                      3
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm" style={{ color: colors.textDark }}>
+                      Watch for errors
+                    </p>
+                    <p className="text-sm" style={{ color: colors.text }}>
+                      We'll warn you if something's invalid
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
               onClick={usePlan}
               className="w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
               style={{ background: colors.textDark, color: colors.white }}
             >
-              Adjust details manually
+              Start editing
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
@@ -1304,265 +1404,242 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
   };
 
   return (
-    <div className="relative">
-      <PlannerOnboarding
-        isOpen={onboardingOpen}
-        onClose={() => setOnboardingOpen(false)}
-        onComplete={handleOnboardingComplete}
-        applicationType={applicationType}
-      />
-
-      {showErrorModal && onErrorModalClose && onContinueAnyway && (
-        <ErrorModal
-          isOpen={showErrorModal}
-          errors={[...globalErrors, ...Array.from(rowErrors.values()).flat()]}
-          onClose={onErrorModalClose}
-          onContinueAnyway={onContinueAnyway}
+    <div className="rounded-2xl p-4" style={{ backgroundColor: colors.tile }}>
+      {onboardingOpen ? (
+        <PlannerOnboarding
+          isOpen={onboardingOpen}
+          onClose={() => setOnboardingOpen(false)}
+          onComplete={handleOnboardingComplete}
+          applicationType={applicationType}
         />
-      )}
-
-      <div className="rounded-2xl p-4" style={{ backgroundColor: colors.tile }}>
-        {/* Status Bar */}
-        <div className="mb-3 flex items-stretch gap-2" style={{ minHeight: 52 }}>
-          {isEmpty ? (
-            <button
-              onClick={nextTip}
-              className="flex-1 px-3 py-2 rounded-xl flex items-center gap-2 text-left transition-all active:scale-[0.99]"
-              style={{ backgroundColor: colors.tile }}
-            >
-              <svg
-                className="w-4 h-4 shrink-0"
-                style={{ color: colors.orange }}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                />
-              </svg>
-              <span className="flex-1 text-xs" style={{ color: colors.textDark }}>
-                {tips[currentTip]}
-              </span>
-              <svg
-                className="w-3 h-3"
-                style={{ color: colors.text }}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          ) : hasErrors ? (
-            <div
-              className="flex-1 px-3 py-2 rounded-xl flex items-center gap-2"
-              style={{ backgroundColor: colors.errorBg }}
-            >
-              <svg
-                className="w-4 h-4 shrink-0"
-                style={{ color: colors.error }}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-              <span className="flex-1 text-xs" style={{ color: colors.error }}>
-                {globalErrors[0] || Array.from(rowErrors.values())[0]?.[0]}
-              </span>
-            </div>
-          ) : totalBudget >= maxBudget ? (
-            <div
-              className="flex-1 px-3 py-2 rounded-xl flex items-center gap-2"
-              style={{ backgroundColor: colors.successBg }}
-            >
-              <svg
-                className="w-4 h-4 shrink-0"
-                style={{ color: colors.success }}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-xs" style={{ color: colors.success }}>
-                Done! Your plan is ready.
-              </span>
-            </div>
-          ) : (
-            <div
-              className="flex-1 px-3 py-2 rounded-xl flex items-center gap-2"
-              style={{ backgroundColor: colors.successBg }}
-            >
-              <svg
-                className="w-4 h-4 shrink-0"
-                style={{ color: colors.success }}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-xs" style={{ color: colors.success }}>
-                Looking good — keep going!
-              </span>
-            </div>
+      ) : (
+        <>
+          {showErrorModal && onErrorModalClose && onContinueAnyway && (
+            <ErrorModal
+              isOpen={showErrorModal}
+              errors={[...globalErrors, ...Array.from(rowErrors.values()).flat()]}
+              onClose={onErrorModalClose}
+              onContinueAnyway={onContinueAnyway}
+            />
           )}
 
-          {/* Budget Counter */}
-          <div
-            className="px-3 rounded-xl flex items-center justify-center"
-            style={{ backgroundColor: colors.tile, minWidth: 60 }}
-          >
-            <span
-              className="font-bold text-sm"
-              style={{ color: totalBudget > maxBudget ? colors.error : colors.textDark }}
-            >
-              {totalBudget % 1 === 0 ? totalBudget : totalBudget.toFixed(1)}/{maxBudget}
-            </span>
-          </div>
-
-          {/* Fullscreen Button */}
-          {onFullscreenToggle && (
-            <button
-              onClick={onFullscreenToggle}
-              className="px-3 rounded-xl flex items-center justify-center transition-all active:scale-95"
-              style={{ backgroundColor: colors.tile }}
-            >
-              <svg
-                className="w-4 h-4"
-                style={{ color: colors.textDark }}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                viewBox="0 0 24 24"
+          {/* Status Bar */}
+          <div className="mb-3 flex items-stretch gap-2" style={{ minHeight: 52 }}>
+            {isEmpty ? (
+              <button
+                onClick={nextTip}
+                className="flex-1 px-3 py-2 rounded-xl flex items-center gap-2 text-left transition-all active:scale-[0.99]"
+                style={{ backgroundColor: colors.white }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
-                />
-              </svg>
-            </button>
-          )}
-        </div>
+                <svg
+                  className="w-4 h-4 shrink-0"
+                  style={{ color: colors.orange }}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                  />
+                </svg>
+                <span className="flex-1 text-xs" style={{ color: colors.textDark }}>
+                  {tips[currentTip]}
+                </span>
+                <svg
+                  className="w-3 h-3"
+                  style={{ color: colors.text }}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            ) : hasErrors ? (
+              <div
+                className="flex-1 px-3 py-2 rounded-xl flex items-center gap-2"
+                style={{ backgroundColor: colors.errorBg }}
+              >
+                <svg
+                  className="w-4 h-4 shrink-0"
+                  style={{ color: colors.error }}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+                <span className="flex-1 text-xs" style={{ color: colors.error }}>
+                  {globalErrors[0] || Array.from(rowErrors.values())[0]?.[0]}
+                </span>
+              </div>
+            ) : totalBudget >= maxBudget ? (
+              <div
+                className="flex-1 px-3 py-2 rounded-xl flex items-center gap-2"
+                style={{ backgroundColor: colors.successBg }}
+              >
+                <svg
+                  className="w-4 h-4 shrink-0"
+                  style={{ color: colors.success }}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-xs" style={{ color: colors.success }}>
+                  Done! Your plan is ready.
+                </span>
+              </div>
+            ) : (
+              <div
+                className="flex-1 px-3 py-2 rounded-xl flex items-center gap-2"
+                style={{ backgroundColor: colors.successBg }}
+              >
+                <svg
+                  className="w-4 h-4 shrink-0"
+                  style={{ color: colors.success }}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-xs" style={{ color: colors.success }}>
+                  Looking good — keep going!
+                </span>
+              </div>
+            )}
 
-        {/* Column Headers */}
-        <div className="flex items-center mb-2 px-1" style={{ gap: 20 }}>
-          <div style={{ width: 28 }}>
-            <span className="text-sm font-semibold" style={{ color: colors.text }}>
-              #
-            </span>
+            {/* Budget Counter */}
+            <div
+              className="px-3 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: colors.tile, minWidth: 60 }}
+            >
+              <span
+                className="font-bold text-sm"
+                style={{ color: totalBudget > maxBudget ? colors.error : colors.textDark }}
+              >
+                {totalBudget % 1 === 0 ? totalBudget : totalBudget.toFixed(1)}/{maxBudget}
+              </span>
+            </div>
+
+            {/* Fullscreen Button */}
+            {onFullscreenToggle && (
+              <button
+                onClick={onFullscreenToggle}
+                className="px-3 rounded-xl flex items-center justify-center transition-all active:scale-95"
+                style={{ backgroundColor: colors.tile }}
+              >
+                <svg
+                  className="w-4 h-4"
+                  style={{ color: colors.textDark }}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
+                  />
+                </svg>
+              </button>
+            )}
           </div>
-          <div className="flex-1">
-            <span className="text-sm font-semibold" style={{ color: colors.text }}>
-              You
-            </span>
-          </div>
-          {isCouple && (
+
+          {/* Column Headers */}
+          <div className="flex items-center mb-2 px-1" style={{ gap: 20 }}>
+            <div style={{ width: 28 }}>
+              <span className="text-sm font-semibold" style={{ color: colors.text }}>
+                #
+              </span>
+            </div>
             <div className="flex-1">
               <span className="text-sm font-semibold" style={{ color: colors.text }}>
-                Partner
+                You
               </span>
             </div>
-          )}
-          <div style={{ width: 70 }}>
-            <span className="text-sm font-semibold" style={{ color: colors.text }}>
-              Monthly
-            </span>
+            {isCouple && (
+              <div className="flex-1">
+                <span className="text-sm font-semibold" style={{ color: colors.text }}>
+                  Partner
+                </span>
+              </div>
+            )}
+            <div style={{ width: 70 }}>
+              <span className="text-sm font-semibold" style={{ color: colors.text }}>
+                Monthly
+              </span>
+            </div>
+            <div style={{ width: 9 }} />
           </div>
-          <div style={{ width: 9 }} />
-        </div>
 
-        {/* Month Rows - Scrollable */}
-        <div className="relative flex" style={{ gap: 12 }}>
-          <div className="relative flex-1">
-            <div
-              className="absolute top-0 left-0 right-0 pointer-events-none z-10"
-              style={{
-                height: 32,
-                background: `linear-gradient(to bottom, ${colors.tile} 0%, transparent 100%)`,
-                opacity: isAtTop ? 0 : 1,
-              }}
-            />
-            <div
-              ref={scrollRef}
-              className="overflow-y-auto"
-              onScroll={handleScroll}
-              style={{ height: listHeight, scrollbarWidth: "none" }}
-            >
-              <div className="flex flex-col" style={{ gap: rowGap }}>
-                {plannerVisibleData.map((month, i) => {
-                  const youAmt =
-                    month.you === "basis"
-                      ? myCalc.basis
-                      : month.you === "plus"
-                        ? myCalc.plus
-                        : month.you === "bonus"
-                          ? myCalc.bonus
-                          : 0;
-                  const partnerAmt = isCouple
-                    ? month.partner === "basis"
-                      ? partnerCalc.basis
-                      : month.partner === "plus"
-                        ? partnerCalc.plus
-                        : month.partner === "bonus"
-                          ? partnerCalc.bonus
-                          : 0
-                    : 0;
-                  const total = youAmt + partnerAmt;
+          {/* Month Rows - Scrollable */}
+          <div className="relative flex" style={{ gap: 12 }}>
+            <div className="relative flex-1">
+              <div
+                className="absolute top-0 left-0 right-0 pointer-events-none z-10"
+                style={{
+                  height: 32,
+                  background: `linear-gradient(to bottom, ${colors.tile} 0%, transparent 100%)`,
+                  opacity: isAtTop ? 0 : 1,
+                }}
+              />
+              <div
+                ref={scrollRef}
+                className="overflow-y-auto"
+                onScroll={handleScroll}
+                style={{ height: listHeight, scrollbarWidth: "none" }}
+              >
+                <div className="flex flex-col" style={{ gap: rowGap }}>
+                  {plannerVisibleData.map((month, i) => {
+                    const youAmt =
+                      month.you === "basis"
+                        ? myCalc.basis
+                        : month.you === "plus"
+                          ? myCalc.plus
+                          : month.you === "bonus"
+                            ? myCalc.bonus
+                            : 0;
+                    const partnerAmt = isCouple
+                      ? month.partner === "basis"
+                        ? partnerCalc.basis
+                        : month.partner === "plus"
+                          ? partnerCalc.plus
+                          : month.partner === "bonus"
+                            ? partnerCalc.bonus
+                            : 0
+                      : 0;
+                    const total = youAmt + partnerAmt;
 
-                  return (
-                    <div key={i} className="flex items-center px-1" style={{ gap: 20, height: rowHeight }}>
-                      <div style={{ width: 28 }}>
-                        <span className="text-sm font-bold" style={{ color: colors.textDark }}>
-                          {i + 1}
-                        </span>
-                      </div>
-
-                      {/* You Cell */}
-                      <button
-                        onClick={(e) => cycleType(i, "you", e)}
-                        className="flex-1 rounded-xl flex items-center justify-center active:scale-95 cursor-pointer"
-                        style={{ height: rowHeight, ...getCardStyle(month.you, "you", i) }}
-                      >
-                        {month.you === "none" ? (
-                          <span className="text-xl font-light" style={{ color: colors.textDark }}>
-                            +
+                    return (
+                      <div key={i} className="flex items-center px-1" style={{ gap: 20, height: rowHeight }}>
+                        <div style={{ width: 28 }}>
+                          <span className="text-sm font-bold" style={{ color: colors.textDark }}>
+                            {i + 1}
                           </span>
-                        ) : (
-                          <div className="flex items-center justify-between w-full px-3">
-                            <span className="text-base opacity-30">‹</span>
-                            <span
-                              style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.03em", color: colors.textDark }}
-                            >
-                              {getLabel(month.you)}
-                            </span>
-                            <span className="text-base opacity-30">›</span>
-                          </div>
-                        )}
-                      </button>
+                        </div>
 
-                      {/* Partner Cell */}
-                      {isCouple && (
+                        {/* You Cell */}
                         <button
-                          onClick={(e) => cycleType(i, "partner", e)}
+                          onClick={(e) => cycleType(i, "you", e)}
                           className="flex-1 rounded-xl flex items-center justify-center active:scale-95 cursor-pointer"
-                          style={{ height: rowHeight, ...getCardStyle(month.partner, "partner", i) }}
+                          style={{ height: rowHeight, ...getCardStyle(month.you, "you", i) }}
                         >
-                          {month.partner === "none" ? (
+                          {month.you === "none" ? (
                             <span className="text-xl font-light" style={{ color: colors.textDark }}>
                               +
                             </span>
@@ -1577,180 +1654,210 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                                   color: colors.textDark,
                                 }}
                               >
-                                {getLabel(month.partner)}
+                                {getLabel(month.you)}
                               </span>
                               <span className="text-base opacity-30">›</span>
                             </div>
                           )}
                         </button>
-                      )}
 
-                      {/* Sum */}
-                      <div style={{ width: 70 }}>
-                        <span
-                          className="text-sm font-semibold"
-                          style={{ color: total > 0 ? colors.textDark : colors.border }}
-                        >
-                          {total > 0 ? `€${total.toLocaleString("de-DE")}` : "—"}
-                        </span>
+                        {/* Partner Cell */}
+                        {isCouple && (
+                          <button
+                            onClick={(e) => cycleType(i, "partner", e)}
+                            className="flex-1 rounded-xl flex items-center justify-center active:scale-95 cursor-pointer"
+                            style={{ height: rowHeight, ...getCardStyle(month.partner, "partner", i) }}
+                          >
+                            {month.partner === "none" ? (
+                              <span className="text-xl font-light" style={{ color: colors.textDark }}>
+                                +
+                              </span>
+                            ) : (
+                              <div className="flex items-center justify-between w-full px-3">
+                                <span className="text-base opacity-30">‹</span>
+                                <span
+                                  style={{
+                                    fontSize: 12,
+                                    fontWeight: 700,
+                                    letterSpacing: "0.03em",
+                                    color: colors.textDark,
+                                  }}
+                                >
+                                  {getLabel(month.partner)}
+                                </span>
+                                <span className="text-base opacity-30">›</span>
+                              </div>
+                            )}
+                          </button>
+                        )}
+
+                        {/* Sum */}
+                        <div style={{ width: 70 }}>
+                          <span
+                            className="text-sm font-semibold"
+                            style={{ color: total > 0 ? colors.textDark : colors.border }}
+                          >
+                            {total > 0 ? `€${total.toLocaleString("de-DE")}` : "—"}
+                          </span>
+                        </div>
                       </div>
+                    );
+                  })}
+
+                  {/* Add More Months */}
+                  {canAddMore && (
+                    <div className="flex items-center gap-2 mt-1 px-0.5">
+                      <button
+                        onClick={() => addMonths(1)}
+                        className="flex-1 rounded-lg flex items-center justify-center transition-all active:scale-95"
+                        style={{
+                          height: rowHeight,
+                          backgroundColor: "transparent",
+                          border: `1.5px dashed ${colors.border}`,
+                        }}
+                      >
+                        <span className="text-xs font-medium" style={{ color: colors.text }}>
+                          + Add month
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => addMonths(4)}
+                        className="px-4 rounded-lg flex items-center justify-center transition-all active:scale-95"
+                        style={{ height: rowHeight, backgroundColor: colors.white, color: colors.textDark }}
+                      >
+                        <span className="text-xs font-medium">+4</span>
+                      </button>
                     </div>
-                  );
-                })}
-
-                {/* Add More Months */}
-                {canAddMore && (
-                  <div className="flex items-center gap-2 mt-1 px-0.5">
-                    <button
-                      onClick={() => addMonths(1)}
-                      className="flex-1 rounded-lg flex items-center justify-center transition-all active:scale-95"
-                      style={{
-                        height: rowHeight,
-                        backgroundColor: "transparent",
-                        border: `1.5px dashed ${colors.border}`,
-                      }}
-                    >
-                      <span className="text-xs font-medium" style={{ color: colors.text }}>
-                        + Add month
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => addMonths(4)}
-                      className="px-4 rounded-lg flex items-center justify-center transition-all active:scale-95"
-                      style={{ height: rowHeight, backgroundColor: colors.white, color: colors.textDark }}
-                    >
-                      <span className="text-xs font-medium">+4</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-            <div
-              className="absolute bottom-0 left-0 right-0 pointer-events-none"
-              style={{
-                height: 40,
-                background: `linear-gradient(to top, ${colors.tile} 0%, transparent 100%)`,
-                opacity: isAtBottom ? 0 : 1,
-              }}
-            />
-          </div>
-
-          {/* Scroll Track */}
-          <div
-            className="relative rounded-full"
-            style={{ width: 3, height: listHeight, backgroundColor: colors.border }}
-          >
-            <div
-              className="absolute left-0 right-0 rounded-full transition-all"
-              style={{ backgroundColor: colors.orange, height: "25%", top: `${scrollProgress * 75}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Presets & Actions */}
-        <div className="mt-3 pt-3" style={{ borderTop: `1px solid ${colors.border}` }}>
-          <div className="flex justify-between items-center">
-            <div className="flex gap-1.5 flex-wrap">
-              <button
-                onClick={() => setOnboardingOpen(true)}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-all active:scale-95"
-                style={{ backgroundColor: colors.white, color: colors.textDark }}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                  />
-                </svg>
-                Wizard
-              </button>
-              {isCouple ? (
-                <>
-                  <button
-                    onClick={() => applyPreset("12+2")}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
-                    style={{ backgroundColor: colors.white, color: colors.textDark }}
-                  >
-                    12 + 2
-                  </button>
-                  <button
-                    onClick={() => applyPreset("7+7")}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
-                    style={{ backgroundColor: colors.white, color: colors.textDark }}
-                  >
-                    7 + 7
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => applyPreset("12-solo")}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
-                    style={{ backgroundColor: colors.white, color: colors.textDark }}
-                  >
-                    12 Basis
-                  </button>
-                  <button
-                    onClick={() => applyPreset("14-solo")}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
-                    style={{ backgroundColor: colors.white, color: colors.textDark }}
-                  >
-                    14 Basis
-                  </button>
-                </>
-              )}
-              <button
-                onClick={() => applyPreset("clear")}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
-                style={{ backgroundColor: "transparent", color: colors.text, border: `1px solid ${colors.border}` }}
-              >
-                Clear
-              </button>
-            </div>
-
-            {!isLoggedIn && (
-              <button
-                onClick={onSaveClick}
-                className="px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95"
-                style={{ backgroundColor: colors.buttonDark, color: colors.white }}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
-                  />
-                </svg>
-                Save
-              </button>
-            )}
-
-            {isLoggedIn && (
-              <div className="flex items-center gap-1.5">
-                <div
-                  className="w-4 h-4 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: "rgba(26, 182, 137, 0.15)" }}
-                >
-                  <svg
-                    className="w-2.5 h-2.5"
-                    style={{ color: colors.success }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
+                  )}
                 </div>
-                <span className="text-xs" style={{ color: colors.text }}>
-                  Saved!
-                </span>
               </div>
-            )}
+              <div
+                className="absolute bottom-0 left-0 right-0 pointer-events-none"
+                style={{
+                  height: 40,
+                  background: `linear-gradient(to top, ${colors.tile} 0%, transparent 100%)`,
+                  opacity: isAtBottom ? 0 : 1,
+                }}
+              />
+            </div>
+
+            {/* Scroll Track */}
+            <div
+              className="relative rounded-full"
+              style={{ width: 3, height: listHeight, backgroundColor: colors.border }}
+            >
+              <div
+                className="absolute left-0 right-0 rounded-full transition-all"
+                style={{ backgroundColor: colors.orange, height: "25%", top: `${scrollProgress * 75}%` }}
+              />
+            </div>
           </div>
-        </div>
-      </div>
+
+          {/* Presets & Actions */}
+          <div className="mt-3 pt-3" style={{ borderTop: `1px solid ${colors.border}` }}>
+            <div className="flex justify-between items-center">
+              <div className="flex gap-1.5 flex-wrap">
+                <button
+                  onClick={() => setOnboardingOpen(true)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-all active:scale-95"
+                  style={{ backgroundColor: colors.white, color: colors.textDark }}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                    />
+                  </svg>
+                  Wizard
+                </button>
+                {isCouple ? (
+                  <>
+                    <button
+                      onClick={() => applyPreset("12+2")}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
+                      style={{ backgroundColor: colors.white, color: colors.textDark }}
+                    >
+                      12 + 2
+                    </button>
+                    <button
+                      onClick={() => applyPreset("7+7")}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
+                      style={{ backgroundColor: colors.white, color: colors.textDark }}
+                    >
+                      7 + 7
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => applyPreset("12-solo")}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
+                      style={{ backgroundColor: colors.white, color: colors.textDark }}
+                    >
+                      12 Basis
+                    </button>
+                    <button
+                      onClick={() => applyPreset("14-solo")}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
+                      style={{ backgroundColor: colors.white, color: colors.textDark }}
+                    >
+                      14 Basis
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={() => applyPreset("clear")}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95"
+                  style={{ backgroundColor: "transparent", color: colors.text, border: `1px solid ${colors.border}` }}
+                >
+                  Clear
+                </button>
+              </div>
+
+              {!isLoggedIn && (
+                <button
+                  onClick={onSaveClick}
+                  className="px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95"
+                  style={{ backgroundColor: colors.buttonDark, color: colors.white }}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
+                    />
+                  </svg>
+                  Save
+                </button>
+              )}
+
+              {isLoggedIn && (
+                <div className="flex items-center gap-1.5">
+                  <div
+                    className="w-4 h-4 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "rgba(26, 182, 137, 0.15)" }}
+                  >
+                    <svg
+                      className="w-2.5 h-2.5"
+                      style={{ color: colors.success }}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-xs" style={{ color: colors.text }}>
+                    Saved!
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
