@@ -388,7 +388,7 @@ interface PlannerOnboardingProps {
 }
 
 const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, onComplete, applicationType }) => {
-  const [currentStep, setCurrentStep] = useState<number | "result" | "howto">(1);
+  const [currentStep, setCurrentStep] = useState<"intro" | number | "result" | "howto">("intro");
   const [state, setState] = useState<WizardState>({
     youMonths: 12,
     mutterschaftsgeld: null,
@@ -402,7 +402,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
 
   useEffect(() => {
     if (isOpen) {
-      setCurrentStep(1);
+      setCurrentStep("intro");
       setState({
         youMonths: 12,
         mutterschaftsgeld: null,
@@ -424,6 +424,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
   const goBack = () => {
     if (currentStep === "howto") setCurrentStep("result");
     else if (currentStep === "result") goTo(isCouple ? 5 : 3);
+    else if (currentStep === 1) setCurrentStep("intro");
     else if (typeof currentStep === "number" && currentStep > 1) goTo(currentStep - 1);
   };
   const selectMutterschaftsgeld = (value: "yes" | "no") => {
@@ -446,6 +447,8 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
     }
     onClose();
   };
+  const startQuickGuide = () => setCurrentStep(1);
+  const startManual = () => onClose();
   const getYouFill = () => ((state.youMonths - 2) / 26) * 100 + "%";
   const getPartnerFill = () => (state.partnerMonths / 28) * 100 + "%";
 
@@ -453,6 +456,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
 
   const showProgress = typeof currentStep === "number";
   const progressIndex = typeof currentStep === "number" ? currentStep : totalSteps;
+  const showBackButton = currentStep !== "intro";
 
   return (
     <div className="flex flex-col h-full min-h-[400px]">
@@ -461,8 +465,8 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
         <button
           onClick={goBack}
           className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-black/5"
-          style={{ opacity: currentStep === 1 ? 0.3 : 1 }}
-          disabled={currentStep === 1}
+          style={{ opacity: showBackButton ? 1 : 0, pointerEvents: showBackButton ? "auto" : "none" }}
+          disabled={!showBackButton}
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth="2">
             <path d="M15 18l-6-6 6-6" />
@@ -494,6 +498,117 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
 
       {/* Content */}
       <div className="flex-1 flex flex-col px-4 pb-4">
+        {/* Intro */}
+        {currentStep === "intro" && (
+          <div className="flex flex-col flex-1">
+            <div className="flex-1 flex flex-col justify-center">
+              <h2
+                className="text-center mb-2"
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: 22,
+                  fontWeight: 600,
+                  color: colors.textDark,
+                  lineHeight: 1.3,
+                }}
+              >
+                Great! Now let's schedule
+                <br />
+                your months.
+              </h2>
+              <p className="text-center mb-8" style={{ color: colors.text, fontSize: 15 }}>
+                We'll help you distribute your Elterngeld.
+              </p>
+
+              <div className="space-y-3">
+                <button
+                  onClick={startQuickGuide}
+                  className="w-full p-4 rounded-xl text-left transition-all active:scale-[0.98] flex items-start gap-4"
+                  style={{ background: colors.white }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ background: colors.orange }}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      style={{ color: colors.textDark }}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm" style={{ color: colors.textDark }}>
+                      Quick start
+                    </p>
+                    <p className="text-sm mt-0.5" style={{ color: colors.text }}>
+                      Answer {totalSteps} questions, we'll create a starting plan
+                    </p>
+                  </div>
+                  <svg
+                    className="w-5 h-5 mt-2.5 shrink-0"
+                    style={{ color: colors.text }}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+
+                <button
+                  onClick={startManual}
+                  className="w-full p-4 rounded-xl text-left transition-all active:scale-[0.98] flex items-start gap-4"
+                  style={{ background: colors.white }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ background: "#E0DCD4" }}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      style={{ color: colors.textDark }}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm" style={{ color: colors.textDark }}>
+                      Plan manually
+                    </p>
+                    <p className="text-sm mt-0.5" style={{ color: colors.text }}>
+                      Jump straight to the planner and build from scratch
+                    </p>
+                  </div>
+                  <svg
+                    className="w-5 h-5 mt-2.5 shrink-0"
+                    style={{ color: colors.text }}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Step 1: How many months for you */}
         {currentStep === 1 && (
           <div className="flex flex-col flex-1">
@@ -550,13 +665,6 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
               style={{ background: colors.textDark, color: colors.white }}
             >
               Continue
-            </button>
-            <button
-              onClick={onClose}
-              className="w-full text-center mt-3 text-sm transition-colors hover:text-black"
-              style={{ color: colors.text }}
-            >
-              Or plan manually
             </button>
           </div>
         )}
