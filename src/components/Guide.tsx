@@ -2319,30 +2319,61 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 }}
               >
                 <div style={{ marginBottom: "16px" }}>
-                  <span
-                    style={{
-                      color: "#000",
-                      fontSize: "18px",
-                      fontWeight: 700,
-                      fontFamily: fonts.headline,
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    {item.label}
-                  </span>
-                  <div
-                    style={{
-                      backgroundColor: "rgba(255,255,255,0.5)",
-                      borderRadius: "10px",
-                      padding: "10px 12px",
-                      marginTop: "10px",
-                      fontSize: "12px",
-                      lineHeight: 1.4,
-                      color: "rgba(0,0,0,0.75)",
-                    }}
-                  >
-                    {item.info}
+                  <div className="flex items-center justify-between">
+                    <span
+                      style={{
+                        color: "#000",
+                        fontSize: "18px",
+                        fontWeight: 700,
+                        fontFamily: fonts.headline,
+                        letterSpacing: "-0.01em",
+                      }}
+                    >
+                      {item.label}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const newSet = new Set(openTooltips);
+                        if (newSet.has(item.label)) {
+                          newSet.delete(item.label);
+                        } else {
+                          newSet.add(item.label);
+                        }
+                        setOpenTooltips(newSet);
+                      }}
+                      style={{
+                        width: "22px",
+                        height: "22px",
+                        borderRadius: "50%",
+                        backgroundColor: "rgba(255,255,255,0.6)",
+                        border: "none",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        color: "rgba(0,0,0,0.6)",
+                      }}
+                    >
+                      i
+                    </button>
                   </div>
+                  {openTooltips.has(item.label) && (
+                    <div
+                      style={{
+                        backgroundColor: "rgba(255,255,255,0.5)",
+                        borderRadius: "10px",
+                        padding: "10px 12px",
+                        marginTop: "10px",
+                        fontSize: "12px",
+                        lineHeight: 1.4,
+                        color: "rgba(0,0,0,0.75)",
+                      }}
+                    >
+                      {item.info}
+                    </div>
+                  )}
                 </div>
 
                 {isCouple ? (
