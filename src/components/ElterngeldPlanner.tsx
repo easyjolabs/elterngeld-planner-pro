@@ -452,11 +452,11 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
   return (
     <div
       className="absolute inset-0 flex items-center justify-center z-50 rounded-2xl overflow-hidden"
-      style={{ background: "rgba(241, 237, 229, 0.97)" }}
+      style={{ background: "rgba(255, 255, 255, 0.85)" }}
     >
       <div
         className="w-full mx-3 rounded-2xl flex flex-col overflow-hidden shadow-lg"
-        style={{ maxWidth: 360, background: colors.tile, minHeight: currentStep === "result" ? 480 : 340 }}
+        style={{ maxWidth: 360, background: colors.white, minHeight: currentStep === "result" ? 480 : 340 }}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 shrink-0">
@@ -515,7 +515,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
               <div className="flex items-center gap-4">
                 <div className="flex-1">
                   <div className="relative h-6 flex items-center">
-                    <div className="absolute inset-x-0 h-1.5 rounded-full" style={{ background: colors.white }}>
+                    <div className="absolute inset-x-0 h-1.5 rounded-full" style={{ background: colors.tile }}>
                       <div
                         className="h-full rounded-full transition-all"
                         style={{ background: colors.textDark, width: getYouFill() }}
@@ -535,7 +535,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                     <span>28</span>
                   </div>
                 </div>
-                <div className="text-center px-4 py-3 rounded-xl" style={{ background: colors.white, minWidth: 72 }}>
+                <div className="text-center px-4 py-3 rounded-xl" style={{ background: colors.tile, minWidth: 72 }}>
                   <div className="text-2xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {state.youMonths}
                   </div>
@@ -587,7 +587,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                     onClick={() => selectMutterschaftsgeld(val)}
                     className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                     style={{
-                      background: colors.white,
+                      background: colors.tile,
                       borderColor: state.mutterschaftsgeld === val ? colors.textDark : "transparent",
                     }}
                   >
@@ -620,7 +620,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                   onClick={() => selectYouWork("no")}
                   className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                   style={{
-                    background: colors.white,
+                    background: colors.tile,
                     borderColor: state.youWork === "no" ? colors.textDark : "transparent",
                   }}
                 >
@@ -630,7 +630,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                   onClick={() => selectYouWork("yes")}
                   className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                   style={{
-                    background: colors.white,
+                    background: colors.tile,
                     borderColor: state.youWork === "yes" ? colors.textDark : "transparent",
                   }}
                 >
@@ -660,7 +660,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
               <div className="flex items-center gap-4">
                 <div className="flex-1">
                   <div className="relative h-6 flex items-center">
-                    <div className="absolute inset-x-0 h-1.5 rounded-full" style={{ background: colors.white }}>
+                    <div className="absolute inset-x-0 h-1.5 rounded-full" style={{ background: colors.tile }}>
                       <div
                         className="h-full rounded-full transition-all"
                         style={{ background: colors.textDark, width: getPartnerFill() }}
@@ -680,7 +680,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                     <span>28</span>
                   </div>
                 </div>
-                <div className="text-center px-4 py-3 rounded-xl" style={{ background: colors.white, minWidth: 72 }}>
+                <div className="text-center px-4 py-3 rounded-xl" style={{ background: colors.tile, minWidth: 72 }}>
                   <div className="text-2xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {state.partnerMonths}
                   </div>
@@ -721,7 +721,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                   onClick={() => selectPartnerWork("no")}
                   className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                   style={{
-                    background: colors.white,
+                    background: colors.tile,
                     borderColor: state.partnerWork === "no" ? colors.textDark : "transparent",
                   }}
                 >
@@ -731,7 +731,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                   onClick={() => selectPartnerWork("yes")}
                   className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                   style={{
-                    background: colors.white,
+                    background: colors.tile,
                     borderColor: state.partnerWork === "yes" ? colors.textDark : "transparent",
                   }}
                 >
@@ -761,7 +761,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                 You can adjust everything next
               </p>
               <div className="space-y-2">
-                <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: colors.white }}>
+                <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: colors.tile }}>
                   <span className="font-semibold text-sm">You</span>
                   <div className="flex flex-wrap gap-1.5">
                     {calculatedPlan.you.basis > 0 && (
@@ -791,7 +791,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                   </div>
                 </div>
                 {isCouple && calculatedPlan.partner.total > 0 && (
-                  <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: colors.white }}>
+                  <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: colors.tile }}>
                     <span className="font-semibold text-sm">Partner</span>
                     <div className="flex flex-wrap gap-1.5">
                       {calculatedPlan.partner.basis > 0 && (
@@ -824,7 +824,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
               </div>
               <div
                 className="mt-4 p-4 rounded-xl text-sm leading-relaxed"
-                style={{ background: colors.white, color: colors.text }}
+                style={{ background: colors.tile, color: colors.text }}
               >
                 {calculatedPlan.explanation}
               </div>
@@ -862,7 +862,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen, errors, onClose, onCont
   return (
     <div
       className="absolute inset-0 flex items-center justify-center z-50 rounded-2xl overflow-hidden"
-      style={{ background: "rgba(241, 237, 229, 0.97)" }}
+      style={{ background: "rgba(255, 255, 255, 0.85)" }}
     >
       <div
         className="w-full mx-3 rounded-2xl flex flex-col overflow-hidden shadow-lg"
@@ -1269,24 +1269,33 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
       errorMonths.includes(monthIndex) && lastEditedCell?.month === monthIndex && lastEditedCell?.person === person;
     const base = { transition: "all 0.15s ease" };
 
-    if (type === "none") return { ...base, backgroundColor: colors.white, border: `1.5px dashed ${colors.border}` };
+    if (type === "none")
+      return {
+        ...base,
+        backgroundColor: "#FAFAF8",
+        border: `1px solid #E0DCD4`,
+        boxShadow: "inset 0 1px 2px rgba(0,0,0,0.04)",
+      };
     if (type === "basis")
       return {
         ...base,
-        backgroundColor: hasError ? colors.errorBg : "rgba(192, 99, 11, 0.85)",
+        backgroundColor: hasError ? colors.errorBg : "rgba(192, 99, 11, 0.9)",
         border: hasError ? `2px solid ${colors.error}` : "none",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
       };
     if (type === "plus")
       return {
         ...base,
-        backgroundColor: hasError ? colors.errorBg : "rgba(252, 99, 27, 0.85)",
+        backgroundColor: hasError ? colors.errorBg : "rgba(252, 99, 27, 0.9)",
         border: hasError ? `2px solid ${colors.error}` : "none",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
       };
     if (type === "bonus")
       return {
         ...base,
-        backgroundColor: hasError ? colors.errorBg : "rgba(255, 189, 240, 0.85)",
+        backgroundColor: hasError ? colors.errorBg : "rgba(255, 189, 240, 0.9)",
         border: hasError ? `2px solid ${colors.error}` : "none",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
       };
     return base;
   };
@@ -1316,7 +1325,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
         />
       )}
 
-      <div className="py-3">
+      <div className="rounded-2xl p-4" style={{ backgroundColor: colors.white, border: `1px solid ${colors.border}` }}>
         {/* Status Bar */}
         <div className="mb-3 flex items-stretch gap-2" style={{ minHeight: 52 }}>
           {isEmpty ? (
@@ -1488,7 +1497,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
               className="absolute top-0 left-0 right-0 pointer-events-none z-10"
               style={{
                 height: 32,
-                background: `linear-gradient(to bottom, ${colors.background} 0%, transparent 100%)`,
+                background: `linear-gradient(to bottom, ${colors.white} 0%, transparent 100%)`,
                 opacity: isAtTop ? 0 : 1,
               }}
             />
@@ -1534,7 +1543,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                         style={{ height: rowHeight, ...getCardStyle(month.you, "you", i) }}
                       >
                         {month.you === "none" ? (
-                          <span className="text-lg" style={{ color: colors.border }}>
+                          <span className="text-xl font-light" style={{ color: "#C4B5A3" }}>
                             +
                           </span>
                         ) : (
@@ -1563,7 +1572,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                           style={{ height: rowHeight, ...getCardStyle(month.partner, "partner", i) }}
                         >
                           {month.partner === "none" ? (
-                            <span className="text-lg" style={{ color: colors.border }}>
+                            <span className="text-xl font-light" style={{ color: "#C4B5A3" }}>
                               +
                             </span>
                           ) : (
@@ -1629,7 +1638,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
               className="absolute bottom-0 left-0 right-0 pointer-events-none"
               style={{
                 height: 40,
-                background: `linear-gradient(to top, ${colors.background} 0%, transparent 100%)`,
+                background: `linear-gradient(to top, ${colors.white} 0%, transparent 100%)`,
                 opacity: isAtBottom ? 0 : 1,
               }}
             />
