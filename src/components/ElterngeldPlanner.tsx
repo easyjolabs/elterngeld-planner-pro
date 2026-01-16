@@ -808,7 +808,13 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
     setPlannerData(newData);
     setLastEditedCell(null);
     // Expand displayed months if wizard result needs more
-    const lastFilledMonth = newData.findLastIndex((m) => m.you !== "none" || m.partner !== "none");
+    let lastFilledMonth = -1;
+    for (let i = newData.length - 1; i >= 0; i--) {
+      if (newData[i].you !== "none" || newData[i].partner !== "none") {
+        lastFilledMonth = i;
+        break;
+      }
+    }
     if (lastFilledMonth >= displayedMonths) {
       setDisplayedMonths(Math.min(lastFilledMonth + 2, plannerMonths));
     }
@@ -925,14 +931,20 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
       });
     }
 
-    // INLINE: Plus/Bonus after month 14 must be continuous
+    // INLINE: Plus/Bonus after month 14 must be continuous (no gaps between activities)
     if (displayedMonths > 14) {
-      let hadActivityAfter14 = false;
+      // Find all activity indices after month 14
+      const activityIndicesAfter14: number[] = [];
       for (let i = 14; i < displayedMonths; i++) {
-        const monthHasActivity = plannerVisibleData[i]?.you !== "none" || plannerVisibleData[i]?.partner !== "none";
-        if (monthHasActivity) hadActivityAfter14 = true;
-        if (hadActivityAfter14 && !monthHasActivity) {
-          addRowError(i, "Months after 14 must be continuous.");
+        if (plannerVisibleData[i]?.you !== "none" || plannerVisibleData[i]?.partner !== "none") {
+          activityIndicesAfter14.push(i);
+        }
+      }
+      // Check for gaps between activities
+      for (let j = 1; j < activityIndicesAfter14.length; j++) {
+        if (activityIndicesAfter14[j] !== activityIndicesAfter14[j - 1] + 1) {
+          // There's a gap - mark the first empty month after the previous activity
+          addRowError(activityIndicesAfter14[j - 1] + 1, "Months after 14 must be continuous.");
           break;
         }
       }
