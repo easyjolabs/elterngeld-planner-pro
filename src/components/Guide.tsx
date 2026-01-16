@@ -110,7 +110,7 @@ const colors = {
   white: "#FFFFFF",
   text: "#666666",
   textDark: "#000000",
-  userBubble: "#FFFFFF",
+  userBubble: "#F1EDE5",
   border: "#E7E5E4",
   borderLight: "#F5F5F4",
   orange: "#FF8752",
