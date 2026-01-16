@@ -1060,7 +1060,7 @@ const HorizontalTimeline: React.FC<HorizontalTimelineProps> = ({
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                    d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
                   />
                 </svg>
               </div>
@@ -1351,7 +1351,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
           )}
 
           {/* Info Bar - Two rows */}
-          <div className="pt-6 pb-3 space-y-2">
+          <div className="pt-2 pb-4 space-y-1">
             {/* Row 1: Hints or Budget Status */}
             <div className="flex items-center gap-3">
               {totalBudget === 0 ? (
@@ -1485,9 +1485,9 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
 
             {/* Row 2: Errors (if any) */}
             {hasErrors && (
-              <div className="flex items-center gap-2 px-1">
+              <div className="flex items-center gap-2">
                 <svg
-                  className="w-4 h-4 shrink-0"
+                  className="w-5 h-5 shrink-0"
                   style={{ color: colors.error }}
                   fill="none"
                   stroke="currentColor"
@@ -1500,7 +1500,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                   />
                 </svg>
-                <span className="text-xs" style={{ color: colors.error }}>
+                <span className="text-sm" style={{ color: colors.error }}>
                   {globalErrors[0] || Array.from(rowErrors.values())[0]?.[0]}
                 </span>
               </div>
@@ -1553,7 +1553,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                    d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
                   />
                 </svg>
                 <span className="text-xs" style={{ color: colors.text }}>
