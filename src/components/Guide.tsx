@@ -99,7 +99,7 @@ const colors = {
   white: "#FFFFFF",
   text: "#666666",
   textDark: "#000000",
-  userBubble: "#FFFFEB",
+  userBubble: "#F1EDE5",
   border: "#E7E5E4",
   borderLight: "#F5F5F4",
   orange: "#FF8752",
@@ -1460,17 +1460,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({
       const targetScrollTop = userMsgTop - 70;
       const neededSpace = containerHeight - (totalContentHeight - targetScrollTop);
       const newSpacerHeight = Math.max(0, neededSpace);
-
-      console.log('[Spacer Debug]', {
-        containerHeight,
-        userMsgTop,
-        currentSpacerHeight,
-        totalContentHeight,
-        targetScrollTop,
-        neededSpace,
-        newSpacerHeight,
-        scrollHeight: container.scrollHeight
-      });
 
       if (newSpacerHeight !== spacerHeightRef.current) {
         spacerHeightRef.current = newSpacerHeight;
