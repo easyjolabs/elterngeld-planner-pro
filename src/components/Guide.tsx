@@ -1242,6 +1242,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
   const [lastUserMessageIndex, setLastUserMessageIndex] = useState<number>(-1);
   const [shouldScrollToUser, setShouldScrollToUser] = useState(false);
+  const [spacerHeight, setSpacerHeight] = useState(0);
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
   const spacerObserverRef = useRef<MutationObserver | null>(null);
@@ -1434,7 +1435,43 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({
       setShowScrollButton(false);
     }
   }, []);
-  const spacerHeight = lastUserMessageIndex >= 0 ? window.innerHeight : 0;
+
+  // Dynamic spacer calculation - only as much space as needed to scroll user message to top
+  const spacerHeightRef = useRef(0);
+  useEffect(() => {
+    if (lastUserMessageIndex < 0 || !scrollRef.current || !lastUserMessageRef.current) {
+      spacerHeightRef.current = 0;
+      setSpacerHeight(0);
+      return;
+    }
+
+    const calculateSpacer = () => {
+      const container = scrollRef.current;
+      const userMsg = lastUserMessageRef.current;
+      const spacer = spacerRef.current;
+      if (!container || !userMsg) return;
+
+      const containerHeight = container.clientHeight;
+      const userMsgTop = userMsg.offsetTop;
+      const currentSpacerHeight = spacer?.offsetHeight || 0;
+      const totalContentHeight = container.scrollHeight - currentSpacerHeight;
+
+      // How much space needed so user message can scroll to ~70px from top
+      const targetScrollTop = userMsgTop - 70;
+      const neededSpace = containerHeight - (totalContentHeight - targetScrollTop);
+      const newSpacerHeight = Math.max(0, neededSpace);
+
+      if (newSpacerHeight !== spacerHeightRef.current) {
+        spacerHeightRef.current = newSpacerHeight;
+        setSpacerHeight(newSpacerHeight);
+      }
+    };
+
+    // Small delay to ensure DOM is updated
+    const timer = setTimeout(calculateSpacer, 50);
+    return () => clearTimeout(timer);
+  }, [messages, isTyping, isStreaming, lastUserMessageIndex]);
+
   const scrollToBottom = () => {
     spacerObserverRef.current?.disconnect();
     spacerObserverRef.current = null;
@@ -1475,6 +1512,8 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({
     setWorkPartTime(false);
     setPartTimeIncome(0);
     setPartnerPartTimeIncome(0);
+    setSpacerHeight(0);
+    spacerHeightRef.current = 0;
     spacerObserverRef.current?.disconnect();
     spacerObserverRef.current = null;
   }, []);
@@ -3560,10 +3599,9 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 height: 1
               }} />
 
-                  {spacerHeight > 0 && <div style={{
-                height: spacerHeight
-              }} />}
-                </>}
+                  {spacerHeight > 0 && <div ref={spacerRef} style={{ height: spacerHeight }} />}
+                </>
+              )}
             </div>
           </div>
         </div>
