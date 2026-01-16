@@ -1257,7 +1257,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
 
   // Layout
   const rowHeight = 40;
-  const rowGap = 4;
+  const rowGap = 8;
   const visibleRows = 7;
   const listHeight = rowHeight * visibleRows + rowGap * (visibleRows - 1);
   const isAtBottom = scrollProgress > 0.95;
@@ -1273,23 +1273,20 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
     if (type === "basis")
       return {
         ...base,
-        backgroundColor: hasError ? colors.errorBg : "rgba(192, 99, 11, 0.9)",
+        backgroundColor: hasError ? colors.errorBg : colors.orange,
         border: hasError ? `2px solid ${colors.error}` : "none",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
       };
     if (type === "plus")
       return {
         ...base,
-        backgroundColor: hasError ? colors.errorBg : "rgba(252, 99, 27, 0.9)",
+        backgroundColor: hasError ? colors.errorBg : colors.yellow,
         border: hasError ? `2px solid ${colors.error}` : "none",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
       };
     if (type === "bonus")
       return {
         ...base,
-        backgroundColor: hasError ? colors.errorBg : "rgba(255, 189, 240, 0.9)",
+        backgroundColor: hasError ? colors.errorBg : "#D0B080",
         border: hasError ? `2px solid ${colors.error}` : "none",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
       };
     return base;
   };
@@ -1458,8 +1455,8 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
         </div>
 
         {/* Column Headers */}
-        <div className="flex items-center mb-1.5 px-0.5" style={{ gap: 6 }}>
-          <div style={{ width: 22 }}>
+        <div className="flex items-center mb-2 px-0.5" style={{ gap: 12 }}>
+          <div style={{ width: 24 }}>
             <span className="text-xs font-semibold" style={{ color: colors.text }}>
               #
             </span>
@@ -1485,7 +1482,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
         </div>
 
         {/* Month Rows - Scrollable */}
-        <div className="relative flex" style={{ gap: 6 }}>
+        <div className="relative flex" style={{ gap: 8 }}>
           <div className="relative flex-1">
             <div
               className="absolute top-0 left-0 right-0 pointer-events-none z-10"
@@ -1523,8 +1520,8 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                   const total = youAmt + partnerAmt;
 
                   return (
-                    <div key={i} className="flex items-center px-0.5" style={{ gap: 6, height: rowHeight }}>
-                      <div style={{ width: 22 }}>
+                    <div key={i} className="flex items-center px-0.5" style={{ gap: 12, height: rowHeight }}>
+                      <div style={{ width: 24 }}>
                         <span className="text-xs font-bold" style={{ color: colors.textDark }}>
                           {i + 1}
                         </span>
@@ -1542,18 +1539,13 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                           </span>
                         ) : (
                           <div className="flex items-center justify-between w-full px-2">
-                            <span className="text-base opacity-50">‹</span>
+                            <span className="text-base opacity-30">‹</span>
                             <span
-                              style={{
-                                fontSize: 10,
-                                fontWeight: 700,
-                                letterSpacing: "0.05em",
-                                color: month.you === "bonus" ? colors.textDark : colors.white,
-                              }}
+                              style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.03em", color: colors.textDark }}
                             >
                               {getLabel(month.you)}
                             </span>
-                            <span className="text-base opacity-50">›</span>
+                            <span className="text-base opacity-30">›</span>
                           </div>
                         )}
                       </button>
@@ -1571,18 +1563,18 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                             </span>
                           ) : (
                             <div className="flex items-center justify-between w-full px-2">
-                              <span className="text-base opacity-50">‹</span>
+                              <span className="text-base opacity-30">‹</span>
                               <span
                                 style={{
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: 700,
-                                  letterSpacing: "0.05em",
-                                  color: month.partner === "bonus" ? colors.textDark : colors.white,
+                                  letterSpacing: "0.03em",
+                                  color: colors.textDark,
                                 }}
                               >
                                 {getLabel(month.partner)}
                               </span>
-                              <span className="text-base opacity-50">›</span>
+                              <span className="text-base opacity-30">›</span>
                             </div>
                           )}
                         </button>
