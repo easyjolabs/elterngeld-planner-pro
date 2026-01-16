@@ -501,110 +501,92 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
         {/* Intro */}
         {currentStep === "intro" && (
           <div className="flex flex-col flex-1">
-            <div className="flex-1 flex flex-col justify-center">
-              <h2
-                className="text-center mb-2"
-                style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: 22,
-                  fontWeight: 600,
-                  color: colors.textDark,
-                  lineHeight: 1.3,
-                }}
-              >
-                Great! Now let's schedule
-                <br />
-                your months.
-              </h2>
-              <p className="text-center mb-8" style={{ color: colors.text, fontSize: 15 }}>
-                We'll help you distribute your Elterngeld.
-              </p>
-
-              <div className="space-y-3">
-                <button
-                  onClick={startQuickGuide}
-                  className="w-full p-4 rounded-xl text-left transition-all active:scale-[0.98] flex items-start gap-4"
-                  style={{ background: colors.white }}
-                >
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ background: colors.orange }}
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      style={{ color: colors.textDark }}
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
+            {/* Planner Preview */}
+            <div className="flex-1">
+              {/* Column Headers */}
+              <div className="flex items-center mb-2 px-1" style={{ gap: 20 }}>
+                <div style={{ width: 28 }}>
+                  <span className="text-sm font-semibold" style={{ color: colors.text }}>
+                    #
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <span className="text-sm font-semibold" style={{ color: colors.text }}>
+                    You
+                  </span>
+                </div>
+                {isCouple && (
                   <div className="flex-1">
-                    <p className="font-semibold text-sm" style={{ color: colors.textDark }}>
-                      Quick start
-                    </p>
-                    <p className="text-sm mt-0.5" style={{ color: colors.text }}>
-                      Answer {totalSteps} questions, we'll create a starting plan
-                    </p>
+                    <span className="text-sm font-semibold" style={{ color: colors.text }}>
+                      Partner
+                    </span>
                   </div>
-                  <svg
-                    className="w-5 h-5 mt-2.5 shrink-0"
-                    style={{ color: colors.text }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-
-                <button
-                  onClick={startManual}
-                  className="w-full p-4 rounded-xl text-left transition-all active:scale-[0.98] flex items-start gap-4"
-                  style={{ background: colors.white }}
-                >
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ background: "#E0DCD4" }}
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      style={{ color: colors.textDark }}
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm" style={{ color: colors.textDark }}>
-                      Plan manually
-                    </p>
-                    <p className="text-sm mt-0.5" style={{ color: colors.text }}>
-                      Jump straight to the planner and build from scratch
-                    </p>
-                  </div>
-                  <svg
-                    className="w-5 h-5 mt-2.5 shrink-0"
-                    style={{ color: colors.text }}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
+                )}
+                <div style={{ width: 70 }}>
+                  <span className="text-sm font-semibold" style={{ color: colors.text }}>
+                    Monthly
+                  </span>
+                </div>
               </div>
+
+              {/* Preview Rows */}
+              <div className="flex flex-col" style={{ gap: 10 }}>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex items-center px-1" style={{ gap: 20, height: 44 }}>
+                    <div style={{ width: 28 }}>
+                      <span className="text-sm font-bold" style={{ color: colors.textDark }}>
+                        {i}
+                      </span>
+                    </div>
+                    <div
+                      className="flex-1 rounded-xl flex items-center justify-center"
+                      style={{ height: 44, backgroundColor: colors.white }}
+                    >
+                      <span className="text-xl font-light" style={{ color: colors.textDark }}>
+                        +
+                      </span>
+                    </div>
+                    {isCouple && (
+                      <div
+                        className="flex-1 rounded-xl flex items-center justify-center"
+                        style={{ height: 44, backgroundColor: colors.white }}
+                      >
+                        <span className="text-xl font-light" style={{ color: colors.textDark }}>
+                          +
+                        </span>
+                      </div>
+                    )}
+                    <div style={{ width: 70 }}>
+                      <span className="text-sm font-semibold" style={{ color: colors.border }}>
+                        —
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA Section */}
+            <div className="mt-6">
+              <p className="text-center mb-4" style={{ color: colors.text, fontSize: 14, lineHeight: 1.5 }}>
+                Elterngeld rules are complex – let us
+                <br />
+                suggest a starting plan for you.
+              </p>
+              <button
+                onClick={startQuickGuide}
+                className="w-full py-4 rounded-xl font-semibold transition-transform active:scale-[0.98]"
+                style={{ background: colors.textDark, color: colors.white }}
+              >
+                Get recommendation
+              </button>
+              <button
+                onClick={startManual}
+                className="w-full text-center mt-3 text-sm transition-colors hover:text-black"
+                style={{ color: colors.text }}
+              >
+                or plan manually
+              </button>
             </div>
           </div>
         )}
