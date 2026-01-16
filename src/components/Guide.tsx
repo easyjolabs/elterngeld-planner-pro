@@ -99,7 +99,7 @@ const colors = {
   white: "#FFFFFF",
   text: "#666666",
   textDark: "#000000",
-  userBubble: "#F1EDE5",
+  userBubble: "#FFFFEB",
   border: "#E7E5E4",
   borderLight: "#F5F5F4",
   orange: "#FF8752",
