@@ -20,6 +20,17 @@ export interface ElterngeldPlannerProps {
   onSaveClick: () => void;
   fullscreen?: boolean;
   onFullscreenToggle?: () => void;
+  // Error Modal
+  showErrorModal?: boolean;
+  onErrorModalClose?: () => void;
+  onContinueAnyway?: () => void;
+}
+
+export interface ValidationResult {
+  hasErrors: boolean;
+  errors: string[];
+  totalBudget: number;
+  maxBudget: number;
 }
 
 // ===========================================
@@ -57,6 +68,142 @@ const RULES = {
   BONUS_MONTHS: 4,
   MUTTERSCHUTZ_MONTHS: 2,
 };
+
+// ===========================================
+// EXPORTED VALIDATION FUNCTION
+// ===========================================
+export function validatePlannerData(
+  plannerData: PlannerMonth[],
+  displayedMonths: number,
+  applicationType: "couple" | "single",
+  premature?: string,
+): ValidationResult {
+  const plannerVisibleData = plannerData.slice(0, displayedMonths);
+  const isCouple = applicationType === "couple";
+
+  const countMonths = (person: "you" | "partner", type: string) =>
+    plannerVisibleData.filter((m) => m[person] === type).length;
+
+  const youBasis = countMonths("you", "basis");
+  const youPlus = countMonths("you", "plus");
+  const youBonus = countMonths("you", "bonus");
+  const partnerBasis = isCouple ? countMonths("partner", "basis") : 0;
+  const partnerPlus = isCouple ? countMonths("partner", "plus") : 0;
+  const partnerBonus = isCouple ? countMonths("partner", "bonus") : 0;
+
+  const youBudget = youBasis + youPlus / 2;
+  const partnerBudget = partnerBasis + partnerPlus / 2;
+  const totalBudget = youBudget + partnerBudget;
+
+  const getPrematureExtra = () => {
+    switch (premature) {
+      case "6weeks":
+        return 1;
+      case "8weeks":
+        return 2;
+      case "12weeks":
+        return 3;
+      case "16weeks":
+        return 4;
+      default:
+        return 0;
+    }
+  };
+  const maxBudget = 14 + getPrematureExtra();
+
+  const errors: string[] = [];
+  const hasMultiples = false;
+
+  // Budget overflow
+  if (totalBudget > maxBudget) {
+    errors.push(`Exceeded ${maxBudget}-month limit (${totalBudget}).`);
+  }
+
+  // Max Bonus months
+  if (youBonus > 4) errors.push(`Max 4 bonus months (you have ${youBonus})`);
+  if (partnerBonus > 4) errors.push(`Partner max 4 bonus months`);
+
+  // Single parent must have at least 2 months
+  if (!isCouple && youBasis + youPlus + youBonus < 2 && youBasis + youPlus + youBonus > 0) {
+    errors.push("Single parents must take at least 2 months");
+  }
+
+  // Minimum 2 months per parent (couples)
+  if (isCouple) {
+    const youTotal = youBasis + youPlus + youBonus;
+    const partnerTotal = partnerBasis + partnerPlus + partnerBonus;
+    if (youTotal > 0 && youTotal < 2) errors.push("You must claim at least 2 months.");
+    if (partnerTotal > 0 && partnerTotal < 2) errors.push("Partner must claim at least 2 months.");
+  }
+
+  // Each parent max 12 Basis months
+  if (isCouple && !hasMultiples) {
+    if (youBasis > 12) errors.push("Max 12 Basis months per parent.");
+    if (partnerBasis > 12) errors.push("Partner max 12 Basis months.");
+  }
+
+  // Basiselterngeld only in months 1-14
+  const basisAfter14 = plannerVisibleData.some((m, i) => i >= 14 && (m.you === "basis" || m.partner === "basis"));
+  if (basisAfter14) errors.push("Basis only allowed in months 1–14.");
+
+  // Parallel Basiselterngeld limited
+  if (isCouple && !hasMultiples) {
+    const parallelBasisCount = plannerVisibleData.filter((m) => m.you === "basis" && m.partner === "basis").length;
+    if (parallelBasisCount > 1) errors.push("Both can only take Basis together for 1 month.");
+    const parallelBasisAfter12 = plannerVisibleData.some(
+      (m, i) => i >= 12 && m.you === "basis" && m.partner === "basis",
+    );
+    if (parallelBasisAfter12) errors.push("Simultaneous Basis only in months 1–12.");
+  }
+
+  // Plus/Bonus after month 14 must be continuous
+  if (displayedMonths > 14) {
+    const activityIndicesAfter14: number[] = [];
+    for (let i = 14; i < displayedMonths; i++) {
+      if (plannerVisibleData[i]?.you !== "none" || plannerVisibleData[i]?.partner !== "none") {
+        activityIndicesAfter14.push(i);
+      }
+    }
+    for (let j = 1; j < activityIndicesAfter14.length; j++) {
+      if (activityIndicesAfter14[j] !== activityIndicesAfter14[j - 1] + 1) {
+        errors.push("Months after 14 must be continuous (no gaps).");
+        break;
+      }
+    }
+  }
+
+  // Bonus rules
+  if (isCouple) {
+    const bonusIndices = plannerVisibleData
+      .map((m, i) => (m.you === "bonus" || m.partner === "bonus" ? i : -1))
+      .filter((i) => i >= 0);
+
+    if (bonusIndices.length > 0) {
+      const notParallel = plannerVisibleData.some(
+        (m) => (m.you === "bonus" && m.partner !== "bonus") || (m.partner === "bonus" && m.you !== "bonus"),
+      );
+      let notConsecutive = false;
+      for (let j = 1; j < bonusIndices.length; j++) {
+        if (bonusIndices[j] !== bonusIndices[j - 1] + 1) {
+          notConsecutive = true;
+          break;
+        }
+      }
+      const lessThan2 = bonusIndices.length < 2;
+
+      if (notParallel) errors.push("Bonus months must be taken by both parents together.");
+      if (notConsecutive) errors.push("Bonus months must be consecutive.");
+      if (lessThan2) errors.push("Minimum 2 bonus months required.");
+    }
+  }
+
+  return {
+    hasErrors: errors.length > 0,
+    errors,
+    totalBudget,
+    maxBudget,
+  };
+}
 
 // ===========================================
 // WIZARD HELPER FUNCTIONS
@@ -700,6 +847,116 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
 };
 
 // ===========================================
+// ERROR MODAL
+// ===========================================
+interface ErrorModalProps {
+  isOpen: boolean;
+  errors: string[];
+  onClose: () => void;
+  onContinueAnyway: () => void;
+}
+
+const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen, errors, onClose, onContinueAnyway }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="absolute inset-0 flex items-center justify-center z-50 rounded-2xl overflow-hidden"
+      style={{ background: "rgba(240, 238, 230, 0.97)" }}
+    >
+      <div
+        className="w-full mx-3 rounded-2xl flex flex-col overflow-hidden shadow-lg"
+        style={{ maxWidth: 360, background: colors.white }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-end p-4 shrink-0">
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-black/5"
+            style={{ opacity: 0.6 }}
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={colors.textDark} strokeWidth="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="px-7 pb-7">
+          {/* Warning Icon & Title */}
+          <div className="text-center mb-5">
+            <div
+              className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-3"
+              style={{ background: colors.errorBg }}
+            >
+              <svg
+                className="w-6 h-6"
+                style={{ color: colors.error }}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <h2
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: 19,
+                fontWeight: 600,
+                color: colors.textDark,
+              }}
+            >
+              Your plan has issues
+            </h2>
+          </div>
+
+          {/* Error List */}
+          <div className="mb-5 p-4 rounded-xl" style={{ background: colors.errorBg }}>
+            <ul className="space-y-2">
+              {errors.map((error, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm" style={{ color: colors.error }}>
+                  <span className="shrink-0 mt-0.5">•</span>
+                  <span>{error}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Warning Text */}
+          <p className="text-center text-sm mb-6" style={{ color: colors.text }}>
+            You can continue, but your application may be rejected.
+          </p>
+
+          {/* Buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              className="flex-1 py-3 rounded-xl font-semibold transition-transform active:scale-[0.98]"
+              style={{ background: colors.textDark, color: colors.white }}
+            >
+              Fix errors
+            </button>
+            <button
+              onClick={onContinueAnyway}
+              className="flex-1 py-3 rounded-xl font-semibold transition-transform active:scale-[0.98]"
+              style={{ background: colors.tile, color: colors.textDark }}
+            >
+              Continue anyway
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ===========================================
 // MAIN PLANNER COMPONENT
 // ===========================================
 const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
@@ -714,6 +971,9 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
   onSaveClick,
   fullscreen,
   onFullscreenToggle,
+  showErrorModal,
+  onErrorModalClose,
+  onContinueAnyway,
 }) => {
   // State
   const [lastEditedCell, setLastEditedCell] = useState<{ month: number; person: "you" | "partner" } | null>(null);
@@ -1051,6 +1311,15 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
         onComplete={handleOnboardingComplete}
         applicationType={applicationType}
       />
+
+      {showErrorModal && onErrorModalClose && onContinueAnyway && (
+        <ErrorModal
+          isOpen={showErrorModal}
+          errors={[...globalErrors, ...Array.from(rowErrors.values()).flat()]}
+          onClose={onErrorModalClose}
+          onContinueAnyway={onContinueAnyway}
+        />
+      )}
 
       <div className="py-3">
         {/* Status Bar */}
