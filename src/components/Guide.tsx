@@ -1461,6 +1461,17 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({
       const neededSpace = containerHeight - (totalContentHeight - targetScrollTop);
       const newSpacerHeight = Math.max(0, neededSpace);
 
+      console.log('[Spacer Debug]', {
+        containerHeight,
+        userMsgTop,
+        currentSpacerHeight,
+        totalContentHeight,
+        targetScrollTop,
+        neededSpace,
+        newSpacerHeight,
+        scrollHeight: container.scrollHeight
+      });
+
       if (newSpacerHeight !== spacerHeightRef.current) {
         spacerHeightRef.current = newSpacerHeight;
         setSpacerHeight(newSpacerHeight);
