@@ -304,12 +304,12 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50 p-5"
-      style={{ background: "rgba(250, 250, 249, 0.9)" }}
+      className="absolute inset-0 flex items-center justify-center z-50 rounded-2xl overflow-hidden"
+      style={{ background: "rgba(240, 238, 230, 0.97)" }}
     >
       <div
-        className="w-full rounded-3xl flex flex-col overflow-hidden shadow-xl"
-        style={{ maxWidth: 400, background: colors.tile, minHeight: currentStep === "result" ? 520 : 360 }}
+        className="w-full mx-3 rounded-2xl flex flex-col overflow-hidden shadow-lg"
+        style={{ maxWidth: 360, background: colors.tile, minHeight: currentStep === "result" ? 480 : 340 }}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 shrink-0">
@@ -808,13 +808,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
     setPlannerData(newData);
     setLastEditedCell(null);
     // Expand displayed months if wizard result needs more
-    let lastFilledMonth = -1;
-    for (let i = newData.length - 1; i >= 0; i--) {
-      if (newData[i].you !== "none" || newData[i].partner !== "none") {
-        lastFilledMonth = i;
-        break;
-      }
-    }
+    const lastFilledMonth = newData.findLastIndex((m) => m.you !== "none" || m.partner !== "none");
     if (lastFilledMonth >= displayedMonths) {
       setDisplayedMonths(Math.min(lastFilledMonth + 2, plannerMonths));
     }
@@ -1038,7 +1032,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
   };
 
   return (
-    <>
+    <div className="relative">
       <PlannerOnboarding
         isOpen={onboardingOpen}
         onClose={() => setOnboardingOpen(false)}
@@ -1481,7 +1475,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
