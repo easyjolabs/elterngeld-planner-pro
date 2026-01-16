@@ -38,7 +38,7 @@ export interface ValidationResult {
 // ===========================================
 const colors = {
   background: "#FAFAF9",
-  tile: "#F0EEE6",
+  tile: "#F1EDE5",
   text: "#57534E",
   textDark: "#000000",
   white: "#FFFFFF",
@@ -452,7 +452,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
   return (
     <div
       className="absolute inset-0 flex items-center justify-center z-50 rounded-2xl overflow-hidden"
-      style={{ background: "rgba(240, 238, 230, 0.97)" }}
+      style={{ background: "rgba(241, 237, 229, 0.97)" }}
     >
       <div
         className="w-full mx-3 rounded-2xl flex flex-col overflow-hidden shadow-lg"
@@ -862,7 +862,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen, errors, onClose, onCont
   return (
     <div
       className="absolute inset-0 flex items-center justify-center z-50 rounded-2xl overflow-hidden"
-      style={{ background: "rgba(240, 238, 230, 0.97)" }}
+      style={{ background: "rgba(241, 237, 229, 0.97)" }}
     >
       <div
         className="w-full mx-3 rounded-2xl flex flex-col overflow-hidden shadow-lg"
@@ -1267,31 +1267,26 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
   const getCardStyle = (type: "none" | "basis" | "plus" | "bonus", person: "you" | "partner", monthIndex: number) => {
     const hasError =
       errorMonths.includes(monthIndex) && lastEditedCell?.month === monthIndex && lastEditedCell?.person === person;
-    const base = { transition: "all 0.15s ease", backdropFilter: "blur(8px)" };
+    const base = { transition: "all 0.15s ease" };
 
-    if (type === "none")
-      return {
-        ...base,
-        backgroundColor: hasError ? "rgba(254, 202, 202, 0.5)" : "rgba(255, 255, 255, 0.5)",
-        border: hasError ? `1.5px solid ${colors.error}` : `1.5px dashed ${colors.border}`,
-      };
+    if (type === "none") return { ...base, backgroundColor: colors.white, border: `1.5px dashed ${colors.border}` };
     if (type === "basis")
       return {
         ...base,
-        backgroundColor: hasError ? "rgba(254, 202, 202, 0.5)" : "rgba(192, 99, 11, 0.85)",
-        border: hasError ? `1.5px solid ${colors.error}` : "none",
+        backgroundColor: hasError ? colors.errorBg : "rgba(192, 99, 11, 0.85)",
+        border: hasError ? `2px solid ${colors.error}` : "none",
       };
     if (type === "plus")
       return {
         ...base,
-        backgroundColor: hasError ? "rgba(254, 202, 202, 0.5)" : "rgba(252, 99, 27, 0.85)",
-        border: hasError ? `1.5px solid ${colors.error}` : "none",
+        backgroundColor: hasError ? colors.errorBg : "rgba(252, 99, 27, 0.85)",
+        border: hasError ? `2px solid ${colors.error}` : "none",
       };
     if (type === "bonus")
       return {
         ...base,
-        backgroundColor: hasError ? "rgba(254, 202, 202, 0.5)" : "rgba(255, 189, 240, 0.85)",
-        border: hasError ? `1.5px solid ${colors.error}` : "none",
+        backgroundColor: hasError ? colors.errorBg : "rgba(255, 189, 240, 0.85)",
+        border: hasError ? `2px solid ${colors.error}` : "none",
       };
     return base;
   };
@@ -1647,7 +1642,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
           >
             <div
               className="absolute left-0 right-0 rounded-full transition-all"
-              style={{ backgroundColor: colors.basis, height: "25%", top: `${scrollProgress * 75}%` }}
+              style={{ backgroundColor: colors.orange, height: "25%", top: `${scrollProgress * 75}%` }}
             />
           </div>
         </div>
