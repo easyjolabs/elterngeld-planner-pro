@@ -452,11 +452,16 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
   return (
     <div
       className="absolute inset-0 flex items-center justify-center z-50 rounded-2xl overflow-hidden"
-      style={{ background: "rgba(255, 255, 255, 0.85)" }}
+      style={{ background: "rgba(255, 255, 255, 0.95)" }}
     >
       <div
-        className="w-full mx-3 rounded-2xl flex flex-col overflow-hidden shadow-lg"
-        style={{ maxWidth: 360, background: colors.white, minHeight: currentStep === "result" ? 480 : 340 }}
+        className="w-full mx-3 rounded-2xl flex flex-col overflow-hidden"
+        style={{
+          maxWidth: 360,
+          background: colors.white,
+          minHeight: currentStep === "result" ? 480 : 340,
+          boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+        }}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 shrink-0">
@@ -515,7 +520,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
               <div className="flex items-center gap-4">
                 <div className="flex-1">
                   <div className="relative h-6 flex items-center">
-                    <div className="absolute inset-x-0 h-1.5 rounded-full" style={{ background: colors.tile }}>
+                    <div className="absolute inset-x-0 h-1.5 rounded-full" style={{ background: "#E8E4DC" }}>
                       <div
                         className="h-full rounded-full transition-all"
                         style={{ background: colors.textDark, width: getYouFill() }}
@@ -535,7 +540,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                     <span>28</span>
                   </div>
                 </div>
-                <div className="text-center px-4 py-3 rounded-xl" style={{ background: colors.tile, minWidth: 72 }}>
+                <div className="text-center px-4 py-3 rounded-xl" style={{ background: "#E8E4DC", minWidth: 72 }}>
                   <div className="text-2xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {state.youMonths}
                   </div>
@@ -587,7 +592,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                     onClick={() => selectMutterschaftsgeld(val)}
                     className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                     style={{
-                      background: colors.tile,
+                      background: "#E8E4DC",
                       borderColor: state.mutterschaftsgeld === val ? colors.textDark : "transparent",
                     }}
                   >
@@ -620,7 +625,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                   onClick={() => selectYouWork("no")}
                   className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                   style={{
-                    background: colors.tile,
+                    background: "#E8E4DC",
                     borderColor: state.youWork === "no" ? colors.textDark : "transparent",
                   }}
                 >
@@ -630,7 +635,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                   onClick={() => selectYouWork("yes")}
                   className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                   style={{
-                    background: colors.tile,
+                    background: "#E8E4DC",
                     borderColor: state.youWork === "yes" ? colors.textDark : "transparent",
                   }}
                 >
@@ -660,7 +665,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
               <div className="flex items-center gap-4">
                 <div className="flex-1">
                   <div className="relative h-6 flex items-center">
-                    <div className="absolute inset-x-0 h-1.5 rounded-full" style={{ background: colors.tile }}>
+                    <div className="absolute inset-x-0 h-1.5 rounded-full" style={{ background: "#E8E4DC" }}>
                       <div
                         className="h-full rounded-full transition-all"
                         style={{ background: colors.textDark, width: getPartnerFill() }}
@@ -680,7 +685,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                     <span>28</span>
                   </div>
                 </div>
-                <div className="text-center px-4 py-3 rounded-xl" style={{ background: colors.tile, minWidth: 72 }}>
+                <div className="text-center px-4 py-3 rounded-xl" style={{ background: "#E8E4DC", minWidth: 72 }}>
                   <div className="text-2xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {state.partnerMonths}
                   </div>
@@ -721,7 +726,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                   onClick={() => selectPartnerWork("no")}
                   className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                   style={{
-                    background: colors.tile,
+                    background: "#E8E4DC",
                     borderColor: state.partnerWork === "no" ? colors.textDark : "transparent",
                   }}
                 >
@@ -731,7 +736,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                   onClick={() => selectPartnerWork("yes")}
                   className="flex-1 py-4 rounded-xl font-medium border-2 transition-all active:scale-[0.97]"
                   style={{
-                    background: colors.tile,
+                    background: "#E8E4DC",
                     borderColor: state.partnerWork === "yes" ? colors.textDark : "transparent",
                   }}
                 >
@@ -761,7 +766,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                 You can adjust everything next
               </p>
               <div className="space-y-2">
-                <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: colors.tile }}>
+                <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: "#E8E4DC" }}>
                   <span className="font-semibold text-sm">You</span>
                   <div className="flex flex-wrap gap-1.5">
                     {calculatedPlan.you.basis > 0 && (
@@ -791,7 +796,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
                   </div>
                 </div>
                 {isCouple && calculatedPlan.partner.total > 0 && (
-                  <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: colors.tile }}>
+                  <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: "#E8E4DC" }}>
                     <span className="font-semibold text-sm">Partner</span>
                     <div className="flex flex-wrap gap-1.5">
                       {calculatedPlan.partner.basis > 0 && (
@@ -824,7 +829,7 @@ const PlannerOnboarding: React.FC<PlannerOnboardingProps> = ({ isOpen, onClose, 
               </div>
               <div
                 className="mt-4 p-4 rounded-xl text-sm leading-relaxed"
-                style={{ background: colors.tile, color: colors.text }}
+                style={{ background: "#E8E4DC", color: colors.text }}
               >
                 {calculatedPlan.explanation}
               </div>
@@ -862,11 +867,11 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen, errors, onClose, onCont
   return (
     <div
       className="absolute inset-0 flex items-center justify-center z-50 rounded-2xl overflow-hidden"
-      style={{ background: "rgba(255, 255, 255, 0.85)" }}
+      style={{ background: "rgba(255, 255, 255, 0.95)" }}
     >
       <div
-        className="w-full mx-3 rounded-2xl flex flex-col overflow-hidden shadow-lg"
-        style={{ maxWidth: 360, background: colors.white }}
+        className="w-full mx-3 rounded-2xl flex flex-col overflow-hidden"
+        style={{ maxWidth: 360, background: colors.white, boxShadow: "0 4px 24px rgba(0,0,0,0.12)" }}
       >
         {/* Header */}
         <div className="flex items-center justify-end p-4 shrink-0">
@@ -1256,9 +1261,9 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
   const isEmpty = totalBudget === 0;
 
   // Layout
-  const rowHeight = 40;
-  const rowGap = 8;
-  const visibleRows = 7;
+  const rowHeight = 44;
+  const rowGap = 10;
+  const visibleRows = 6;
   const listHeight = rowHeight * visibleRows + rowGap * (visibleRows - 1);
   const isAtBottom = scrollProgress > 0.95;
   const isAtTop = scrollProgress < 0.05;
@@ -1455,26 +1460,26 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
         </div>
 
         {/* Column Headers */}
-        <div className="flex items-center mb-2 px-0.5" style={{ gap: 12 }}>
-          <div style={{ width: 24 }}>
-            <span className="text-xs font-semibold" style={{ color: colors.text }}>
+        <div className="flex items-center mb-2 px-1" style={{ gap: 20 }}>
+          <div style={{ width: 28 }}>
+            <span className="text-sm font-semibold" style={{ color: colors.text }}>
               #
             </span>
           </div>
           <div className="flex-1">
-            <span className="text-xs font-semibold" style={{ color: colors.text }}>
+            <span className="text-sm font-semibold" style={{ color: colors.text }}>
               You
             </span>
           </div>
           {isCouple && (
             <div className="flex-1">
-              <span className="text-xs font-semibold" style={{ color: colors.text }}>
+              <span className="text-sm font-semibold" style={{ color: colors.text }}>
                 Partner
               </span>
             </div>
           )}
-          <div style={{ width: 62 }}>
-            <span className="text-xs font-semibold" style={{ color: colors.text }}>
+          <div style={{ width: 70 }}>
+            <span className="text-sm font-semibold" style={{ color: colors.text }}>
               Monthly
             </span>
           </div>
@@ -1482,7 +1487,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
         </div>
 
         {/* Month Rows - Scrollable */}
-        <div className="relative flex" style={{ gap: 8 }}>
+        <div className="relative flex" style={{ gap: 12 }}>
           <div className="relative flex-1">
             <div
               className="absolute top-0 left-0 right-0 pointer-events-none z-10"
@@ -1520,9 +1525,9 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                   const total = youAmt + partnerAmt;
 
                   return (
-                    <div key={i} className="flex items-center px-0.5" style={{ gap: 12, height: rowHeight }}>
-                      <div style={{ width: 24 }}>
-                        <span className="text-xs font-bold" style={{ color: colors.textDark }}>
+                    <div key={i} className="flex items-center px-1" style={{ gap: 20, height: rowHeight }}>
+                      <div style={{ width: 28 }}>
+                        <span className="text-sm font-bold" style={{ color: colors.textDark }}>
                           {i + 1}
                         </span>
                       </div>
@@ -1530,7 +1535,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                       {/* You Cell */}
                       <button
                         onClick={(e) => cycleType(i, "you", e)}
-                        className="flex-1 rounded-lg flex items-center justify-center active:scale-95 cursor-pointer"
+                        className="flex-1 rounded-xl flex items-center justify-center active:scale-95 cursor-pointer"
                         style={{ height: rowHeight, ...getCardStyle(month.you, "you", i) }}
                       >
                         {month.you === "none" ? (
@@ -1538,7 +1543,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                             +
                           </span>
                         ) : (
-                          <div className="flex items-center justify-between w-full px-2">
+                          <div className="flex items-center justify-between w-full px-3">
                             <span className="text-base opacity-30">‹</span>
                             <span
                               style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.03em", color: colors.textDark }}
@@ -1554,7 +1559,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                       {isCouple && (
                         <button
                           onClick={(e) => cycleType(i, "partner", e)}
-                          className="flex-1 rounded-lg flex items-center justify-center active:scale-95 cursor-pointer"
+                          className="flex-1 rounded-xl flex items-center justify-center active:scale-95 cursor-pointer"
                           style={{ height: rowHeight, ...getCardStyle(month.partner, "partner", i) }}
                         >
                           {month.partner === "none" ? (
@@ -1562,7 +1567,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                               +
                             </span>
                           ) : (
-                            <div className="flex items-center justify-between w-full px-2">
+                            <div className="flex items-center justify-between w-full px-3">
                               <span className="text-base opacity-30">‹</span>
                               <span
                                 style={{
@@ -1581,9 +1586,9 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
                       )}
 
                       {/* Sum */}
-                      <div style={{ width: 62 }}>
+                      <div style={{ width: 70 }}>
                         <span
-                          className="text-xs font-semibold"
+                          className="text-sm font-semibold"
                           style={{ color: total > 0 ? colors.textDark : colors.border }}
                         >
                           {total > 0 ? `€${total.toLocaleString("de-DE")}` : "—"}
