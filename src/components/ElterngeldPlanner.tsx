@@ -1269,13 +1269,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
       errorMonths.includes(monthIndex) && lastEditedCell?.month === monthIndex && lastEditedCell?.person === person;
     const base = { transition: "all 0.15s ease" };
 
-    if (type === "none")
-      return {
-        ...base,
-        backgroundColor: "#FAFAF8",
-        border: `1px solid #E0DCD4`,
-        boxShadow: "inset 0 1px 2px rgba(0,0,0,0.04)",
-      };
+    if (type === "none") return { ...base, backgroundColor: colors.white, border: `1px solid #E5E0D8` };
     if (type === "basis")
       return {
         ...base,
@@ -1325,7 +1319,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
         />
       )}
 
-      <div className="rounded-2xl p-4" style={{ backgroundColor: colors.white, border: `1px solid ${colors.border}` }}>
+      <div className="rounded-2xl p-4" style={{ backgroundColor: colors.tile, border: `1px solid ${colors.border}` }}>
         {/* Status Bar */}
         <div className="mb-3 flex items-stretch gap-2" style={{ minHeight: 52 }}>
           {isEmpty ? (
@@ -1497,7 +1491,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
               className="absolute top-0 left-0 right-0 pointer-events-none z-10"
               style={{
                 height: 32,
-                background: `linear-gradient(to bottom, ${colors.white} 0%, transparent 100%)`,
+                background: `linear-gradient(to bottom, ${colors.tile} 0%, transparent 100%)`,
                 opacity: isAtTop ? 0 : 1,
               }}
             />
@@ -1638,7 +1632,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
               className="absolute bottom-0 left-0 right-0 pointer-events-none"
               style={{
                 height: 40,
-                background: `linear-gradient(to top, ${colors.white} 0%, transparent 100%)`,
+                background: `linear-gradient(to top, ${colors.tile} 0%, transparent 100%)`,
                 opacity: isAtBottom ? 0 : 1,
               }}
             />
