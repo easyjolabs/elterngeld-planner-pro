@@ -808,7 +808,13 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
     setPlannerData(newData);
     setLastEditedCell(null);
     // Expand displayed months if wizard result needs more
-    const lastFilledMonth = newData.findLastIndex((m) => m.you !== "none" || m.partner !== "none");
+    let lastFilledMonth = -1;
+    for (let i = newData.length - 1; i >= 0; i--) {
+      if (newData[i].you !== "none" || newData[i].partner !== "none") {
+        lastFilledMonth = i;
+        break;
+      }
+    }
     if (lastFilledMonth >= displayedMonths) {
       setDisplayedMonths(Math.min(lastFilledMonth + 2, plannerMonths));
     }
