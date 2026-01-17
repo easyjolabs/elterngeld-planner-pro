@@ -1560,7 +1560,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const [showPdfFlow, setShowPdfFlow] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [hideScrollbar, setHideScrollbar] = useState(false);
-  const [targetScrollTop, setTargetScrollTop] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const plannerGridRef = useRef<HTMLDivElement>(null);
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
@@ -1768,14 +1767,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   }, [isStreaming, messages]);
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
-
-    if (!hideScrollbar && targetScrollTop !== null) {
-      const diff = Math.abs(scrollRef.current.scrollTop - targetScrollTop);
-      if (diff > 150) {
-        setTargetScrollTop(null);
-      }
-    }
-
     const container = scrollRef.current;
     if (lastMessageRef.current) {
       const containerRect = container.getBoundingClientRect();
@@ -1785,12 +1776,11 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     } else {
       setShowScrollButton(false);
     }
-  }, [hideScrollbar, targetScrollTop]);
-
-  const spacerHeight = lastUserMessageIndex >= 0 ? window.innerHeight : 0;
-
+  }, []);
+  // Spacer nur wenn wir aktiv zur User-Message scrollen oder dort bleiben wollen
+  // Wird auf 0 gesetzt wenn targetScrollTop aufgehoben wird
+  const spacerHeight = targetScrollTop !== null ? window.innerHeight : 0;
   const scrollToBottom = () => {
-    setTargetScrollTop(null);
     spacerObserverRef.current?.disconnect();
     spacerObserverRef.current = null;
     setHideScrollbar(true);
@@ -2198,10 +2188,8 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           offsetTop += el.offsetTop;
           el = el.offsetParent as HTMLElement;
         }
-        const scrollTarget = offsetTop - 70;
-        setTargetScrollTop(scrollTarget);
         container.scrollTo({
-          top: scrollTarget,
+          top: offsetTop - 70,
           behavior: "smooth",
         });
         setShouldScrollToUser(false);
@@ -2209,22 +2197,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       }
     });
   }, [shouldScrollToUser, lastUserMessageIndex, messages.length]);
-
-  useEffect(() => {
-    if (targetScrollTop === null || !scrollRef.current) return;
-
-    const diff = Math.abs(scrollRef.current.scrollTop - targetScrollTop);
-
-    if (diff < 150) {
-      requestAnimationFrame(() => {
-        if (scrollRef.current) {
-          scrollRef.current.scrollTop = targetScrollTop;
-        }
-      });
-    } else {
-      setTargetScrollTop(null);
-    }
-  }, [messages.length, targetScrollTop]);
   const handleInput = (value: string | number, displayValue?: string) => {
     setStepHistory((prev) => [
       ...prev,
