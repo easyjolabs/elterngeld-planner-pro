@@ -354,34 +354,27 @@ const ButtonOptions: React.FC<{
             key={i}
             onClick={() => onSelect(opt)}
             disabled={disabled}
-            className={`w-full transition-all flex items-center hover:border-stone-400 ${useGrid && !hasNote ? "justify-center" : "justify-between"} text-left`}
+            className="w-full transition-all flex items-center hover:border-stone-400 text-left"
             style={{
               backgroundColor: colors.white,
               border: `1.5px solid ${colors.border}`,
               borderRadius: ui.buttonRadius,
-              padding: opt.sub ? "14px 20px" : useGrid ? "14px 12px" : "16px 20px",
+              padding: opt.sub ? "14px 20px" : "14px 16px",
               opacity: disabled ? 0.6 : 1,
               cursor: disabled ? "not-allowed" : "pointer",
+              justifyContent: hasNote ? "space-between" : useGrid ? "center" : "flex-start",
             }}
           >
-            <div className={`flex items-center ${useGrid ? "gap-2" : "gap-3"}`}>
+            <div className="flex items-center gap-2">
               {opt.icon && <span style={{ color: colors.textDark }}>{icons[opt.icon]}</span>}
               <div>
-                <span
-                  style={{
-                    fontSize: useGrid ? fontSize.small : fontSize.button,
-                    fontWeight: 500,
-                    color: colors.textDark,
-                  }}
-                >
-                  {opt.label}
-                </span>
+                <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>{opt.label}</span>
                 {opt.sub && <p style={{ fontSize: fontSize.tiny, marginTop: "2px", color: colors.text }}>{opt.sub}</p>}
               </div>
             </div>
             {opt.note && (
               <span
-                className="px-2 py-0.5 rounded-full ml-2"
+                className="px-2 py-0.5 rounded-full ml-2 flex-shrink-0"
                 style={{ fontSize: "11px", fontWeight: 500, backgroundColor: tagColors[ni % 3], color: "#000" }}
               >
                 {opt.note}
@@ -498,26 +491,30 @@ const DatePicker: React.FC<{
         </button>
       </div>
       {/* Weekdays */}
-      <div className="grid grid-cols-7 mb-1">
+      <div className="grid grid-cols-7">
         {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day) => (
-          <div key={day} className="text-center py-1" style={{ fontSize: "11px", color: colors.text, fontWeight: 500 }}>
+          <div
+            key={day}
+            className="text-center py-0.5"
+            style={{ fontSize: "10px", color: colors.text, fontWeight: 500 }}
+          >
             {day}
           </div>
         ))}
       </div>
       {/* Days */}
-      <div className="grid grid-cols-7 gap-0.5">
+      <div className="grid grid-cols-7">
         {emptyDays.map((_, i) => (
-          <div key={`empty-${i}`} />
+          <div key={`empty-${i}`} className="h-7" />
         ))}
         {days.map((day) => (
           <button
             key={day}
             onClick={() => handleDayClick(day)}
             disabled={disabled}
-            className="aspect-square flex items-center justify-center rounded hover:bg-stone-100 transition-colors"
+            className="h-7 flex items-center justify-center rounded hover:bg-stone-100 transition-colors"
             style={{
-              fontSize: "13px",
+              fontSize: "12px",
               color: colors.textDark,
               fontWeight: 500,
               cursor: disabled ? "not-allowed" : "pointer",
