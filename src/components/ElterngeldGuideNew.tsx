@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useChatScroll } from "@/hooks/useChatScroll";
 
 // ===========================================
-// DESIGN TOKENS - LP STYLE
+// SCROLL TEST GUIDE - LP DESIGN SYSTEM
 // ===========================================
 const colors = {
   background: "#FAFAF9",
