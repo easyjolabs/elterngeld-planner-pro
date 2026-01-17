@@ -184,80 +184,68 @@ const ElterngeldGuideNew: React.FC = () => {
 
       const currentQuestion = questions[currentQuestionIndex];
 
-      // Add user message
+      // 1. User message hinzufügen
       const userMessage: Message = {
         id: `user-${currentQuestion.id}`,
         type: "user",
         content: option.label,
       };
-
       setMessages((prev) => [...prev, userMessage]);
       setShowInput(false);
 
-      // Wait for render, then scroll user message to top
+      // 2. Warten auf Render
       await new Promise((r) => setTimeout(r, 50));
 
+      // 3. Spacer expandieren & nach oben scrollen
       if (lastUserMessageRef.current) {
         expandSpacerForMessage(lastUserMessageRef.current);
         await new Promise((r) => setTimeout(r, 50));
         await scrollMessageToTop(lastUserMessageRef.current);
       }
 
-      // Check if we have more questions
+      // 4. Check ob fertig
       const nextIndex = currentQuestionIndex + 1;
       if (nextIndex >= questions.length) {
         setIsComplete(true);
-        // Add completion message
         setIsTyping(true);
         await new Promise((r) => setTimeout(r, 800));
         setIsTyping(false);
-
         setMessages((prev) => [
           ...prev,
-          {
-            id: "bot-complete",
-            type: "bot",
-            content: "All done! The scroll behavior test is complete.",
-          },
+          { id: "bot-complete", type: "bot", content: "All done! The scroll behavior test is complete." },
         ]);
-
-        // Stabilize after bot response
-        await new Promise((r) => setTimeout(r, 100));
-        stabilizeScrollPosition();
         return;
       }
 
-      // Show typing indicator, then next question
+      // 5. Typing indicator
       setIsTyping(true);
       await new Promise((r) => setTimeout(r, 800));
       setIsTyping(false);
 
+      // 6. Bot message hinzufügen - ABER: Scroll-Position VORHER merken
+      const scrollContainer = scrollContainerRef.current;
+      const scrollBefore = scrollContainer?.scrollTop || 0;
+
       const nextQuestion = questions[nextIndex];
       setMessages((prev) => [
         ...prev,
-        {
-          id: `bot-${nextQuestion.id}`,
-          type: "bot",
-          content: nextQuestion.content,
-          subtext: nextQuestion.subtext,
-        },
+        { id: `bot-${nextQuestion.id}`, type: "bot", content: nextQuestion.content, subtext: nextQuestion.subtext },
       ]);
 
       setCurrentQuestionIndex(nextIndex);
 
-      // Stabilize scroll position after bot response
-      await new Promise((r) => setTimeout(r, 100));
-      stabilizeScrollPosition();
+      // 7. Scroll-Position SOFORT wiederherstellen (nächster Frame)
+      requestAnimationFrame(() => {
+        if (scrollContainer) {
+          scrollContainer.scrollTop = scrollBefore;
+        }
+        // Spacer anpassen
+        stabilizeScrollPosition();
+      });
 
       setShowInput(true);
     },
-    [
-      currentQuestionIndex,
-      isScrolling,
-      expandSpacerForMessage,
-      scrollMessageToTop,
-      stabilizeScrollPosition,
-    ]
+    [currentQuestionIndex, isScrolling, expandSpacerForMessage, scrollMessageToTop, stabilizeScrollPosition, scrollContainerRef]
   );
 
   // Handle restart
