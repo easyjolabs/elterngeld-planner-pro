@@ -332,8 +332,12 @@ const ButtonOptions: React.FC<{
   disabled?: boolean;
 }> = ({ options, onSelect, disabled }) => {
   let noteIdx = 0;
+
+  // Use 2-column grid for exactly 2 short options without sub/note
+  const useGrid = options.length === 2 && options.every((opt) => !opt.sub && !opt.note && opt.label.length < 28);
+
   return (
-    <div className="space-y-2 mt-4">
+    <div className={useGrid ? "grid grid-cols-2 gap-2 mt-4" : "space-y-2 mt-4"}>
       {options.map((opt, i) => {
         const ni = opt.note ? noteIdx++ : -1;
         return (
@@ -341,21 +345,29 @@ const ButtonOptions: React.FC<{
             key={i}
             onClick={() => onSelect(opt)}
             disabled={disabled}
-            className="w-full transition-all flex items-center hover:border-stone-400 justify-between text-left"
+            className={`w-full transition-all flex items-center hover:border-stone-400 ${useGrid ? "justify-center" : "justify-between"} text-left`}
             style={{
               backgroundColor: colors.white,
               border: `1.5px solid ${colors.border}`,
               borderRadius: ui.buttonRadius,
               height: opt.sub ? "auto" : ui.buttonHeight,
-              padding: opt.sub ? "12px 16px" : "10px 16px",
+              padding: opt.sub ? "12px 16px" : useGrid ? "10px 12px" : "10px 16px",
               opacity: disabled ? 0.6 : 1,
               cursor: disabled ? "not-allowed" : "pointer",
             }}
           >
-            <div className="flex items-center gap-3">
+            <div className={`flex items-center gap-2 ${useGrid ? "" : "gap-3"}`}>
               {opt.icon && <span style={{ color: colors.textDark }}>{icons[opt.icon]}</span>}
               <div>
-                <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>{opt.label}</span>
+                <span
+                  style={{
+                    fontSize: useGrid ? fontSize.small : fontSize.button,
+                    fontWeight: 500,
+                    color: colors.textDark,
+                  }}
+                >
+                  {opt.label}
+                </span>
                 {opt.sub && <p style={{ fontSize: fontSize.tiny, marginTop: "2px", color: colors.text }}>{opt.sub}</p>}
               </div>
             </div>
@@ -1074,6 +1086,15 @@ const ElterngeldGuideNew: React.FC = () => {
         return;
       }
 
+      // Handle income limit "under" case - show eligibility confirmation (only for EU, non-EU got it after visa)
+      if (q.id === "incomeLimit" && option.value === "under" && userData.citizenship === "eu") {
+        await showTypingThenMessage({
+          id: "bot-income-eligible",
+          type: "bot",
+          content: "Based on your answers, you **likely qualify** for Elterngeld!",
+        });
+      }
+
       const nextIdx = currentQuestionIndex + 1;
 
       if (nextIdx >= questions.length) {
@@ -1081,7 +1102,7 @@ const ElterngeldGuideNew: React.FC = () => {
         await showTypingThenMessage({
           id: "bot-complete",
           type: "bot",
-          content: "Based on your answers, you **likely qualify** for Elterngeld!",
+          content: "Great, I have everything I need to calculate your Elterngeld!",
         });
         setIsProcessing(false);
         return;
