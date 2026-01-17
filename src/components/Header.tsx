@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({ variant = "landing" }) => {
             padding: 0,
           }}
         >
-          <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 47 }} />
+          <img src="/logo.svg" alt="Elterngeld Guide" style={{ height: 40 }} />
         </button>
       </div>
 
@@ -91,7 +91,6 @@ export const Header: React.FC<HeaderProps> = ({ variant = "landing" }) => {
             Start planning →
           </a>
         )}
-
       </div>
     </header>
   );
