@@ -1351,7 +1351,7 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
           )}
 
           {/* Info Bar - Two rows */}
-          <div className="pt-2 pb-4 space-y-1">
+          <div className="pb-4 space-y-1">
             {/* Row 1: Hints or Budget Status */}
             <div className="flex items-center gap-3">
               {totalBudget === 0 ? (
