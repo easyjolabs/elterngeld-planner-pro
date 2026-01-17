@@ -395,35 +395,42 @@ const ElterngeldGuideNew: React.FC = () => {
     setMessages([{ id: "user-citizenship", type: "user", content: label }]);
     lastUserMessageIndexRef.current = 0;
 
-    await new Promise((r) => setTimeout(r, 100)); // Länger warten
+    await new Promise((r) => setTimeout(r, 100));
 
     console.log("lastUserMessageRef.current:", lastUserMessageRef.current);
-    console.log("scrollContainerRef.current:", scrollContainerRef.current);
-    console.log("messagesContainerRef.current:", messagesContainerRef.current);
-    console.log("bottomSpacerRef.current:", bottomSpacerRef.current);
 
     if (lastUserMessageRef.current) {
       console.log("Ref exists, expanding spacer...");
       expandSpacerForMessage(lastUserMessageRef.current);
       await new Promise((r) => setTimeout(r, 50));
-      setHideScrollbar(true);
+
       console.log("Scrolling to top...");
+      console.log("offsetTop:", lastUserMessageRef.current.offsetTop);
+      console.log("scrollTop BEFORE:", scrollContainerRef.current?.scrollTop);
+
+      setHideScrollbar(true);
       await scrollMessageToTop(lastUserMessageRef.current);
+
+      console.log("scrollTop AFTER:", scrollContainerRef.current?.scrollTop);
       console.log("Scroll complete");
-    } else {
-      console.log("ERROR: Ref is null!");
     }
+
+    // Hier kommt die Bot-Message - prüfen ob Scroll danach kaputt geht
     setIsTyping(true);
     await new Promise((r) => setTimeout(r, 600));
     setIsTyping(false);
+
     setMessages((prev) => [
       ...prev,
       {
         id: "bot-response-1",
         type: "bot",
-        content: value === "eu" ? "Great! Let's check one more thing." : "Let's check your visa type.",
+        content: value === "eu" ? "Great!" : "Let's check your visa type.",
       },
     ]);
+
+    console.log("scrollTop AFTER BOT MESSAGE:", scrollContainerRef.current?.scrollTop);
+
     await new Promise((r) => setTimeout(r, 50));
     if (lastUserMessageRef.current && scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({ top: lastUserMessageRef.current.offsetTop - 16, behavior: "smooth" });
