@@ -60,6 +60,8 @@ interface UserData {
   multiples?: string;
   siblings?: string;
   applicationType?: string;
+  singleParentType?: string; // "alone" (14 months) or "together" (12 months)
+  dueDate?: string;
   _conditionalType?: string;
 }
 
@@ -299,10 +301,10 @@ const questions: Question[] = [
   {
     id: "applicationType",
     content: "Are you applying as a **couple** or as a **single parent**?",
-    subtext: "You count as a single parent if the other parent neither lives with you nor with the child.",
+    subtext: "Choose 'single parent' if only one parent is applying for Elterngeld.",
     options: [
       { value: "couple", label: "Applying as a couple", icon: "couple" },
-      { value: "single", label: "Applying as a single parent", icon: "single", note: "All 14 months" },
+      { value: "single", label: "Applying as a single parent", icon: "single" },
     ],
   },
 ];
@@ -337,7 +339,7 @@ const ButtonOptions: React.FC<{
   const useGrid = options.length === 2 && options.every((opt) => !opt.sub && !opt.note && opt.label.length < 28);
 
   return (
-    <div className={useGrid ? "grid grid-cols-2 gap-2 mt-4" : "space-y-2 mt-4"}>
+    <div className={useGrid ? "grid grid-cols-2 gap-3 mt-4" : "space-y-3 mt-4"}>
       {options.map((opt, i) => {
         const ni = opt.note ? noteIdx++ : -1;
         return (
@@ -350,24 +352,15 @@ const ButtonOptions: React.FC<{
               backgroundColor: colors.white,
               border: `1.5px solid ${colors.border}`,
               borderRadius: ui.buttonRadius,
-              height: opt.sub ? "auto" : ui.buttonHeight,
-              padding: opt.sub ? "12px 16px" : useGrid ? "10px 12px" : "10px 16px",
+              padding: opt.sub ? "14px 20px" : "16px 20px",
               opacity: disabled ? 0.6 : 1,
               cursor: disabled ? "not-allowed" : "pointer",
             }}
           >
-            <div className={`flex items-center gap-2 ${useGrid ? "" : "gap-3"}`}>
+            <div className={`flex items-center ${useGrid ? "gap-2" : "gap-3"}`}>
               {opt.icon && <span style={{ color: colors.textDark }}>{icons[opt.icon]}</span>}
               <div>
-                <span
-                  style={{
-                    fontSize: useGrid ? fontSize.small : fontSize.button,
-                    fontWeight: 500,
-                    color: colors.textDark,
-                  }}
-                >
-                  {opt.label}
-                </span>
+                <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>{opt.label}</span>
                 {opt.sub && <p style={{ fontSize: fontSize.tiny, marginTop: "2px", color: colors.text }}>{opt.sub}</p>}
               </div>
             </div>
@@ -386,6 +379,174 @@ const ButtonOptions: React.FC<{
   );
 };
 
+// ===========================================
+// DATE PICKER
+// ===========================================
+const DatePicker: React.FC<{
+  onSelect: (isoDate: string, displayDate: string) => void;
+  disabled?: boolean;
+}> = ({ onSelect, disabled }) => {
+  const [month, setMonth] = useState<number>(new Date().getMonth());
+  const [year, setYear] = useState<number>(new Date().getFullYear());
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 4 }, (_, i) => currentYear - 1 + i);
+
+  const getDaysInMonth = (m: number, y: number) => new Date(y, m + 1, 0).getDate();
+  const getFirstDayOfMonth = (m: number, y: number) => new Date(y, m, 1).getDay();
+
+  const daysInMonth = getDaysInMonth(month, year);
+  const firstDay = getFirstDayOfMonth(month, year);
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const emptyDays = Array.from({ length: (firstDay + 6) % 7 }, () => null); // Monday start
+
+  const handleDayClick = (day: number) => {
+    const date = new Date(year, month, day);
+    const isoDate = date.toISOString().split("T")[0];
+    const displayDate = date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    onSelect(isoDate, displayDate);
+  };
+
+  const goToPrevMonth = () => {
+    if (month === 0) {
+      setMonth(11);
+      setYear(year - 1);
+    } else {
+      setMonth(month - 1);
+    }
+  };
+
+  const goToNextMonth = () => {
+    if (month === 11) {
+      setMonth(0);
+      setYear(year + 1);
+    } else {
+      setMonth(month + 1);
+    }
+  };
+
+  return (
+    <div
+      className="mt-4 p-4"
+      style={{
+        backgroundColor: colors.white,
+        border: `1.5px solid ${colors.border}`,
+        borderRadius: ui.buttonRadius,
+      }}
+    >
+      {/* Month/Year Header */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={goToPrevMonth}
+          disabled={disabled}
+          className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
+          style={{ color: colors.textDark }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <div className="flex items-center gap-2">
+          <select
+            value={month}
+            onChange={(e) => setMonth(Number(e.target.value))}
+            disabled={disabled}
+            className="bg-transparent font-medium outline-none cursor-pointer"
+            style={{ fontSize: fontSize.button, color: colors.textDark }}
+          >
+            {months.map((m, i) => (
+              <option key={m} value={i}>
+                {m}
+              </option>
+            ))}
+          </select>
+          <select
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            disabled={disabled}
+            className="bg-transparent font-medium outline-none cursor-pointer"
+            style={{ fontSize: fontSize.button, color: colors.textDark }}
+          >
+            {years.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          onClick={goToNextMonth}
+          disabled={disabled}
+          className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
+          style={{ color: colors.textDark }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Weekday Headers */}
+      <div className="grid grid-cols-7 mb-2">
+        {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day) => (
+          <div
+            key={day}
+            className="text-center py-2"
+            style={{ fontSize: fontSize.tiny, color: colors.text, fontWeight: 500 }}
+          >
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Days Grid */}
+      <div className="grid grid-cols-7 gap-1">
+        {emptyDays.map((_, i) => (
+          <div key={`empty-${i}`} />
+        ))}
+        {days.map((day) => (
+          <button
+            key={day}
+            onClick={() => handleDayClick(day)}
+            disabled={disabled}
+            className="aspect-square flex items-center justify-center rounded-lg hover:bg-stone-100 transition-colors"
+            style={{
+              fontSize: fontSize.small,
+              color: colors.textDark,
+              fontWeight: 500,
+              cursor: disabled ? "not-allowed" : "pointer",
+              opacity: disabled ? 0.6 : 1,
+            }}
+          >
+            {day}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const VisaSelector: React.FC<{
   onSelect: (visaId: string, label: string) => void;
   disabled?: boolean;
@@ -399,17 +560,18 @@ const VisaSelector: React.FC<{
 
   if (!selectedCategory) {
     return (
-      <div className="space-y-2 mt-4">
+      <div className="space-y-3 mt-4">
         {visaCategories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
             disabled={disabled}
-            className="w-full p-3.5 text-left transition-all hover:border-stone-400"
+            className="w-full text-left transition-all hover:border-stone-400"
             style={{
               backgroundColor: colors.white,
               border: `1.5px solid ${colors.border}`,
               borderRadius: ui.buttonRadius,
+              padding: cat.sub ? "14px 20px" : "16px 20px",
               opacity: disabled ? 0.6 : 1,
               cursor: disabled ? "not-allowed" : "pointer",
             }}
@@ -442,17 +604,18 @@ const VisaSelector: React.FC<{
         Which <strong>{categoryLabel}</strong> do you have?
       </p>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         {categoryVisas.map((visa) => (
           <button
             key={visa.id}
             onClick={() => handleSelectVisa(visa.id)}
             disabled={disabled}
-            className="w-full p-3.5 text-left transition-all hover:border-stone-400"
+            className="w-full text-left transition-all hover:border-stone-400"
             style={{
               backgroundColor: colors.white,
               border: `1.5px solid ${colors.border}`,
               borderRadius: ui.buttonRadius,
+              padding: "16px 20px",
               opacity: disabled ? 0.6 : 1,
               cursor: disabled ? "not-allowed" : "pointer",
             }}
@@ -623,7 +786,7 @@ const TypingIndicator: React.FC = () => (
 // ===========================================
 // MAIN COMPONENT
 // ===========================================
-type InputType = "buttons" | "visa" | "conditional" | "ineligible" | null;
+type InputType = "buttons" | "visa" | "conditional" | "ineligible" | "date" | "singleParent" | null;
 
 const ElterngeldGuideNew: React.FC = () => {
   // Refs
@@ -1045,6 +1208,86 @@ const ElterngeldGuideNew: React.FC = () => {
     setIsProcessing(false);
   };
 
+  const handleDateSelect = async (isoDate: string, displayDate: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    // Save history
+    setStepHistory((prev) => [
+      ...prev,
+      {
+        questionIndex: currentQuestionIndex,
+        messagesLength: messages.length,
+        inputType,
+        userData,
+      },
+    ]);
+
+    setInputType(null);
+    setMessages((prev) => {
+      lastUserMessageIndexRef.current = prev.length;
+      return [...prev, { id: "user-dueDate", type: "user", content: displayDate }];
+    });
+    setUserData((prev) => ({ ...prev, dueDate: isoDate }));
+
+    await runScrollSequence();
+
+    // Complete the flow
+    setIsComplete(true);
+    await showTypingThenMessage({
+      id: "bot-complete",
+      type: "bot",
+      content: "Great, I have everything I need to calculate your Elterngeld!",
+    });
+
+    setIsProcessing(false);
+  };
+
+  const handleSingleParentChoice = async (option: ButtonOption) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    // Save history
+    setStepHistory((prev) => [
+      ...prev,
+      {
+        questionIndex: currentQuestionIndex,
+        messagesLength: messages.length,
+        inputType,
+        userData,
+      },
+    ]);
+
+    setInputType(null);
+    setMessages((prev) => {
+      lastUserMessageIndexRef.current = prev.length;
+      return [...prev, { id: "user-singleParent", type: "user", content: option.label }];
+    });
+    setUserData((prev) => ({ ...prev, singleParentType: option.value }));
+
+    await runScrollSequence();
+
+    // Show confirmation based on choice
+    const months = option.value === "alone" ? "14" : "12";
+    await showTypingThenMessage({
+      id: "bot-singleParent-confirm",
+      type: "bot",
+      content: `Got it! You can claim up to **${months} months** of Elterngeld.`,
+    });
+
+    // Continue to due date
+    await showTypingThenMessage({
+      id: "bot-dueDate",
+      type: "bot",
+      content: "When is your child **born or expected** to be born?",
+      subtext: "Remember to apply within 3 months after birth. Payments can only be backdated 3 months.",
+      isQuestion: true,
+    });
+
+    setInputType("date");
+    setIsProcessing(false);
+  };
+
   const handleAnswer = useCallback(
     async (option: ButtonOption) => {
       if (isProcessing) return;
@@ -1096,6 +1339,35 @@ const ElterngeldGuideNew: React.FC = () => {
       }
 
       const nextIdx = currentQuestionIndex + 1;
+
+      // After applicationType, check if single parent needs follow-up
+      if (q.id === "applicationType") {
+        if (option.value === "single") {
+          // Ask follow-up question for single parents
+          await showTypingThenMessage({
+            id: "bot-singleParent",
+            type: "bot",
+            content: "Do you **live with the other parent**?",
+            subtext: "This affects how many months you can claim.",
+            isQuestion: true,
+          });
+          setInputType("singleParent");
+          setIsProcessing(false);
+          return;
+        } else {
+          // Couple - continue to due date
+          await showTypingThenMessage({
+            id: "bot-dueDate",
+            type: "bot",
+            content: "When is your child **born or expected** to be born?",
+            subtext: "Remember to apply within 3 months after birth. Payments can only be backdated 3 months.",
+            isQuestion: true,
+          });
+          setInputType("date");
+          setIsProcessing(false);
+          return;
+        }
+      }
 
       if (nextIdx >= questions.length) {
         setIsComplete(true);
@@ -1181,6 +1453,23 @@ const ElterngeldGuideNew: React.FC = () => {
 
     if (inputType === "visa") {
       return <VisaSelector onSelect={handleVisaSelect} disabled={isProcessing} />;
+    }
+
+    if (inputType === "date") {
+      return <DatePicker onSelect={handleDateSelect} disabled={isProcessing} />;
+    }
+
+    if (inputType === "singleParent") {
+      return (
+        <ButtonOptions
+          options={[
+            { value: "alone", label: "No, I'm raising the child alone", icon: "single", note: "14 months" },
+            { value: "together", label: "Yes, but only I'm applying", icon: "couple", note: "12 months" },
+          ]}
+          onSelect={handleSingleParentChoice}
+          disabled={isProcessing}
+        />
+      );
     }
 
     if (inputType === "conditional") {
