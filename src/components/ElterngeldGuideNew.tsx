@@ -361,6 +361,9 @@ const TypingIndicator: React.FC = () => (
   </div>
 );
 
+// Threshold: nur scrollen wenn Message weiter als dieser Wert vom oberen Rand entfernt ist
+const SCROLL_THRESHOLD = 80;
+
 // Main Component
 const ElterngeldGuideNew: React.FC = () => {
   const {
@@ -389,38 +392,31 @@ const ElterngeldGuideNew: React.FC = () => {
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
   const lastUserMessageIndexRef = useRef(-1);
 
+  // Helper: Prüft ob ein Scroll nötig ist
+  const needsScroll = useCallback(() => {
+    if (!lastUserMessageRef.current || !scrollContainerRef.current) return false;
+    const messageTop = lastUserMessageRef.current.offsetTop;
+    const scrollTop = scrollContainerRef.current.scrollTop;
+    // Nur scrollen wenn Message weiter unten ist als der Threshold
+    return messageTop > scrollTop + SCROLL_THRESHOLD;
+  }, [scrollContainerRef]);
+
   const handleStartAnswer = async (value: string, label: string) => {
-    console.log("=== START ===");
     setShowStartScreen(false);
     setMessages([{ id: "user-citizenship", type: "user", content: label }]);
     lastUserMessageIndexRef.current = 0;
 
-    await new Promise((r) => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 50));
 
-    console.log("lastUserMessageRef.current:", lastUserMessageRef.current);
-
-    if (lastUserMessageRef.current && scrollContainerRef.current) {
-      const scrollContainer = scrollContainerRef.current;
-      const messageTop = lastUserMessageRef.current.offsetTop;
-
-      console.log("offsetTop:", messageTop);
-      console.log("scrollTop BEFORE:", scrollContainer.scrollTop);
-
-      // Nur scrollen wenn die Message nicht bereits sichtbar oben ist
-      if (messageTop > scrollContainer.scrollTop + 50) {
-        console.log("Message ist weiter unten → Spacer expandieren und scrollen");
-        expandSpacerForMessage(lastUserMessageRef.current);
-        await new Promise((r) => setTimeout(r, 50));
-        setHideScrollbar(true);
-        scrollContainer.scrollTo({ top: messageTop - 24, behavior: "smooth" });
-        await new Promise((r) => setTimeout(r, 300));
-        console.log("scrollTop AFTER:", scrollContainer.scrollTop);
-      } else {
-        console.log("Message already at top, skipping scroll");
-      }
+    // Nur scrollen wenn nötig (Message nicht bereits oben)
+    const shouldScroll = needsScroll();
+    if (shouldScroll && lastUserMessageRef.current) {
+      expandSpacerForMessage(lastUserMessageRef.current);
+      await new Promise((r) => setTimeout(r, 50));
+      setHideScrollbar(true);
+      await scrollMessageToTop(lastUserMessageRef.current);
     }
 
-    // Hier kommt die Bot-Message - prüfen ob Scroll danach kaputt geht
     setIsTyping(true);
     await new Promise((r) => setTimeout(r, 600));
     setIsTyping(false);
@@ -434,22 +430,25 @@ const ElterngeldGuideNew: React.FC = () => {
       },
     ]);
 
-    console.log("scrollTop AFTER BOT MESSAGE:", scrollContainerRef.current?.scrollTop);
-
     await new Promise((r) => setTimeout(r, 50));
-    if (lastUserMessageRef.current && scrollContainerRef.current) {
+
+    // Nach Bot-Antwort: Scroll stabilisieren falls wir gescrollt haben
+    if (shouldScroll && lastUserMessageRef.current && scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({ top: lastUserMessageRef.current.offsetTop - 16, behavior: "smooth" });
       await new Promise((r) => setTimeout(r, 300));
       stabilizeScrollPosition();
     }
+
     setIsTyping(true);
     await new Promise((r) => setTimeout(r, 600));
     setIsTyping(false);
+
     const q = questions[0];
     setMessages((prev) => [
       ...prev,
       { id: `bot-${q.id}`, type: "bot", content: q.content, subtext: q.subtext, isQuestion: true },
     ]);
+
     await new Promise((r) => setTimeout(r, 50));
     stabilizeScrollPosition();
     setHideScrollbar(false);
@@ -459,6 +458,7 @@ const ElterngeldGuideNew: React.FC = () => {
   const handleAnswer = useCallback(
     async (option: ButtonOption) => {
       if (isScrolling) return;
+
       const q = questions[currentQuestionIndex];
       setStepHistory((prev) => [...prev, currentQuestionIndex]);
       setMessages((prev) => {
@@ -466,47 +466,66 @@ const ElterngeldGuideNew: React.FC = () => {
         return [...prev, { id: `user-${q.id}`, type: "user", content: option.label }];
       });
       setShowInput(false);
+
       await new Promise((r) => setTimeout(r, 50));
-      if (lastUserMessageRef.current) {
+
+      // Prüfe ob Scroll nötig ist
+      const shouldScroll =
+        lastUserMessageRef.current && scrollContainerRef.current
+          ? lastUserMessageRef.current.offsetTop > scrollContainerRef.current.scrollTop + SCROLL_THRESHOLD
+          : false;
+
+      if (shouldScroll && lastUserMessageRef.current) {
         expandSpacerForMessage(lastUserMessageRef.current);
         await new Promise((r) => setTimeout(r, 50));
         setHideScrollbar(true);
         await scrollMessageToTop(lastUserMessageRef.current);
       }
+
       const nextIdx = currentQuestionIndex + 1;
+
       if (nextIdx >= questions.length) {
         setIsComplete(true);
         setIsTyping(true);
         await new Promise((r) => setTimeout(r, 600));
         setIsTyping(false);
+
         setMessages((prev) => [
           ...prev,
           { id: "bot-complete", type: "bot", content: "Based on your answers, you **likely qualify** for Elterngeld!" },
         ]);
+
         await new Promise((r) => setTimeout(r, 50));
-        if (lastUserMessageRef.current && scrollContainerRef.current) {
+
+        if (shouldScroll && lastUserMessageRef.current && scrollContainerRef.current) {
           scrollContainerRef.current.scrollTo({ top: lastUserMessageRef.current.offsetTop - 16, behavior: "smooth" });
           await new Promise((r) => setTimeout(r, 300));
           stabilizeScrollPosition();
         }
+
         setHideScrollbar(false);
         return;
       }
+
       setIsTyping(true);
       await new Promise((r) => setTimeout(r, 600));
       setIsTyping(false);
+
       const nq = questions[nextIdx];
       setMessages((prev) => [
         ...prev,
         { id: `bot-${nq.id}`, type: "bot", content: nq.content, subtext: nq.subtext, isQuestion: true },
       ]);
       setCurrentQuestionIndex(nextIdx);
+
       await new Promise((r) => setTimeout(r, 50));
-      if (lastUserMessageRef.current && scrollContainerRef.current) {
+
+      if (shouldScroll && lastUserMessageRef.current && scrollContainerRef.current) {
         scrollContainerRef.current.scrollTo({ top: lastUserMessageRef.current.offsetTop - 16, behavior: "smooth" });
         await new Promise((r) => setTimeout(r, 300));
         stabilizeScrollPosition();
       }
+
       setHideScrollbar(false);
       setShowInput(true);
     },
