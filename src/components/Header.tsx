@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({ variant = "landing" }) => {
       style={{
         position: "fixed",
         top: 0,
-        left: -10,
+        left: -8,
         right: 0,
         zIndex: 50,
         height: HEADER_HEIGHT,
