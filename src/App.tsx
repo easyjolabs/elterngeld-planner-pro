@@ -7,6 +7,7 @@ import Guide from "./pages/Guide";
 import Settings from "./pages/Settings";
 import ImportFaqs from "./pages/ImportFaqs";
 import LandingPage from "./pages/LandingPage";
+import ElterngeldGuideNew from "./components/ElterngeldGuideNew";
 import { PrivacyPolicy, Disclaimer, Imprint } from "./pages/LegalPages";
 import { PasswordGate } from "./components/PasswordGate";
 import { usePasswordProtection } from "./hooks/usePasswordProtection";
@@ -50,6 +51,7 @@ function ProtectedApp() {
         </Route>
 
         <Route path="/import-faqs" element={<ImportFaqs />} />
+        <Route path="/guide-new" element={<ElterngeldGuideNew />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

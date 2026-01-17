@@ -1569,6 +1569,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
   const targetScrollTopRef = useRef<number>(0);
+  const spacerObserverRef = useRef<ResizeObserver | null>(null);
   const isStreamingRef = useRef(false);
   const messagesLengthRef = useRef(0);
   useEffect(() => {
@@ -1868,7 +1869,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   }, []);
   // Dynamische Spacer-Berechnung wie im POC
   const calculateSpacerHeight = useCallback(() => {
-    if (targetScrollTop === null || !scrollRef.current) {
+    if (targetScrollTopRef.current === null || !scrollRef.current) {
       return 0;
     }
 
@@ -1878,11 +1879,11 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 
     // Spacer = was wir brauchen um targetScrollTop zu erreichen
     // scrollHeight muss >= targetScrollTop + viewportHeight sein
-    const neededScrollHeight = targetScrollTop + viewportHeight;
+    const neededScrollHeight = targetScrollTopRef.current + viewportHeight;
     const spacerNeeded = Math.max(0, neededScrollHeight - contentHeight);
 
     return spacerNeeded;
-  }, [targetScrollTop]);
+  }, []);
 
   const spacerHeight = calculateSpacerHeight();
   const scrollToBottom = () => {
