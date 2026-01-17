@@ -565,15 +565,16 @@ const IncomeSlider: React.FC<{
           }}
         />
         <div
-          className="flex flex-col items-center justify-center px-4 py-2"
+          className="flex flex-col items-center justify-center py-2"
           style={{
             backgroundColor: colors.white,
             borderRadius: ui.buttonRadius,
-            minWidth: "100px",
+            width: "110px",
+            flexShrink: 0,
           }}
         >
           <span
-            style={{ fontSize: "24px", fontWeight: 600, color: colors.textDark, lineHeight: 1.2, whiteSpace: "nowrap" }}
+            style={{ fontSize: "22px", fontWeight: 600, color: colors.textDark, lineHeight: 1.2, whiteSpace: "nowrap" }}
           >
             {displayValue}
           </span>
@@ -1367,11 +1368,11 @@ const ElterngeldGuideNew: React.FC = () => {
     await runScrollSequence();
 
     if (value === "eu") {
-      // EU citizen - show "Great!" then income question
+      // EU citizen - confirm eligibility then income question
       await showTypingThenMessage({
         id: "bot-eu-response",
         type: "bot",
-        content: "Great! Let's check one more thing.",
+        content: "Great! EU citizens are fully eligible for Elterngeld as long as they live in Germany.",
       });
 
       await showTypingThenMessage({
@@ -1612,7 +1613,7 @@ const ElterngeldGuideNew: React.FC = () => {
       await showTypingThenMessage({
         id: "bot-continue-anyway",
         type: "bot",
-        content: "Alright, let's continue – you can still use this tool to **plan** and see what you would receive.",
+        content: "Alright, let's continue. You can still use this tool to **plan** and see what you would receive.",
       });
 
       await showTypingThenMessage({
@@ -1663,6 +1664,13 @@ const ElterngeldGuideNew: React.FC = () => {
 
     await runScrollSequence();
 
+    // Add insight about deadline
+    await showTypingThenMessage({
+      id: "bot-date-response",
+      type: "bot",
+      content: "Got it! Remember to apply within 3 months of birth. Payments can only be backdated 3 months.",
+    });
+
     // Continue to next question (multiples - index 1)
     const nq = questions[1]; // multiples
     await showTypingThenMessage({
@@ -1703,19 +1711,37 @@ const ElterngeldGuideNew: React.FC = () => {
 
     await runScrollSequence();
 
+    // Calculate preview for insight
+    const hasSiblings = userData.siblings === "yes";
+    const multiples = userData.multiples || "no";
+    const previewCalc = calculateElterngeld(incomeValue, hasSiblings, multiples, 0);
+    const percentText = incomeValue < 1000 ? "up to 100%" : incomeValue < 1200 ? "around 67%" : "around 65%";
+
     // If couple, ask for partner's income
     const isCouple = userData.applicationType === "couple";
     if (isCouple) {
       await showTypingThenMessage({
+        id: "bot-income-insight",
+        type: "bot",
+        content: `Based on €${incomeValue.toLocaleString("de-DE")} net income, you'll receive ${percentText} as Elterngeld. That's roughly **€${previewCalc.basis.toLocaleString("de-DE")}/month**.`,
+      });
+
+      await showTypingThenMessage({
         id: "bot-partnerIncome",
         type: "bot",
         content: "What's your **partner's average monthly net income**?",
-        subtext: "Same as before – their take-home pay after taxes.",
+        subtext: "Same as before, their take-home pay after taxes.",
         isQuestion: true,
       });
       setInputType("partnerIncome");
     } else {
-      // Single parent - show calculation and complete
+      // Single parent - show insight then calculation
+      await showTypingThenMessage({
+        id: "bot-income-insight",
+        type: "bot",
+        content: `Based on €${incomeValue.toLocaleString("de-DE")} net income, you'll receive ${percentText} as Elterngeld. Here's your estimate:`,
+      });
+
       setMessages((prev) => [
         ...prev,
         {
@@ -1759,6 +1785,13 @@ const ElterngeldGuideNew: React.FC = () => {
     setUserData((prev) => ({ ...prev, partnerIncome: partnerIncomeValue }));
 
     await runScrollSequence();
+
+    // Show insight before calculation
+    await showTypingThenMessage({
+      id: "bot-partner-insight",
+      type: "bot",
+      content: "Here's your combined estimate:",
+    });
 
     // Show combined calculation card
     setMessages((prev) => [
@@ -1806,12 +1839,19 @@ const ElterngeldGuideNew: React.FC = () => {
     await runScrollSequence();
 
     // Show confirmation based on choice
-    const months = option.value === "alone" ? "14" : "12";
-    await showTypingThenMessage({
-      id: "bot-singleParent-confirm",
-      type: "bot",
-      content: `Got it! You can claim up to **${months} months** of Elterngeld.`,
-    });
+    if (option.value === "alone") {
+      await showTypingThenMessage({
+        id: "bot-singleParent-confirm",
+        type: "bot",
+        content: "As a sole caregiver, you can claim all **14 months** yourself.",
+      });
+    } else {
+      await showTypingThenMessage({
+        id: "bot-singleParent-confirm",
+        type: "bot",
+        content: "Since you live together, you can claim up to **12 months** as the sole applicant.",
+      });
+    }
 
     // Continue to income
     await showTypingThenMessage({
@@ -1867,17 +1907,14 @@ const ElterngeldGuideNew: React.FC = () => {
         return;
       }
 
-      // Handle income limit "under" case - show eligibility confirmation (only for EU, non-EU got it after visa)
-      if (q.id === "incomeLimit" && option.value === "under" && userData.citizenship === "eu") {
+      // Handle income limit "under" case
+      if (q.id === "incomeLimit" && option.value === "under") {
         await showTypingThenMessage({
           id: "bot-income-eligible",
           type: "bot",
-          content: "Based on your answers, you **likely qualify** for Elterngeld!",
+          content: "Perfect, you're within the income limit. Most families in Germany qualify.",
         });
-      }
 
-      // After incomeLimit "under", ask for due date
-      if (q.id === "incomeLimit" && option.value === "under") {
         await showTypingThenMessage({
           id: "bot-dueDate",
           type: "bot",
@@ -1888,6 +1925,34 @@ const ElterngeldGuideNew: React.FC = () => {
         setInputType("date");
         setIsProcessing(false);
         return;
+      }
+
+      // Handle multiples responses
+      if (q.id === "multiples") {
+        if (option.value === "twins") {
+          await showTypingThenMessage({
+            id: "bot-multiples-response",
+            type: "bot",
+            content:
+              "Congratulations on twins! You'll receive an extra €300 per month on top of your regular Elterngeld.",
+          });
+        } else if (option.value === "triplets") {
+          await showTypingThenMessage({
+            id: "bot-multiples-response",
+            type: "bot",
+            content:
+              "Amazing! You'll receive an extra €600 per month for triplets, and additional support programs may apply.",
+          });
+        }
+      }
+
+      // Handle siblings responses
+      if (q.id === "siblings" && option.value === "yes") {
+        await showTypingThenMessage({
+          id: "bot-siblings-response",
+          type: "bot",
+          content: "Nice! The sibling bonus adds 10% (at least €75) to your monthly Elterngeld.",
+        });
       }
 
       const nextIdx = currentQuestionIndex + 1;
@@ -1907,7 +1972,13 @@ const ElterngeldGuideNew: React.FC = () => {
           setIsProcessing(false);
           return;
         } else {
-          // Couple - ask for income
+          // Couple response
+          await showTypingThenMessage({
+            id: "bot-couple-response",
+            type: "bot",
+            content: "Great! Couples can split up to 14 months of Basiselterngeld between them.",
+          });
+
           await showTypingThenMessage({
             id: "bot-income",
             type: "bot",
