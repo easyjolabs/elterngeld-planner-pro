@@ -52,7 +52,7 @@ function ProtectedApp() {
         </Route>
 
         <Route path="/import-faqs" element={<ImportFaqs />} />
-        <Route path="/guide-new" element={<GuideNew />} />
+        <Route path="/guide-new" element={<ElterngeldGuideNew />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
