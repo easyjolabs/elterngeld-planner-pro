@@ -1471,8 +1471,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({
     if (index >= tokens.length) {
       setIsStreaming(false);
       setStreamingMessageIndex(-1);
-      // Adjust spacer after bot message is complete
-      setTimeout(() => adjustSpacerAfterBotResponse(), 100);
       callback?.();
       return;
     }
