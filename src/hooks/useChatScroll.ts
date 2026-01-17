@@ -76,9 +76,10 @@ export function useChatScroll() {
   const stabilizeScrollPosition = useCallback(() => {
     const container = scrollContainerRef.current;
     const messagesContainer = messagesContainerRef.current;
+    const spacer = bottomSpacerRef.current;
     const targetScrollTop = targetScrollTopRef.current;
 
-    if (!container || !messagesContainer || targetScrollTop === null) return;
+    if (!container || !messagesContainer || !spacer || targetScrollTop === null) return;
 
     const viewportHeight = container.clientHeight;
     const messagesHeight = messagesContainer.offsetHeight;
@@ -86,13 +87,15 @@ export function useChatScroll() {
     const neededScrollHeight = targetScrollTop + viewportHeight;
     const newSpacerHeight = Math.max(0, neededScrollHeight - messagesHeight);
 
-    setSpacerHeight(newSpacerHeight);
+    // WICHTIG: Direkt DOM manipulieren (wie im POC)
+    spacer.style.transition = 'none';  // Transition aus
+    spacer.style.height = `${newSpacerHeight}px`;  // Höhe setzen
+    void spacer.offsetHeight;  // Force layout recalc
+    container.scrollTop = targetScrollTop;  // Position setzen
+    spacer.style.transition = 'height 0.3s ease';  // Transition wieder an
 
-    requestAnimationFrame(() => {
-      if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTop = targetScrollTop;
-      }
-    });
+    // State synchronisieren
+    setSpacerHeight(newSpacerHeight);
   }, []);
 
   const releaseScrollLock = useCallback(() => {
