@@ -420,63 +420,6 @@ const ElterngeldGuideNew: React.FC = () => {
               </div>
             </div>
           )}
-
-          {/* Input buttons */}
-          {showInput && currentQuestion && !isComplete && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "10px",
-                marginTop: "8px",
-              }}
-            >
-              {currentQuestion.options.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => handleAnswer(option)}
-                  disabled={isScrolling}
-                  style={{
-                    padding: "14px 20px",
-                    backgroundColor: colors.tile,
-                    border: "none",
-                    borderRadius: ui.buttonRadius,
-                    cursor: isScrolling ? "not-allowed" : "pointer",
-                    fontSize: fontSize.button,
-                    fontFamily: fonts.body,
-                    color: colors.textDark,
-                    textAlign: "left",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    opacity: isScrolling ? 0.6 : 1,
-                    transition: "background-color 0.2s",
-                  }}
-                  onMouseOver={(e) => {
-                    if (!isScrolling) {
-                      e.currentTarget.style.backgroundColor = colors.tileHover;
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.backgroundColor = colors.tile;
-                  }}
-                >
-                  <span>{option.label}</span>
-                  {option.note && (
-                    <span
-                      style={{
-                        fontSize: fontSize.small,
-                        color: colors.success,
-                        fontWeight: 500,
-                      }}
-                    >
-                      {option.note}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Dynamic spacer */}
@@ -488,9 +431,75 @@ const ElterngeldGuideNew: React.FC = () => {
         />
       </div>
 
+      {/* Input section - fixed at bottom */}
+      {showInput && currentQuestion && !isComplete && (
+        <div
+          style={{
+            flexShrink: 0,
+            padding: "16px 20px",
+            backgroundColor: colors.background,
+            borderTop: `1px solid ${colors.border}`,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+            }}
+          >
+            {currentQuestion.options.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => handleAnswer(option)}
+                disabled={isScrolling}
+                style={{
+                  padding: "14px 20px",
+                  backgroundColor: colors.tile,
+                  border: "none",
+                  borderRadius: ui.buttonRadius,
+                  cursor: isScrolling ? "not-allowed" : "pointer",
+                  fontSize: fontSize.button,
+                  fontFamily: fonts.body,
+                  color: colors.textDark,
+                  textAlign: "left",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  opacity: isScrolling ? 0.6 : 1,
+                  transition: "background-color 0.2s",
+                }}
+                onMouseOver={(e) => {
+                  if (!isScrolling) {
+                    e.currentTarget.style.backgroundColor = colors.tileHover;
+                  }
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.tile;
+                }}
+              >
+                <span>{option.label}</span>
+                {option.note && (
+                  <span
+                    style={{
+                      fontSize: fontSize.small,
+                      color: colors.success,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {option.note}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Debug info */}
       <div
         style={{
+          flexShrink: 0,
           padding: "8px 16px",
           backgroundColor: colors.tile,
           borderTop: `1px solid ${colors.border}`,
