@@ -1567,6 +1567,8 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const [shouldScrollToUser, setShouldScrollToUser] = useState(false);
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const spacerRef = useRef<HTMLDivElement>(null);
+  const targetScrollTopRef = useRef<number>(0);
   const isStreamingRef = useRef(false);
   const messagesLengthRef = useRef(0);
   useEffect(() => {
@@ -1579,7 +1581,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
 
   /**
    * Check if there's actual message content below the viewport
-   * (not just spacer space)
    */
   const hasContentBelow = useCallback(() => {
     if (!scrollRef.current || !lastMessageRef.current) return false;
@@ -1587,7 +1588,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     const container = scrollRef.current;
     const lastMsg = lastMessageRef.current;
 
-    // Calculate position of last message bottom
     let lastMsgBottom = 0;
     let el: HTMLElement | null = lastMsg;
     while (el && el !== container) {
@@ -1597,9 +1597,67 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     lastMsgBottom += lastMsg.offsetHeight;
 
     const viewportBottom = container.scrollTop + container.clientHeight;
-
-    // There's content below if the last message extends past the viewport
     return lastMsgBottom > viewportBottom + 5;
+  }, []);
+
+  /**
+   * Update spacer height for user message (from POC)
+   */
+  const updateSpacerForMessage = useCallback(() => {
+    if (!scrollRef.current || !lastUserMessageRef.current || !spacerRef.current) return;
+
+    const container = scrollRef.current;
+    const messageElement = lastUserMessageRef.current;
+    const spacer = spacerRef.current;
+
+    const viewportHeight = container.clientHeight;
+    const messageHeight = messageElement.offsetHeight;
+    const spacerHeight = Math.max(0, viewportHeight - messageHeight - 32);
+
+    spacer.style.height = spacerHeight + 'px';
+  }, []);
+
+  /**
+   * After bot response: recalculate spacer and hold scroll position (from POC)
+   */
+  const adjustSpacerAfterBotMessage = useCallback(() => {
+    if (!scrollRef.current || !lastUserMessageRef.current || !spacerRef.current || !messagesContainerRef.current) return;
+
+    const container = scrollRef.current;
+    const userMessage = lastUserMessageRef.current;
+    const spacer = spacerRef.current;
+
+    // Calculate user message position
+    let userMsgOffsetTop = 0;
+    let el: HTMLElement | null = userMessage;
+    while (el && el !== container) {
+      userMsgOffsetTop += el.offsetTop;
+      el = el.offsetParent as HTMLElement;
+    }
+
+    const targetScrollTop = userMsgOffsetTop - 16;
+    const viewportHeight = container.clientHeight;
+
+    // Disable transition for instant update
+    spacer.style.transition = 'none';
+
+    // Calculate new spacer height
+    const messagesHeight = messagesContainerRef.current.offsetHeight - spacer.offsetHeight;
+    const neededScrollHeight = targetScrollTop + viewportHeight;
+    const newSpacerHeight = Math.max(0, neededScrollHeight - messagesHeight);
+
+    spacer.style.height = newSpacerHeight + 'px';
+
+    // Force layout recalculation
+    void spacer.offsetHeight;
+
+    // Explicitly set scroll position
+    container.scrollTop = targetScrollTop;
+
+    // Re-enable transition
+    requestAnimationFrame(() => {
+      spacer.style.transition = 'height 0.3s ease';
+    });
   }, []);
 
   const PENDING_SESSION_STORAGE_KEY = "elterngeld_pending_session";
@@ -1772,6 +1830,8 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     if (index >= tokens.length) {
       setIsStreaming(false);
       setStreamingMessageIndex(-1);
+      // After bot response: recalculate spacer and hold position (from POC)
+      setTimeout(() => adjustSpacerAfterBotMessage(), 50);
       callback?.();
       return;
     }
@@ -2223,6 +2283,10 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
 
     setHideScrollbar(true);
 
+    // Step 1: Update spacer for message (from POC)
+    updateSpacerForMessage();
+
+    // Step 2: Scroll to user message
     requestAnimationFrame(() => {
       const userEl = lastUserMessageRef.current;
       const container = scrollRef.current;
@@ -2241,7 +2305,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         setTimeout(() => setHideScrollbar(false), 800);
       }
     });
-  }, [shouldScrollToUser, lastUserMessageIndex]);
+  }, [shouldScrollToUser, lastUserMessageIndex, updateSpacerForMessage]);
   const handleInput = (value: string | number, displayValue?: string) => {
     setStepHistory((prev) => [
       ...prev,
@@ -4425,23 +4489,6 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
     );
   }
 
-  // Spacer height: Only as much as needed to scroll user message to top
-  const spacerHeight = (() => {
-    if (lastUserMessageIndex < 0 || !scrollRef.current || !lastUserMessageRef.current) {
-      return 0;
-    }
-
-    // Only show spacer when actively scrolling to user message
-    if (!hideScrollbar) {
-      return 0;
-    }
-
-    const viewportHeight = scrollRef.current.clientHeight;
-    const messageHeight = lastUserMessageRef.current.offsetHeight;
-
-    return Math.max(0, viewportHeight - messageHeight - 100);
-  })();
-
   return (
     <>
       <style>{`
@@ -4768,7 +4815,13 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                     }}
                   />
 
-                  {spacerHeight > 0 && <div style={{ height: spacerHeight }} />}
+                  <div
+                    ref={spacerRef}
+                    style={{
+                      height: 0,
+                      transition: 'height 0.3s ease'
+                    }}
+                  />
                 </>
               )}
             </div>
