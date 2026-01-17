@@ -232,21 +232,30 @@ const ElterngeldGuideNew: React.FC = () => {
       await new Promise((r) => setTimeout(r, 800));
       setIsTyping(false);
 
-      // 6. Scroll-Position VORHER speichern (useLayoutEffect stellt sie wieder her)
-      savedScrollRef.current = scrollContainerRef.current?.scrollTop || null;
-
+      // 6. Bot message hinzufügen
       const nextQuestion = questions[nextIndex];
       setMessages((prev) => [
         ...prev,
         { id: `bot-${nextQuestion.id}`, type: "bot", content: nextQuestion.content, subtext: nextQuestion.subtext },
       ]);
-
       setCurrentQuestionIndex(nextIndex);
 
-      // 7. Spacer anpassen (nach useLayoutEffect)
-      requestAnimationFrame(() => {
+      // 7. Warten auf Render, dann SMOOTH zurück zur User-Message
+      await new Promise((r) => setTimeout(r, 50));
+
+      if (lastUserMessageRef.current && scrollContainerRef.current) {
+        const targetTop = lastUserMessageRef.current.offsetTop - 16;
+
+        // Smooth scroll zurück (kurze Animation)
+        scrollContainerRef.current.scrollTo({
+          top: targetTop,
+          behavior: 'smooth'
+        });
+
+        // Nach Animation stabilisieren
+        await new Promise((r) => setTimeout(r, 300));
         stabilizeScrollPosition();
-      });
+      }
 
       setShowInput(true);
     },
@@ -415,6 +424,63 @@ const ElterngeldGuideNew: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* Input buttons - direkt im Chat */}
+          {showInput && currentQuestion && !isComplete && (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                marginTop: "8px",
+              }}
+            >
+              {currentQuestion.options.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => handleAnswer(option)}
+                  disabled={isScrolling}
+                  style={{
+                    padding: "14px 20px",
+                    backgroundColor: colors.tile,
+                    border: "none",
+                    borderRadius: ui.buttonRadius,
+                    cursor: isScrolling ? "not-allowed" : "pointer",
+                    fontSize: fontSize.button,
+                    fontFamily: fonts.body,
+                    color: colors.textDark,
+                    textAlign: "left",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    opacity: isScrolling ? 0.6 : 1,
+                    transition: "background-color 0.2s",
+                  }}
+                  onMouseOver={(e) => {
+                    if (!isScrolling) {
+                      e.currentTarget.style.backgroundColor = colors.tileHover;
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.tile;
+                  }}
+                >
+                  <span>{option.label}</span>
+                  {option.note && (
+                    <span
+                      style={{
+                        fontSize: fontSize.small,
+                        color: colors.success,
+                        fontWeight: 500,
+                      }}
+                    >
+                      {option.note}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Dynamic spacer */}
@@ -426,71 +492,6 @@ const ElterngeldGuideNew: React.FC = () => {
           }}
         />
       </div>
-
-      {/* Input section - fixed at bottom */}
-      {showInput && currentQuestion && !isComplete && (
-        <div
-          style={{
-            flexShrink: 0,
-            padding: "16px 20px",
-            backgroundColor: colors.background,
-            borderTop: `1px solid ${colors.border}`,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "10px",
-            }}
-          >
-            {currentQuestion.options.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handleAnswer(option)}
-                disabled={isScrolling}
-                style={{
-                  padding: "14px 20px",
-                  backgroundColor: colors.tile,
-                  border: "none",
-                  borderRadius: ui.buttonRadius,
-                  cursor: isScrolling ? "not-allowed" : "pointer",
-                  fontSize: fontSize.button,
-                  fontFamily: fonts.body,
-                  color: colors.textDark,
-                  textAlign: "left",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  opacity: isScrolling ? 0.6 : 1,
-                  transition: "background-color 0.2s",
-                }}
-                onMouseOver={(e) => {
-                  if (!isScrolling) {
-                    e.currentTarget.style.backgroundColor = colors.tileHover;
-                  }
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.tile;
-                }}
-              >
-                <span>{option.label}</span>
-                {option.note && (
-                  <span
-                    style={{
-                      fontSize: fontSize.small,
-                      color: colors.success,
-                      fontWeight: 500,
-                    }}
-                  >
-                    {option.note}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Debug info */}
       <div
