@@ -905,61 +905,40 @@ const RulesSpotlight: React.FC<RulesSpotlightProps> = ({ isOpen, onClose, isCoup
   const goPrev = () => setCurrentRule((prev) => Math.max(prev - 1, 0));
   const isLast = currentRule === rules.length - 1;
 
+  // Width für den klaren Bereich (erste 2 Spalten + Icons links)
+  const clearWidth = 220;
+
   return (
     <div className="absolute inset-0 z-50 rounded-2xl overflow-hidden">
-      {/* Left clear area - no blur, just subtle bg */}
+      {/* Blurred right area */}
       <div
-        className="absolute top-0 left-0 bottom-0"
+        className="absolute top-0 bottom-0 right-0 flex items-center justify-center"
         style={{
-          width: 200,
-          background: "rgba(255,255,255,0.3)",
-        }}
-      />
-
-      {/* Highlight border around first 2 columns */}
-      <div
-        className="absolute"
-        style={{
-          top: 60,
-          left: 55,
-          width: 150,
-          height: isCouple ? 200 : 120,
-          border: "2px solid rgba(0,0,0,0.2)",
-          borderRadius: 20,
-          background: "transparent",
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* Right blurred area with tooltip */}
-      <div
-        className="absolute top-0 right-0 bottom-0 flex items-center"
-        style={{
-          left: 200,
-          backdropFilter: "blur(3px)",
-          background: "rgba(241, 237, 229, 0.85)",
+          left: clearWidth,
+          backdropFilter: "blur(4px)",
+          background: "rgba(241, 237, 229, 0.9)",
         }}
       >
-        {/* Tooltip card */}
+        {/* Tooltip card - breiter */}
         <div
-          className="rounded-2xl p-5 mx-4"
+          className="rounded-2xl p-6 mx-6"
           style={{
-            width: "100%",
-            maxWidth: 280,
+            width: "90%",
+            maxWidth: 400,
             background: colors.white,
             boxShadow: "0 4px 24px rgba(0,0,0,0.1)",
           }}
         >
-          <div className="mb-3">
+          <div className="mb-4">
             <span
-              className="text-xs font-medium px-2 py-0.5 rounded-full"
+              className="text-xs font-medium px-2 py-1 rounded-full"
               style={{ background: colors.tile, color: colors.text }}
             >
               {currentRule + 1}/{rules.length}
             </span>
           </div>
-          <div className="mb-3">
-            <h3 className="font-semibold text-base mb-1" style={{ color: colors.textDark }}>
+          <div className="mb-4">
+            <h3 className="font-semibold text-lg mb-2" style={{ color: colors.textDark }}>
               {rules[currentRule].title}
             </h3>
             <p className="text-sm leading-relaxed" style={{ color: colors.text }}>
@@ -968,7 +947,7 @@ const RulesSpotlight: React.FC<RulesSpotlightProps> = ({ isOpen, onClose, isCoup
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center justify-between pt-3" style={{ borderTop: `1px solid ${colors.border}` }}>
+          <div className="flex items-center justify-between pt-4" style={{ borderTop: `1px solid ${colors.border}` }}>
             <div className="flex gap-1.5">
               {rules.map((_, i) => (
                 <div
@@ -982,7 +961,7 @@ const RulesSpotlight: React.FC<RulesSpotlightProps> = ({ isOpen, onClose, isCoup
               {currentRule > 0 && (
                 <button
                   onClick={goPrev}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
                   style={{ background: colors.tile, color: colors.textDark }}
                 >
                   ←
@@ -990,7 +969,7 @@ const RulesSpotlight: React.FC<RulesSpotlightProps> = ({ isOpen, onClose, isCoup
               )}
               <button
                 onClick={isLast ? onClose : goNext}
-                className="px-4 py-2 rounded-lg text-sm font-medium"
+                className="px-6 py-2.5 rounded-xl text-sm font-semibold"
                 style={{ background: colors.textDark, color: colors.white }}
               >
                 {isLast ? "Got it" : "Next"}
@@ -1000,8 +979,18 @@ const RulesSpotlight: React.FC<RulesSpotlightProps> = ({ isOpen, onClose, isCoup
         </div>
       </div>
 
-      {/* Click outside to close */}
-      <div className="absolute top-0 left-0 bottom-0" style={{ width: 200 }} onClick={onClose} />
+      {/* Border around first 2 columns (the clear/spotlight area) */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          top: 45,
+          left: 55,
+          width: 155,
+          height: isCouple ? 245 : 150,
+          border: "2px solid rgba(0,0,0,0.15)",
+          borderRadius: 20,
+        }}
+      />
     </div>
   );
 };
