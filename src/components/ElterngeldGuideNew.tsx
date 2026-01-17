@@ -11,7 +11,7 @@ const colors = {
   white: "#FFFFFF",
   text: "#666666",
   textDark: "#000000",
-  userBubble: "#FFFFEB",
+  userBubble: "#F1EDE5",
   border: "#E7E5E4",
   orange: "#FF8752",
 };
@@ -277,8 +277,8 @@ const questions: Question[] = [
     content: "Did your household earn **more than €175,000** taxable income last year?",
     subtext: 'This is your "zu versteuerndes Einkommen".',
     options: [
-      { value: "under", label: "No, under €175,000", icon: "check" },
-      { value: "over", label: "Yes, over €175,000", icon: "x" },
+      { value: "under", label: "No, under €175k", icon: "check" },
+      { value: "over", label: "Yes, over €175k", icon: "x" },
     ],
   },
   {
@@ -296,8 +296,8 @@ const questions: Question[] = [
     content: "Do you have **other young children** at home?",
     subtext: "Children under 3, or two under 6, qualify for +10%.",
     options: [
-      { value: "yes", label: "Yes", icon: "check", note: "+10%" },
       { value: "none", label: "No", icon: "x" },
+      { value: "yes", label: "Yes", icon: "check", note: "+10%" },
     ],
   },
   {
@@ -305,8 +305,8 @@ const questions: Question[] = [
     content: "Are you applying as a **couple** or as a **single parent**?",
     subtext: "Choose 'single parent' if only one parent is applying for Elterngeld.",
     options: [
-      { value: "couple", label: "Applying as a couple", icon: "couple" },
-      { value: "single", label: "Applying as a single parent", icon: "single" },
+      { value: "couple", label: "As a couple", icon: "couple" },
+      { value: "single", label: "Single parent", icon: "single" },
     ],
   },
 ];
@@ -337,8 +337,8 @@ const ButtonOptions: React.FC<{
 }> = ({ options, onSelect, disabled }) => {
   let noteIdx = 0;
 
-  // Use 2-column grid for exactly 2 short options without sub/note
-  const useGrid = options.length === 2 && options.every((opt) => !opt.sub && !opt.note && opt.label.length < 28);
+  // Use 2-column grid for exactly 2 short options without sub
+  const useGrid = options.length === 2 && options.every((opt) => !opt.sub && opt.label.length < 28);
 
   return (
     <div className={useGrid ? "grid grid-cols-2 gap-3 mt-4" : "space-y-3 mt-4"}>
@@ -349,17 +349,17 @@ const ButtonOptions: React.FC<{
             key={i}
             onClick={() => onSelect(opt)}
             disabled={disabled}
-            className={`w-full transition-all flex items-center hover:border-stone-400 ${useGrid ? "justify-center" : "justify-between"} text-left`}
+            className={`w-full transition-all flex items-center hover:border-stone-400 ${useGrid ? "flex-col justify-center" : "justify-between"} text-left`}
             style={{
               backgroundColor: colors.white,
               border: `1.5px solid ${colors.border}`,
               borderRadius: ui.buttonRadius,
-              padding: opt.sub ? "14px 20px" : "16px 20px",
+              padding: opt.sub ? "14px 20px" : useGrid ? "16px 12px" : "16px 20px",
               opacity: disabled ? 0.6 : 1,
               cursor: disabled ? "not-allowed" : "pointer",
             }}
           >
-            <div className={`flex items-center ${useGrid ? "gap-2" : "gap-3"}`}>
+            <div className={`flex items-center ${useGrid ? "justify-center gap-2" : "gap-3"}`}>
               {opt.icon && <span style={{ color: colors.textDark }}>{icons[opt.icon]}</span>}
               <div>
                 <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>{opt.label}</span>
@@ -368,7 +368,7 @@ const ButtonOptions: React.FC<{
             </div>
             {opt.note && (
               <span
-                className="px-2.5 py-1 rounded-full"
+                className={useGrid ? "mt-1.5 px-2 py-0.5 rounded-full" : "px-2.5 py-1 rounded-full"}
                 style={{ fontSize: fontSize.tiny, fontWeight: 500, backgroundColor: tagColors[ni % 3], color: "#000" }}
               >
                 {opt.note}
@@ -532,17 +532,17 @@ const IncomeSlider: React.FC<{
   onConfirm: () => void;
   disabled?: boolean;
   suffix?: string;
-}> = ({ label, value, min, max, step, onChange, onConfirm, disabled, suffix = "€" }) => {
+  formatValue?: (value: number) => string;
+}> = ({ label, value, min, max, step, onChange, onConfirm, disabled, suffix = "€", formatValue }) => {
+  const displayValue = formatValue
+    ? formatValue(value)
+    : suffix === "€"
+      ? `€${value.toLocaleString("de-DE")}`
+      : `${value}${suffix}`;
+
   return (
-    <div
-      className="mt-4 p-4"
-      style={{ backgroundColor: colors.white, border: `1.5px solid ${colors.border}`, borderRadius: ui.buttonRadius }}
-    >
-      <p style={{ fontSize: fontSize.small, color: colors.text, marginBottom: "12px" }}>{label}</p>
-      <div className="flex items-center gap-4">
-        <span style={{ fontSize: "20px", fontWeight: 600, color: colors.textDark, minWidth: "90px" }}>
-          {suffix === "€" ? `€${value.toLocaleString("de-DE")}` : `${value}${suffix}`}
-        </span>
+    <div className="mt-4">
+      <div className="flex items-center gap-3 mb-4">
         <input
           type="range"
           min={min}
@@ -551,22 +551,35 @@ const IncomeSlider: React.FC<{
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
           disabled={disabled}
-          className="flex-1 h-2 rounded-lg appearance-none cursor-pointer"
+          className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
           style={{
-            background: `linear-gradient(to right, ${colors.orange} 0%, ${colors.orange} ${((value - min) / (max - min)) * 100}%, ${colors.border} ${((value - min) / (max - min)) * 100}%, ${colors.border} 100%)`,
+            background: `linear-gradient(to right, ${colors.textDark} 0%, ${colors.textDark} ${((value - min) / (max - min)) * 100}%, ${colors.border} ${((value - min) / (max - min)) * 100}%, ${colors.border} 100%)`,
           }}
         />
+        <div
+          className="flex flex-col items-center justify-center px-4 py-2"
+          style={{
+            backgroundColor: colors.white,
+            borderRadius: ui.buttonRadius,
+            minWidth: "80px",
+          }}
+        >
+          <span style={{ fontSize: "24px", fontWeight: 600, color: colors.textDark, lineHeight: 1.2 }}>
+            {displayValue}
+          </span>
+          {label && <span style={{ fontSize: fontSize.tiny, color: colors.text }}>{label}</span>}
+        </div>
       </div>
       <button
         onClick={onConfirm}
         disabled={disabled}
-        className="w-full mt-4 transition-all hover:opacity-90"
+        className="w-full transition-all hover:opacity-90"
         style={{
-          backgroundColor: colors.orange,
+          backgroundColor: colors.textDark,
           color: "#fff",
           fontWeight: 600,
           fontSize: fontSize.button,
-          padding: "14px 20px",
+          padding: "16px 20px",
           borderRadius: ui.buttonRadius,
           border: "none",
           cursor: disabled ? "not-allowed" : "pointer",
@@ -726,15 +739,16 @@ const StartScreen: React.FC<{ onAnswer: (v: string, l: string) => void }> = ({ o
     <p style={{ fontSize: "15px", color: "#666", lineHeight: 1.5, marginBottom: "20px", paddingLeft: "16px" }}>
       Your eligibility depends on your citizenship and residence permit.
     </p>
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+    <div className="grid grid-cols-2 gap-3">
       <button
-        onClick={() => onAnswer("eu", "Yes, German or EU/EEA/Swiss")}
+        onClick={() => onAnswer("eu", "Yes, EU citizen")}
         className="w-full transition-all hover:border-stone-400"
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "12px",
-          padding: "16px 20px",
+          justifyContent: "center",
+          gap: "10px",
+          padding: "16px 12px",
           background: colors.white,
           border: `1.5px solid ${colors.border}`,
           borderRadius: ui.buttonRadius,
@@ -743,10 +757,10 @@ const StartScreen: React.FC<{ onAnswer: (v: string, l: string) => void }> = ({ o
           fontWeight: 500,
           color: "#000",
           cursor: "pointer",
-          textAlign: "left",
+          textAlign: "center",
         }}
       >
-        {icons.eu}Yes, German or EU/EEA/Swiss
+        {icons.eu}Yes, EU citizen
       </button>
       <button
         onClick={() => onAnswer("other", "No, other nationality")}
@@ -754,8 +768,9 @@ const StartScreen: React.FC<{ onAnswer: (v: string, l: string) => void }> = ({ o
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "12px",
-          padding: "16px 20px",
+          justifyContent: "center",
+          gap: "10px",
+          padding: "16px 12px",
           background: colors.white,
           border: `1.5px solid ${colors.border}`,
           borderRadius: ui.buttonRadius,
@@ -764,10 +779,10 @@ const StartScreen: React.FC<{ onAnswer: (v: string, l: string) => void }> = ({ o
           fontWeight: 500,
           color: "#000",
           cursor: "pointer",
-          textAlign: "left",
+          textAlign: "center",
         }}
       >
-        {icons.globe}No, other nationality
+        {icons.globe}No, other
       </button>
     </div>
   </div>
@@ -1275,17 +1290,18 @@ const ElterngeldGuideNew: React.FC = () => {
 
     await runScrollSequence();
 
-    // Ask for income
+    // Continue to next question (multiples - index 1)
+    const nq = questions[1]; // multiples
     await showTypingThenMessage({
-      id: "bot-income",
+      id: `bot-${nq.id}`,
       type: "bot",
-      content: "What's your **average monthly net income**?",
-      subtext:
-        "This is your take-home pay after taxes and social contributions. We'll use this to calculate your Elterngeld.",
+      content: nq.content,
+      subtext: nq.subtext,
       isQuestion: true,
     });
 
-    setInputType("income");
+    setCurrentQuestionIndex(1);
+    setInputType("buttons");
     setIsProcessing(false);
   };
 
@@ -1327,11 +1343,6 @@ const ElterngeldGuideNew: React.FC = () => {
     } else {
       // Single parent - complete
       setIsComplete(true);
-      await showTypingThenMessage({
-        id: "bot-complete",
-        type: "bot",
-        content: "Great, I have everything I need to calculate your Elterngeld!",
-      });
     }
 
     setIsProcessing(false);
@@ -1364,12 +1375,6 @@ const ElterngeldGuideNew: React.FC = () => {
 
     // Complete the flow
     setIsComplete(true);
-    await showTypingThenMessage({
-      id: "bot-complete",
-      type: "bot",
-      content: "Great, I have everything I need to calculate your Elterngeld!",
-    });
-
     setIsProcessing(false);
   };
 
@@ -1405,16 +1410,16 @@ const ElterngeldGuideNew: React.FC = () => {
       content: `Got it! You can claim up to **${months} months** of Elterngeld.`,
     });
 
-    // Continue to due date
+    // Continue to income
     await showTypingThenMessage({
-      id: "bot-dueDate",
+      id: "bot-income",
       type: "bot",
-      content: "When is your child **born or expected** to be born?",
-      subtext: "Remember to apply within 3 months after birth. Payments can only be backdated 3 months.",
+      content: "What's your **average monthly net income**?",
+      subtext: "Your take-home pay after taxes and social contributions.",
       isQuestion: true,
     });
 
-    setInputType("date");
+    setInputType("income");
     setIsProcessing(false);
   };
 
@@ -1468,6 +1473,20 @@ const ElterngeldGuideNew: React.FC = () => {
         });
       }
 
+      // After incomeLimit "under", ask for due date
+      if (q.id === "incomeLimit" && option.value === "under") {
+        await showTypingThenMessage({
+          id: "bot-dueDate",
+          type: "bot",
+          content: "When is your child **born or expected** to be born?",
+          subtext: "This helps us calculate your benefit periods accurately.",
+          isQuestion: true,
+        });
+        setInputType("date");
+        setIsProcessing(false);
+        return;
+      }
+
       const nextIdx = currentQuestionIndex + 1;
 
       // After applicationType, check if single parent needs follow-up
@@ -1485,15 +1504,15 @@ const ElterngeldGuideNew: React.FC = () => {
           setIsProcessing(false);
           return;
         } else {
-          // Couple - continue to due date
+          // Couple - ask for income
           await showTypingThenMessage({
-            id: "bot-dueDate",
+            id: "bot-income",
             type: "bot",
-            content: "When is your child **born or expected** to be born?",
-            subtext: "Remember to apply within 3 months after birth. Payments can only be backdated 3 months.",
+            content: "What's your **average monthly net income**?",
+            subtext: "Your take-home pay after taxes and social contributions.",
             isQuestion: true,
           });
-          setInputType("date");
+          setInputType("income");
           setIsProcessing(false);
           return;
         }
@@ -1501,11 +1520,6 @@ const ElterngeldGuideNew: React.FC = () => {
 
       if (nextIdx >= questions.length) {
         setIsComplete(true);
-        await showTypingThenMessage({
-          id: "bot-complete",
-          type: "bot",
-          content: "Great, I have everything I need to calculate your Elterngeld!",
-        });
         setIsProcessing(false);
         return;
       }
@@ -1594,7 +1608,7 @@ const ElterngeldGuideNew: React.FC = () => {
     if (inputType === "income") {
       return (
         <IncomeSlider
-          label="Drag to set your monthly net income"
+          label="/month"
           value={incomeValue}
           min={0}
           max={7500}
@@ -1602,6 +1616,7 @@ const ElterngeldGuideNew: React.FC = () => {
           onChange={setIncomeValue}
           onConfirm={handleIncomeConfirm}
           disabled={isProcessing}
+          formatValue={(v) => `€${v.toLocaleString("de-DE")}`}
         />
       );
     }
@@ -1609,7 +1624,7 @@ const ElterngeldGuideNew: React.FC = () => {
     if (inputType === "partnerIncome") {
       return (
         <IncomeSlider
-          label="Drag to set your partner's monthly net income"
+          label="/month"
           value={partnerIncomeValue}
           min={0}
           max={7500}
@@ -1617,6 +1632,7 @@ const ElterngeldGuideNew: React.FC = () => {
           onChange={setPartnerIncomeValue}
           onConfirm={handlePartnerIncomeConfirm}
           disabled={isProcessing}
+          formatValue={(v) => `€${v.toLocaleString("de-DE")}`}
         />
       );
     }
@@ -1625,8 +1641,8 @@ const ElterngeldGuideNew: React.FC = () => {
       return (
         <ButtonOptions
           options={[
-            { value: "alone", label: "No, I'm raising the child alone", icon: "single", note: "14 months" },
-            { value: "together", label: "Yes, but only I'm applying", icon: "couple", note: "12 months" },
+            { value: "alone", label: "No, raising alone", icon: "single", note: "14 mo" },
+            { value: "together", label: "Yes, but only I apply", icon: "couple", note: "12 mo" },
           ]}
           onSelect={handleSingleParentChoice}
           disabled={isProcessing}
@@ -1657,8 +1673,8 @@ const ElterngeldGuideNew: React.FC = () => {
       return (
         <ButtonOptions
           options={[
-            { value: "continue", label: "Continue anyway", sub: "For planning purposes", icon: "check" },
-            { value: "find_stelle", label: "Find my Elterngeldstelle", sub: "Get individual advice", icon: "home" },
+            { value: "continue", label: "Continue anyway", icon: "check" },
+            { value: "find_stelle", label: "Find Elterngeldstelle", icon: "home" },
           ]}
           onSelect={handleIneligibleChoice}
           disabled={isProcessing}
@@ -1680,18 +1696,18 @@ const ElterngeldGuideNew: React.FC = () => {
         @keyframes pulse { 0%, 100% { opacity: 0.4; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1); } }
         input[type="range"]::-webkit-slider-thumb {
           -webkit-appearance: none;
-          width: 20px;
-          height: 20px;
-          background: #FF8752;
+          width: 18px;
+          height: 18px;
+          background: #000000;
           border-radius: 50%;
           cursor: pointer;
           border: 2px solid white;
           box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         input[type="range"]::-moz-range-thumb {
-          width: 20px;
-          height: 20px;
-          background: #FF8752;
+          width: 18px;
+          height: 18px;
+          background: #000000;
           border-radius: 50%;
           cursor: pointer;
           border: 2px solid white;
