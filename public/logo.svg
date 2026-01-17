@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="403px" height="84px" viewBox="0 0 403 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>Group 7</title>
+    <title>Group 7 Copy</title>
     <g id="Eltern-Helper" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Artboard" transform="translate(-3351.000000, -3351.000000)">
-            <g id="Group-7" transform="translate(3351.000000, 3351.000000)">
+        <g id="Artboard" transform="translate(-3347.000000, -3470.000000)">
+            <g id="Group-7-Copy" transform="translate(3347.000000, 3470.000000)">
                 <text id="for-Expats-Copy" font-family="SpaceGrotesk-Light_Regular, Space Grotesk" font-size="22" font-weight="normal" letter-spacing="1.6" fill="#000000">
                     <tspan x="86" y="78">for Expats</tspan>
                 </text>
@@ -14,11 +14,11 @@
                 <text id="Help-Copy" font-family="SpaceGrotesk-Light_Bold, Space Grotesk" font-size="52" font-weight="bold" letter-spacing="-3.9" fill="#000000">
                     <tspan x="305" y="51">Help</tspan>
                 </text>
-                <g id="Group-6-Copy" transform="translate(0.000000, 14.000000)">
-                    <g id="Body" fill="#D0B080" fill-rule="nonzero">
+                <g id="Group-6-Copy-2" transform="translate(0.000000, 14.000000)">
+                    <g id="Body" fill="#B98A43" fill-rule="nonzero">
                         <path d="M64,32 L64,32 C64,14.3127273 49.6872727,0 32,0 L32,0 C14.3127273,0 0,14.3127273 0,32 L0,64 L32,64 C49.6872727,64 64,49.6872727 64,32 Z" id="Shape"></path>
                     </g>
-                    <g id="Eyes-Copy" transform="translate(20.244774, 18.494471)">
+                    <g id="Eyes-Copy-2" transform="translate(20.244774, 18.494471)">
                         <ellipse id="Oval" fill="#FFFFFF" cx="7.52015216" cy="8.51779743" rx="7.52015216" ry="8.51779743"></ellipse>
                         <ellipse id="Oval-Copy-3" fill="#FFFFFF" cx="25.4714831" cy="8.51779743" rx="7.52015216" ry="8.51779743"></ellipse>
                         <ellipse id="Oval" fill="#000000" cx="8.73307993" cy="9.97799128" rx="3.88136886" ry="4.1372159"></ellipse>
