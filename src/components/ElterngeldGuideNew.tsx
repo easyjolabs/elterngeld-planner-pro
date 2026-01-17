@@ -62,6 +62,8 @@ interface UserData {
   applicationType?: string;
   singleParentType?: string; // "alone" (14 months) or "together" (12 months)
   dueDate?: string;
+  monthlyIncome?: number;
+  partnerIncome?: number;
   _conditionalType?: string;
 }
 
@@ -380,7 +382,7 @@ const ButtonOptions: React.FC<{
 };
 
 // ===========================================
-// DATE PICKER
+// DATE PICKER (Compact)
 // ===========================================
 const DatePicker: React.FC<{
   onSelect: (isoDate: string, displayDate: string) => void;
@@ -389,21 +391,7 @@ const DatePicker: React.FC<{
   const [month, setMonth] = useState<number>(new Date().getMonth());
   const [year, setYear] = useState<number>(new Date().getFullYear());
 
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 4 }, (_, i) => currentYear - 1 + i);
 
@@ -413,16 +401,12 @@ const DatePicker: React.FC<{
   const daysInMonth = getDaysInMonth(month, year);
   const firstDay = getFirstDayOfMonth(month, year);
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-  const emptyDays = Array.from({ length: (firstDay + 6) % 7 }, () => null); // Monday start
+  const emptyDays = Array.from({ length: (firstDay + 6) % 7 }, () => null);
 
   const handleDayClick = (day: number) => {
     const date = new Date(year, month, day);
     const isoDate = date.toISOString().split("T")[0];
-    const displayDate = date.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+    const displayDate = date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     onSelect(isoDate, displayDate);
   };
 
@@ -446,33 +430,28 @@ const DatePicker: React.FC<{
 
   return (
     <div
-      className="mt-4 p-4"
-      style={{
-        backgroundColor: colors.white,
-        border: `1.5px solid ${colors.border}`,
-        borderRadius: ui.buttonRadius,
-      }}
+      className="mt-4 p-3"
+      style={{ backgroundColor: colors.white, border: `1.5px solid ${colors.border}`, borderRadius: ui.buttonRadius }}
     >
-      {/* Month/Year Header */}
-      <div className="flex items-center justify-between mb-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
         <button
           onClick={goToPrevMonth}
           disabled={disabled}
-          className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
+          className="p-1.5 hover:bg-stone-100 rounded transition-colors"
           style={{ color: colors.textDark }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <select
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
             disabled={disabled}
-            className="bg-transparent font-medium outline-none cursor-pointer"
-            style={{ fontSize: fontSize.button, color: colors.textDark }}
+            className="bg-transparent font-medium outline-none cursor-pointer text-sm"
+            style={{ color: colors.textDark }}
           >
             {months.map((m, i) => (
               <option key={m} value={i}>
@@ -484,8 +463,8 @@ const DatePicker: React.FC<{
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
             disabled={disabled}
-            className="bg-transparent font-medium outline-none cursor-pointer"
-            style={{ fontSize: fontSize.button, color: colors.textDark }}
+            className="bg-transparent font-medium outline-none cursor-pointer text-sm"
+            style={{ color: colors.textDark }}
           >
             {years.map((y) => (
               <option key={y} value={y}>
@@ -494,34 +473,27 @@ const DatePicker: React.FC<{
             ))}
           </select>
         </div>
-
         <button
           onClick={goToNextMonth}
           disabled={disabled}
-          className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
+          className="p-1.5 hover:bg-stone-100 rounded transition-colors"
           style={{ color: colors.textDark }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>
         </button>
       </div>
-
-      {/* Weekday Headers */}
-      <div className="grid grid-cols-7 mb-2">
+      {/* Weekdays */}
+      <div className="grid grid-cols-7 mb-1">
         {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day) => (
-          <div
-            key={day}
-            className="text-center py-2"
-            style={{ fontSize: fontSize.tiny, color: colors.text, fontWeight: 500 }}
-          >
+          <div key={day} className="text-center py-1" style={{ fontSize: "11px", color: colors.text, fontWeight: 500 }}>
             {day}
           </div>
         ))}
       </div>
-
-      {/* Days Grid */}
-      <div className="grid grid-cols-7 gap-1">
+      {/* Days */}
+      <div className="grid grid-cols-7 gap-0.5">
         {emptyDays.map((_, i) => (
           <div key={`empty-${i}`} />
         ))}
@@ -530,9 +502,9 @@ const DatePicker: React.FC<{
             key={day}
             onClick={() => handleDayClick(day)}
             disabled={disabled}
-            className="aspect-square flex items-center justify-center rounded-lg hover:bg-stone-100 transition-colors"
+            className="aspect-square flex items-center justify-center rounded hover:bg-stone-100 transition-colors"
             style={{
-              fontSize: fontSize.small,
+              fontSize: "13px",
               color: colors.textDark,
               fontWeight: 500,
               cursor: disabled ? "not-allowed" : "pointer",
@@ -543,6 +515,66 @@ const DatePicker: React.FC<{
           </button>
         ))}
       </div>
+    </div>
+  );
+};
+
+// ===========================================
+// INCOME SLIDER (Compact single-line)
+// ===========================================
+const IncomeSlider: React.FC<{
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (value: number) => void;
+  onConfirm: () => void;
+  disabled?: boolean;
+  suffix?: string;
+}> = ({ label, value, min, max, step, onChange, onConfirm, disabled, suffix = "€" }) => {
+  return (
+    <div
+      className="mt-4 p-4"
+      style={{ backgroundColor: colors.white, border: `1.5px solid ${colors.border}`, borderRadius: ui.buttonRadius }}
+    >
+      <p style={{ fontSize: fontSize.small, color: colors.text, marginBottom: "12px" }}>{label}</p>
+      <div className="flex items-center gap-4">
+        <span style={{ fontSize: "20px", fontWeight: 600, color: colors.textDark, minWidth: "90px" }}>
+          {suffix === "€" ? `€${value.toLocaleString("de-DE")}` : `${value}${suffix}`}
+        </span>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          disabled={disabled}
+          className="flex-1 h-2 rounded-lg appearance-none cursor-pointer"
+          style={{
+            background: `linear-gradient(to right, ${colors.orange} 0%, ${colors.orange} ${((value - min) / (max - min)) * 100}%, ${colors.border} ${((value - min) / (max - min)) * 100}%, ${colors.border} 100%)`,
+          }}
+        />
+      </div>
+      <button
+        onClick={onConfirm}
+        disabled={disabled}
+        className="w-full mt-4 transition-all hover:opacity-90"
+        style={{
+          backgroundColor: colors.orange,
+          color: "#fff",
+          fontWeight: 600,
+          fontSize: fontSize.button,
+          padding: "14px 20px",
+          borderRadius: ui.buttonRadius,
+          border: "none",
+          cursor: disabled ? "not-allowed" : "pointer",
+          opacity: disabled ? 0.6 : 1,
+        }}
+      >
+        Continue
+      </button>
     </div>
   );
 };
@@ -786,7 +818,16 @@ const TypingIndicator: React.FC = () => (
 // ===========================================
 // MAIN COMPONENT
 // ===========================================
-type InputType = "buttons" | "visa" | "conditional" | "ineligible" | "date" | "singleParent" | null;
+type InputType =
+  | "buttons"
+  | "visa"
+  | "conditional"
+  | "ineligible"
+  | "date"
+  | "singleParent"
+  | "income"
+  | "partnerIncome"
+  | null;
 
 const ElterngeldGuideNew: React.FC = () => {
   // Refs
@@ -814,6 +855,8 @@ const ElterngeldGuideNew: React.FC = () => {
     }>
   >([]);
   const [userData, setUserData] = useState<UserData>({});
+  const [incomeValue, setIncomeValue] = useState(2500);
+  const [partnerIncomeValue, setPartnerIncomeValue] = useState(2500);
 
   // ===========================================
   // SCROLL UTILITIES
@@ -1232,6 +1275,93 @@ const ElterngeldGuideNew: React.FC = () => {
 
     await runScrollSequence();
 
+    // Ask for income
+    await showTypingThenMessage({
+      id: "bot-income",
+      type: "bot",
+      content: "What's your **average monthly net income**?",
+      subtext:
+        "This is your take-home pay after taxes and social contributions. We'll use this to calculate your Elterngeld.",
+      isQuestion: true,
+    });
+
+    setInputType("income");
+    setIsProcessing(false);
+  };
+
+  const handleIncomeConfirm = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    // Save history
+    setStepHistory((prev) => [
+      ...prev,
+      {
+        questionIndex: currentQuestionIndex,
+        messagesLength: messages.length,
+        inputType,
+        userData,
+      },
+    ]);
+
+    setInputType(null);
+    const formattedIncome = `€${incomeValue.toLocaleString("de-DE")}/month`;
+    setMessages((prev) => {
+      lastUserMessageIndexRef.current = prev.length;
+      return [...prev, { id: "user-income", type: "user", content: formattedIncome }];
+    });
+    setUserData((prev) => ({ ...prev, monthlyIncome: incomeValue }));
+
+    await runScrollSequence();
+
+    // If couple, ask for partner's income
+    if (userData.applicationType === "couple") {
+      await showTypingThenMessage({
+        id: "bot-partnerIncome",
+        type: "bot",
+        content: "What's your **partner's average monthly net income**?",
+        subtext: "Same as before – their take-home pay after taxes.",
+        isQuestion: true,
+      });
+      setInputType("partnerIncome");
+    } else {
+      // Single parent - complete
+      setIsComplete(true);
+      await showTypingThenMessage({
+        id: "bot-complete",
+        type: "bot",
+        content: "Great, I have everything I need to calculate your Elterngeld!",
+      });
+    }
+
+    setIsProcessing(false);
+  };
+
+  const handlePartnerIncomeConfirm = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    // Save history
+    setStepHistory((prev) => [
+      ...prev,
+      {
+        questionIndex: currentQuestionIndex,
+        messagesLength: messages.length,
+        inputType,
+        userData,
+      },
+    ]);
+
+    setInputType(null);
+    const formattedIncome = `€${partnerIncomeValue.toLocaleString("de-DE")}/month`;
+    setMessages((prev) => {
+      lastUserMessageIndexRef.current = prev.length;
+      return [...prev, { id: "user-partnerIncome", type: "user", content: formattedIncome }];
+    });
+    setUserData((prev) => ({ ...prev, partnerIncome: partnerIncomeValue }));
+
+    await runScrollSequence();
+
     // Complete the flow
     setIsComplete(true);
     await showTypingThenMessage({
@@ -1438,6 +1568,8 @@ const ElterngeldGuideNew: React.FC = () => {
     setSpacerHeight(0);
     setIsProcessing(false);
     setUserData({});
+    setIncomeValue(2500);
+    setPartnerIncomeValue(2500);
   }, []);
 
   // ===========================================
@@ -1457,6 +1589,36 @@ const ElterngeldGuideNew: React.FC = () => {
 
     if (inputType === "date") {
       return <DatePicker onSelect={handleDateSelect} disabled={isProcessing} />;
+    }
+
+    if (inputType === "income") {
+      return (
+        <IncomeSlider
+          label="Drag to set your monthly net income"
+          value={incomeValue}
+          min={0}
+          max={7500}
+          step={100}
+          onChange={setIncomeValue}
+          onConfirm={handleIncomeConfirm}
+          disabled={isProcessing}
+        />
+      );
+    }
+
+    if (inputType === "partnerIncome") {
+      return (
+        <IncomeSlider
+          label="Drag to set your partner's monthly net income"
+          value={partnerIncomeValue}
+          min={0}
+          max={7500}
+          step={100}
+          onChange={setPartnerIncomeValue}
+          onConfirm={handlePartnerIncomeConfirm}
+          disabled={isProcessing}
+        />
+      );
     }
 
     if (inputType === "singleParent") {
@@ -1514,7 +1676,28 @@ const ElterngeldGuideNew: React.FC = () => {
   // ===========================================
   return (
     <>
-      <style>{`@keyframes pulse { 0%, 100% { opacity: 0.4; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1); } }`}</style>
+      <style>{`
+        @keyframes pulse { 0%, 100% { opacity: 0.4; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1); } }
+        input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 20px;
+          height: 20px;
+          background: #FF8752;
+          border-radius: 50%;
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        input[type="range"]::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          background: #FF8752;
+          border-radius: 50%;
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+      `}</style>
       <div
         className="flex flex-col overflow-hidden"
         style={{ backgroundColor: colors.background, fontFamily: fonts.body, height: "calc(100vh - 72px)" }}
