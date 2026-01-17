@@ -6,7 +6,7 @@ import React, { useState, useRef, useCallback } from "react";
 
 // Design Tokens
 const colors = {
-  background: "#FAFAF9",
+  background: "#FFFFEB",
   tile: "#F0EEE6",
   white: "#FFFFFF",
   text: "#666666",
