@@ -2,7 +2,7 @@
 // ELTERNGELD GUIDE - LP DESIGN SYSTEM APPLIED
 // ===========================================
 
-import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ElterngeldPlanner, { PlannerMonth } from "@/components/ElterngeldPlanner";
@@ -1237,7 +1237,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({
   const [showPdfFlow, setShowPdfFlow] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [hideScrollbar, setHideScrollbar] = useState(false);
-  const [spacerHeight, setSpacerHeight] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const plannerGridRef = useRef<HTMLDivElement>(null);
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
@@ -1245,8 +1244,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({
   const [shouldScrollToUser, setShouldScrollToUser] = useState(false);
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const spacerRef = useRef<HTMLDivElement>(null);
-  const targetScrollTopRef = useRef<number>(0);
   const isStreamingRef = useRef(false);
   const messagesLengthRef = useRef(0);
   useEffect(() => {
@@ -1280,91 +1277,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({
 
     // There's content below if the last message extends past the viewport
     return lastMsgBottom > viewportBottom + 5;
-  }, []);
-
-  /**
-   * Update spacer height to allow user message to scroll to top
-   * Preserves scroll position to prevent jump
-   */
-  const updateSpacerForUserMessage = useCallback(() => {
-    if (!scrollRef.current || !lastUserMessageRef.current) {
-      setSpacerHeight(0);
-      return;
-    }
-
-    const container = scrollRef.current;
-    const userMessage = lastUserMessageRef.current;
-    const spacer = spacerRef.current;
-
-    // Step 1: Save target scroll position
-    let userMsgOffsetTop = 0;
-    let el: HTMLElement | null = userMessage;
-    while (el && el !== container) {
-      userMsgOffsetTop += el.offsetTop;
-      el = el.offsetParent as HTMLElement;
-    }
-    targetScrollTopRef.current = userMsgOffsetTop - 16;
-
-    // Step 2: Disable spacer transition
-    if (spacer) {
-      spacer.style.transition = 'none';
-    }
-
-    // Step 3: Calculate and set new spacer height
-    const viewportHeight = container.clientHeight;
-    const messageHeight = userMessage.offsetHeight;
-    const needed = Math.max(0, viewportHeight - messageHeight - 100);
-    setSpacerHeight(needed);
-
-    // Step 4: After React updates, restore scroll position (handled in useLayoutEffect)
-  }, []);
-
-  // Restore scroll position after spacer height changes
-  useLayoutEffect(() => {
-    const container = scrollRef.current;
-    const spacer = spacerRef.current;
-
-    if (container && targetScrollTopRef.current > 0) {
-      // Force layout recalculation
-      if (spacer) {
-        void spacer.offsetHeight;
-      }
-
-      // Restore scroll position
-      container.scrollTop = targetScrollTopRef.current;
-
-      // Re-enable transition after a frame
-      requestAnimationFrame(() => {
-        if (spacer) {
-          spacer.style.transition = 'height 0.3s ease';
-        }
-      });
-    }
-  }, [spacerHeight]);
-
-  /**
-   * Adjust spacer after bot response to prevent empty space
-   * while keeping user message at current scroll position
-   */
-  const adjustSpacerAfterBotResponse = useCallback(() => {
-    if (!scrollRef.current || !messagesContainerRef.current) {
-      setSpacerHeight(0);
-      return;
-    }
-
-    const container = scrollRef.current;
-    const currentScrollTop = container.scrollTop;
-    const viewportHeight = container.clientHeight;
-
-    // How much content height do we need to support this scroll position?
-    const neededContentHeight = currentScrollTop + viewportHeight;
-
-    // Actual content height (messages only, without current spacer)
-    const messagesHeight = messagesContainerRef.current.offsetHeight;
-
-    // Spacer needed = what we need - what we have
-    const newSpacerHeight = Math.max(0, neededContentHeight - messagesHeight);
-    setSpacerHeight(newSpacerHeight);
   }, []);
 
   const PENDING_SESSION_STORAGE_KEY = "elterngeld_pending_session";
@@ -1597,7 +1509,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({
     setWorkPartTime(false);
     setPartTimeIncome(0);
     setPartnerPartTimeIncome(0);
-    setSpacerHeight(0);
   }, []);
 
   // Register handlers with GuideContext for Sidebar access
@@ -1913,35 +1824,27 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
   useEffect(() => {
     if (!shouldScrollToUser || lastUserMessageIndex < 0) return;
 
-    // Step 1: Calculate and set spacer to allow scrolling to top
-    updateSpacerForUserMessage();
-
-    // Step 2: Wait for spacer to be applied, then scroll
     setHideScrollbar(true);
 
-    const scrollTimer = setTimeout(() => {
-      requestAnimationFrame(() => {
-        const userEl = lastUserMessageRef.current;
-        const container = scrollRef.current;
-        if (userEl && container) {
-          let offsetTop = 0;
-          let el: HTMLElement | null = userEl;
-          while (el && el !== container) {
-            offsetTop += el.offsetTop;
-            el = el.offsetParent as HTMLElement;
-          }
-          container.scrollTo({
-            top: offsetTop - 16, // 16px padding from top
-            behavior: "smooth"
-          });
-          setShouldScrollToUser(false);
-          setTimeout(() => setHideScrollbar(false), 800);
+    requestAnimationFrame(() => {
+      const userEl = lastUserMessageRef.current;
+      const container = scrollRef.current;
+      if (userEl && container) {
+        let offsetTop = 0;
+        let el: HTMLElement | null = userEl;
+        while (el && el !== container) {
+          offsetTop += el.offsetTop;
+          el = el.offsetParent as HTMLElement;
         }
-      });
-    }, 50); // Small delay for spacer to apply
-
-    return () => clearTimeout(scrollTimer);
-  }, [shouldScrollToUser, lastUserMessageIndex, updateSpacerForUserMessage]);
+        container.scrollTo({
+          top: offsetTop - 16,
+          behavior: "smooth"
+        });
+        setShouldScrollToUser(false);
+        setTimeout(() => setHideScrollbar(false), 800);
+      }
+    });
+  }, [shouldScrollToUser, lastUserMessageIndex]);
   const handleInput = (value: string | number, displayValue?: string) => {
     setStepHistory(prev => [...prev, {
       step,
@@ -3454,6 +3357,24 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
         </footer>
       </div>;
   }
+
+  // Spacer height: Only as much as needed to scroll user message to top
+  const spacerHeight = (() => {
+    if (lastUserMessageIndex < 0 || !scrollRef.current || !lastUserMessageRef.current) {
+      return 0;
+    }
+
+    // Only show spacer when actively scrolling to user message
+    if (!hideScrollbar) {
+      return 0;
+    }
+
+    const viewportHeight = scrollRef.current.clientHeight;
+    const messageHeight = lastUserMessageRef.current.offsetHeight;
+
+    return Math.max(0, viewportHeight - messageHeight - 100);
+  })();
+
   return <>
       <style>{`
         @keyframes pulse {
@@ -3685,10 +3606,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                 height: 1
               }} />
 
-                  {spacerHeight > 0 && <div ref={spacerRef} style={{
-                height: spacerHeight,
-                transition: 'height 0.3s ease'
-              }} />}
+                  {spacerHeight > 0 && <div style={{ height: spacerHeight }} />}
                 </>}
             </div>
           </div>
