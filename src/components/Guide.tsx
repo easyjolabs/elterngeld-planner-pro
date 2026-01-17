@@ -1560,7 +1560,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const [showPdfFlow, setShowPdfFlow] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [hideScrollbar, setHideScrollbar] = useState(false);
-  const [targetScrollTop, setTargetScrollTop] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const plannerGridRef = useRef<HTMLDivElement>(null);
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
@@ -1778,7 +1777,25 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
       setShowScrollButton(false);
     }
   }, []);
-  const spacerHeight = lastUserMessageIndex >= 0 ? window.innerHeight : 0;
+  // Dynamische Spacer-Berechnung wie im POC
+  const calculateSpacerHeight = useCallback(() => {
+    if (targetScrollTop === null || !scrollRef.current) {
+      return 0;
+    }
+
+    const container = scrollRef.current;
+    const viewportHeight = container.clientHeight;
+    const contentHeight = container.scrollHeight - (spacerRef.current?.offsetHeight || 0);
+
+    // Spacer = was wir brauchen um targetScrollTop zu erreichen
+    // scrollHeight muss >= targetScrollTop + viewportHeight sein
+    const neededScrollHeight = targetScrollTop + viewportHeight;
+    const spacerNeeded = Math.max(0, neededScrollHeight - contentHeight);
+
+    return spacerNeeded;
+  }, [targetScrollTop]);
+
+  const spacerHeight = calculateSpacerHeight();
   const scrollToBottom = () => {
     spacerObserverRef.current?.disconnect();
     spacerObserverRef.current = null;
@@ -4706,6 +4723,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
 
                   {spacerHeight > 0 && (
                     <div
+                      ref={spacerRef}
                       style={{
                         height: spacerHeight,
                       }}
