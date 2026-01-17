@@ -151,6 +151,7 @@ const ElterngeldGuideNew: React.FC = () => {
   const {
     scrollContainerRef,
     messagesContainerRef,
+    bottomSpacerRef,
     spacerHeight,
     isScrolling,
     expandSpacerForMessage,
@@ -424,6 +425,7 @@ const ElterngeldGuideNew: React.FC = () => {
 
         {/* Dynamic spacer */}
         <div
+          ref={bottomSpacerRef}
           style={{
             height: spacerHeight,
             transition: "height 0.3s ease-out",
