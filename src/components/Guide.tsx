@@ -1560,6 +1560,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const [showPdfFlow, setShowPdfFlow] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [hideScrollbar, setHideScrollbar] = useState(false);
+  const [targetScrollTop, setTargetScrollTop] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const plannerGridRef = useRef<HTMLDivElement>(null);
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
@@ -1777,9 +1778,7 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
       setShowScrollButton(false);
     }
   }, []);
-  // Spacer nur wenn wir aktiv zur User-Message scrollen oder dort bleiben wollen
-  // Wird auf 0 gesetzt wenn targetScrollTop aufgehoben wird
-  const spacerHeight = targetScrollTop !== null ? window.innerHeight : 0;
+  const spacerHeight = lastUserMessageIndex >= 0 ? window.innerHeight : 0;
   const scrollToBottom = () => {
     spacerObserverRef.current?.disconnect();
     spacerObserverRef.current = null;
