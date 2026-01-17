@@ -11,9 +11,10 @@ const colors = {
   white: "#FFFFFF",
   text: "#666666",
   textDark: "#000000",
-  userBubble: "#F1EDE5",
+  userBubble: "#F0EEEC",
   border: "#E7E5E4",
   orange: "#FF8752",
+  yellow: "#FFE44C",
 };
 
 const fonts = {
@@ -30,10 +31,13 @@ const tagColors = ["#FF8752", "#FFE44C", "#D1B081"];
 // ===========================================
 interface Message {
   id: string;
-  type: "bot" | "user";
+  type: "bot" | "user" | "calculation";
   content: string;
   subtext?: string;
   isQuestion?: boolean;
+  calculation?: ElterngeldResult;
+  calculationLabel?: string;
+  calculationVariant?: "yellow" | "orange" | "tile";
 }
 
 interface ButtonOption {
@@ -338,38 +342,47 @@ const ButtonOptions: React.FC<{
   let noteIdx = 0;
 
   // Use 2-column grid for exactly 2 short options without sub
-  const useGrid = options.length === 2 && options.every((opt) => !opt.sub && opt.label.length < 28);
+  const useGrid = options.length === 2 && options.every((opt) => !opt.sub && opt.label.length < 22);
 
   return (
     <div className={useGrid ? "grid grid-cols-2 gap-3 mt-4" : "space-y-3 mt-4"}>
       {options.map((opt, i) => {
         const ni = opt.note ? noteIdx++ : -1;
+        const hasNote = !!opt.note;
         return (
           <button
             key={i}
             onClick={() => onSelect(opt)}
             disabled={disabled}
-            className={`w-full transition-all flex items-center hover:border-stone-400 ${useGrid ? "flex-col justify-center" : "justify-between"} text-left`}
+            className={`w-full transition-all flex items-center hover:border-stone-400 ${useGrid && !hasNote ? "justify-center" : "justify-between"} text-left`}
             style={{
               backgroundColor: colors.white,
               border: `1.5px solid ${colors.border}`,
               borderRadius: ui.buttonRadius,
-              padding: opt.sub ? "14px 20px" : useGrid ? "16px 12px" : "16px 20px",
+              padding: opt.sub ? "14px 20px" : useGrid ? "14px 12px" : "16px 20px",
               opacity: disabled ? 0.6 : 1,
               cursor: disabled ? "not-allowed" : "pointer",
             }}
           >
-            <div className={`flex items-center ${useGrid ? "justify-center gap-2" : "gap-3"}`}>
+            <div className={`flex items-center ${useGrid ? "gap-2" : "gap-3"}`}>
               {opt.icon && <span style={{ color: colors.textDark }}>{icons[opt.icon]}</span>}
               <div>
-                <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>{opt.label}</span>
+                <span
+                  style={{
+                    fontSize: useGrid ? fontSize.small : fontSize.button,
+                    fontWeight: 500,
+                    color: colors.textDark,
+                  }}
+                >
+                  {opt.label}
+                </span>
                 {opt.sub && <p style={{ fontSize: fontSize.tiny, marginTop: "2px", color: colors.text }}>{opt.sub}</p>}
               </div>
             </div>
             {opt.note && (
               <span
-                className={useGrid ? "mt-1.5 px-2 py-0.5 rounded-full" : "px-2.5 py-1 rounded-full"}
-                style={{ fontSize: fontSize.tiny, fontWeight: 500, backgroundColor: tagColors[ni % 3], color: "#000" }}
+                className="px-2 py-0.5 rounded-full ml-2"
+                style={{ fontSize: "11px", fontWeight: 500, backgroundColor: tagColors[ni % 3], color: "#000" }}
               >
                 {opt.note}
               </span>
@@ -533,12 +546,8 @@ const IncomeSlider: React.FC<{
   disabled?: boolean;
   suffix?: string;
   formatValue?: (value: number) => string;
-}> = ({ label, value, min, max, step, onChange, onConfirm, disabled, suffix = "€", formatValue }) => {
-  const displayValue = formatValue
-    ? formatValue(value)
-    : suffix === "€"
-      ? `€${value.toLocaleString("de-DE")}`
-      : `${value}${suffix}`;
+}> = ({ label, value, min, max, step, onChange, onConfirm, disabled, formatValue }) => {
+  const displayValue = formatValue ? formatValue(value) : `€${value.toLocaleString("de-DE")}`;
 
   return (
     <div className="mt-4">
@@ -561,10 +570,12 @@ const IncomeSlider: React.FC<{
           style={{
             backgroundColor: colors.white,
             borderRadius: ui.buttonRadius,
-            minWidth: "80px",
+            minWidth: "100px",
           }}
         >
-          <span style={{ fontSize: "24px", fontWeight: 600, color: colors.textDark, lineHeight: 1.2 }}>
+          <span
+            style={{ fontSize: "24px", fontWeight: 600, color: colors.textDark, lineHeight: 1.2, whiteSpace: "nowrap" }}
+          >
             {displayValue}
           </span>
           {label && <span style={{ fontSize: fontSize.tiny, color: colors.text }}>{label}</span>}
@@ -588,6 +599,132 @@ const IncomeSlider: React.FC<{
       >
         Continue
       </button>
+    </div>
+  );
+};
+
+// ===========================================
+// ELTERNGELD CALCULATION
+// ===========================================
+interface ElterngeldResult {
+  baseAmount: number;
+  replacementRate: number;
+  siblingsBonus: number;
+  multiplesBonus: number;
+  totalAmount: number;
+  netIncome: number;
+}
+
+const calculateElterngeld = (netIncome: number, hasSiblings: boolean, multiples: string): ElterngeldResult => {
+  // Replacement rate based on income
+  let replacementRate = 0.65; // Default 65%
+  if (netIncome < 1200) {
+    // Increases from 67% to 100% as income decreases from €1,200 to €300
+    replacementRate = 0.67 + (1200 - netIncome) * 0.001;
+    replacementRate = Math.min(1, replacementRate);
+  } else if (netIncome > 2770) {
+    // Cap calculation at €2,770
+    netIncome = 2770;
+  }
+
+  // Base amount (min €300, max €1,800)
+  let baseAmount = Math.round(netIncome * replacementRate);
+  baseAmount = Math.max(300, Math.min(1800, baseAmount));
+
+  // Siblings bonus: +10% (min €75, max €180)
+  let siblingsBonus = 0;
+  if (hasSiblings) {
+    siblingsBonus = Math.max(75, Math.round(baseAmount * 0.1));
+    siblingsBonus = Math.min(180, siblingsBonus);
+  }
+
+  // Multiples bonus
+  let multiplesBonus = 0;
+  if (multiples === "twins") multiplesBonus = 300;
+  if (multiples === "triplets") multiplesBonus = 600;
+
+  const totalAmount = baseAmount + siblingsBonus + multiplesBonus;
+
+  return {
+    baseAmount,
+    replacementRate,
+    siblingsBonus,
+    multiplesBonus,
+    totalAmount,
+    netIncome,
+  };
+};
+
+// ===========================================
+// CALCULATION CARD
+// ===========================================
+const CalculationCard: React.FC<{
+  result: ElterngeldResult;
+  personLabel?: string;
+  variant?: "yellow" | "orange" | "tile";
+}> = ({ result, personLabel, variant = "yellow" }) => {
+  const bgColor = variant === "yellow" ? colors.yellow : variant === "orange" ? colors.orange : colors.tile;
+  const iconBg = variant === "tile" ? colors.white : "rgba(255,255,255,0.5)";
+
+  return (
+    <div
+      className="mt-4"
+      style={{
+        backgroundColor: bgColor,
+        borderRadius: "16px",
+        padding: "20px",
+      }}
+    >
+      {/* Header with icon */}
+      <div className="flex items-start gap-3 mb-3">
+        <div
+          style={{
+            width: "40px",
+            height: "40px",
+            borderRadius: "10px",
+            backgroundColor: iconBg,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="1.5">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+        </div>
+        <div>
+          <p style={{ fontSize: fontSize.small, color: "rgba(0,0,0,0.6)", marginBottom: "2px" }}>
+            {personLabel || "Your Elterngeld"}
+          </p>
+          <p style={{ fontFamily: fonts.headline, fontSize: "28px", fontWeight: 700, color: "#000", lineHeight: 1.1 }}>
+            €{result.totalAmount.toLocaleString("de-DE")}
+            <span style={{ fontSize: "16px", fontWeight: 500 }}>/month</span>
+          </p>
+        </div>
+      </div>
+
+      {/* Breakdown */}
+      <div style={{ fontSize: fontSize.small, color: "rgba(0,0,0,0.7)" }}>
+        <div className="flex justify-between py-1.5" style={{ borderTop: "1px solid rgba(0,0,0,0.1)" }}>
+          <span>
+            Base ({Math.round(result.replacementRate * 100)}% of €{result.netIncome.toLocaleString("de-DE")})
+          </span>
+          <span style={{ fontWeight: 500 }}>€{result.baseAmount.toLocaleString("de-DE")}</span>
+        </div>
+        {result.siblingsBonus > 0 && (
+          <div className="flex justify-between py-1.5" style={{ borderTop: "1px solid rgba(0,0,0,0.1)" }}>
+            <span>Siblings bonus</span>
+            <span style={{ fontWeight: 500 }}>+€{result.siblingsBonus}</span>
+          </div>
+        )}
+        {result.multiplesBonus > 0 && (
+          <div className="flex justify-between py-1.5" style={{ borderTop: "1px solid rgba(0,0,0,0.1)" }}>
+            <span>Multiples bonus</span>
+            <span style={{ fontWeight: 500 }}>+€{result.multiplesBonus}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -872,6 +1009,8 @@ const ElterngeldGuideNew: React.FC = () => {
   const [userData, setUserData] = useState<UserData>({});
   const [incomeValue, setIncomeValue] = useState(2500);
   const [partnerIncomeValue, setPartnerIncomeValue] = useState(2500);
+  const [calculationResult, setCalculationResult] = useState<ElterngeldResult | null>(null);
+  const [partnerCalculationResult, setPartnerCalculationResult] = useState<ElterngeldResult | null>(null);
 
   // ===========================================
   // SCROLL UTILITIES
@@ -1330,8 +1469,32 @@ const ElterngeldGuideNew: React.FC = () => {
 
     await runScrollSequence();
 
+    // Calculate Elterngeld
+    const hasSiblings = userData.siblings === "yes";
+    const multiples = userData.multiples || "no";
+    const result = calculateElterngeld(incomeValue, hasSiblings, multiples);
+    setCalculationResult(result);
+
+    // Show calculation card
+    const isCouple = userData.applicationType === "couple";
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: "calc-user",
+        type: "calculation",
+        content: "",
+        calculation: result,
+        calculationLabel: isCouple ? "Your Elterngeld" : "Your Elterngeld",
+        calculationVariant: "yellow",
+      },
+    ]);
+
+    await new Promise((r) => setTimeout(r, 100));
+    adjustSpacerAfterBotResponse();
+
     // If couple, ask for partner's income
-    if (userData.applicationType === "couple") {
+    if (isCouple) {
+      await new Promise((r) => setTimeout(r, 500));
       await showTypingThenMessage({
         id: "bot-partnerIncome",
         type: "bot",
@@ -1372,6 +1535,28 @@ const ElterngeldGuideNew: React.FC = () => {
     setUserData((prev) => ({ ...prev, partnerIncome: partnerIncomeValue }));
 
     await runScrollSequence();
+
+    // Calculate partner's Elterngeld
+    const hasSiblings = userData.siblings === "yes";
+    const multiples = userData.multiples || "no";
+    const partnerResult = calculateElterngeld(partnerIncomeValue, hasSiblings, multiples);
+    setPartnerCalculationResult(partnerResult);
+
+    // Show partner calculation card
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: "calc-partner",
+        type: "calculation",
+        content: "",
+        calculation: partnerResult,
+        calculationLabel: "Partner's Elterngeld",
+        calculationVariant: "orange",
+      },
+    ]);
+
+    await new Promise((r) => setTimeout(r, 100));
+    adjustSpacerAfterBotResponse();
 
     // Complete the flow
     setIsComplete(true);
@@ -1584,6 +1769,8 @@ const ElterngeldGuideNew: React.FC = () => {
     setUserData({});
     setIncomeValue(2500);
     setPartnerIncomeValue(2500);
+    setCalculationResult(null);
+    setPartnerCalculationResult(null);
   }, []);
 
   // ===========================================
@@ -1641,8 +1828,8 @@ const ElterngeldGuideNew: React.FC = () => {
       return (
         <ButtonOptions
           options={[
-            { value: "alone", label: "No, raising alone", icon: "single", note: "14 mo" },
-            { value: "together", label: "Yes, but only I apply", icon: "couple", note: "12 mo" },
+            { value: "alone", label: "No, alone", icon: "single", note: "14 mo" },
+            { value: "together", label: "Yes, together", icon: "couple", note: "12 mo" },
           ]}
           onSelect={handleSingleParentChoice}
           disabled={isProcessing}
@@ -1733,6 +1920,13 @@ const ElterngeldGuideNew: React.FC = () => {
                           key={msg.id}
                           ref={i === lastUserMessageIndexRef.current ? lastUserMessageRef : null}
                           content={msg.content}
+                        />
+                      ) : msg.type === "calculation" && msg.calculation ? (
+                        <CalculationCard
+                          key={msg.id}
+                          result={msg.calculation}
+                          personLabel={msg.calculationLabel}
+                          variant={msg.calculationVariant}
                         />
                       ) : (
                         <BotMessage
