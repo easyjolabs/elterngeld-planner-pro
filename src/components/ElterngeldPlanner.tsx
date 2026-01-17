@@ -907,81 +907,101 @@ const RulesSpotlight: React.FC<RulesSpotlightProps> = ({ isOpen, onClose, isCoup
 
   return (
     <div className="absolute inset-0 z-50 rounded-2xl overflow-hidden">
-      {/* Light blur overlay - echtes Tool scheint durch */}
+      {/* Left clear area - no blur, just subtle bg */}
       <div
-        className="absolute inset-0"
-        style={{ backdropFilter: "blur(2px)", background: "rgba(255,255,255,0.4)" }}
-        onClick={onClose}
-      />
-
-      {/* Spotlight cutout - erste Spalte klar sichtbar */}
-      <div
-        className="absolute rounded-xl"
+        className="absolute top-0 left-0 bottom-0"
         style={{
-          top: 70,
-          left: 60,
-          width: 70,
-          height: isCouple ? 160 : 90,
-          background: "transparent",
-          boxShadow: "0 0 0 2000px rgba(255,255,255,0.6)",
-          borderRadius: 16,
+          width: 200,
+          background: "rgba(255,255,255,0.3)",
         }}
       />
 
-      {/* Tooltip card */}
+      {/* Highlight border around first 2 columns */}
       <div
-        className="absolute rounded-2xl p-4"
+        className="absolute"
         style={{
-          top: isCouple ? 100 : 80,
-          left: 145,
-          width: 220,
-          background: colors.white,
-          boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
+          top: 60,
+          left: 55,
+          width: 150,
+          height: isCouple ? 200 : 120,
+          border: "2px solid rgba(0,0,0,0.2)",
+          borderRadius: 20,
+          background: "transparent",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Right blurred area with tooltip */}
+      <div
+        className="absolute top-0 right-0 bottom-0 flex items-center"
+        style={{
+          left: 200,
+          backdropFilter: "blur(3px)",
+          background: "rgba(241, 237, 229, 0.85)",
         }}
       >
-        <div className="mb-2">
-          <h3 className="font-semibold text-sm" style={{ color: colors.textDark }}>
-            {rules[currentRule].title}
-          </h3>
-          <p className="text-xs mt-1 leading-relaxed" style={{ color: colors.text }}>
-            {rules[currentRule].text}
-          </p>
-        </div>
-
-        {/* Navigation */}
+        {/* Tooltip card */}
         <div
-          className="flex items-center justify-between mt-3 pt-2"
-          style={{ borderTop: `1px solid ${colors.border}` }}
+          className="rounded-2xl p-5 mx-4"
+          style={{
+            width: "100%",
+            maxWidth: 280,
+            background: colors.white,
+            boxShadow: "0 4px 24px rgba(0,0,0,0.1)",
+          }}
         >
-          <div className="flex gap-1">
-            {rules.map((_, i) => (
-              <div
-                key={i}
-                className="w-1.5 h-1.5 rounded-full transition-colors"
-                style={{ background: i === currentRule ? colors.orange : colors.border }}
-              />
-            ))}
-          </div>
-          <div className="flex gap-2">
-            {currentRule > 0 && (
-              <button
-                onClick={goPrev}
-                className="px-2 py-1 rounded-lg text-xs"
-                style={{ background: colors.tile, color: colors.textDark }}
-              >
-                ←
-              </button>
-            )}
-            <button
-              onClick={isLast ? onClose : goNext}
-              className="px-3 py-1 rounded-lg text-xs font-medium"
-              style={{ background: colors.textDark, color: colors.white }}
+          <div className="mb-3">
+            <span
+              className="text-xs font-medium px-2 py-0.5 rounded-full"
+              style={{ background: colors.tile, color: colors.text }}
             >
-              {isLast ? "Got it" : "Next"}
-            </button>
+              {currentRule + 1}/{rules.length}
+            </span>
+          </div>
+          <div className="mb-3">
+            <h3 className="font-semibold text-base mb-1" style={{ color: colors.textDark }}>
+              {rules[currentRule].title}
+            </h3>
+            <p className="text-sm leading-relaxed" style={{ color: colors.text }}>
+              {rules[currentRule].text}
+            </p>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between pt-3" style={{ borderTop: `1px solid ${colors.border}` }}>
+            <div className="flex gap-1.5">
+              {rules.map((_, i) => (
+                <div
+                  key={i}
+                  className="w-2 h-2 rounded-full transition-colors"
+                  style={{ background: i === currentRule ? colors.orange : colors.border }}
+                />
+              ))}
+            </div>
+            <div className="flex gap-2">
+              {currentRule > 0 && (
+                <button
+                  onClick={goPrev}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{ background: colors.tile, color: colors.textDark }}
+                >
+                  ←
+                </button>
+              )}
+              <button
+                onClick={isLast ? onClose : goNext}
+                className="px-4 py-2 rounded-lg text-sm font-medium"
+                style={{ background: colors.textDark, color: colors.white }}
+              >
+                {isLast ? "Got it" : "Next"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Click outside to close */}
+      <div className="absolute top-0 left-0 bottom-0" style={{ width: 200 }} onClick={onClose} />
     </div>
   );
 };
@@ -1310,6 +1330,21 @@ const ElterngeldPlanner: React.FC<ElterngeldPlannerProps> = ({
   const [tipResetKey, setTipResetKey] = useState(0);
   const [displayedMonths, setDisplayedMonths] = useState(14);
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+
+  // Prefill month 1 and 2 with Basis for You
+  useEffect(() => {
+    if (!initialized) {
+      const isEmpty = plannerData.every((m) => m.you === "none" && m.partner === "none");
+      if (isEmpty) {
+        const newData = [...plannerData];
+        newData[0] = { ...newData[0], you: "basis" };
+        newData[1] = { ...newData[1], you: "basis" };
+        setPlannerData(newData);
+      }
+      setInitialized(true);
+    }
+  }, [initialized, plannerData, setPlannerData]);
 
   const tips = [
     "Tap a cell to cycle through Basis → Plus → Bonus → None",
