@@ -604,24 +604,20 @@ const IncomeSlider: React.FC<{
 };
 
 // ===========================================
-// ELTERNGELD CALCULATION (CORRECTED)
+// ELTERNGELD CALCULATION (VERIFIED)
 // ===========================================
 interface CalcResult {
   basis: number;
   plus: number;
-  bonus: number;
   basisWithoutWork: number;
-  plusCapped: boolean;
   plusDeckel: number;
   differenz: number;
+  ineligible: boolean;
 }
 
 const ELTERNGELD = {
   MIN_AMOUNT: 300,
   MAX_AMOUNT: 1800,
-  GESCHWISTER_MIN: 75,
-  TWINS_BONUS: 300,
-  TRIPLETS_BONUS: 600,
   MAX_NETTO: 2770,
 } as const;
 
@@ -630,17 +626,29 @@ const calculateElterngeld = (
   hasSiblings: boolean,
   multiples: string,
   partTimeIncome: number = 0,
+  isOverIncomeLimit: boolean = false,
 ): CalcResult => {
+  // Über €175.000 Haushaltseinkommen → kein Anspruch
+  if (isOverIncomeLimit) {
+    return {
+      basis: 0,
+      plus: 0,
+      basisWithoutWork: 0,
+      plusDeckel: 0,
+      differenz: 0,
+      ineligible: true,
+    };
+  }
+
   // Kein Einkommen → Mindestbeträge
   if (!netIncome || netIncome === 0) {
     return {
       basis: ELTERNGELD.MIN_AMOUNT,
       plus: ELTERNGELD.MIN_AMOUNT / 2,
-      bonus: ELTERNGELD.MIN_AMOUNT / 2,
       basisWithoutWork: ELTERNGELD.MIN_AMOUNT,
-      plusCapped: false,
       plusDeckel: ELTERNGELD.MIN_AMOUNT / 2,
       differenz: 0,
+      ineligible: false,
     };
   }
 
@@ -657,7 +665,7 @@ const calculateElterngeld = (
     return rate;
   };
 
-  // Schritt 1: Einkommen deckeln bei €2.770 (Elterngeld-Netto-Maximum)
+  // Schritt 1: Einkommen deckeln bei €2.770
   const cappedIncome = Math.min(netIncome, ELTERNGELD.MAX_NETTO);
 
   // Schritt 2: Basiselterngeld OHNE Arbeit berechnen
@@ -665,32 +673,30 @@ const calculateElterngeld = (
   let basisWithoutWork = Math.round(cappedIncome * ersatzrateOhne);
   basisWithoutWork = Math.max(ELTERNGELD.MIN_AMOUNT, Math.min(ELTERNGELD.MAX_AMOUNT, basisWithoutWork));
 
-  // Geschwister-/Mehrlingsbonus
+  // Geschwister-/Mehrlingsbonus auf basisWithoutWork
   let bonusAmount = 0;
   if (hasSiblings) {
-    bonusAmount += Math.max(ELTERNGELD.GESCHWISTER_MIN, Math.round(basisWithoutWork * 0.1));
+    bonusAmount += Math.max(75, Math.round(basisWithoutWork * 0.1));
   }
-  if (multiples === "twins") bonusAmount += ELTERNGELD.TWINS_BONUS;
-  if (multiples === "triplets") bonusAmount += ELTERNGELD.TRIPLETS_BONUS;
-
+  if (multiples === "twins") bonusAmount += 300;
+  if (multiples === "triplets") bonusAmount += 600;
   basisWithoutWork += bonusAmount;
 
-  // Schritt 3: Differenz berechnen (Einkommensverlust)
+  // Schritt 3: Differenz berechnen
   const differenz = Math.max(0, cappedIncome - partTimeIncome);
 
   // Plus-Deckel = Basis-ohne-Arbeit / 2
   const plusDeckel = Math.round(basisWithoutWork / 2);
 
-  // Sonderfall: Kein Einkommensverlust → Mindestbeträge
+  // Sonderfall: Kein Einkommensverlust
   if (partTimeIncome > 0 && differenz === 0) {
     return {
       basis: ELTERNGELD.MIN_AMOUNT,
-      plus: ELTERNGELD.MIN_AMOUNT / 2, // €150
-      bonus: ELTERNGELD.MIN_AMOUNT / 2,
+      plus: ELTERNGELD.MIN_AMOUNT / 2,
       basisWithoutWork,
-      plusCapped: false,
       plusDeckel,
       differenz: 0,
+      ineligible: false,
     };
   }
 
@@ -700,29 +706,16 @@ const calculateElterngeld = (
   basis = Math.max(ELTERNGELD.MIN_AMOUNT, Math.min(ELTERNGELD.MAX_AMOUNT, basis));
   basis += bonusAmount;
 
-  // Schritt 5: ElterngeldPlus berechnen
-  // - Ohne Zuverdienst: Plus = Basis-ohne-Arbeit / 2
-  // - Mit Zuverdienst: Plus = min(Basis-mit-Arbeit, Deckel)
-  let plus: number;
-  let plusCapped = false;
-
-  if (partTimeIncome > 0) {
-    // Mit Zuverdienst: Voller Basis-Betrag bis zum Deckel
-    plusCapped = basis > plusDeckel;
-    plus = Math.min(basis, plusDeckel);
-  } else {
-    // Ohne Zuverdienst: Halb so viel wie Basis
-    plus = plusDeckel;
-  }
+  // Schritt 5: Plus = min(basis, plusDeckel) bei Zuverdienst, sonst plusDeckel
+  const plus = partTimeIncome > 0 ? Math.min(basis, plusDeckel) : plusDeckel;
 
   return {
     basis,
     plus,
-    bonus: plus,
     basisWithoutWork,
-    plusCapped,
     plusDeckel,
     differenz,
+    ineligible: false,
   };
 };
 
@@ -773,7 +766,7 @@ const IncomeStepper: React.FC<{
 };
 
 // ===========================================
-// CALCULATION CARD (CORRECTED)
+// CALCULATION CARD (CLEAN DESIGN)
 // ===========================================
 const CalculationCard: React.FC<{
   myCalc: CalcResult;
@@ -796,88 +789,95 @@ const CalculationCard: React.FC<{
   partnerPartTimeIncome,
   setPartnerPartTimeIncome,
 }) => {
-  const youWithoutWork = {
+  // Handle ineligibility (over €175k)
+  if (myCalc.ineligible) {
+    return (
+      <div className="py-3">
+        <div
+          style={{
+            backgroundColor: colors.tile,
+            borderRadius: "16px",
+            padding: "20px",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: "40px", marginBottom: "12px" }}>🚫</div>
+          <p
+            style={{
+              fontFamily: fonts.headline,
+              fontSize: "18px",
+              fontWeight: 600,
+              color: "#000",
+              marginBottom: "8px",
+            }}
+          >
+            No Elterngeld Entitlement
+          </p>
+          <p style={{ fontSize: fontSize.small, color: colors.text, lineHeight: 1.5 }}>
+            Households with taxable income above €175,000 are not eligible for Elterngeld.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate without work for comparison
+  const calcWithoutWork = {
     basis: myCalc.basisWithoutWork,
-    plus: myCalc.plusDeckel, // Corrected: use plusDeckel
+    plus: myCalc.plusDeckel,
   };
-  const partnerWithoutWork = partnerCalc
+  const partnerCalcWithoutWork = partnerCalc
     ? {
         basis: partnerCalc.basisWithoutWork,
         plus: partnerCalc.plusDeckel,
       }
-    : { basis: 0, plus: 0 };
+    : null;
 
-  // Helper to show original value strikethrough when changed
-  const renderAmount = (current: number, original: number) => {
-    const hasChanged = workPartTime && current !== original;
-    if (hasChanged) {
-      return (
-        <span style={{ color: "#000", fontSize: "13px", fontWeight: 500 }}>
-          <span style={{ textDecoration: "line-through", opacity: 0.5, marginRight: "4px", fontSize: "11px" }}>
-            €{original.toLocaleString("de-DE")}
-          </span>
-          €{current.toLocaleString("de-DE")}
-        </span>
-      );
-    }
-    return <span style={{ color: "#000", fontSize: "13px", fontWeight: 500 }}>€{current.toLocaleString("de-DE")}</span>;
-  };
+  const hasChange = workPartTime && partTimeIncome > 0;
+  const partnerHasChange = workPartTime && partnerPartTimeIncome > 0;
 
   const cards = [
     {
       label: "BASIS",
-      you: workPartTime ? myCalc.basis : youWithoutWork.basis,
-      youOrig: youWithoutWork.basis,
-      partner: partnerCalc ? (workPartTime ? partnerCalc.basis : partnerWithoutWork.basis) : 0,
-      partnerOrig: partnerWithoutWork.basis,
-      maxMonths: isCouple ? 14 : 12,
+      you: myCalc.basis,
+      youOrig: calcWithoutWork.basis,
+      partner: partnerCalc?.basis || 0,
+      partnerOrig: partnerCalcWithoutWork?.basis || 0,
+      months: isCouple ? 14 : 12,
       bg: colors.orange,
     },
     {
       label: "PLUS",
-      you: workPartTime ? myCalc.plus : youWithoutWork.plus,
-      youOrig: youWithoutWork.plus,
-      partner: partnerCalc ? (workPartTime ? partnerCalc.plus : partnerWithoutWork.plus) : 0,
-      partnerOrig: partnerWithoutWork.plus,
-      maxMonths: isCouple ? 28 : 24,
+      you: myCalc.plus,
+      youOrig: calcWithoutWork.plus,
+      partner: partnerCalc?.plus || 0,
+      partnerOrig: partnerCalcWithoutWork?.plus || 0,
+      months: isCouple ? 28 : 24,
       bg: colors.yellow,
     },
   ];
 
-  const getMaxTotal = (item: (typeof cards)[0]) => {
+  const getTotal = (amount: number, partnerAmount: number, months: number, label: string) => {
     if (!isCouple) {
-      return item.you * item.maxMonths;
+      return amount * months;
     }
-    const maxPerParent = item.label === "BASIS" ? 12 : 24;
-    const minPartnerMonths = item.label === "BASIS" ? 2 : 4;
-    const higherAmount = Math.max(item.you, item.partner);
-    const lowerAmount = Math.min(item.you, item.partner);
+    const maxPerParent = label === "BASIS" ? 12 : 24;
+    const minPartnerMonths = label === "BASIS" ? 2 : 4;
+    const higherAmount = Math.max(amount, partnerAmount);
+    const lowerAmount = Math.min(amount, partnerAmount);
     return higherAmount * maxPerParent + lowerAmount * minPartnerMonths;
   };
-
-  const getOrigTotal = (item: (typeof cards)[0]) => {
-    if (!isCouple) {
-      return item.youOrig * item.maxMonths;
-    }
-    const maxPerParent = item.label === "BASIS" ? 12 : 24;
-    const minPartnerMonths = item.label === "BASIS" ? 2 : 4;
-    const higherAmount = Math.max(item.youOrig, item.partnerOrig);
-    const lowerAmount = Math.min(item.youOrig, item.partnerOrig);
-    return higherAmount * maxPerParent + lowerAmount * minPartnerMonths;
-  };
-
-  const bonusPerMonth = isCouple ? myCalc.bonus + (partnerCalc?.bonus || 0) : myCalc.bonus;
-
-  const showPlusCappedHint = workPartTime && (myCalc.plusCapped || partnerCalc?.plusCapped);
 
   return (
     <div className="py-3">
       {/* BASIS + PLUS Cards */}
       <div className="flex gap-3">
         {cards.map((item, i) => {
-          const maxTotal = getMaxTotal(item);
-          const origTotal = getOrigTotal(item);
-          const totalChanged = workPartTime && maxTotal !== origTotal;
+          const total = getTotal(item.you, item.partner, item.months, item.label);
+          const origTotal = getTotal(item.youOrig, item.partnerOrig, item.months, item.label);
+          const totalChanged = hasChange && total !== origTotal;
+          const youChanged = hasChange && item.you !== item.youOrig;
+          const partnerChanged = partnerHasChange && item.partner !== item.partnerOrig;
 
           return (
             <div
@@ -889,52 +889,54 @@ const CalculationCard: React.FC<{
                 padding: "16px",
               }}
             >
-              <div style={{ marginBottom: "12px" }}>
-                <span
-                  style={{
-                    color: "#000",
-                    fontSize: "16px",
-                    fontWeight: 700,
-                    fontFamily: fonts.headline,
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  {item.label}
-                </span>
+              <div style={{ fontSize: "16px", fontWeight: 700, fontFamily: fonts.headline, marginBottom: "12px" }}>
+                {item.label}
               </div>
-
-              {/* Plus capping hint */}
-              {item.label === "PLUS" && showPlusCappedHint && (
-                <div
-                  style={{
-                    backgroundColor: "rgba(0,0,0,0.1)",
-                    borderRadius: "8px",
-                    padding: "8px 10px",
-                    marginBottom: "10px",
-                    fontSize: "11px",
-                    lineHeight: 1.4,
-                    color: "rgba(0,0,0,0.7)",
-                  }}
-                >
-                  <strong>50% cap active:</strong> Plus is capped at €{myCalc.plusDeckel.toLocaleString("de-DE")}/mo
-                </div>
-              )}
 
               {isCouple ? (
                 <div>
                   <div className="flex items-center justify-between" style={{ padding: "4px 0" }}>
                     <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "13px" }}>You</span>
-                    {renderAmount(item.you, item.youOrig)}
+                    {youChanged ? (
+                      <span className="flex items-baseline gap-1.5">
+                        <span style={{ textDecoration: "line-through", opacity: 0.4, fontSize: "11px" }}>
+                          €{item.youOrig.toLocaleString("de-DE")}
+                        </span>
+                        <span style={{ fontWeight: 600, fontSize: "13px" }}>€{item.you.toLocaleString("de-DE")}</span>
+                      </span>
+                    ) : (
+                      <span style={{ fontWeight: 600, fontSize: "13px" }}>€{item.you.toLocaleString("de-DE")}</span>
+                    )}
                   </div>
                   <div className="flex items-center justify-between" style={{ padding: "4px 0" }}>
                     <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "13px" }}>Partner</span>
-                    {renderAmount(item.partner, item.partnerOrig)}
+                    {partnerChanged ? (
+                      <span className="flex items-baseline gap-1.5">
+                        <span style={{ textDecoration: "line-through", opacity: 0.4, fontSize: "11px" }}>
+                          €{item.partnerOrig.toLocaleString("de-DE")}
+                        </span>
+                        <span style={{ fontWeight: 600, fontSize: "13px" }}>
+                          €{item.partner.toLocaleString("de-DE")}
+                        </span>
+                      </span>
+                    ) : (
+                      <span style={{ fontWeight: 600, fontSize: "13px" }}>€{item.partner.toLocaleString("de-DE")}</span>
+                    )}
                   </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-between" style={{ padding: "4px 0" }}>
-                  <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "13px" }}>Per month</span>
-                  {renderAmount(item.you, item.youOrig)}
+                  <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "13px" }}>Monthly</span>
+                  {youChanged ? (
+                    <span className="flex items-baseline gap-1.5">
+                      <span style={{ textDecoration: "line-through", opacity: 0.4, fontSize: "11px" }}>
+                        €{item.youOrig.toLocaleString("de-DE")}
+                      </span>
+                      <span style={{ fontWeight: 600, fontSize: "13px" }}>€{item.you.toLocaleString("de-DE")}</span>
+                    </span>
+                  ) : (
+                    <span style={{ fontWeight: 600, fontSize: "13px" }}>€{item.you.toLocaleString("de-DE")}</span>
+                  )}
                 </div>
               )}
 
@@ -946,17 +948,21 @@ const CalculationCard: React.FC<{
                   paddingTop: "10px",
                 }}
               >
-                <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "12px" }}>{item.maxMonths} mo max</span>
-                <span style={{ color: "#000", fontSize: "18px", fontWeight: 700, fontFamily: fonts.headline }}>
-                  {totalChanged && (
-                    <span
-                      style={{ textDecoration: "line-through", opacity: 0.5, marginRight: "4px", fontSize: "12px" }}
-                    >
+                <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "12px" }}>{item.months} months</span>
+                {totalChanged ? (
+                  <span className="flex items-baseline gap-1.5">
+                    <span style={{ textDecoration: "line-through", opacity: 0.4, fontSize: "12px" }}>
                       €{origTotal.toLocaleString("de-DE")}
                     </span>
-                  )}
-                  €{maxTotal.toLocaleString("de-DE")}
-                </span>
+                    <span style={{ fontSize: "18px", fontWeight: 700, fontFamily: fonts.headline }}>
+                      €{total.toLocaleString("de-DE")}
+                    </span>
+                  </span>
+                ) : (
+                  <span style={{ fontSize: "18px", fontWeight: 700, fontFamily: fonts.headline }}>
+                    €{total.toLocaleString("de-DE")}
+                  </span>
+                )}
               </div>
             </div>
           );
@@ -986,7 +992,9 @@ const CalculationCard: React.FC<{
               <rect x="2" y="7" width="20" height="14" rx="2" />
               <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
             </svg>
-            <span style={{ color: "#000", fontSize: "15px", fontWeight: 600 }}>Planning to work part-time?</span>
+            <span style={{ color: "#000", fontSize: "15px", fontWeight: 600 }}>
+              Part-time while receiving Elterngeld?
+            </span>
           </div>
           <div
             className="relative rounded-full transition-colors duration-200"
@@ -1015,40 +1023,80 @@ const CalculationCard: React.FC<{
             <p style={{ color: "rgba(0,0,0,0.6)", fontSize: fontSize.tiny, marginBottom: "12px" }}>
               Your expected net income while on Elterngeld
             </p>
-            <div className="flex items-center gap-6">
-              <IncomeStepper value={partTimeIncome} label="You" onChange={setPartTimeIncome} />
+
+            {/* Income Steppers */}
+            <div className="space-y-2">
+              <div
+                className="flex items-center justify-between"
+                style={{ backgroundColor: colors.white, borderRadius: "10px", padding: "8px 12px" }}
+              >
+                <span style={{ fontSize: fontSize.small }}>You</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPartTimeIncome(Math.max(0, partTimeIncome - 100))}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-medium hover:bg-gray-100"
+                    style={{ backgroundColor: colors.tile, border: "none", cursor: "pointer" }}
+                  >
+                    −
+                  </button>
+                  <span style={{ width: "70px", textAlign: "center", fontWeight: 600, fontSize: fontSize.small }}>
+                    €{partTimeIncome.toLocaleString("de-DE")}
+                  </span>
+                  <button
+                    onClick={() => setPartTimeIncome(partTimeIncome + 100)}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-medium hover:bg-gray-100"
+                    style={{ backgroundColor: colors.tile, border: "none", cursor: "pointer" }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
               {isCouple && (
-                <IncomeStepper value={partnerPartTimeIncome} label="Partner" onChange={setPartnerPartTimeIncome} />
+                <div
+                  className="flex items-center justify-between"
+                  style={{ backgroundColor: colors.white, borderRadius: "10px", padding: "8px 12px" }}
+                >
+                  <span style={{ fontSize: fontSize.small }}>Partner</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setPartnerPartTimeIncome(Math.max(0, partnerPartTimeIncome - 100))}
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-medium hover:bg-gray-100"
+                      style={{ backgroundColor: colors.tile, border: "none", cursor: "pointer" }}
+                    >
+                      −
+                    </button>
+                    <span style={{ width: "70px", textAlign: "center", fontWeight: 600, fontSize: fontSize.small }}>
+                      €{partnerPartTimeIncome.toLocaleString("de-DE")}
+                    </span>
+                    <button
+                      onClick={() => setPartnerPartTimeIncome(partnerPartTimeIncome + 100)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-medium hover:bg-gray-100"
+                      style={{ backgroundColor: colors.tile, border: "none", cursor: "pointer" }}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
 
-            {/* Explanation when part-time income is set */}
-            {(partTimeIncome > 0 || partnerPartTimeIncome > 0) && (
+            {/* Monthly total summary */}
+            {partTimeIncome > 0 && (
               <div
                 style={{
                   marginTop: "12px",
                   padding: "10px 12px",
                   backgroundColor: "rgba(255,255,255,0.6)",
                   borderRadius: "8px",
-                  fontSize: "12px",
-                  lineHeight: 1.5,
-                  color: "rgba(0,0,0,0.7)",
+                  fontSize: fontSize.small,
                 }}
               >
-                <strong>How it works:</strong>
-                <div style={{ marginTop: "6px" }}>
-                  • Elterngeld is based on income you lose: €{myCalc.differenz.toLocaleString("de-DE")}
-                </div>
-                {myCalc.plusCapped && (
-                  <div style={{ color: colors.orange, fontWeight: 500 }}>
-                    • Plus capped at €{myCalc.plusDeckel.toLocaleString("de-DE")} (50% rule)
-                  </div>
-                )}
-                <div style={{ marginTop: "4px" }}>
-                  <strong>Your monthly total:</strong> €{partTimeIncome.toLocaleString("de-DE")} (salary) + €
-                  {myCalc.plus.toLocaleString("de-DE")} (Elterngeld) ={" "}
-                  <strong>€{(partTimeIncome + myCalc.plus).toLocaleString("de-DE")}</strong>
-                </div>
+                <span style={{ color: "rgba(0,0,0,0.6)" }}>Monthly total: </span>
+                <span style={{ fontWeight: 600 }}>
+                  €{partTimeIncome.toLocaleString("de-DE")} + €{myCalc.plus.toLocaleString("de-DE")} = €
+                  {(partTimeIncome + myCalc.plus).toLocaleString("de-DE")}
+                </span>
               </div>
             )}
           </div>
@@ -1077,8 +1125,8 @@ const CalculationCard: React.FC<{
           <path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z" />
         </svg>
         <p style={{ color: "#000", fontSize: "13px", lineHeight: 1.4 }}>
-          <strong style={{ fontWeight: 600 }}>Partnership Bonus</strong>: +€{bonusPerMonth.toLocaleString("de-DE")}
-          /month extra for 2-4 months
+          <strong style={{ fontWeight: 600 }}>Partnership Bonus</strong>: +€{myCalc.plus.toLocaleString("de-DE")}/month
+          extra for 2-4 months
           {isCouple ? " if both work 24-32h/week" : " if you work 24-32h/week"}
         </p>
       </div>
@@ -1839,7 +1887,29 @@ const ElterngeldGuideNew: React.FC = () => {
     // Calculate preview for insight
     const hasSiblings = userData.siblings === "yes";
     const multiples = userData.multiples || "no";
-    const previewCalc = calculateElterngeld(incomeValue, hasSiblings, multiples, 0);
+    const isOverIncomeLimit = userData.incomeLimit === "over";
+    const previewCalc = calculateElterngeld(incomeValue, hasSiblings, multiples, 0, isOverIncomeLimit);
+
+    // If over income limit, they already know they're ineligible
+    if (isOverIncomeLimit) {
+      // Show calculation card anyway (will show €0)
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: "calc-result",
+          type: "calculation",
+          content: "",
+          userIncome: incomeValue,
+          isCouple: userData.applicationType === "couple",
+        },
+      ]);
+      await new Promise((r) => setTimeout(r, 100));
+      adjustSpacerAfterBotResponse();
+      setIsComplete(true);
+      setIsProcessing(false);
+      return;
+    }
+
     const percentText = incomeValue < 1000 ? "up to 100%" : incomeValue < 1200 ? "around 67%" : "around 65%";
 
     // If couple, ask for partner's income
@@ -2346,11 +2416,13 @@ const ElterngeldGuideNew: React.FC = () => {
                         // Calculate dynamically based on current state
                         const hasSiblings = userData.siblings === "yes";
                         const multiples = userData.multiples || "no";
+                        const isOverIncomeLimit = userData.incomeLimit === "over";
                         const myCalcResult = calculateElterngeld(
                           msg.userIncome,
                           hasSiblings,
                           multiples,
                           workPartTime ? partTimeIncome : 0,
+                          isOverIncomeLimit,
                         );
                         const partnerCalcResult = msg.partnerIncome
                           ? calculateElterngeld(
@@ -2358,6 +2430,7 @@ const ElterngeldGuideNew: React.FC = () => {
                               hasSiblings,
                               multiples,
                               workPartTime ? partnerPartTimeIncome : 0,
+                              isOverIncomeLimit,
                             )
                           : undefined;
 
