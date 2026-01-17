@@ -48,11 +48,11 @@ function ProtectedApp() {
           <Route path="/planner" element={<Index />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/guide" element={<Guide />} />
+          <Route path="/guide-new" element={<ElterngeldGuideNew />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
 
         <Route path="/import-faqs" element={<ImportFaqs />} />
-        <Route path="/guide-new" element={<ElterngeldGuideNew />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
