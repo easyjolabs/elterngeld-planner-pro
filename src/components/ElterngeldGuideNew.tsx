@@ -390,15 +390,28 @@ const ElterngeldGuideNew: React.FC = () => {
   const lastUserMessageIndexRef = useRef(-1);
 
   const handleStartAnswer = async (value: string, label: string) => {
+    console.log("=== START ===");
     setShowStartScreen(false);
     setMessages([{ id: "user-citizenship", type: "user", content: label }]);
     lastUserMessageIndexRef.current = 0;
-    await new Promise((r) => setTimeout(r, 50));
+
+    await new Promise((r) => setTimeout(r, 100)); // Länger warten
+
+    console.log("lastUserMessageRef.current:", lastUserMessageRef.current);
+    console.log("scrollContainerRef.current:", scrollContainerRef.current);
+    console.log("messagesContainerRef.current:", messagesContainerRef.current);
+    console.log("bottomSpacerRef.current:", bottomSpacerRef.current);
+
     if (lastUserMessageRef.current) {
+      console.log("Ref exists, expanding spacer...");
       expandSpacerForMessage(lastUserMessageRef.current);
       await new Promise((r) => setTimeout(r, 50));
       setHideScrollbar(true);
+      console.log("Scrolling to top...");
       await scrollMessageToTop(lastUserMessageRef.current);
+      console.log("Scroll complete");
+    } else {
+      console.log("ERROR: Ref is null!");
     }
     setIsTyping(true);
     await new Promise((r) => setTimeout(r, 600));
