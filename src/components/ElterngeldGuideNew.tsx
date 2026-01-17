@@ -399,20 +399,25 @@ const ElterngeldGuideNew: React.FC = () => {
 
     console.log("lastUserMessageRef.current:", lastUserMessageRef.current);
 
-    if (lastUserMessageRef.current) {
-      console.log("Ref exists, expanding spacer...");
-      expandSpacerForMessage(lastUserMessageRef.current);
-      await new Promise((r) => setTimeout(r, 50));
+    if (lastUserMessageRef.current && scrollContainerRef.current) {
+      const scrollContainer = scrollContainerRef.current;
+      const messageTop = lastUserMessageRef.current.offsetTop;
 
-      console.log("Scrolling to top...");
-      console.log("offsetTop:", lastUserMessageRef.current.offsetTop);
-      console.log("scrollTop BEFORE:", scrollContainerRef.current?.scrollTop);
+      console.log("offsetTop:", messageTop);
+      console.log("scrollTop BEFORE:", scrollContainer.scrollTop);
 
-      setHideScrollbar(true);
-      await scrollMessageToTop(lastUserMessageRef.current);
-
-      console.log("scrollTop AFTER:", scrollContainerRef.current?.scrollTop);
-      console.log("Scroll complete");
+      // Nur scrollen wenn die Message nicht bereits sichtbar oben ist
+      if (messageTop > scrollContainer.scrollTop + 50) {
+        console.log("Message ist weiter unten → Spacer expandieren und scrollen");
+        expandSpacerForMessage(lastUserMessageRef.current);
+        await new Promise((r) => setTimeout(r, 50));
+        setHideScrollbar(true);
+        scrollContainer.scrollTo({ top: messageTop - 24, behavior: "smooth" });
+        await new Promise((r) => setTimeout(r, 300));
+        console.log("scrollTop AFTER:", scrollContainer.scrollTop);
+      } else {
+        console.log("Message already at top, skipping scroll");
+      }
     }
 
     // Hier kommt die Bot-Message - prüfen ob Scroll danach kaputt geht
