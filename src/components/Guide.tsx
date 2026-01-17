@@ -1566,13 +1566,42 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
   const [lastUserMessageIndex, setLastUserMessageIndex] = useState<number>(-1);
   const [shouldScrollToUser, setShouldScrollToUser] = useState(false);
   const lastMessageRef = useRef<HTMLDivElement>(null);
-  const spacerRef = useRef<HTMLDivElement>(null);
-  const spacerObserverRef = useRef<MutationObserver | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isStreamingRef = useRef(false);
   const messagesLengthRef = useRef(0);
   useEffect(() => {
     messagesLengthRef.current = messages.length;
   }, [messages.length]);
+
+  // ============================================
+  // SCROLL UTILITIES (from PoC)
+  // ============================================
+
+  /**
+   * Check if there's actual message content below the viewport
+   * (not just spacer space)
+   */
+  const hasContentBelow = useCallback(() => {
+    if (!scrollRef.current || !lastMessageRef.current) return false;
+
+    const container = scrollRef.current;
+    const lastMsg = lastMessageRef.current;
+
+    // Calculate position of last message bottom
+    let lastMsgBottom = 0;
+    let el: HTMLElement | null = lastMsg;
+    while (el && el !== container) {
+      lastMsgBottom += el.offsetTop;
+      el = el.offsetParent as HTMLElement;
+    }
+    lastMsgBottom += lastMsg.offsetHeight;
+
+    const viewportBottom = container.scrollTop + container.clientHeight;
+
+    // There's content below if the last message extends past the viewport
+    return lastMsgBottom > viewportBottom + 5;
+  }, []);
+
   const PENDING_SESSION_STORAGE_KEY = "elterngeld_pending_session";
   const saveSessionToLocalStorage = useCallback(() => {
     const pendingSession = {
@@ -1841,8 +1870,6 @@ const ElterngeldGuide: React.FC<ElterngeldGuideProps> = ({ onOpenChat }) => {
     setWorkPartTime(false);
     setPartTimeIncome(0);
     setPartnerPartTimeIncome(0);
-    spacerObserverRef.current?.disconnect();
-    spacerObserverRef.current = null;
   }, []);
 
   // Register handlers with GuideContext for Sidebar access
@@ -2193,7 +2220,9 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
   };
   useEffect(() => {
     if (!shouldScrollToUser || lastUserMessageIndex < 0) return;
+
     setHideScrollbar(true);
+
     requestAnimationFrame(() => {
       const userEl = lastUserMessageRef.current;
       const container = scrollRef.current;
@@ -2205,14 +2234,14 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
           el = el.offsetParent as HTMLElement;
         }
         container.scrollTo({
-          top: offsetTop - 70,
-          behavior: "smooth",
+          top: offsetTop - 16,
+          behavior: "smooth"
         });
         setShouldScrollToUser(false);
         setTimeout(() => setHideScrollbar(false), 800);
       }
     });
-  }, [shouldScrollToUser, lastUserMessageIndex, messages.length]);
+  }, [shouldScrollToUser, lastUserMessageIndex]);
   const handleInput = (value: string | number, displayValue?: string) => {
     setStepHistory((prev) => [
       ...prev,
@@ -4395,6 +4424,24 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
       </div>
     );
   }
+
+  // Spacer height: Only as much as needed to scroll user message to top
+  const spacerHeight = (() => {
+    if (lastUserMessageIndex < 0 || !scrollRef.current || !lastUserMessageRef.current) {
+      return 0;
+    }
+
+    // Only show spacer when actively scrolling to user message
+    if (!hideScrollbar) {
+      return 0;
+    }
+
+    const viewportHeight = scrollRef.current.clientHeight;
+    const messageHeight = lastUserMessageRef.current.offsetHeight;
+
+    return Math.max(0, viewportHeight - messageHeight - 100);
+  })();
+
   return (
     <>
       <style>{`
@@ -4721,14 +4768,7 @@ If your partner can't claim, you may qualify as a **single parent** and use all 
                     }}
                   />
 
-                  {spacerHeight > 0 && (
-                    <div
-                      ref={spacerRef}
-                      style={{
-                        height: spacerHeight,
-                      }}
-                    />
-                  )}
+                  {spacerHeight > 0 && <div style={{ height: spacerHeight }} />}
                 </>
               )}
             </div>
