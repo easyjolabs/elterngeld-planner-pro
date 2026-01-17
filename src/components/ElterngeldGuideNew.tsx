@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { useChatScroll } from "@/hooks/useChatScroll";
 
 // ===========================================
@@ -160,6 +160,16 @@ const ElterngeldGuideNew: React.FC = () => {
     releaseScrollLock,
   } = useChatScroll();
 
+  // Scroll-Position wiederherstellen nach jedem Render
+  const savedScrollRef = useRef<number | null>(null);
+
+  useLayoutEffect(() => {
+    if (savedScrollRef.current !== null && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = savedScrollRef.current;
+      savedScrollRef.current = null;
+    }
+  });
+
   // Add initial bot message
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -222,9 +232,8 @@ const ElterngeldGuideNew: React.FC = () => {
       await new Promise((r) => setTimeout(r, 800));
       setIsTyping(false);
 
-      // 6. Bot message hinzufügen - ABER: Scroll-Position VORHER merken
-      const scrollContainer = scrollContainerRef.current;
-      const scrollBefore = scrollContainer?.scrollTop || 0;
+      // 6. Scroll-Position VORHER speichern (useLayoutEffect stellt sie wieder her)
+      savedScrollRef.current = scrollContainerRef.current?.scrollTop || null;
 
       const nextQuestion = questions[nextIndex];
       setMessages((prev) => [
@@ -234,12 +243,8 @@ const ElterngeldGuideNew: React.FC = () => {
 
       setCurrentQuestionIndex(nextIndex);
 
-      // 7. Scroll-Position SOFORT wiederherstellen (nächster Frame)
+      // 7. Spacer anpassen (nach useLayoutEffect)
       requestAnimationFrame(() => {
-        if (scrollContainer) {
-          scrollContainer.scrollTop = scrollBefore;
-        }
-        // Spacer anpassen
         stabilizeScrollPosition();
       });
 
@@ -328,6 +333,7 @@ const ElterngeldGuideNew: React.FC = () => {
           flex: 1,
           overflowY: "auto",
           padding: "20px",
+          overflowAnchor: "none",
         }}
       >
         <div ref={messagesContainerRef}>
