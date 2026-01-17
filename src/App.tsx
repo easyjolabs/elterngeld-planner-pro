@@ -4,6 +4,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Chat from "./pages/Chat";
 import Guide from "./pages/Guide";
+import GuideNew from "./pages/GuideNew";
 import Settings from "./pages/Settings";
 import ImportFaqs from "./pages/ImportFaqs";
 import LandingPage from "./pages/LandingPage";
@@ -51,8 +52,7 @@ function ProtectedApp() {
         </Route>
 
         <Route path="/import-faqs" element={<ImportFaqs />} />
-        <Route path="/guide-new" element={<ElterngeldGuideNew />} />
-        <Route path="/newguide" element={<ElterngeldGuideNew />} />
+        <Route path="/guide-new" element={<GuideNew />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
