@@ -3,7 +3,6 @@
 // ===========================================
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useChatScroll } from "@/hooks/useChatScroll";
 
 // Design Tokens
 const colors = {
@@ -366,19 +365,52 @@ const SCROLL_THRESHOLD = 80;
 
 // Main Component
 const ElterngeldGuideNew: React.FC = () => {
-  const {
-    scrollContainerRef,
-    messagesContainerRef,
-    bottomSpacerRef,
-    spacerHeight,
-    isScrolling,
-    expandSpacerForMessage,
-    scrollMessageToTop,
-    stabilizeScrollPosition,
-    releaseScrollLock,
-    hasContentBelow,
-    scrollToBottom,
-  } = useChatScroll();
+  // Inline refs (ehemals useChatScroll)
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const bottomSpacerRef = useRef<HTMLDivElement>(null);
+  const [spacerHeight, setSpacerHeight] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
+
+  // Stub functions
+  const expandSpacerForMessage = useCallback((messageEl: HTMLElement) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const viewportHeight = container.clientHeight;
+    const messageTop = messageEl.offsetTop;
+    const neededHeight = viewportHeight - 40;
+    setSpacerHeight(neededHeight);
+  }, []);
+
+  const scrollMessageToTop = useCallback(async (messageEl: HTMLElement) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    setIsScrolling(true);
+    container.scrollTo({ top: messageEl.offsetTop - 16, behavior: "smooth" });
+    await new Promise((r) => setTimeout(r, 300));
+    setIsScrolling(false);
+  }, []);
+
+  const stabilizeScrollPosition = useCallback(() => {
+    // Stabilisiert die aktuelle Scroll-Position
+    const container = scrollContainerRef.current;
+    const spacer = bottomSpacerRef.current;
+    if (!container || !spacer) return;
+
+    const messagesHeight = messagesContainerRef.current?.offsetHeight || 0;
+    const viewportHeight = container.clientHeight;
+    const currentScroll = container.scrollTop;
+    const neededScrollHeight = currentScroll + viewportHeight;
+    const newSpacerHeight = Math.max(0, neededScrollHeight - messagesHeight);
+
+    spacer.style.height = `${newSpacerHeight}px`;
+    setSpacerHeight(newSpacerHeight);
+  }, []);
+
+  const releaseScrollLock = useCallback(() => {
+    setIsScrolling(false);
+    setSpacerHeight(0);
+  }, []);
 
   const [showStartScreen, setShowStartScreen] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
