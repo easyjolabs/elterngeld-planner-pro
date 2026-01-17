@@ -15,6 +15,7 @@ const colors = {
   border: "#E7E5E4",
   orange: "#FF8752",
   yellow: "#FFE44C",
+  tan: "#D1B081",
 };
 
 const fonts = {
@@ -35,9 +36,10 @@ interface Message {
   content: string;
   subtext?: string;
   isQuestion?: boolean;
-  calculation?: ElterngeldResult;
-  calculationLabel?: string;
-  calculationVariant?: "yellow" | "orange" | "tile";
+  // For calculation card - we store base incomes, not calculated results
+  userIncome?: number;
+  partnerIncome?: number;
+  isCouple?: boolean;
 }
 
 interface ButtonOption {
@@ -603,124 +605,356 @@ const IncomeSlider: React.FC<{
 // ===========================================
 // ELTERNGELD CALCULATION
 // ===========================================
-interface ElterngeldResult {
-  baseAmount: number;
-  replacementRate: number;
-  siblingsBonus: number;
-  multiplesBonus: number;
-  totalAmount: number;
-  netIncome: number;
+interface CalcResult {
+  basis: number;
+  plus: number;
+  bonus: number;
+  basisWithoutWork: number;
 }
 
-const calculateElterngeld = (netIncome: number, hasSiblings: boolean, multiples: string): ElterngeldResult => {
+const calculateElterngeld = (
+  netIncome: number,
+  hasSiblings: boolean,
+  multiples: string,
+  partTimeIncome: number = 0,
+): CalcResult => {
+  const MIN = 300;
+  const MAX = 1800;
+  const GESCHWISTER_MIN = 75;
+  const TWINS_BONUS = 300;
+  const TRIPLETS_BONUS = 600;
+
+  if (!netIncome || netIncome === 0) {
+    return { basis: MIN, plus: MIN / 2, bonus: MIN / 2, basisWithoutWork: MIN };
+  }
+
   // Replacement rate based on income
-  let replacementRate = 0.65; // Default 65%
-  if (netIncome < 1200) {
-    // Increases from 67% to 100% as income decreases from €1,200 to €300
-    replacementRate = 0.67 + (1200 - netIncome) * 0.001;
-    replacementRate = Math.min(1, replacementRate);
-  } else if (netIncome > 2770) {
-    // Cap calculation at €2,770
-    netIncome = 2770;
-  }
-
-  // Base amount (min €300, max €1,800)
-  let baseAmount = Math.round(netIncome * replacementRate);
-  baseAmount = Math.max(300, Math.min(1800, baseAmount));
-
-  // Siblings bonus: +10% (min €75, max €180)
-  let siblingsBonus = 0;
-  if (hasSiblings) {
-    siblingsBonus = Math.max(75, Math.round(baseAmount * 0.1));
-    siblingsBonus = Math.min(180, siblingsBonus);
-  }
-
-  // Multiples bonus
-  let multiplesBonus = 0;
-  if (multiples === "twins") multiplesBonus = 300;
-  if (multiples === "triplets") multiplesBonus = 600;
-
-  const totalAmount = baseAmount + siblingsBonus + multiplesBonus;
-
-  return {
-    baseAmount,
-    replacementRate,
-    siblingsBonus,
-    multiplesBonus,
-    totalAmount,
-    netIncome,
+  const getErsatzrate = (income: number) => {
+    let rate = 0.67;
+    if (income < 1000) {
+      const diff = 1000 - income;
+      rate = Math.min(1.0, 0.67 + (diff / 2) * 0.001);
+    } else if (income > 1200) {
+      const diff = income - 1200;
+      rate = Math.max(0.65, 0.67 - (diff / 2) * 0.001);
+    }
+    return rate;
   };
+
+  // Calculate WITHOUT part-time work (baseline)
+  const ersatzrateOhne = getErsatzrate(netIncome);
+  let basisWithoutWork = Math.round(netIncome * ersatzrateOhne);
+  basisWithoutWork = Math.max(MIN, Math.min(MAX, basisWithoutWork));
+
+  // Add bonuses
+  let bonusAmount = 0;
+  if (hasSiblings) {
+    bonusAmount += Math.max(GESCHWISTER_MIN, Math.round(basisWithoutWork * 0.1));
+  }
+  if (multiples === "twins") bonusAmount += TWINS_BONUS;
+  if (multiples === "triplets") bonusAmount += TRIPLETS_BONUS;
+  basisWithoutWork += bonusAmount;
+
+  // Calculate WITH part-time work
+  const differenz = Math.max(0, netIncome - partTimeIncome);
+  const ersatzrateMit = getErsatzrate(differenz);
+  let basis = Math.round(differenz * ersatzrateMit);
+  basis = Math.max(MIN, Math.min(MAX, basis));
+  basis += bonusAmount;
+
+  // Plus is capped at half of basisWithoutWork when working part-time
+  const plusDeckel = Math.round(basisWithoutWork / 2);
+  const plusBerechnet = Math.round(basis / 2);
+  const plus = partTimeIncome > 0 ? Math.min(plusBerechnet, plusDeckel) : plusBerechnet;
+
+  // Bonus (Partnerschaftsbonus) is same as plus
+  const bonus = plus;
+
+  return { basis, plus, bonus, basisWithoutWork };
 };
 
 // ===========================================
-// CALCULATION CARD
+// INCOME STEPPER (for part-time)
 // ===========================================
-const CalculationCard: React.FC<{
-  result: ElterngeldResult;
-  personLabel?: string;
-  variant?: "yellow" | "orange" | "tile";
-}> = ({ result, personLabel, variant = "yellow" }) => {
-  const bgColor = variant === "yellow" ? colors.yellow : variant === "orange" ? colors.orange : colors.tile;
-  const iconBg = variant === "tile" ? colors.white : "rgba(255,255,255,0.5)";
+const IncomeStepper: React.FC<{
+  value: number;
+  label: string;
+  onChange: (value: number) => void;
+}> = ({ value, label, onChange }) => {
+  const step = 100;
+  const decrease = () => onChange(Math.max(0, value - step));
+  const increase = () => onChange(value + step);
 
   return (
-    <div
-      className="mt-4"
-      style={{
-        backgroundColor: bgColor,
-        borderRadius: "16px",
-        padding: "20px",
-      }}
-    >
-      {/* Header with icon */}
-      <div className="flex items-start gap-3 mb-3">
-        <div
+    <div className="flex items-center justify-between flex-1">
+      <span style={{ color: colors.textDark, fontSize: fontSize.small }}>{label}</span>
+      <div className="flex items-center gap-1">
+        <button
+          onClick={decrease}
+          className="w-6 h-6 flex items-center justify-center rounded hover:bg-white/50"
+          style={{ color: colors.textDark, cursor: "pointer", fontSize: "16px", background: "none", border: "none" }}
+        >
+          −
+        </button>
+        <span
           style={{
-            width: "40px",
-            height: "40px",
-            borderRadius: "10px",
-            backgroundColor: iconBg,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
+            color: colors.textDark,
+            fontSize: fontSize.small,
+            fontWeight: 600,
+            minWidth: "60px",
+            textAlign: "center",
           }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="1.5">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-          </svg>
-        </div>
-        <div>
-          <p style={{ fontSize: fontSize.small, color: "rgba(0,0,0,0.6)", marginBottom: "2px" }}>
-            {personLabel || "Your Elterngeld"}
-          </p>
-          <p style={{ fontFamily: fonts.headline, fontSize: "28px", fontWeight: 700, color: "#000", lineHeight: 1.1 }}>
-            €{result.totalAmount.toLocaleString("de-DE")}
-            <span style={{ fontSize: "16px", fontWeight: 500 }}>/month</span>
-          </p>
-        </div>
+          €{value.toLocaleString("de-DE")}
+        </span>
+        <button
+          onClick={increase}
+          className="w-6 h-6 flex items-center justify-center rounded hover:bg-white/50"
+          style={{ color: colors.textDark, cursor: "pointer", fontSize: "16px", background: "none", border: "none" }}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ===========================================
+// CALCULATION CARD (from original guide)
+// ===========================================
+const CalculationCard: React.FC<{
+  myCalc: CalcResult;
+  partnerCalc?: CalcResult;
+  isCouple: boolean;
+  workPartTime: boolean;
+  setWorkPartTime: (v: boolean) => void;
+  partTimeIncome: number;
+  setPartTimeIncome: (v: number) => void;
+  partnerPartTimeIncome: number;
+  setPartnerPartTimeIncome: (v: number) => void;
+}> = ({
+  myCalc,
+  partnerCalc,
+  isCouple,
+  workPartTime,
+  setWorkPartTime,
+  partTimeIncome,
+  setPartTimeIncome,
+  partnerPartTimeIncome,
+  setPartnerPartTimeIncome,
+}) => {
+  const youWithoutWork = {
+    basis: myCalc.basisWithoutWork,
+    plus: Math.round(myCalc.basisWithoutWork / 2),
+  };
+  const partnerWithoutWork = partnerCalc
+    ? {
+        basis: partnerCalc.basisWithoutWork,
+        plus: Math.round(partnerCalc.basisWithoutWork / 2),
+      }
+    : { basis: 0, plus: 0 };
+
+  const cards = [
+    {
+      label: "BASIS",
+      you: workPartTime ? myCalc.basis : youWithoutWork.basis,
+      youOrig: youWithoutWork.basis,
+      partner: partnerCalc ? (workPartTime ? partnerCalc.basis : partnerWithoutWork.basis) : 0,
+      partnerOrig: partnerWithoutWork.basis,
+      maxMonths: isCouple ? 14 : 12,
+      bg: colors.orange,
+    },
+    {
+      label: "PLUS",
+      you: workPartTime ? myCalc.plus : youWithoutWork.plus,
+      youOrig: youWithoutWork.plus,
+      partner: partnerCalc ? (workPartTime ? partnerCalc.plus : partnerWithoutWork.plus) : 0,
+      partnerOrig: partnerWithoutWork.plus,
+      maxMonths: isCouple ? 28 : 24,
+      bg: colors.yellow,
+    },
+  ];
+
+  const getMaxTotal = (item: (typeof cards)[0]) => {
+    if (!isCouple) {
+      return item.you * item.maxMonths;
+    }
+    const maxPerParent = item.label === "BASIS" ? 12 : 24;
+    const minPartnerMonths = item.label === "BASIS" ? 2 : 4;
+    const higherAmount = Math.max(item.you, item.partner);
+    const lowerAmount = Math.min(item.you, item.partner);
+    return higherAmount * maxPerParent + lowerAmount * minPartnerMonths;
+  };
+
+  const bonusPerMonth = isCouple ? myCalc.bonus + (partnerCalc?.bonus || 0) : myCalc.bonus;
+
+  return (
+    <div className="py-3">
+      {/* BASIS + PLUS Cards */}
+      <div className="flex gap-3">
+        {cards.map((item, i) => {
+          const maxTotal = getMaxTotal(item);
+          return (
+            <div
+              key={i}
+              className="flex-1"
+              style={{
+                backgroundColor: item.bg,
+                borderRadius: "16px",
+                padding: "16px",
+              }}
+            >
+              <div style={{ marginBottom: "12px" }}>
+                <span
+                  style={{
+                    color: "#000",
+                    fontSize: "16px",
+                    fontWeight: 700,
+                    fontFamily: fonts.headline,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {item.label}
+                </span>
+              </div>
+
+              {isCouple ? (
+                <div>
+                  <div className="flex items-center justify-between" style={{ padding: "4px 0" }}>
+                    <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "13px" }}>You</span>
+                    <span style={{ color: "#000", fontSize: "13px", fontWeight: 500 }}>
+                      €{item.you.toLocaleString("de-DE")}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between" style={{ padding: "4px 0" }}>
+                    <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "13px" }}>Partner</span>
+                    <span style={{ color: "#000", fontSize: "13px", fontWeight: 500 }}>
+                      €{item.partner.toLocaleString("de-DE")}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between" style={{ padding: "4px 0" }}>
+                  <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "13px" }}>Per month</span>
+                  <span style={{ color: "#000", fontSize: "13px", fontWeight: 500 }}>
+                    €{item.you.toLocaleString("de-DE")}
+                  </span>
+                </div>
+              )}
+
+              <div
+                className="flex items-center justify-between"
+                style={{
+                  borderTop: "1px solid rgba(0,0,0,0.15)",
+                  marginTop: "8px",
+                  paddingTop: "10px",
+                }}
+              >
+                <span style={{ color: "rgba(0,0,0,0.7)", fontSize: "12px" }}>{item.maxMonths} mo max</span>
+                <span
+                  style={{
+                    color: "#000",
+                    fontSize: "18px",
+                    fontWeight: 700,
+                    fontFamily: fonts.headline,
+                  }}
+                >
+                  €{maxTotal.toLocaleString("de-DE")}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Breakdown */}
-      <div style={{ fontSize: fontSize.small, color: "rgba(0,0,0,0.7)" }}>
-        <div className="flex justify-between py-1.5" style={{ borderTop: "1px solid rgba(0,0,0,0.1)" }}>
-          <span>
-            Base ({Math.round(result.replacementRate * 100)}% of €{result.netIncome.toLocaleString("de-DE")})
-          </span>
-          <span style={{ fontWeight: 500 }}>€{result.baseAmount.toLocaleString("de-DE")}</span>
-        </div>
-        {result.siblingsBonus > 0 && (
-          <div className="flex justify-between py-1.5" style={{ borderTop: "1px solid rgba(0,0,0,0.1)" }}>
-            <span>Siblings bonus</span>
-            <span style={{ fontWeight: 500 }}>+€{result.siblingsBonus}</span>
+      {/* Part-time Toggle */}
+      <div
+        style={{
+          backgroundColor: colors.tile,
+          borderRadius: "12px",
+          marginTop: "12px",
+          marginBottom: "12px",
+        }}
+      >
+        <button
+          onClick={() => setWorkPartTime(!workPartTime)}
+          className="w-full flex items-center justify-between cursor-pointer"
+          style={{
+            padding: "14px 16px",
+            background: "none",
+            border: "none",
+          }}
+        >
+          <div className="flex items-center" style={{ gap: "10px" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth={1.5}>
+              <rect x="2" y="7" width="20" height="14" rx="2" />
+              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+            </svg>
+            <span style={{ color: "#000", fontSize: "15px", fontWeight: 600 }}>Planning to work part-time?</span>
+          </div>
+          <div
+            className="relative rounded-full transition-colors duration-200"
+            style={{
+              width: "44px",
+              height: "24px",
+              backgroundColor: workPartTime ? colors.orange : colors.border,
+            }}
+          >
+            <span
+              className="absolute rounded-full bg-white transition-transform duration-200"
+              style={{
+                width: "20px",
+                height: "20px",
+                top: "2px",
+                left: "2px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                transform: workPartTime ? "translateX(20px)" : "translateX(0)",
+              }}
+            />
+          </div>
+        </button>
+
+        {workPartTime && (
+          <div style={{ padding: "0 16px 16px 16px" }}>
+            <p style={{ color: "rgba(0,0,0,0.6)", fontSize: fontSize.tiny, marginBottom: "12px" }}>
+              Your expected net income while on Elterngeld
+            </p>
+            <div className="flex items-center gap-6">
+              <IncomeStepper value={partTimeIncome} label="You" onChange={setPartTimeIncome} />
+              {isCouple && (
+                <IncomeStepper value={partnerPartTimeIncome} label="Partner" onChange={setPartnerPartTimeIncome} />
+              )}
+            </div>
           </div>
         )}
-        {result.multiplesBonus > 0 && (
-          <div className="flex justify-between py-1.5" style={{ borderTop: "1px solid rgba(0,0,0,0.1)" }}>
-            <span>Multiples bonus</span>
-            <span style={{ fontWeight: 500 }}>+€{result.multiplesBonus}</span>
-          </div>
-        )}
+      </div>
+
+      {/* Partnership Bonus Info */}
+      <div
+        className="flex items-center"
+        style={{
+          backgroundColor: colors.tan,
+          borderRadius: "12px",
+          padding: "14px 16px",
+          gap: "10px",
+        }}
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#000"
+          strokeWidth={1.5}
+          className="shrink-0"
+        >
+          <path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z" />
+        </svg>
+        <p style={{ color: "#000", fontSize: "13px", lineHeight: 1.4 }}>
+          <strong style={{ fontWeight: 600 }}>Partnership Bonus</strong>: +€{bonusPerMonth.toLocaleString("de-DE")}
+          /month extra for 2-4 months
+          {isCouple ? " if both work 24-32h/week" : " if you work 24-32h/week"}
+        </p>
       </div>
     </div>
   );
@@ -1006,8 +1240,11 @@ const ElterngeldGuideNew: React.FC = () => {
   const [userData, setUserData] = useState<UserData>({});
   const [incomeValue, setIncomeValue] = useState(2500);
   const [partnerIncomeValue, setPartnerIncomeValue] = useState(2500);
-  const [calculationResult, setCalculationResult] = useState<ElterngeldResult | null>(null);
-  const [partnerCalculationResult, setPartnerCalculationResult] = useState<ElterngeldResult | null>(null);
+  const [myCalc, setMyCalc] = useState<CalcResult | null>(null);
+  const [partnerCalc, setPartnerCalc] = useState<CalcResult | null>(null);
+  const [workPartTime, setWorkPartTime] = useState(false);
+  const [partTimeIncome, setPartTimeIncome] = useState(0);
+  const [partnerPartTimeIncome, setPartnerPartTimeIncome] = useState(0);
 
   // ===========================================
   // SCROLL UTILITIES
@@ -1466,32 +1703,9 @@ const ElterngeldGuideNew: React.FC = () => {
 
     await runScrollSequence();
 
-    // Calculate Elterngeld
-    const hasSiblings = userData.siblings === "yes";
-    const multiples = userData.multiples || "no";
-    const result = calculateElterngeld(incomeValue, hasSiblings, multiples);
-    setCalculationResult(result);
-
-    // Show calculation card
-    const isCouple = userData.applicationType === "couple";
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: "calc-user",
-        type: "calculation",
-        content: "",
-        calculation: result,
-        calculationLabel: isCouple ? "Your Elterngeld" : "Your Elterngeld",
-        calculationVariant: "yellow",
-      },
-    ]);
-
-    await new Promise((r) => setTimeout(r, 100));
-    adjustSpacerAfterBotResponse();
-
     // If couple, ask for partner's income
+    const isCouple = userData.applicationType === "couple";
     if (isCouple) {
-      await new Promise((r) => setTimeout(r, 500));
       await showTypingThenMessage({
         id: "bot-partnerIncome",
         type: "bot",
@@ -1501,7 +1715,20 @@ const ElterngeldGuideNew: React.FC = () => {
       });
       setInputType("partnerIncome");
     } else {
-      // Single parent - complete
+      // Single parent - show calculation and complete
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: "calc-result",
+          type: "calculation",
+          content: "",
+          userIncome: incomeValue,
+          isCouple: false,
+        },
+      ]);
+
+      await new Promise((r) => setTimeout(r, 100));
+      adjustSpacerAfterBotResponse();
       setIsComplete(true);
     }
 
@@ -1533,22 +1760,16 @@ const ElterngeldGuideNew: React.FC = () => {
 
     await runScrollSequence();
 
-    // Calculate partner's Elterngeld
-    const hasSiblings = userData.siblings === "yes";
-    const multiples = userData.multiples || "no";
-    const partnerResult = calculateElterngeld(partnerIncomeValue, hasSiblings, multiples);
-    setPartnerCalculationResult(partnerResult);
-
-    // Show partner calculation card
+    // Show combined calculation card
     setMessages((prev) => [
       ...prev,
       {
-        id: "calc-partner",
+        id: "calc-result",
         type: "calculation",
         content: "",
-        calculation: partnerResult,
-        calculationLabel: "Partner's Elterngeld",
-        calculationVariant: "orange",
+        userIncome: incomeValue,
+        partnerIncome: partnerIncomeValue,
+        isCouple: true,
       },
     ]);
 
@@ -1766,8 +1987,11 @@ const ElterngeldGuideNew: React.FC = () => {
     setUserData({});
     setIncomeValue(2500);
     setPartnerIncomeValue(2500);
-    setCalculationResult(null);
-    setPartnerCalculationResult(null);
+    setMyCalc(null);
+    setPartnerCalc(null);
+    setWorkPartTime(false);
+    setPartTimeIncome(0);
+    setPartnerPartTimeIncome(0);
   }, []);
 
   // ===========================================
@@ -1911,29 +2135,61 @@ const ElterngeldGuideNew: React.FC = () => {
                 <>
                   {/* MESSAGES CONTAINER */}
                   <div ref={messagesContainerRef}>
-                    {messages.map((msg, i) =>
-                      msg.type === "user" ? (
-                        <UserMessage
-                          key={msg.id}
-                          ref={i === lastUserMessageIndexRef.current ? lastUserMessageRef : null}
-                          content={msg.content}
-                        />
-                      ) : msg.type === "calculation" && msg.calculation ? (
-                        <CalculationCard
-                          key={msg.id}
-                          result={msg.calculation}
-                          personLabel={msg.calculationLabel}
-                          variant={msg.calculationVariant}
-                        />
-                      ) : (
+                    {messages.map((msg, i) => {
+                      if (msg.type === "user") {
+                        return (
+                          <UserMessage
+                            key={msg.id}
+                            ref={i === lastUserMessageIndexRef.current ? lastUserMessageRef : null}
+                            content={msg.content}
+                          />
+                        );
+                      }
+
+                      if (msg.type === "calculation" && msg.userIncome !== undefined) {
+                        // Calculate dynamically based on current state
+                        const hasSiblings = userData.siblings === "yes";
+                        const multiples = userData.multiples || "no";
+                        const myCalcResult = calculateElterngeld(
+                          msg.userIncome,
+                          hasSiblings,
+                          multiples,
+                          workPartTime ? partTimeIncome : 0,
+                        );
+                        const partnerCalcResult = msg.partnerIncome
+                          ? calculateElterngeld(
+                              msg.partnerIncome,
+                              hasSiblings,
+                              multiples,
+                              workPartTime ? partnerPartTimeIncome : 0,
+                            )
+                          : undefined;
+
+                        return (
+                          <CalculationCard
+                            key={msg.id}
+                            myCalc={myCalcResult}
+                            partnerCalc={partnerCalcResult}
+                            isCouple={msg.isCouple || false}
+                            workPartTime={workPartTime}
+                            setWorkPartTime={setWorkPartTime}
+                            partTimeIncome={partTimeIncome}
+                            setPartTimeIncome={setPartTimeIncome}
+                            partnerPartTimeIncome={partnerPartTimeIncome}
+                            setPartnerPartTimeIncome={setPartnerPartTimeIncome}
+                          />
+                        );
+                      }
+
+                      return (
                         <BotMessage
                           key={msg.id}
                           content={msg.content}
                           subtext={msg.subtext}
                           isQuestion={msg.isQuestion}
                         />
-                      ),
-                    )}
+                      );
+                    })}
 
                     {isTyping && <TypingIndicator />}
 
