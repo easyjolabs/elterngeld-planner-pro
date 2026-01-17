@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="409px" height="87px" viewBox="0 0 409 87" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="422px" height="89px" viewBox="0 0 422 89" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>Group 7 Copy</title>
     <g id="Eltern-Helper" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Artboard" transform="translate(-3347.000000, -3470.000000)">
-            <g id="Group-7-Copy" transform="translate(3347.000000, 3470.000000)">
-                <text id="for-Expats-Copy" font-family="SpaceGrotesk-Light_Regular, Space Grotesk" font-size="22" font-weight="normal" letter-spacing="1.6" fill="#000000">
-                    <tspan x="92" y="81">for Expats</tspan>
+        <g id="Artboard" transform="translate(-3346.000000, -3470.000000)">
+            <g id="Group-7-Copy" transform="translate(3346.000000, 3470.000000)">
+                <text id="for-Expats" font-family="SpaceGrotesk-Light_Regular, Space Grotesk" font-size="23" font-weight="normal" letter-spacing="1.67272727" fill="#000000">
+                    <tspan x="93" y="82">for Expats</tspan>
                 </text>
-                <text id="Elterngeld-Copy" font-family="SpaceGrotesk-Light, Space Grotesk" font-size="52" font-weight="300" letter-spacing="-3.9" fill="#000000">
-                    <tspan x="89" y="51">Elterngeld</tspan>
-                    <tspan x="307.4" y="51" font-family="SpaceGrotesk-Light_Bold, Space Grotesk" font-weight="bold"> </tspan>
+                <text id="Elterngeld-Copy" font-family="SpaceGrotesk-Light, Space Grotesk" font-size="52" font-weight="300" letter-spacing="-3" fill="#000000">
+                    <tspan x="90" y="51">Elterngeld</tspan>
+                    <tspan x="317.4" y="51" font-family="SpaceGrotesk-Light_Bold, Space Grotesk" font-weight="bold"> </tspan>
                 </text>
-                <text id="Help-Copy" font-family="SpaceGrotesk-Light_Bold, Space Grotesk" font-size="52" font-weight="bold" letter-spacing="-3.9" fill="#000000">
-                    <tspan x="311" y="51">Help</tspan>
+                <text id="Help" font-family="SpaceGrotesk-Light_Bold, Space Grotesk" font-size="52" font-weight="bold" letter-spacing="-3" fill="#000000">
+                    <tspan x="322" y="51">Help</tspan>
                 </text>
-                <g id="Group-6-Copy-2" transform="translate(0.000000, 14.000000)">
+                <g id="Group-6-Copy-2" transform="translate(0.000000, 10.000000)">
                     <g id="Body" fill="#B98A43" fill-rule="nonzero">
-                        <path d="M64,32 L64,32 C64,14.3127273 49.6872727,0 32,0 L32,0 C14.3127273,0 0,14.3127273 0,32 L0,64 L32,64 C49.6872727,64 64,49.6872727 64,32 Z" id="Shape"></path>
+                        <path d="M70,35 L70,35 C70,15.6545455 54.3454545,0 35,0 L35,0 C15.6545455,0 0,15.6545455 0,35 L0,70 L35,70 C54.3454545,70 70,54.3454545 70,35 Z" id="Shape"></path>
                     </g>
-                    <g id="Eyes-Copy-2" transform="translate(20.244774, 18.494471)">
-                        <ellipse id="Oval" fill="#FFFFFF" cx="7.52015216" cy="8.51779743" rx="7.52015216" ry="8.51779743"></ellipse>
-                        <ellipse id="Oval-Copy-3" fill="#FFFFFF" cx="25.4714831" cy="8.51779743" rx="7.52015216" ry="8.51779743"></ellipse>
-                        <ellipse id="Oval" fill="#000000" cx="8.73307993" cy="9.97799128" rx="3.88136886" ry="4.1372159"></ellipse>
-                        <ellipse id="Oval-Copy-4" fill="#000000" cx="27.169582" cy="9.97799128" rx="3.88136886" ry="4.1372159"></ellipse>
+                    <g id="Eyes-Copy-2" transform="translate(22.142721, 20.228327)">
+                        <ellipse id="Oval" fill="#FFFFFF" cx="8.22516642" cy="9.31634094" rx="8.22516642" ry="9.31634094"></ellipse>
+                        <ellipse id="Oval-Copy-3" fill="#FFFFFF" cx="27.8594347" cy="9.31634094" rx="8.22516642" ry="9.31634094"></ellipse>
+                        <ellipse id="Oval" fill="#000000" cx="9.55180617" cy="10.913428" rx="4.24524719" ry="4.52507989"></ellipse>
+                        <ellipse id="Oval-Copy-4" fill="#000000" cx="29.7167303" cy="10.913428" rx="4.24524719" ry="4.52507989"></ellipse>
                     </g>
                 </g>
             </g>
