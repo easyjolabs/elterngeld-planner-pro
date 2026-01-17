@@ -8,6 +8,7 @@ import GuideNew from "./pages/GuideNew";
 import Settings from "./pages/Settings";
 import ImportFaqs from "./pages/ImportFaqs";
 import LandingPage from "./pages/LandingPage";
+import ElterngeldGuideNew from "./components/ElterngeldGuideNew";
 import { PrivacyPolicy, Disclaimer, Imprint } from "./pages/LegalPages";
 import { PasswordGate } from "./components/PasswordGate";
 import { usePasswordProtection } from "./hooks/usePasswordProtection";
