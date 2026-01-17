@@ -1,8 +1,8 @@
 // ===========================================
-// ELTERNGELD GUIDE - NEU MIT SCROLL-LOGIK
+// ELTERNGELD GUIDE - MIT VISA SELECTOR
 // ===========================================
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 
 // Design Tokens
 const colors = {
@@ -22,10 +22,12 @@ const fonts = {
 };
 
 const ui = { buttonRadius: 10, buttonHeight: 48 };
-const fontSize = { question: "19px", body: "16px", subtext: "15px", button: "15px", tiny: "12px" };
+const fontSize = { question: "19px", body: "16px", subtext: "15px", button: "15px", tiny: "12px", small: "13px" };
 const tagColors = ["#FF8752", "#FFE44C", "#D1B081"];
 
-// Types
+// ===========================================
+// TYPES
+// ===========================================
 interface Message {
   id: string;
   type: "bot" | "user";
@@ -33,12 +35,15 @@ interface Message {
   subtext?: string;
   isQuestion?: boolean;
 }
+
 interface ButtonOption {
   value: string;
   label: string;
   note?: string;
   icon?: string;
+  sub?: string;
 }
+
 interface Question {
   id: string;
   content: string;
@@ -46,7 +51,147 @@ interface Question {
   options: ButtonOption[];
 }
 
-// Icons
+interface UserData {
+  citizenship?: string;
+  visaType?: string;
+  isEmployed?: string;
+  humanitarianCondition?: string;
+  incomeLimit?: string;
+  multiples?: string;
+  siblings?: string;
+  applicationType?: string;
+  _conditionalType?: string;
+}
+
+interface VisaType {
+  id: string;
+  label: string;
+  category: "special" | "work" | "study" | "humanitarian" | "other";
+  status: "eligible" | "conditional" | "not_eligible";
+  condition?: string;
+  paragraph?: string;
+}
+
+// ===========================================
+// VISA DATA
+// ===========================================
+const visaTypes: VisaType[] = [
+  { id: "uk_pre_brexit", label: "British – arrived before Jan 2021", category: "special", status: "eligible" },
+  {
+    id: "turkey_insured",
+    label: "Turkish/Moroccan/Tunisian/Algerian – socially insured",
+    category: "special",
+    status: "eligible",
+  },
+  {
+    id: "niederlassungserlaubnis",
+    label: "Niederlassungserlaubnis (Settlement Permit)",
+    category: "work",
+    status: "eligible",
+    paragraph: "§9",
+  },
+  {
+    id: "daueraufenthalt_eu",
+    label: "Daueraufenthalt-EU (EU Long-term Residence)",
+    category: "work",
+    status: "eligible",
+    paragraph: "§9a",
+  },
+  { id: "blue_card", label: "Blue Card EU", category: "work", status: "eligible" },
+  { id: "ict_card", label: "ICT-Karte (Intra-Company Transfer)", category: "work", status: "eligible" },
+  {
+    id: "work_permit",
+    label: "Work Permit (Aufenthaltserlaubnis)",
+    category: "work",
+    status: "eligible",
+    paragraph: "§7",
+  },
+  {
+    id: "beschaeftigungsduldung",
+    label: "Beschäftigungsduldung (Employment Toleration)",
+    category: "work",
+    status: "eligible",
+    paragraph: "§60d",
+  },
+  {
+    id: "student",
+    label: "Student Visa",
+    category: "study",
+    status: "conditional",
+    condition: "Only if currently employed, in Elternzeit, or receiving ALG",
+    paragraph: "§16b",
+  },
+  {
+    id: "qualification",
+    label: "Qualification Recognition",
+    category: "study",
+    status: "conditional",
+    condition: "Only if currently employed, in Elternzeit, or receiving ALG",
+    paragraph: "§16d",
+  },
+  {
+    id: "job_seeker",
+    label: "Job Seeker Visa",
+    category: "study",
+    status: "conditional",
+    condition: "Only if currently employed, in Elternzeit, or receiving ALG",
+    paragraph: "§20",
+  },
+  { id: "training", label: "Training Visa (Ausbildung)", category: "study", status: "not_eligible", paragraph: "§16e" },
+  { id: "ukraine", label: "Ukraine Residence Permit", category: "humanitarian", status: "eligible", paragraph: "§24" },
+  {
+    id: "humanitarian_war",
+    label: "Humanitarian (War in Home Country)",
+    category: "humanitarian",
+    status: "conditional",
+    condition: "Only if employed OR 15+ months in Germany",
+    paragraph: "§23 Abs. 1",
+  },
+  {
+    id: "humanitarian_hardship",
+    label: "Humanitarian (Hardship Case)",
+    category: "humanitarian",
+    status: "conditional",
+    condition: "Only if employed OR 15+ months in Germany",
+    paragraph: "§23a",
+  },
+  {
+    id: "humanitarian_protection",
+    label: "Subsidiary/Humanitarian Protection",
+    category: "humanitarian",
+    status: "conditional",
+    condition: "Only if employed OR 15+ months in Germany",
+    paragraph: "§25 Abs. 3-5",
+  },
+  { id: "au_pair", label: "Au-pair Visa", category: "other", status: "not_eligible", paragraph: "§19c" },
+  { id: "seasonal", label: "Seasonal Work Visa", category: "other", status: "not_eligible", paragraph: "§19c" },
+  {
+    id: "voluntary",
+    label: "European Voluntary Service",
+    category: "other",
+    status: "not_eligible",
+    paragraph: "§19e",
+  },
+  {
+    id: "other",
+    label: "I don't know / Other",
+    category: "other",
+    status: "conditional",
+    condition: "Check with your local Elterngeldstelle",
+  },
+];
+
+const visaCategories = [
+  { id: "work", label: "Work permit", sub: "Blue Card, Niederlassungserlaubnis..." },
+  { id: "study", label: "Student / Job seeker", sub: "Student visa, Job seeker..." },
+  { id: "humanitarian", label: "Humanitarian", sub: "Ukraine, Asylum..." },
+  { id: "special", label: "Special situation", sub: "UK pre-Brexit, Turkish/Moroccan..." },
+  { id: "other", label: "Other / Not sure" },
+];
+
+// ===========================================
+// ICONS
+// ===========================================
 const icons: Record<string, React.ReactNode> = {
   check: (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -92,6 +237,17 @@ const icons: Record<string, React.ReactNode> = {
       <path d="M5 21v-2a7 7 0 0114 0v2" />
     </svg>
   ),
+  briefcase: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
+    </svg>
+  ),
+  home: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V10" />
+    </svg>
+  ),
   eu: (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
       <circle cx="12" cy="8" r="5" />
@@ -108,20 +264,9 @@ const icons: Record<string, React.ReactNode> = {
   ),
 };
 
-const formatText = (text: string): React.ReactNode => {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
-  return parts.map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") ? (
-      <strong key={i} className="font-semibold" style={{ color: colors.textDark }}>
-        {part.slice(2, -2)}
-      </strong>
-    ) : (
-      part
-    ),
-  );
-};
-
-// Questions
+// ===========================================
+// QUESTIONS
+// ===========================================
 const questions: Question[] = [
   {
     id: "incomeLimit",
@@ -162,7 +307,25 @@ const questions: Question[] = [
   },
 ];
 
-// Components
+// ===========================================
+// HELPER FUNCTIONS
+// ===========================================
+const formatText = (text: string): React.ReactNode => {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") ? (
+      <strong key={i} className="font-semibold" style={{ color: colors.textDark }}>
+        {part.slice(2, -2)}
+      </strong>
+    ) : (
+      part
+    ),
+  );
+};
+
+// ===========================================
+// COMPONENTS
+// ===========================================
 const ButtonOptions: React.FC<{
   options: ButtonOption[];
   onSelect: (opt: ButtonOption) => void;
@@ -170,7 +333,7 @@ const ButtonOptions: React.FC<{
 }> = ({ options, onSelect, disabled }) => {
   let noteIdx = 0;
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 mt-4">
       {options.map((opt, i) => {
         const ni = opt.note ? noteIdx++ : -1;
         return (
@@ -183,15 +346,18 @@ const ButtonOptions: React.FC<{
               backgroundColor: colors.white,
               border: `1.5px solid ${colors.border}`,
               borderRadius: ui.buttonRadius,
-              height: ui.buttonHeight,
-              padding: "10px 16px",
+              height: opt.sub ? "auto" : ui.buttonHeight,
+              padding: opt.sub ? "12px 16px" : "10px 16px",
               opacity: disabled ? 0.6 : 1,
               cursor: disabled ? "not-allowed" : "pointer",
             }}
           >
             <div className="flex items-center gap-3">
               {opt.icon && <span style={{ color: colors.textDark }}>{icons[opt.icon]}</span>}
-              <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>{opt.label}</span>
+              <div>
+                <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>{opt.label}</span>
+                {opt.sub && <p style={{ fontSize: fontSize.tiny, marginTop: "2px", color: colors.text }}>{opt.sub}</p>}
+              </div>
             </div>
             {opt.note && (
               <span
@@ -204,6 +370,88 @@ const ButtonOptions: React.FC<{
           </button>
         );
       })}
+    </div>
+  );
+};
+
+const VisaSelector: React.FC<{
+  onSelect: (visaId: string, label: string) => void;
+  disabled?: boolean;
+}> = ({ onSelect, disabled }) => {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const handleSelectVisa = (visaId: string) => {
+    const visa = visaTypes.find((v) => v.id === visaId);
+    onSelect(visaId, visa?.label || visaId);
+  };
+
+  if (!selectedCategory) {
+    return (
+      <div className="space-y-2 mt-4">
+        {visaCategories.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setSelectedCategory(cat.id)}
+            disabled={disabled}
+            className="w-full p-3.5 text-left transition-all hover:border-stone-400"
+            style={{
+              backgroundColor: colors.white,
+              border: `1.5px solid ${colors.border}`,
+              borderRadius: ui.buttonRadius,
+              opacity: disabled ? 0.6 : 1,
+              cursor: disabled ? "not-allowed" : "pointer",
+            }}
+          >
+            <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>{cat.label}</span>
+            {cat.sub && <p style={{ fontSize: fontSize.tiny, marginTop: "2px", color: colors.text }}>{cat.sub}</p>}
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  const categoryVisas = visaTypes.filter((v) => v.category === selectedCategory);
+  const categoryLabel = visaCategories.find((c) => c.id === selectedCategory)?.label.toLowerCase();
+
+  return (
+    <div className="mt-4">
+      <button
+        onClick={() => setSelectedCategory(null)}
+        className="flex items-center gap-1.5 mb-4 hover:opacity-70"
+        style={{ color: colors.text, fontSize: fontSize.button, background: "none", border: "none", cursor: "pointer" }}
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+        </svg>
+        Back
+      </button>
+
+      <p style={{ fontSize: fontSize.question, fontWeight: 500, color: colors.textDark, marginBottom: "12px" }}>
+        Which <strong>{categoryLabel}</strong> do you have?
+      </p>
+
+      <div className="space-y-2">
+        {categoryVisas.map((visa) => (
+          <button
+            key={visa.id}
+            onClick={() => handleSelectVisa(visa.id)}
+            disabled={disabled}
+            className="w-full p-3.5 text-left transition-all hover:border-stone-400"
+            style={{
+              backgroundColor: colors.white,
+              border: `1.5px solid ${colors.border}`,
+              borderRadius: ui.buttonRadius,
+              opacity: disabled ? 0.6 : 1,
+              cursor: disabled ? "not-allowed" : "pointer",
+            }}
+          >
+            <span style={{ fontSize: fontSize.button, fontWeight: 500, color: colors.textDark }}>{visa.label}</span>
+            {visa.paragraph && (
+              <span style={{ fontSize: fontSize.tiny, marginLeft: "6px", color: colors.text }}>({visa.paragraph})</span>
+            )}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
@@ -360,214 +608,507 @@ const TypingIndicator: React.FC = () => (
   </div>
 );
 
-// Threshold: nur scrollen wenn Message weiter als dieser Wert vom oberen Rand entfernt ist
-const SCROLL_THRESHOLD = 80;
+// ===========================================
+// MAIN COMPONENT
+// ===========================================
+type InputType = "buttons" | "visa" | "conditional" | "ineligible" | null;
 
-// Main Component
 const ElterngeldGuideNew: React.FC = () => {
-  // Inline refs (ehemals useChatScroll)
+  // Refs
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const bottomSpacerRef = useRef<HTMLDivElement>(null);
-  const [spacerHeight, setSpacerHeight] = useState(0);
-  const [isScrolling, setIsScrolling] = useState(false);
-
-  // Stub functions
-  const expandSpacerForMessage = useCallback((messageEl: HTMLElement) => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    const viewportHeight = container.clientHeight;
-    const messageTop = messageEl.offsetTop;
-    const neededHeight = viewportHeight - 40;
-    setSpacerHeight(neededHeight);
-  }, []);
-
-  const scrollMessageToTop = useCallback(async (messageEl: HTMLElement) => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    setIsScrolling(true);
-    container.scrollTo({ top: messageEl.offsetTop - 16, behavior: "smooth" });
-    await new Promise((r) => setTimeout(r, 300));
-    setIsScrolling(false);
-  }, []);
-
-  const stabilizeScrollPosition = useCallback(() => {
-    // Stabilisiert die aktuelle Scroll-Position
-    const container = scrollContainerRef.current;
-    const spacer = bottomSpacerRef.current;
-    if (!container || !spacer) return;
-
-    const messagesHeight = messagesContainerRef.current?.offsetHeight || 0;
-    const viewportHeight = container.clientHeight;
-    const currentScroll = container.scrollTop;
-    const neededScrollHeight = currentScroll + viewportHeight;
-    const newSpacerHeight = Math.max(0, neededScrollHeight - messagesHeight);
-
-    spacer.style.height = `${newSpacerHeight}px`;
-    setSpacerHeight(newSpacerHeight);
-  }, []);
-
-  const releaseScrollLock = useCallback(() => {
-    setIsScrolling(false);
-    setSpacerHeight(0);
-  }, []);
-
-  const [showStartScreen, setShowStartScreen] = useState(true);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [showInput, setShowInput] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
-  const [hideScrollbar, setHideScrollbar] = useState(false);
-  const [stepHistory, setStepHistory] = useState<number[]>([]);
-
+  const spacerRef = useRef<HTMLDivElement>(null);
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
   const lastUserMessageIndexRef = useRef(-1);
 
-  // Helper: Prüft ob ein Scroll nötig ist
-  const needsScroll = useCallback(() => {
-    if (!lastUserMessageRef.current || !scrollContainerRef.current) return false;
-    const messageTop = lastUserMessageRef.current.offsetTop;
-    const scrollTop = scrollContainerRef.current.scrollTop;
-    // Nur scrollen wenn Message weiter unten ist als der Threshold
-    return messageTop > scrollTop + SCROLL_THRESHOLD;
-  }, [scrollContainerRef]);
+  // State
+  const [showStartScreen, setShowStartScreen] = useState(true);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [inputType, setInputType] = useState<InputType>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [spacerHeight, setSpacerHeight] = useState(0);
+  const [stepHistory, setStepHistory] = useState<
+    Array<{
+      questionIndex: number;
+      messagesLength: number;
+      inputType: InputType;
+      userData: UserData;
+    }>
+  >([]);
+  const [userData, setUserData] = useState<UserData>({});
 
+  // ===========================================
+  // SCROLL UTILITIES
+  // ===========================================
+  const expandSpacerForMessage = useCallback((messageElement: HTMLElement) => {
+    if (!scrollContainerRef.current) return;
+    const viewportHeight = scrollContainerRef.current.clientHeight;
+    const messageHeight = messageElement.offsetHeight;
+    const newHeight = Math.max(0, viewportHeight - messageHeight - 32);
+    setSpacerHeight(newHeight);
+  }, []);
+
+  const smoothScrollTo = useCallback((targetPosition: number, duration = 400): Promise<void> => {
+    return new Promise((resolve) => {
+      if (!scrollContainerRef.current) {
+        resolve();
+        return;
+      }
+      const container = scrollContainerRef.current;
+      const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight);
+      const clampedTarget = Math.max(0, Math.min(targetPosition, maxScroll));
+      const startPosition = container.scrollTop;
+      const distance = clampedTarget - startPosition;
+
+      if (Math.abs(distance) < 1) {
+        resolve();
+        return;
+      }
+
+      const startTime = performance.now();
+      function easeOutCubic(t: number) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+      function animateScroll(currentTime: number) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeOutCubic(progress);
+        container.scrollTop = startPosition + distance * eased;
+        if (progress < 1) {
+          requestAnimationFrame(animateScroll);
+        } else {
+          container.scrollTop = clampedTarget;
+          resolve();
+        }
+      }
+      requestAnimationFrame(animateScroll);
+    });
+  }, []);
+
+  const scrollElementToTop = useCallback(
+    (element: HTMLElement, duration = 500) => {
+      const targetScroll = element.offsetTop - 16;
+      return smoothScrollTo(targetScroll, duration);
+    },
+    [smoothScrollTo],
+  );
+
+  const adjustSpacerAfterBotResponse = useCallback(() => {
+    if (!scrollContainerRef.current || !messagesContainerRef.current) {
+      setSpacerHeight(0);
+      return;
+    }
+    const container = scrollContainerRef.current;
+    const currentScrollTop = container.scrollTop;
+    const viewportHeight = container.clientHeight;
+    const neededContentHeight = currentScrollTop + viewportHeight;
+    const messagesHeight = messagesContainerRef.current.offsetHeight;
+    const newHeight = Math.max(0, neededContentHeight - messagesHeight);
+    setSpacerHeight(newHeight);
+  }, []);
+
+  // ===========================================
+  // ANIMATION SEQUENCE
+  // ===========================================
+  const runScrollSequence = useCallback(async () => {
+    // Wait for render
+    await new Promise((r) => setTimeout(r, 50));
+
+    // Expand spacer
+    if (lastUserMessageRef.current) {
+      expandSpacerForMessage(lastUserMessageRef.current);
+    }
+
+    // Wait for spacer transition
+    await new Promise((r) => setTimeout(r, 350));
+
+    // Scroll user message to TOP
+    if (lastUserMessageRef.current) {
+      await scrollElementToTop(lastUserMessageRef.current, 600);
+    }
+
+    // Pause at top
+    await new Promise((r) => setTimeout(r, 400));
+  }, [expandSpacerForMessage, scrollElementToTop]);
+
+  const showTypingThenMessage = useCallback(
+    async (message: Message) => {
+      setIsTyping(true);
+      await new Promise((r) => setTimeout(r, 600));
+      setIsTyping(false);
+      setMessages((prev) => [...prev, message]);
+      await new Promise((r) => setTimeout(r, 100));
+      adjustSpacerAfterBotResponse();
+    },
+    [adjustSpacerAfterBotResponse],
+  );
+
+  // ===========================================
+  // HANDLERS
+  // ===========================================
   const handleStartAnswer = async (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
     setShowStartScreen(false);
     setMessages([{ id: "user-citizenship", type: "user", content: label }]);
     lastUserMessageIndexRef.current = 0;
+    setUserData({ citizenship: value });
 
-    await new Promise((r) => setTimeout(r, 50));
+    await runScrollSequence();
 
-    // Nur scrollen wenn nötig (Message nicht bereits oben)
-    const shouldScroll = needsScroll();
-    if (shouldScroll && lastUserMessageRef.current) {
-      expandSpacerForMessage(lastUserMessageRef.current);
-      await new Promise((r) => setTimeout(r, 50));
-      setHideScrollbar(true);
-      await scrollMessageToTop(lastUserMessageRef.current);
+    if (value === "eu") {
+      // EU citizen - show "Great!" then income question
+      await showTypingThenMessage({
+        id: "bot-eu-response",
+        type: "bot",
+        content: "Great! Let's check one more thing.",
+      });
+
+      await showTypingThenMessage({
+        id: "bot-incomeLimit",
+        type: "bot",
+        content: questions[0].content,
+        subtext: questions[0].subtext,
+        isQuestion: true,
+      });
+
+      setInputType("buttons");
+      setCurrentQuestionIndex(0);
+    } else {
+      // Non-EU - ask for visa type
+      await showTypingThenMessage({
+        id: "bot-visa-question",
+        type: "bot",
+        content: "What type of **residence permit** do you have?",
+        subtext: "Select from common types or search for yours.",
+        isQuestion: true,
+      });
+
+      setInputType("visa");
     }
 
-    setIsTyping(true);
-    await new Promise((r) => setTimeout(r, 600));
-    setIsTyping(false);
+    setIsProcessing(false);
+  };
 
-    setMessages((prev) => [
+  const handleVisaSelect = async (visaId: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    // Save history
+    setStepHistory((prev) => [
       ...prev,
       {
-        id: "bot-response-1",
-        type: "bot",
-        content: value === "eu" ? "Great!" : "Let's check your visa type.",
+        questionIndex: currentQuestionIndex,
+        messagesLength: messages.length,
+        inputType,
+        userData,
       },
     ]);
 
-    await new Promise((r) => setTimeout(r, 50));
+    // Hide input, add user message
+    setInputType(null);
+    setMessages((prev) => {
+      lastUserMessageIndexRef.current = prev.length;
+      return [...prev, { id: "user-visa", type: "user", content: label }];
+    });
+    setUserData((prev) => ({ ...prev, visaType: visaId }));
 
-    // Nach Bot-Antwort: Scroll stabilisieren falls wir gescrollt haben
-    if (shouldScroll && lastUserMessageRef.current && scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({ top: lastUserMessageRef.current.offsetTop - 16, behavior: "smooth" });
-      await new Promise((r) => setTimeout(r, 300));
-      stabilizeScrollPosition();
+    await runScrollSequence();
+
+    const visa = visaTypes.find((v) => v.id === visaId);
+
+    if (!visa || visa.id === "other") {
+      // Unknown - suggest checking with Elterngeldstelle
+      await showTypingThenMessage({
+        id: "bot-visa-unknown",
+        type: "bot",
+        content: "Please check with your local **Elterngeldstelle** to confirm your eligibility.",
+      });
+      setInputType("ineligible");
+    } else if (visa.status === "eligible") {
+      // Eligible - continue to income question
+      await showTypingThenMessage({
+        id: "bot-visa-eligible",
+        type: "bot",
+        content: "Based on your visa type, you **likely qualify** for Elterngeld!",
+      });
+
+      await showTypingThenMessage({
+        id: "bot-incomeLimit",
+        type: "bot",
+        content: questions[0].content,
+        subtext: questions[0].subtext,
+        isQuestion: true,
+      });
+
+      setInputType("buttons");
+      setCurrentQuestionIndex(0);
+    } else if (visa.status === "not_eligible") {
+      // Not eligible
+      await showTypingThenMessage({
+        id: "bot-visa-ineligible",
+        type: "bot",
+        content: "Unfortunately, this visa type does not qualify for Elterngeld.",
+      });
+      setInputType("ineligible");
+    } else {
+      // Conditional - ask follow-up
+      if (["student", "qualification", "job_seeker"].includes(visa.id)) {
+        await showTypingThenMessage({
+          id: "bot-conditional-employed",
+          type: "bot",
+          content: "Are you currently **employed** in Germany?",
+          subtext:
+            "With your visa type, you're only eligible if you're working, in Elternzeit, or receiving unemployment benefits (ALG).",
+          isQuestion: true,
+        });
+        setInputType("conditional");
+        setUserData((prev) => ({ ...prev, _conditionalType: "employment" }));
+      } else if (["humanitarian_war", "humanitarian_hardship", "humanitarian_protection"].includes(visa.id)) {
+        await showTypingThenMessage({
+          id: "bot-conditional-humanitarian",
+          type: "bot",
+          content: "Which applies to you?",
+          subtext: "With your visa type, you're eligible if you're employed OR have been in Germany for 15+ months.",
+          isQuestion: true,
+        });
+        setInputType("conditional");
+        setUserData((prev) => ({ ...prev, _conditionalType: "humanitarian" }));
+      }
     }
 
-    setIsTyping(true);
-    await new Promise((r) => setTimeout(r, 600));
-    setIsTyping(false);
+    setIsProcessing(false);
+  };
 
-    const q = questions[0];
-    setMessages((prev) => [
+  const handleConditionalAnswer = async (option: ButtonOption) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    // Save history
+    setStepHistory((prev) => [
       ...prev,
-      { id: `bot-${q.id}`, type: "bot", content: q.content, subtext: q.subtext, isQuestion: true },
+      {
+        questionIndex: currentQuestionIndex,
+        messagesLength: messages.length,
+        inputType,
+        userData,
+      },
     ]);
 
-    await new Promise((r) => setTimeout(r, 50));
-    stabilizeScrollPosition();
-    setHideScrollbar(false);
-    setShowInput(true);
+    setInputType(null);
+    setMessages((prev) => {
+      lastUserMessageIndexRef.current = prev.length;
+      return [...prev, { id: "user-conditional", type: "user", content: option.label }];
+    });
+
+    await runScrollSequence();
+
+    const conditionalType = userData._conditionalType;
+
+    if (conditionalType === "employment") {
+      if (option.value === "no") {
+        await showTypingThenMessage({
+          id: "bot-conditional-fail",
+          type: "bot",
+          content:
+            "Unfortunately, with your visa type you need to be employed, in Elternzeit, or receiving ALG to be eligible.",
+        });
+        setInputType("ineligible");
+      } else {
+        const responseText =
+          option.value === "employed"
+            ? "Since you're employed, you **likely qualify** for Elterngeld!"
+            : option.value === "elternzeit"
+              ? "Since you're in Elternzeit, you **likely qualify** for Elterngeld!"
+              : "Since you're receiving ALG, you **likely qualify** for Elterngeld!";
+
+        await showTypingThenMessage({
+          id: "bot-conditional-pass",
+          type: "bot",
+          content: responseText,
+        });
+
+        await showTypingThenMessage({
+          id: "bot-incomeLimit",
+          type: "bot",
+          content: questions[0].content,
+          subtext: questions[0].subtext,
+          isQuestion: true,
+        });
+
+        setInputType("buttons");
+        setCurrentQuestionIndex(0);
+      }
+    } else if (conditionalType === "humanitarian") {
+      if (option.value === "neither") {
+        await showTypingThenMessage({
+          id: "bot-conditional-fail",
+          type: "bot",
+          content:
+            "Unfortunately, with your visa type you'll need to either be employed or have been in Germany for **15+ months** to be eligible.",
+        });
+        setInputType("ineligible");
+      } else {
+        const responseText =
+          option.value === "employed"
+            ? "Since you're employed, you **likely qualify** for Elterngeld!"
+            : "Since you've been in Germany 15+ months, you **likely qualify** for Elterngeld!";
+
+        await showTypingThenMessage({
+          id: "bot-conditional-pass",
+          type: "bot",
+          content: responseText,
+        });
+
+        await showTypingThenMessage({
+          id: "bot-incomeLimit",
+          type: "bot",
+          content: questions[0].content,
+          subtext: questions[0].subtext,
+          isQuestion: true,
+        });
+
+        setInputType("buttons");
+        setCurrentQuestionIndex(0);
+      }
+    }
+
+    setIsProcessing(false);
+  };
+
+  const handleIneligibleChoice = async (option: ButtonOption) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    setStepHistory((prev) => [
+      ...prev,
+      {
+        questionIndex: currentQuestionIndex,
+        messagesLength: messages.length,
+        inputType,
+        userData,
+      },
+    ]);
+
+    setInputType(null);
+    setMessages((prev) => {
+      lastUserMessageIndexRef.current = prev.length;
+      return [...prev, { id: "user-ineligible", type: "user", content: option.label }];
+    });
+
+    await runScrollSequence();
+
+    if (option.value === "continue") {
+      await showTypingThenMessage({
+        id: "bot-continue-anyway",
+        type: "bot",
+        content: "Alright, let's continue – you can still use this tool to **plan** and see what you would receive.",
+      });
+
+      await showTypingThenMessage({
+        id: "bot-incomeLimit",
+        type: "bot",
+        content: questions[0].content,
+        subtext: questions[0].subtext,
+        isQuestion: true,
+      });
+
+      setInputType("buttons");
+      setCurrentQuestionIndex(0);
+    } else {
+      window.open("https://familienportal.de/dynamic/action/familienportal/125008/suche", "_blank");
+      await showTypingThenMessage({
+        id: "bot-stelle-opened",
+        type: "bot",
+        content:
+          "I've opened the **Elterngeldstelle finder** for you. They can give you personalized advice on your specific situation.",
+      });
+      setIsComplete(true);
+    }
+
+    setIsProcessing(false);
   };
 
   const handleAnswer = useCallback(
     async (option: ButtonOption) => {
-      if (isScrolling) return;
+      if (isProcessing) return;
+      setIsProcessing(true);
 
       const q = questions[currentQuestionIndex];
-      setStepHistory((prev) => [...prev, currentQuestionIndex]);
+
+      // Save history
+      setStepHistory((prev) => [
+        ...prev,
+        {
+          questionIndex: currentQuestionIndex,
+          messagesLength: messages.length,
+          inputType,
+          userData,
+        },
+      ]);
+
+      // Hide buttons, add user message
+      setInputType(null);
       setMessages((prev) => {
         lastUserMessageIndexRef.current = prev.length;
         return [...prev, { id: `user-${q.id}`, type: "user", content: option.label }];
       });
-      setShowInput(false);
+      setUserData((prev) => ({ ...prev, [q.id]: option.value }));
 
-      await new Promise((r) => setTimeout(r, 50));
+      await runScrollSequence();
 
-      // Prüfe ob Scroll nötig ist
-      const shouldScroll =
-        lastUserMessageRef.current && scrollContainerRef.current
-          ? lastUserMessageRef.current.offsetTop > scrollContainerRef.current.scrollTop + SCROLL_THRESHOLD
-          : false;
-
-      if (shouldScroll && lastUserMessageRef.current) {
-        expandSpacerForMessage(lastUserMessageRef.current);
-        await new Promise((r) => setTimeout(r, 50));
-        setHideScrollbar(true);
-        await scrollMessageToTop(lastUserMessageRef.current);
+      // Handle income limit "over" case
+      if (q.id === "incomeLimit" && option.value === "over") {
+        await showTypingThenMessage({
+          id: "bot-income-over",
+          type: "bot",
+          content: "Unfortunately, households with taxable income above **€175,000** are not eligible for Elterngeld.",
+          subtext: "This limit applies to your combined income from the last tax year before your child's birth.",
+        });
+        setInputType("ineligible");
+        setIsProcessing(false);
+        return;
       }
 
       const nextIdx = currentQuestionIndex + 1;
 
       if (nextIdx >= questions.length) {
         setIsComplete(true);
-        setIsTyping(true);
-        await new Promise((r) => setTimeout(r, 600));
-        setIsTyping(false);
-
-        setMessages((prev) => [
-          ...prev,
-          { id: "bot-complete", type: "bot", content: "Based on your answers, you **likely qualify** for Elterngeld!" },
-        ]);
-
-        await new Promise((r) => setTimeout(r, 50));
-
-        if (shouldScroll && lastUserMessageRef.current && scrollContainerRef.current) {
-          scrollContainerRef.current.scrollTo({ top: lastUserMessageRef.current.offsetTop - 16, behavior: "smooth" });
-          await new Promise((r) => setTimeout(r, 300));
-          stabilizeScrollPosition();
-        }
-
-        setHideScrollbar(false);
+        await showTypingThenMessage({
+          id: "bot-complete",
+          type: "bot",
+          content: "Based on your answers, you **likely qualify** for Elterngeld!",
+        });
+        setIsProcessing(false);
         return;
       }
 
-      setIsTyping(true);
-      await new Promise((r) => setTimeout(r, 600));
-      setIsTyping(false);
-
+      // Show next question
       const nq = questions[nextIdx];
-      setMessages((prev) => [
-        ...prev,
-        { id: `bot-${nq.id}`, type: "bot", content: nq.content, subtext: nq.subtext, isQuestion: true },
-      ]);
+      await showTypingThenMessage({
+        id: `bot-${nq.id}`,
+        type: "bot",
+        content: nq.content,
+        subtext: nq.subtext,
+        isQuestion: true,
+      });
+
       setCurrentQuestionIndex(nextIdx);
-
-      await new Promise((r) => setTimeout(r, 50));
-
-      if (shouldScroll && lastUserMessageRef.current && scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTo({ top: lastUserMessageRef.current.offsetTop - 16, behavior: "smooth" });
-        await new Promise((r) => setTimeout(r, 300));
-        stabilizeScrollPosition();
-      }
-
-      setHideScrollbar(false);
-      setShowInput(true);
+      setInputType("buttons");
+      setIsProcessing(false);
     },
     [
       currentQuestionIndex,
-      isScrolling,
-      expandSpacerForMessage,
-      scrollMessageToTop,
-      stabilizeScrollPosition,
-      scrollContainerRef,
+      isProcessing,
+      messages.length,
+      inputType,
+      userData,
+      runScrollSequence,
+      showTypingThenMessage,
     ],
   );
 
@@ -576,88 +1117,152 @@ const ElterngeldGuideNew: React.FC = () => {
       setShowStartScreen(true);
       setMessages([]);
       setCurrentQuestionIndex(0);
-      setShowInput(false);
-      releaseScrollLock();
+      setInputType(null);
+      setSpacerHeight(0);
+      setUserData({});
+      setIsComplete(false);
       return;
     }
+
+    const lastEntry = stepHistory[stepHistory.length - 1];
     setStepHistory((prev) => prev.slice(0, -1));
-    setMessages((prev) => prev.slice(0, -2));
-    setCurrentQuestionIndex(stepHistory[stepHistory.length - 1]);
-    setShowInput(true);
+    setMessages((prev) => prev.slice(0, lastEntry.messagesLength));
+    setCurrentQuestionIndex(lastEntry.questionIndex);
+    setInputType(lastEntry.inputType);
+    setUserData(lastEntry.userData);
     setIsComplete(false);
-    releaseScrollLock();
-  }, [stepHistory, releaseScrollLock]);
+    setSpacerHeight(0);
+  }, [stepHistory]);
 
   const handleRestart = useCallback(() => {
     setShowStartScreen(true);
     setMessages([]);
     setCurrentQuestionIndex(0);
-    setShowInput(false);
+    setInputType(null);
     setIsTyping(false);
     setIsComplete(false);
     setStepHistory([]);
-    releaseScrollLock();
-  }, [releaseScrollLock]);
+    setSpacerHeight(0);
+    setIsProcessing(false);
+    setUserData({});
+  }, []);
 
-  const currentQuestion = questions[currentQuestionIndex];
+  // ===========================================
+  // RENDER INPUT
+  // ===========================================
+  const renderInput = () => {
+    if (isComplete || !inputType) return null;
+
+    if (inputType === "buttons") {
+      const currentQuestion = questions[currentQuestionIndex];
+      return <ButtonOptions options={currentQuestion.options} onSelect={handleAnswer} disabled={isProcessing} />;
+    }
+
+    if (inputType === "visa") {
+      return <VisaSelector onSelect={handleVisaSelect} disabled={isProcessing} />;
+    }
+
+    if (inputType === "conditional") {
+      const conditionalType = userData._conditionalType;
+      const options: ButtonOption[] =
+        conditionalType === "employment"
+          ? [
+              { value: "employed", label: "Yes, I'm employed", icon: "briefcase" },
+              { value: "elternzeit", label: "I'm in Elternzeit", icon: "baby" },
+              { value: "alg", label: "I receive ALG (unemployment)", icon: "home" },
+              { value: "no", label: "No, none of these", icon: "x" },
+            ]
+          : [
+              { value: "employed", label: "I'm currently employed", icon: "briefcase" },
+              { value: "15months", label: "I've been in Germany 15+ months", icon: "home" },
+              { value: "neither", label: "Neither", icon: "x" },
+            ];
+
+      return <ButtonOptions options={options} onSelect={handleConditionalAnswer} disabled={isProcessing} />;
+    }
+
+    if (inputType === "ineligible") {
+      return (
+        <ButtonOptions
+          options={[
+            { value: "continue", label: "Continue anyway", sub: "For planning purposes", icon: "check" },
+            { value: "find_stelle", label: "Find my Elterngeldstelle", sub: "Get individual advice", icon: "home" },
+          ]}
+          onSelect={handleIneligibleChoice}
+          disabled={isProcessing}
+        />
+      );
+    }
+
+    return null;
+  };
+
   const canGoBack = stepHistory.length > 0 || !showStartScreen;
 
+  // ===========================================
+  // RENDER
+  // ===========================================
   return (
     <>
-      <style>{`@keyframes pulse { 0%, 100% { opacity: 0.4; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1); } } .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; } .hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
+      <style>{`@keyframes pulse { 0%, 100% { opacity: 0.4; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1); } }`}</style>
       <div
         className="flex flex-col overflow-hidden"
         style={{ backgroundColor: colors.background, fontFamily: fonts.body, height: "calc(100vh - 72px)" }}
       >
         <div className="flex-1 min-h-0 overflow-hidden">
-          <div
-            ref={scrollContainerRef}
-            className={`h-full overflow-y-auto px-5 pt-6 ${hideScrollbar ? "hide-scrollbar" : ""}`}
-            style={{ overflowAnchor: "none" }}
-          >
+          <div ref={scrollContainerRef} className="h-full overflow-y-auto px-5 pt-6" style={{ overflowAnchor: "none" }}>
             <div className="max-w-2xl mx-auto">
               {showStartScreen ? (
                 <StartScreen onAnswer={handleStartAnswer} />
               ) : (
-                <div ref={messagesContainerRef}>
-                  {messages.map((msg, i) =>
-                    msg.type === "user" ? (
-                      <UserMessage
-                        key={msg.id}
-                        ref={i === lastUserMessageIndexRef.current ? lastUserMessageRef : null}
-                        content={msg.content}
-                      />
-                    ) : (
-                      <BotMessage
-                        key={msg.id}
-                        content={msg.content}
-                        subtext={msg.subtext}
-                        isQuestion={msg.isQuestion}
-                      />
-                    ),
-                  )}
-                  {isTyping && <TypingIndicator />}
-                  <div style={{ height: 1 }} />
-                  <div ref={bottomSpacerRef} style={{ height: spacerHeight, transition: "height 0.3s ease" }} />
-                </div>
+                <>
+                  {/* MESSAGES CONTAINER */}
+                  <div ref={messagesContainerRef}>
+                    {messages.map((msg, i) =>
+                      msg.type === "user" ? (
+                        <UserMessage
+                          key={msg.id}
+                          ref={i === lastUserMessageIndexRef.current ? lastUserMessageRef : null}
+                          content={msg.content}
+                        />
+                      ) : (
+                        <BotMessage
+                          key={msg.id}
+                          content={msg.content}
+                          subtext={msg.subtext}
+                          isQuestion={msg.isQuestion}
+                        />
+                      ),
+                    )}
+
+                    {isTyping && <TypingIndicator />}
+
+                    {/* INLINE INPUT */}
+                    {renderInput()}
+                  </div>
+
+                  {/* SPACER */}
+                  <div
+                    ref={spacerRef}
+                    style={{
+                      height: spacerHeight,
+                      transition: "height 0.3s ease",
+                    }}
+                  />
+                </>
               )}
             </div>
           </div>
         </div>
+
+        {/* Footer */}
         {!showStartScreen && (
           <div
-            className="flex-shrink-0 px-5 pb-1 pt-3 relative z-10"
+            className="flex-shrink-0 px-5 py-2"
             style={{ backgroundColor: colors.background, borderTop: `1px solid ${colors.border}` }}
           >
             <div className="max-w-2xl mx-auto">
-              {showInput && currentQuestion && !isComplete && (
-                <ButtonOptions options={currentQuestion.options} onSelect={handleAnswer} disabled={isScrolling} />
-              )}
-            </div>
-            <div className="max-w-2xl mx-auto">
-              <div
-                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "8px" }}
-              >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <button
                   onClick={handleGoBack}
                   style={{
