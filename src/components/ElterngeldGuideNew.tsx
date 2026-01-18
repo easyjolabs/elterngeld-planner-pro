@@ -71,6 +71,9 @@ interface UserData {
   monthlyIncome?: number;
   partnerIncome?: number;
   _conditionalType?: string;
+  // Preferences
+  priority?: number; // 0 = more time, 100 = higher income
+  partTimePlan?: string; // "yes" | "no" | "unsure"
 }
 
 interface VisaType {
@@ -1218,6 +1221,182 @@ const VisaSelector: React.FC<{
   );
 };
 
+// ===========================================
+// PREFERENCES SCREEN
+// ===========================================
+const PreferencesScreen: React.FC<{
+  onSubmit: (priority: number, partTimePlan: string) => void;
+  disabled?: boolean;
+}> = ({ onSubmit, disabled }) => {
+  const [priority, setPriority] = useState(50); // 0 = more time, 100 = higher income
+  const [partTimePlan, setPartTimePlan] = useState<string | null>(null);
+
+  const canSubmit = partTimePlan !== null;
+
+  return (
+    <div className="mt-4">
+      <div
+        style={{
+          backgroundColor: colors.white,
+          borderRadius: "16px",
+          padding: "24px 20px",
+          border: `1px solid ${colors.border}`,
+        }}
+      >
+        {/* Header */}
+        <div style={{ marginBottom: "24px" }}>
+          <p
+            style={{
+              fontFamily: fonts.headline,
+              fontSize: "18px",
+              fontWeight: 600,
+              color: "#000",
+              marginBottom: "8px",
+            }}
+          >
+            Before we build your plan...
+          </p>
+          <p style={{ fontSize: fontSize.small, color: colors.text, lineHeight: 1.5 }}>
+            Tell us what matters to you. There's no wrong answer. We'll create a personalized recommendation based on
+            your priorities.
+          </p>
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: "1px", backgroundColor: colors.border, marginBottom: "20px" }} />
+
+        {/* Question 1: Priority Slider */}
+        <div style={{ marginBottom: "24px" }}>
+          <p
+            style={{
+              fontSize: fontSize.body,
+              fontWeight: 600,
+              color: "#000",
+              marginBottom: "16px",
+            }}
+          >
+            What's your priority?
+          </p>
+          <div style={{ padding: "0 8px" }}>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={priority}
+              onChange={(e) => setPriority(Number(e.target.value))}
+              disabled={disabled}
+              className="w-full h-2 rounded-full appearance-none cursor-pointer"
+              style={{
+                background: `linear-gradient(to right, ${colors.orange} 0%, ${colors.orange} ${priority}%, ${colors.border} ${priority}%, ${colors.border} 100%)`,
+              }}
+            />
+            <div
+              className="flex justify-between"
+              style={{ marginTop: "8px", fontSize: fontSize.tiny, color: colors.text }}
+            >
+              <span>More time at home</span>
+              <span>Higher income</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: "1px", backgroundColor: colors.border, marginBottom: "20px" }} />
+
+        {/* Question 2: Part-time plan */}
+        <div style={{ marginBottom: "24px" }}>
+          <p
+            style={{
+              fontSize: fontSize.body,
+              fontWeight: 600,
+              color: "#000",
+              marginBottom: "12px",
+            }}
+          >
+            Planning to work while on Elterngeld?
+          </p>
+          <div className="space-y-2">
+            {[
+              { value: "yes", label: "Yes" },
+              { value: "no", label: "No" },
+              { value: "unsure", label: "Not sure yet" },
+            ].map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setPartTimePlan(option.value)}
+                disabled={disabled}
+                className="w-full flex items-center gap-3 transition-all"
+                style={{
+                  padding: "12px 14px",
+                  backgroundColor: partTimePlan === option.value ? colors.tile : colors.white,
+                  border: `1.5px solid ${partTimePlan === option.value ? colors.textDark : colors.border}`,
+                  borderRadius: ui.buttonRadius,
+                  cursor: disabled ? "not-allowed" : "pointer",
+                  textAlign: "left",
+                }}
+              >
+                <div
+                  style={{
+                    width: "18px",
+                    height: "18px",
+                    borderRadius: "50%",
+                    border: `2px solid ${partTimePlan === option.value ? colors.textDark : colors.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  {partTimePlan === option.value && (
+                    <div
+                      style={{
+                        width: "10px",
+                        height: "10px",
+                        borderRadius: "50%",
+                        backgroundColor: colors.textDark,
+                      }}
+                    />
+                  )}
+                </div>
+                <span style={{ fontSize: fontSize.button, fontWeight: 500, color: "#000" }}>{option.label}</span>
+              </button>
+            ))}
+          </div>
+          <p style={{ fontSize: fontSize.tiny, color: colors.text, marginTop: "10px" }}>
+            You can work up to 32 hours/week while on Elterngeld
+          </p>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          onClick={() => canSubmit && onSubmit(priority, partTimePlan!)}
+          disabled={disabled || !canSubmit}
+          className="w-full transition-all hover:opacity-90"
+          style={{
+            backgroundColor: canSubmit ? colors.textDark : colors.border,
+            color: canSubmit ? "#fff" : colors.text,
+            fontWeight: 600,
+            fontSize: fontSize.button,
+            padding: "16px 20px",
+            borderRadius: ui.buttonRadius,
+            border: "none",
+            cursor: !canSubmit || disabled ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+          }}
+        >
+          Show my plan
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const StartScreen: React.FC<{ onAnswer: (v: string, l: string) => void }> = ({ onAnswer }) => (
   <div style={{ padding: "60px 0 20px 0" }}>
     <h1
@@ -1384,6 +1563,7 @@ type InputType =
   | "singleParent"
   | "income"
   | "partnerIncome"
+  | "preferences"
   | null;
 
 const ElterngeldGuideNew: React.FC = () => {
@@ -1419,6 +1599,10 @@ const ElterngeldGuideNew: React.FC = () => {
   const [workPartTime, setWorkPartTime] = useState(false);
   const [partTimeIncome, setPartTimeIncome] = useState(0);
   const [partnerPartTimeIncome, setPartnerPartTimeIncome] = useState(0);
+
+  // Preferences state
+  const [userPriority, setUserPriority] = useState(50); // 0 = more time, 100 = higher income
+  const [userPartTimePlan, setUserPartTimePlan] = useState<string | null>(null);
 
   // ===========================================
   // SCROLL UTILITIES
@@ -1950,7 +2134,9 @@ const ElterngeldGuideNew: React.FC = () => {
 
       await new Promise((r) => setTimeout(r, 100));
       adjustSpacerAfterBotResponse();
-      setIsComplete(true);
+
+      // Show preferences screen
+      setInputType("preferences");
     }
 
     setIsProcessing(false);
@@ -2003,6 +2189,57 @@ const ElterngeldGuideNew: React.FC = () => {
 
     await new Promise((r) => setTimeout(r, 100));
     adjustSpacerAfterBotResponse();
+
+    // Show preferences screen
+    setInputType("preferences");
+    setIsProcessing(false);
+  };
+
+  const handlePreferencesSubmit = async (priority: number, partTimePlan: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    // Save preferences
+    setUserPriority(priority);
+    setUserPartTimePlan(partTimePlan);
+    setUserData((prev) => ({
+      ...prev,
+      priority,
+      partTimePlan,
+    }));
+
+    // Hide preferences screen
+    setInputType(null);
+
+    // Add user message summarizing their choices
+    const priorityText = priority < 33 ? "More time at home" : priority > 66 ? "Higher income" : "Balanced";
+    const partTimeText =
+      partTimePlan === "yes"
+        ? "Yes, planning to work"
+        : partTimePlan === "no"
+          ? "No, full-time parent"
+          : "Not sure yet";
+
+    setMessages((prev) => {
+      lastUserMessageIndexRef.current = prev.length;
+      return [
+        ...prev,
+        {
+          id: "user-preferences",
+          type: "user",
+          content: `${priorityText} • ${partTimeText}`,
+        },
+      ];
+    });
+
+    await runScrollSequence();
+
+    // Show completion message
+    await showTypingThenMessage({
+      id: "bot-plan-ready",
+      type: "bot",
+      content: "Your personalized plan is ready! Based on your preferences, we've optimized your Elterngeld strategy.",
+    });
 
     // Complete the flow
     setIsComplete(true);
@@ -2356,6 +2593,10 @@ const ElterngeldGuideNew: React.FC = () => {
       );
     }
 
+    if (inputType === "preferences") {
+      return <PreferencesScreen onSubmit={handlePreferencesSubmit} disabled={isProcessing} />;
+    }
+
     return null;
   };
 
@@ -2509,7 +2750,7 @@ const ElterngeldGuideNew: React.FC = () => {
                   </svg>
                 </button>
                 <span style={{ fontSize: fontSize.tiny, color: colors.text, opacity: 0.6 }}>
-                  Quick estimate only – not legal or tax advice.
+                  Quick estimate only. Not legal or tax advice.
                 </span>
                 <button
                   onClick={handleRestart}
