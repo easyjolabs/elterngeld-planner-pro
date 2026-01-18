@@ -1232,135 +1232,131 @@ const PreferencesStep: React.FC<{
 }> = ({ priority, setPriority, partTimePlan, setPartTimePlan }) => {
   return (
     <div className="py-3">
-      <div
+      {/* Header Text */}
+      <p
         style={{
-          backgroundColor: colors.white,
-          borderRadius: "16px",
-          padding: "20px",
-          border: `1px solid ${colors.border}`,
+          fontFamily: fonts.headline,
+          fontSize: "17px",
+          fontWeight: 600,
+          color: "#000",
+          marginBottom: "6px",
         }}
       >
-        {/* Header */}
-        <div style={{ marginBottom: "20px" }}>
-          <p
-            style={{
-              fontFamily: fonts.headline,
-              fontSize: "17px",
-              fontWeight: 600,
-              color: "#000",
-              marginBottom: "6px",
-            }}
-          >
-            Before we build your plan...
-          </p>
-          <p style={{ fontSize: fontSize.small, color: colors.text, lineHeight: 1.5 }}>
-            Tell us what matters to you. There's no wrong answer. We'll create a personalized recommendation based on
-            your priorities.
-          </p>
-        </div>
+        Before we build your plan...
+      </p>
+      <p style={{ fontSize: fontSize.small, color: colors.text, lineHeight: 1.5, marginBottom: "20px" }}>
+        Tell us what matters to you. There's no wrong answer. We'll create a personalized recommendation based on your
+        priorities.
+      </p>
 
-        {/* Divider */}
-        <div style={{ height: "1px", backgroundColor: colors.border, marginBottom: "18px" }} />
-
-        {/* Question 1: Priority Slider */}
-        <div style={{ marginBottom: "20px" }}>
-          <p
+      {/* Question 1: Priority Slider */}
+      <div
+        style={{
+          backgroundColor: colors.tile,
+          borderRadius: "12px",
+          padding: "16px",
+          marginBottom: "12px",
+        }}
+      >
+        <p
+          style={{
+            fontSize: fontSize.small,
+            fontWeight: 600,
+            color: "#000",
+            marginBottom: "14px",
+          }}
+        >
+          What's your priority?
+        </p>
+        <div>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={priority}
+            onChange={(e) => setPriority(Number(e.target.value))}
+            className="w-full h-2 rounded-full appearance-none cursor-pointer"
             style={{
-              fontSize: fontSize.small,
-              fontWeight: 600,
-              color: "#000",
-              marginBottom: "14px",
+              background: `linear-gradient(to right, ${colors.orange} 0%, ${colors.orange} ${priority}%, ${colors.border} ${priority}%, ${colors.border} 100%)`,
             }}
+          />
+          <div
+            className="flex justify-between"
+            style={{ marginTop: "8px", fontSize: fontSize.tiny, color: colors.text }}
           >
-            What's your priority?
-          </p>
-          <div style={{ padding: "0 4px" }}>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={priority}
-              onChange={(e) => setPriority(Number(e.target.value))}
-              className="w-full h-2 rounded-full appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, ${colors.orange} 0%, ${colors.orange} ${priority}%, ${colors.border} ${priority}%, ${colors.border} 100%)`,
-              }}
-            />
-            <div
-              className="flex justify-between"
-              style={{ marginTop: "8px", fontSize: fontSize.tiny, color: colors.text }}
-            >
-              <span>More time at home</span>
-              <span>Higher income</span>
-            </div>
+            <span>More time at home</span>
+            <span>Higher income</span>
           </div>
         </div>
+      </div>
 
-        {/* Divider */}
-        <div style={{ height: "1px", backgroundColor: colors.border, marginBottom: "18px" }} />
-
-        {/* Question 2: Part-time plan */}
-        <div>
-          <p
-            style={{
-              fontSize: fontSize.small,
-              fontWeight: 600,
-              color: "#000",
-              marginBottom: "10px",
-            }}
-          >
-            Planning to work while on Elterngeld?
-          </p>
-          <div className="space-y-2">
-            {[
-              { value: "yes", label: "Yes" },
-              { value: "no", label: "No" },
-              { value: "unsure", label: "Not sure yet" },
-            ].map((option) => (
-              <button
-                key={option.value}
-                onClick={() => setPartTimePlan(option.value)}
-                className="w-full flex items-center gap-3 transition-all"
+      {/* Question 2: Part-time plan */}
+      <div
+        style={{
+          backgroundColor: colors.tile,
+          borderRadius: "12px",
+          padding: "16px",
+        }}
+      >
+        <p
+          style={{
+            fontSize: fontSize.small,
+            fontWeight: 600,
+            color: "#000",
+            marginBottom: "10px",
+          }}
+        >
+          Planning to work while on Elterngeld?
+        </p>
+        <div className="space-y-2">
+          {[
+            { value: "yes", label: "Yes" },
+            { value: "no", label: "No" },
+            { value: "unsure", label: "Not sure yet" },
+          ].map((option) => (
+            <button
+              key={option.value}
+              onClick={() => setPartTimePlan(option.value)}
+              className="w-full flex items-center gap-3 transition-all"
+              style={{
+                padding: "10px 12px",
+                backgroundColor: partTimePlan === option.value ? colors.white : "transparent",
+                border: `1.5px solid ${partTimePlan === option.value ? colors.textDark : colors.border}`,
+                borderRadius: ui.buttonRadius,
+                cursor: "pointer",
+                textAlign: "left",
+              }}
+            >
+              <div
                 style={{
-                  padding: "10px 12px",
-                  backgroundColor: partTimePlan === option.value ? colors.tile : colors.white,
-                  border: `1.5px solid ${partTimePlan === option.value ? colors.textDark : colors.border}`,
-                  borderRadius: ui.buttonRadius,
-                  cursor: "pointer",
-                  textAlign: "left",
+                  width: "16px",
+                  height: "16px",
+                  borderRadius: "50%",
+                  border: `2px solid ${partTimePlan === option.value ? colors.textDark : colors.border}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
                 }}
               >
-                <div
-                  style={{
-                    width: "16px",
-                    height: "16px",
-                    borderRadius: "50%",
-                    border: `2px solid ${partTimePlan === option.value ? colors.textDark : colors.border}`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  {partTimePlan === option.value && (
-                    <div
-                      style={{
-                        width: "8px",
-                        height: "8px",
-                        borderRadius: "50%",
-                        backgroundColor: colors.textDark,
-                      }}
-                    />
-                  )}
-                </div>
-                <span style={{ fontSize: fontSize.small, fontWeight: 500, color: "#000" }}>{option.label}</span>
-              </button>
-            ))}
-          </div>
-          <p style={{ fontSize: fontSize.tiny, color: colors.text, marginTop: "8px" }}>
-            You can work up to 32 hours/week while on Elterngeld
-          </p>
+                {partTimePlan === option.value && (
+                  <div
+                    style={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor: colors.textDark,
+                    }}
+                  />
+                )}
+              </div>
+              <span style={{ fontSize: fontSize.small, fontWeight: 500, color: "#000" }}>{option.label}</span>
+            </button>
+          ))}
         </div>
+        <p style={{ fontSize: fontSize.tiny, color: colors.text, marginTop: "8px" }}>
+          You can work up to 32 hours/week while on Elterngeld
+        </p>
       </div>
     </div>
   );
